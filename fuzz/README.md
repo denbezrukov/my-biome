@@ -85,6 +85,19 @@ If they do not match, then some details of the original input were not captured 
 The corpus for the JS-like parsers is based on unit tests and [a JS dataset for machine learning
 training](https://www.sri.inf.ethz.ch/js150).
 
+The following parse fuzz targets are available:
+- `rome_parse_module`, `rome_parse_script`, `rome_parse_jsx`, `rome_parse_tsx`,
+  `rome_parse_typescript`, `rome_parse_d_ts` — JavaScript/TypeScript variants
+- `rome_parse_json` — JSON
+- `rome_parse_css` — CSS
+- `rome_parse_html` — HTML
+- `rome_parse_graphql` — GraphQL
+- `rome_parse_grit` — GritQL
+- `rome_parse_yaml` — YAML
+- `rome_parse_markdown` — Markdown
+- `rome_parse_tailwind` — Tailwind
+- `rome_parse_all` — All JS-like formats combined
+
 Errata for specific fuzzers can be seen below.
 
 #### `rome_parse_json`

@@ -18,12 +18,32 @@ path              = "fuzz_targets/rome_parse_all.rs"
 required-features = ["rome_all"]
 
 [[bin]]
+name = "rome_parse_css"
+path = "fuzz_targets/rome_parse_css.rs"
+
+[[bin]]
 name = "rome_parse_d_ts"
 path = "fuzz_targets/rome_parse_d_ts.rs"
 
 [[bin]]
+name = "rome_parse_graphql"
+path = "fuzz_targets/rome_parse_graphql.rs"
+
+[[bin]]
+name = "rome_parse_grit"
+path = "fuzz_targets/rome_parse_grit.rs"
+
+[[bin]]
+name = "rome_parse_html"
+path = "fuzz_targets/rome_parse_html.rs"
+
+[[bin]]
 name = "rome_parse_json"
 path = "fuzz_targets/rome_parse_json.rs"
+
+[[bin]]
+name = "rome_parse_markdown"
+path = "fuzz_targets/rome_parse_markdown.rs"
 
 [[bin]]
 name = "rome_parse_module"
@@ -38,12 +58,20 @@ name = "rome_parse_jsx"
 path = "fuzz_targets/rome_parse_jsx.rs"
 
 [[bin]]
+name = "rome_parse_tailwind"
+path = "fuzz_targets/rome_parse_tailwind.rs"
+
+[[bin]]
 name = "rome_parse_tsx"
 path = "fuzz_targets/rome_parse_tsx.rs"
 
 [[bin]]
 name = "rome_parse_typescript"
 path = "fuzz_targets/rome_parse_typescript.rs"
+
+[[bin]]
+name = "rome_parse_yaml"
+path = "fuzz_targets/rome_parse_yaml.rs"
 
 [[bin]]
 name              = "rome_format_all"
@@ -80,15 +108,23 @@ path = "fuzz_targets/rome_format_typescript.rs"
 
 [dependencies]
 biome_analyze        = { path = "../crates/biome_analyze" }
+biome_css_parser     = { path = "../crates/biome_css_parser" }
+biome_css_syntax     = { path = "../crates/biome_css_syntax" }
 biome_diagnostics    = { path = "../crates/biome_diagnostics" }
 biome_formatter      = { path = "../crates/biome_formatter" }
+biome_graphql_parser = { path = "../crates/biome_graphql_parser" }
+biome_grit_parser    = { path = "../crates/biome_grit_parser" }
+biome_html_parser    = { path = "../crates/biome_html_parser" }
 biome_js_analyze     = { path = "../crates/biome_js_analyze" }
 biome_js_formatter   = { path = "../crates/biome_js_formatter" }
 biome_js_parser      = { path = "../crates/biome_js_parser" }
 biome_js_syntax      = { path = "../crates/biome_js_syntax" }
 biome_json_formatter = { path = "../crates/biome_json_formatter" }
 biome_json_parser    = { path = "../crates/biome_json_parser" }
+biome_markdown_parser = { path = "../crates/biome_markdown_parser" }
 biome_service        = { path = "../crates/biome_service" }
+biome_tailwind_parser = { path = "../crates/biome_tailwind_parser" }
+biome_yaml_parser    = { path = "../crates/biome_yaml_parser" }
 libfuzzer-sys        = { git = "https://github.com/rust-fuzz/libfuzzer", default-features = false }
 similar              = { workspace = true }
 

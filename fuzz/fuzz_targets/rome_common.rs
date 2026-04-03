@@ -13,9 +13,18 @@ use biome_js_parser::parse;
 use biome_js_syntax::JsFileSource;
 use biome_json_formatter::context::JsonFormatOptions;
 use biome_json_formatter::JsonFormatLanguage;
-use biome_json_parser::parse_json;
+use biome_json_parser::{parse_json, JsonParserOptions};
 use biome_service::Rules;
 use libfuzzer_sys::Corpus;
+
+use biome_css_parser::{parse_css, CssParserOptions};
+use biome_css_syntax::CssFileSource;
+use biome_graphql_parser::parse_graphql;
+use biome_grit_parser::parse_grit;
+use biome_html_parser::{parse_html, HtmlParseOptions};
+use biome_markdown_parser::parse_markdown;
+use biome_tailwind_parser::parse_tailwind;
+use biome_yaml_parser::parse_yaml;
 use similar::TextDiff;
 use std::fmt::{Display, Formatter};
 
@@ -168,7 +177,112 @@ pub fn fuzz_json_parser(data: &[u8]) -> Corpus {
         return Corpus::Reject;
     };
 
-    let parse1 = parse_json(code1);
+    let parse1 = parse_json(code1, JsonParserOptions::default());
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_css_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_css(code1, CssFileSource::css(), CssParserOptions::default());
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_html_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_html(code1, HtmlParseOptions::default());
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_graphql_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_graphql(code1);
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_grit_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_grit(code1);
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_yaml_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_yaml(code1);
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_markdown_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_markdown(code1);
+    if !parse1.has_errors() {
+        let syntax1 = parse1.syntax();
+        let code2 = syntax1.to_string();
+        assert_eq!(code1, code2, "unparse output differed");
+    }
+
+    Corpus::Keep
+}
+
+pub fn fuzz_tailwind_parser(data: &[u8]) -> Corpus {
+    let Ok(code1) = std::str::from_utf8(data) else {
+        return Corpus::Reject;
+    };
+
+    let parse1 = parse_tailwind(code1);
     if !parse1.has_errors() {
         let syntax1 = parse1.syntax();
         let code2 = syntax1.to_string();
@@ -183,14 +297,14 @@ pub fn fuzz_json_formatter(data: &[u8]) -> Corpus {
         return Corpus::Reject;
     };
 
-    let parse1 = parse_json(code1);
+    let parse1 = parse_json(code1, JsonParserOptions::default());
     if !parse1.has_errors() {
         let language = JsonFormatLanguage::new(JsonFormatOptions::default());
         let syntax1 = parse1.syntax();
         if let Ok(formatted1) = format_node(&syntax1, language.clone()) {
             if let Ok(printed1) = formatted1.print() {
                 let code2 = printed1.as_code();
-                let parse2 = parse_json(code2);
+                let parse2 = parse_json(code2, JsonParserOptions::default());
                 assert!(
                     !parse2.has_errors(),
                     "formatter introduced errors:\n{}",
