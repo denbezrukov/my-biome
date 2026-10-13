@@ -2322,6 +2322,7 @@ AnyCssValue =
 	| ScssHashValue
 	| ScssModuleMemberAccess
 	| ScssParentSelectorValue
+	| ScssPercentValue
 	| CssString
 	| ScssInterpolatedString
 	| CssNumber
@@ -3623,6 +3624,11 @@ AnyScssExpression =
 //     ^
 ScssParentSelectorValue =
 	'&'
+
+// $unit: %;
+//        ^
+ScssPercentValue =
+	'%'
 
 // color: module.$var;
 //        ^^^^^^^^^^^
