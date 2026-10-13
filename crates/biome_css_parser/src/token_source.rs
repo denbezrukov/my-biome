@@ -12,6 +12,7 @@ use biome_parser::prelude::{BumpWithContext, TokenSource};
 use biome_parser::token_source::{NthToken, TokenSourceWithBufferedLexer, Trivia};
 use biome_rowan::TriviaPieceKind;
 use smallvec::SmallVec;
+use std::collections::HashSet;
 
 pub(crate) struct CssTokenSource<'src> {
     lexer: BufferedLexer<CssSyntaxKind, CssLexer<'src>>,
@@ -27,6 +28,11 @@ pub(crate) struct CssTokenSource<'src> {
     /// interpolated strings may introduce nested string-origin interpolation
     /// scopes before the outer one closes.
     scss_string_interpolation_quotes: SmallVec<[CssStringQuote; 1]>,
+    /// Failed fallback scans depend only on source text and stable lexer
+    /// options, so their results remain valid across parser rewinds.
+    failed_supports_at_rule_body_starts: HashSet<usize>,
+    #[cfg(test)]
+    supports_at_rule_fallback_scans: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +52,9 @@ impl<'src> CssTokenSource<'src> {
             lexer,
             trivia_list: vec![],
             scss_string_interpolation_quotes: SmallVec::new(),
+            failed_supports_at_rule_body_starts: HashSet::new(),
+            #[cfg(test)]
+            supports_at_rule_fallback_scans: 0,
         }
     }
 
@@ -119,6 +128,23 @@ impl<'src> CssTokenSource<'src> {
         self.lexer
             .lexer()
             .url_body_lex_context(start, scss_exclusive_syntax_allowed)
+    }
+
+    /// Returns the matching `)` position for the `at-rule()` body after the
+    /// current `(`, using the buffered token's range without consuming it.
+    pub(crate) fn supports_at_rule_fallback_end(&mut self) -> Option<usize> {
+        let start = usize::from(self.current_range().end());
+        if self.failed_supports_at_rule_body_starts.contains(&start) {
+            return None;
+        }
+
+        #[cfg(test)]
+        {
+            self.supports_at_rule_fallback_scans += 1;
+        }
+        self.lexer
+            .lexer()
+            .supports_at_rule_fallback_end(start, &mut self.failed_supports_at_rule_body_starts)
     }
 
     /// Delegates to the lexer-owned `CssScanCursor` helper without exposing
@@ -313,5 +339,51 @@ impl BumpWithContext for CssTokenSource<'_> {
 impl<'source> TokenSourceWithBufferedLexer<CssLexer<'source>> for CssTokenSource<'source> {
     fn lexer(&mut self) -> &mut BufferedLexer<CssSyntaxKind, CssLexer<'source>> {
         &mut self.lexer
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parser::CssParser;
+    use crate::syntax::parse_root;
+    use crate::{CssLosslessTreeSink, CssParserOptions};
+    use biome_css_syntax::CssSyntaxKind::CSS_SUPPORTS_AT_RULE_FALLBACK_LITERAL;
+    use biome_languages::CssFileSource;
+    use biome_parser::prelude::Parser;
+    use biome_rowan::{Direction, NodeCache};
+
+    #[test]
+    fn repeated_unclosed_supports_bodies_scan_once_and_preserve_valid_fallback() {
+        for source_type in [CssFileSource::css(), CssFileSource::scss()] {
+            for repetitions in [8, 128] {
+                let mut source = "@supports at-rule(@property { .a {} }\n".repeat(repetitions);
+                source.push_str(
+                    "@supports at-rule(@future-rule extra) { .after { color: green; } }\n",
+                );
+                let mut parser = CssParser::new(&source, source_type, CssParserOptions::default());
+                parse_root(&mut parser);
+
+                assert_eq!(parser.source().supports_at_rule_fallback_scans, 2);
+                assert_eq!(
+                    parser.source().failed_supports_at_rule_body_starts.len(),
+                    repetitions,
+                );
+
+                let (events, diagnostics, trivia) = parser.finish();
+                let mut cache = NodeCache::default();
+                let mut sink = CssLosslessTreeSink::with_cache(&source, &trivia, &mut cache);
+                biome_parser::event::process(&mut sink, events, diagnostics);
+                let (root, diagnostics) = sink.finish();
+
+                assert!(!diagnostics.is_empty());
+                assert_eq!(root.to_string(), source);
+                let literals: Vec<_> = root
+                    .descendants_tokens(Direction::Next)
+                    .filter(|token| token.kind() == CSS_SUPPORTS_AT_RULE_FALLBACK_LITERAL)
+                    .collect();
+                assert_eq!(literals.len(), 1);
+                assert_eq!(literals[0].text_trimmed(), "@future-rule extra");
+            }
+        }
     }
 }
