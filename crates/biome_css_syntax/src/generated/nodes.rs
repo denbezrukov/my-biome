@@ -3234,14 +3234,14 @@ impl CssFunctionParameterDefaultValue {
     pub fn as_fields(&self) -> CssFunctionParameterDefaultValueFields {
         CssFunctionParameterDefaultValueFields {
             colon_token: self.colon_token(),
-            value: self.value(),
+            components: self.components(),
         }
     }
     pub fn colon_token(&self) -> SyntaxResult<SyntaxToken> {
         support::required_token(&self.syntax, 0usize)
     }
-    pub fn value(&self) -> SyntaxResult<AnyCssValue> {
-        support::required_node(&self.syntax, 1usize)
+    pub fn components(&self) -> CssCustomPropertyComponentList {
+        support::list(&self.syntax, 1usize)
     }
 }
 impl Serialize for CssFunctionParameterDefaultValue {
@@ -3255,7 +3255,7 @@ impl Serialize for CssFunctionParameterDefaultValue {
 #[derive(Serialize)]
 pub struct CssFunctionParameterDefaultValueFields {
     pub colon_token: SyntaxResult<SyntaxToken>,
-    pub value: SyntaxResult<AnyCssValue>,
+    pub components: CssCustomPropertyComponentList,
 }
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct CssGenericDelimiter {
@@ -23027,7 +23027,7 @@ impl std::fmt::Debug for CssFunctionParameterDefaultValue {
                     "colon_token",
                     &support::DebugSyntaxResult(self.colon_token()),
                 )
-                .field("value", &support::DebugSyntaxResult(self.value()))
+                .field("components", &self.components())
                 .finish()
         } else {
             f.debug_struct("CssFunctionParameterDefaultValue").finish()
