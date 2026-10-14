@@ -2420,6 +2420,7 @@ AnyCssFunction =
 	| CssUrlFunction
 	| CssIfFunction
 	| CssAttrFunction
+	| CssTypeFunction
 	| ScssLegacyIfFunction
 
 // content: counter(section);
@@ -2812,6 +2813,8 @@ AnyCssAttrType =
 	| CssTypeFunction
 	| CssNumberDeclarator
 	| AnyCssAttrUnit
+	| ScssVariable
+	| ScssInterpolatedIdentifier
 
 // attr(data-test type(*), rem);
 //                       ^^^^^

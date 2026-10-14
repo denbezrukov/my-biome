@@ -11,17 +11,17 @@ use crate::utils::scss_include_comments::{
     place_separated_list_comment,
 };
 use biome_css_syntax::{
-    AnyCssAtRule, AnyCssControlBlock, AnyCssDeclarationName, AnyCssMediaQuery, AnyCssProperty,
-    AnyCssPseudoClass, AnyCssPseudoElement, AnyCssSelector, AnyCssSelectorIdentifier,
-    AnyCssUnknownAtRuleName, CssComplexSelector, CssDeclaration, CssDeclarationImportant,
-    CssDeclarationOrRuleBlock, CssFunction, CssGenericComponentValueList, CssGenericProperty,
-    CssIdentifier, CssIfBranch, CssLanguage, CssMediaQueryList, CssNestedQualifiedRule,
-    CssPseudoElementFunction, CssQualifiedRule, CssSyntaxKind, CssSyntaxNode, CssSyntaxToken,
-    ScssAtRootAtRule, ScssAtRootQueryClause, ScssAtRootSelector, ScssEachHeader, ScssEachValueList,
-    ScssExpression, ScssExpressionItemList, ScssIfAtRule, ScssInterpolatedPseudoClassFunction,
-    ScssInterpolatedPseudoElementFunction, ScssListExpression, ScssListExpressionElement,
-    ScssMapExpression, ScssMapExpressionPair, ScssVariableDeclaration, T, TextLen, TextSize,
-    is_in_scss_include_arguments,
+    AnyCssAtRule, AnyCssAttrType, AnyCssControlBlock, AnyCssDeclarationName, AnyCssMediaQuery,
+    AnyCssProperty, AnyCssPseudoClass, AnyCssPseudoElement, AnyCssSelector,
+    AnyCssSelectorIdentifier, AnyCssUnknownAtRuleName, CssAttrFunction, CssComplexSelector,
+    CssDeclaration, CssDeclarationImportant, CssDeclarationOrRuleBlock, CssFunction,
+    CssGenericComponentValueList, CssGenericProperty, CssIdentifier, CssIfBranch, CssLanguage,
+    CssMediaQueryList, CssNestedQualifiedRule, CssPseudoElementFunction, CssQualifiedRule,
+    CssSyntaxKind, CssSyntaxNode, CssSyntaxToken, ScssAtRootAtRule, ScssAtRootQueryClause,
+    ScssAtRootSelector, ScssEachHeader, ScssEachValueList, ScssExpression, ScssExpressionItemList,
+    ScssIfAtRule, ScssInterpolatedPseudoClassFunction, ScssInterpolatedPseudoElementFunction,
+    ScssListExpression, ScssListExpressionElement, ScssMapExpression, ScssMapExpressionPair,
+    ScssVariableDeclaration, T, TextLen, TextSize, is_in_scss_include_arguments,
 };
 use biome_diagnostics::category;
 use biome_formatter::comments::{
@@ -126,6 +126,7 @@ impl CommentStyle for CssCommentStyle {
             .or_else(handle_scss_else_clause_comment)
             .or_else(handle_empty_custom_property_container_comment)
             .or_else(handle_function_comment)
+            .or_else(handle_scss_attr_type_comment)
             .or_else(handle_pseudo_function_boundary_comment)
             .or_else(handle_media_separator_comment)
             // Handle SCSS variable name/colon comments before generic properties.
@@ -447,6 +448,52 @@ fn handle_function_comment(
     let is_after_name = CssIdentifier::can_cast(preceding_node.kind());
     if is_inside_function && is_after_name {
         CommentPlacement::leading(following_node.clone(), comment)
+    } else {
+        CommentPlacement::Default(comment)
+    }
+}
+
+/// Keeps comments and suppressions at the boundaries of a dynamic `attr()` type.
+///
+/// ```scss
+/// width: attr(data-width /* unit */ #{$unit} /* fallback */, 10px);
+/// ```
+fn handle_scss_attr_type_comment(
+    comment: DecoratedComment<CssLanguage>,
+) -> CommentPlacement<CssLanguage> {
+    let Some(function) = comment
+        .enclosing_node()
+        .ancestors()
+        .find_map(CssAttrFunction::cast)
+    else {
+        return CommentPlacement::Default(comment);
+    };
+    let Some(
+        unit @ (AnyCssAttrType::ScssVariable(_) | AnyCssAttrType::ScssInterpolatedIdentifier(_)),
+    ) = function.attr_type()
+    else {
+        return CommentPlacement::Default(comment);
+    };
+
+    let range = comment.piece().text_range();
+    let unit_range = unit.syntax().text_trimmed_range();
+    let name_range = function.attr_name().syntax().text_trimmed_range();
+    if range.start() >= name_range.end() && range.end() <= unit_range.start() {
+        return CommentPlacement::leading(unit.into_syntax(), comment);
+    }
+
+    let Some(next) = unit
+        .syntax()
+        .last_token()
+        .and_then(|token| token.next_token())
+    else {
+        return CommentPlacement::Default(comment);
+    };
+    if matches!(next.kind(), T![,] | T![')'])
+        && range.start() >= unit_range.end()
+        && range.end() <= next.text_trimmed_range().start()
+    {
+        CommentPlacement::trailing(unit.into_syntax(), comment)
     } else {
         CommentPlacement::Default(comment)
     }

@@ -12,6 +12,8 @@ impl FormatRule<AnyCssAttrType> for FormatAnyCssAttrType {
             AnyCssAttrType::CssNumberDeclarator(node) => node.format().fmt(f),
             AnyCssAttrType::CssRawStringDeclarator(node) => node.format().fmt(f),
             AnyCssAttrType::CssTypeFunction(node) => node.format().fmt(f),
+            AnyCssAttrType::ScssInterpolatedIdentifier(node) => node.format().fmt(f),
+            AnyCssAttrType::ScssVariable(node) => node.format().fmt(f),
         }
     }
 }
