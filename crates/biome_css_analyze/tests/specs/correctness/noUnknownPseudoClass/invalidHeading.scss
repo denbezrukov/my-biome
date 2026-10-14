@@ -1,0 +1,7 @@
+/* should generate diagnostics */
+.article {
+  &:headng {}
+  &:headings {}
+  &:HEADINGG {}
+  &:unknown {}
+}

@@ -12,7 +12,9 @@ mod value;
 use crate::lexer::CssLexContext;
 use crate::parser::CssParser;
 use crate::syntax::at_rule::{is_at_at_rule, parse_at_rule};
-use crate::syntax::block::{DeclarationOrRuleList, parse_declaration_or_rule_list_block};
+use crate::syntax::block::{
+    DeclarationOrRuleList, expected_block, parse_declaration_or_rule_list_block,
+};
 use crate::syntax::declaration::{is_at_scss_empty_declaration, parse_empty_declaration};
 use crate::syntax::parse_error::{
     expected_any_rule, expected_any_rule_list_item, expected_non_css_wide_keyword_identifier,
@@ -360,6 +362,14 @@ fn parse_nested_qualified_rule_with_selector_recovery(
         RelativeSelectorList::new(T!['{'])
             .allow_partial_combinator_nesting()
             .parse_list(p);
+    }
+
+    if p.at(T!['}']) || p.at(T![;]) {
+        p.error(expected_block(p, p.cur_range()));
+        // Keep a recovery semicolon in the bogus rule so formatting preserves
+        // the boundary before the next declaration. Leave the enclosing brace.
+        p.eat(T![;]);
+        return Some((Present(m.complete(p, CSS_BOGUS_RULE)), CSS_BOGUS_BLOCK));
     }
 
     let block = parse_declaration_or_rule_list_block(p);
