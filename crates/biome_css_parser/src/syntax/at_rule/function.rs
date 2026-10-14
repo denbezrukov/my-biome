@@ -1,8 +1,11 @@
+use crate::lexer::{CssCustomPropertyCommentMode, CssLexContext};
 use crate::syntax::at_rule::parse_error::{
     expected_any_type, expected_function_parameter, expected_parameter_default_value,
 };
 use crate::syntax::block::parse_declaration_or_at_rule_list_block;
+use crate::syntax::is_at_identifier;
 use crate::syntax::parse_error::expected_dashed_identifier;
+use crate::syntax::property::parse_function_parameter_default_components;
 use crate::syntax::scss::{
     is_at_scss_interpolated_dashed_identifier, parse_scss_interpolated_dashed_identifier,
 };
@@ -10,7 +13,6 @@ use crate::syntax::value::r#type::{
     is_at_syntax_single_component, is_at_syntax_type, is_at_type_function,
     parse_any_syntax_component, parse_type_function,
 };
-use crate::syntax::{is_at_identifier, parse_any_value};
 use crate::{parser::CssParser, syntax::parse_dashed_identifier};
 use biome_css_syntax::{
     CssSyntaxKind::{self, *},
@@ -131,6 +133,8 @@ fn is_at_function_parameter_default_value(p: &mut CssParser) -> bool {
     p.at(T![:])
 }
 
+/// Parses a nonempty raw default, leaving outer commas and `)` to the parameter list.
+/// Nested functions retain their own commas, as in `0 1px rgb(0, 0, 0)`.
 #[inline]
 fn parse_function_parameter_default_value(p: &mut CssParser) -> ParsedSyntax {
     if !is_at_function_parameter_default_value(p) {
@@ -139,14 +143,14 @@ fn parse_function_parameter_default_value(p: &mut CssParser) -> ParsedSyntax {
 
     let m = p.start();
 
-    p.bump(T![:]);
-    parse_any_value(p)
-        .or_recover_with_token_set(
-            p,
-            &ParseRecoveryTokenSet::new(CSS_BOGUS, token_set![T![,], T![')']]),
-            expected_parameter_default_value,
-        )
-        .ok();
+    p.bump_with_context(
+        T![:],
+        CssLexContext::CustomPropertyValue(CssCustomPropertyCommentMode::ScssLineComments),
+    );
+    let components = parse_function_parameter_default_components(p);
+    if components.range(p).is_empty() {
+        p.error(expected_parameter_default_value(p, p.cur_range()));
+    }
 
     Present(m.complete(p, CSS_FUNCTION_PARAMETER_DEFAULT_VALUE))
 }
@@ -200,7 +204,7 @@ impl ParseSeparatedList for CssFunctionParameterList {
     }
 
     fn is_at_list_end(&self, p: &mut Self::Parser<'_>) -> bool {
-        p.at(T![')'])
+        p.at_ts(token_set![T![')'], T![returns], T!['{']])
     }
 
     fn recover(
