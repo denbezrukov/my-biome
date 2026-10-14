@@ -1,0 +1,80 @@
+---
+source: crates/biome_css_analyze/tests/spec_tests.rs
+expression: invalidHeading.css
+---
+# Input
+```css
+/* should generate diagnostics */
+:headng {}
+:headings {}
+:HEADINGG {}
+:unknown {}
+
+```
+
+# Diagnostics
+```
+invalidHeading.css:2:2 lint/correctness/noUnknownPseudoClass ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected unknown pseudo-class headng 
+  
+    1 │ /* should generate diagnostics */
+  > 2 │ :headng {}
+      │  ^^^^^^
+    3 │ :headings {}
+    4 │ :HEADINGG {}
+  
+  i See MDN web docs for more details.
+  
+
+```
+
+```
+invalidHeading.css:3:2 lint/correctness/noUnknownPseudoClass ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected unknown pseudo-class headings 
+  
+    1 │ /* should generate diagnostics */
+    2 │ :headng {}
+  > 3 │ :headings {}
+      │  ^^^^^^^^
+    4 │ :HEADINGG {}
+    5 │ :unknown {}
+  
+  i See MDN web docs for more details.
+  
+
+```
+
+```
+invalidHeading.css:4:2 lint/correctness/noUnknownPseudoClass ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected unknown pseudo-class HEADINGG 
+  
+    2 │ :headng {}
+    3 │ :headings {}
+  > 4 │ :HEADINGG {}
+      │  ^^^^^^^^
+    5 │ :unknown {}
+    6 │ 
+  
+  i See MDN web docs for more details.
+  
+
+```
+
+```
+invalidHeading.css:5:2 lint/correctness/noUnknownPseudoClass ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected unknown pseudo-class unknown 
+  
+    3 │ :headings {}
+    4 │ :HEADINGG {}
+  > 5 │ :unknown {}
+      │  ^^^^^^^
+    6 │ 
+  
+  i See MDN web docs for more details.
+  
+
+```
