@@ -1835,6 +1835,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "biome_project_analysis"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "biome_project_layout"
 version = "0.7.0"
 dependencies = [

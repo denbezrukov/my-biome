@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "sourceReference": {
+    "repository": "https://github.com/webpro-nl/knip",
+    "commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+    "path": "packages/knip/src/types/issues.ts",
+    "rawUrl": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/types/issues.ts",
+    "responseSha256": "7cd0a6673a2dad455f610db9f98df72671ddd1f1e40cccc1e5fe1ace59c5b93d",
+    "issuesDeclarationCitation": "https://github.com/webpro-nl/knip/blob/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/types/issues.ts#L34-L52",
+    "issueTypeCitation": "https://github.com/webpro-nl/knip/blob/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/types/issues.ts#L54"
+  },
+  "publishedArtifact": {
+    "name": "knip",
+    "version": "6.43.0",
+    "metadataUrl": "https://registry.npmjs.org/knip/6.43.0",
+    "metadataResponseSha256": "4fd0938312a1fcfdcbaf63843ef5e71659c8dd17cfcc3bd6d67b53d98f415ff3",
+    "tarballUrl": "https://registry.npmjs.org/knip/-/knip-6.43.0.tgz",
+    "registryIntegrity": "sha512-8l3cCOg/EXoILO0qcSoMra49yQM91+lEIR4fu5Ko8rrArGX8xKdKZiGI9psPiY6rhLmfLERcMfFEByF0wli5CA==",
+    "registryShasumSha1": "f54fb0398d44924880d860fba5aa4581402ed714",
+    "gitHead": null,
+    "tarballDownloaded": false,
+    "tarballIntegrityVerified": false,
+    "integrityProvenance": "registry-declared"
+  },
+  "identityAssessment": {
+    "status": "source-published-artifact-correspondence-unverified",
+    "reason": "The exact-version npm metadata omits gitHead. The source commit and npm 6.43.0 artifact are separately pinned; these fetched responses establish neither a match nor a mismatch between them."
+  },
+  "projectReplacementClaim": false,
+  "issues": [
+    {
+      "key": "files",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "dependencies",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "devDependencies",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "optionalPeerDependencies",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "unlisted",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "binaries",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "unresolved",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "exports",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "types",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "nsExports",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "nsTypes",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "duplicates",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "enumMembers",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "namespaceMembers",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "catalog",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "catalogReferences",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    },
+    {
+      "key": "cycles",
+      "implementation": "unimplemented",
+      "conformance": "untested"
+    }
+  ]
+}
