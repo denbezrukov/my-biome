@@ -312,6 +312,15 @@ pub trait FileSystem: Send + Sync + RefUnwindSafe {
     /// Returns the resolution of a symbolic link.
     fn read_link(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf>;
 
+    /// Returns the existing path's filesystem identity, resolving aliases without global case folding.
+    /// Missing and unreadable paths return their I/O error; unsupported virtual filesystems return Unsupported.
+    fn canonicalize_path(&self, _path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "filesystem does not provide canonical paths",
+        ))
+    }
+
     fn get_changed_files(&self, base: &str) -> io::Result<Vec<String>>;
 
     fn get_staged_files(&self) -> io::Result<Vec<String>>;
@@ -529,6 +538,10 @@ where
 
     fn read_link(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
         T::read_link(self, path)
+    }
+
+    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+        T::canonicalize_path(self, path)
     }
 }
 

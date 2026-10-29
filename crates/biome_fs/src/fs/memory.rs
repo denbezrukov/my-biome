@@ -1,5 +1,5 @@
 use biome_diagnostics::{Error, Severity};
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::{Utf8Component, Utf8Path, Utf8PathBuf};
 use parking_lot::{Mutex, RawMutex, RwLock, lock_api::ArcMutexGuard};
 use rustc_hash::FxHashMap;
 use std::collections::hash_map::Entry;
@@ -243,6 +243,44 @@ impl FileSystem for MemoryFileSystem {
         let cb = cb_guard.take().unwrap();
 
         Ok(cb())
+    }
+
+    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+        fn normalize(path: &Utf8Path) -> Utf8PathBuf {
+            let mut normalized = Utf8PathBuf::new();
+            for component in path.components() {
+                match component {
+                    Utf8Component::ParentDir => {
+                        if matches!(
+                            normalized.components().next_back(),
+                            Some(Utf8Component::Normal(_))
+                        ) {
+                            normalized.pop();
+                        } else if !normalized.has_root() {
+                            normalized.push("..");
+                        }
+                    }
+                    Utf8Component::CurDir => {}
+                    _ => normalized.push(component.as_str()),
+                }
+            }
+            normalized
+        }
+
+        let path = normalize(path);
+        let files = self.files.0.read();
+        if files.contains_key(&path)
+            || files
+                .keys()
+                .any(|stored| normalize(stored).starts_with(&path))
+        {
+            Ok(path)
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("path {path} does not exist in memory filesystem"),
+            ))
+        }
     }
 
     fn read_link(&self, _path: &Utf8Path) -> io::Result<Utf8PathBuf> {

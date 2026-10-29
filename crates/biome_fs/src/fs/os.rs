@@ -97,6 +97,10 @@ impl FileSystem for OsFileSystem {
         path.read_link_utf8()
     }
 
+    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+        path.canonicalize_utf8()
+    }
+
     fn get_changed_files(&self, base: &str) -> io::Result<Vec<String>> {
         let output = Command::new("git")
             .arg("diff")
