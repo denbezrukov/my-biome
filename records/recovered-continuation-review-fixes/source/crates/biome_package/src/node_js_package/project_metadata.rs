@@ -80,6 +80,7 @@ impl DeserializationVisitor for MetadataContainerVisitor {
     type Output = MetadataValue;
     const EXPECTED_TYPE: DeserializableTypes =
         DeserializableTypes::MAP.union(DeserializableTypes::ARRAY);
+    const PRESERVE_MISSING_MAP_VALUES: bool = true;
 
     fn visit_map(
         self,
@@ -258,6 +259,7 @@ impl DeserializationContext for MetadataContext<'_> {
 impl DeserializationVisitor for MetadataVisitor {
     type Output = ProjectMetadata;
     const EXPECTED_TYPE: DeserializableTypes = DeserializableTypes::MAP;
+    const PRESERVE_MISSING_MAP_VALUES: bool = true;
     fn visit_map(
         self,
         ctx: &mut dyn DeserializationContext,

@@ -269,6 +269,51 @@ fn parser_recovery_metadata_preserves_presence_ranges_and_array_positions() {
 }
 
 #[test]
+fn missing_property_values_remain_invalid_metadata() {
+    use biome_json_value::JsonValue;
+    use biome_package::TsConfigJson;
+    let source = r#"{"types":,"typings":"legacy.d.ts","custom":{"answer":}}"#;
+    let parsed = metadata(source);
+    assert!(parsed.fields.contains_key("types"));
+    assert_eq!(parsed.fields["types"].value, JsonValue::Bogus);
+    assert_eq!(parsed.types, None);
+    let invalid = &parsed.fields["custom"].members["answer"];
+    assert_eq!(invalid.value, JsonValue::Bogus);
+    assert_eq!(
+        &source[usize::from(invalid.range.start())..usize::from(invalid.range.end())],
+        r#""answer":"#
+    );
+    assert_eq!(parsed.diagnostics.len(), 2);
+
+    let parser_errors = biome_json_parser::parse_json(source, JsonParserOptions::default())
+        .diagnostics()
+        .len();
+    let package = deserialize_from_json_str::<PackageJson>(
+        source,
+        JsonParserOptions::default(),
+        "package.json",
+    );
+    assert_eq!(package.diagnostics().len(), parser_errors);
+    let package = package.into_deserialized().unwrap();
+    assert_eq!(package.types.as_deref(), Some("legacy.d.ts"));
+    assert_eq!(package.project_metadata.types, None);
+    assert_eq!(package.project_metadata.diagnostics.len(), 2);
+
+    let config = deserialize_from_json_str::<TsConfigJson>(
+        r#"{"compilerOptions":{"rootDir":}}"#,
+        JsonParserOptions::default(),
+        "tsconfig.json",
+    )
+    .into_deserialized()
+    .unwrap();
+    assert_eq!(
+        config.metadata.unwrap().members["compilerOptions"].members["rootDir"].value,
+        JsonValue::Bogus
+    );
+    assert!(!config.metadata_diagnostics.is_empty());
+}
+
+#[test]
 fn excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics() {
     use biome_json_value::JsonValue;
     use biome_package::TsConfigJson;

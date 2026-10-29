@@ -1,6 +1,6 @@
 {
   "base": "e67e1d9516be2cc53722e848bed1ac52367e73df",
-  "status": "new corrective working sources; filesystem full verification/review passed, A2 metadata full final verification and independent review pending",
+  "status": "corrective working sources; filesystem verification/review passed; metadata16 focused tests pass after opt-in missing-value recovery; expanded full verification and fresh final review pending",
   "files": [
     {
       "path": ".changeset/calm-tips-accept.md",
@@ -11,6 +11,16 @@
       "path": ".changeset/perky-pumas-camp.md",
       "bytes": 345,
       "sha256": "b39713168be212009895415f515746592e74458bae5f58d4dec521198ce89bbc"
+    },
+    {
+      "path": "crates/biome_deserialize/src/json.rs",
+      "bytes": 36074,
+      "sha256": "a75b9622a6406b3581562877a24b6a6a5e4b8eb3717e536706af045a7bb15db3"
+    },
+    {
+      "path": "crates/biome_deserialize/src/lib.rs",
+      "bytes": 23106,
+      "sha256": "1e58967cecf4e806823b83284bf1ba64362bc6dcd5f025b83f906460100dbdea"
     },
     {
       "path": "crates/biome_fs/src/fs.rs",
@@ -34,13 +44,13 @@
     },
     {
       "path": "crates/biome_package/src/node_js_package/project_metadata.rs",
-      "bytes": 18729,
-      "sha256": "9c3238c2df4ce1d424501fd0d7fc244d72c3776c74a14847b2c5f41012c213fb"
+      "bytes": 18833,
+      "sha256": "adddbe769aa0dbd3505a34c61bf3cecd0e15259e6711c9ad38ea94cc2bcf5e31"
     },
     {
       "path": "crates/biome_package/tests/project_metadata.rs",
-      "bytes": 17734,
-      "sha256": "2bfb20ced558ebd668c45942ec64966368b03761fa4b23d86d7ea217bfe6d9d3"
+      "bytes": 19405,
+      "sha256": "dfbeb23f1ddb75e1e8cae162e226ebc4a9c030f590f3bd686c02183d1ef6e2ca"
     }
   ]
 }
