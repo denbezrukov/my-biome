@@ -5163,6 +5163,301 @@
       "sha256": "c5472f271e6e0d13a4d7aba06e86d6d92569ba5fb26ec5cca2fb30b6baecfdac"
     },
     {
+      "path": "records/recovered-continuation-a1/a1-format.log",
+      "bytes": 58898,
+      "sha256": "021132766005f85ee5ba4aad3d1c2e6fd3d1d7990053e9a62040299176057fae"
+    },
+    {
+      "path": "records/recovered-continuation-a1/a1-oracle-namespace-known-key.log",
+      "bytes": 307,
+      "sha256": "45c4999fc90ef1256efa2dba3f2840ed58cde273fc81dc0c8d4341b5e9cc9d43"
+    },
+    {
+      "path": "records/recovered-continuation-a1/a1-oracle-orphan-file.log",
+      "bytes": 412,
+      "sha256": "7ef62374429e76ed942c000acc7ae9f43f6caa3d2bd362ec10cd9d3780660356"
+    },
+    {
+      "path": "records/recovered-continuation-a1/a1-oracle-production-defaults.log",
+      "bytes": 306,
+      "sha256": "79a62086a00d0f341b9171c0a257f2379f82547f55c7e19696c2d17cca80072f"
+    },
+    {
+      "path": "records/recovered-continuation-a1/a1-red.log",
+      "bytes": 4742,
+      "sha256": "ba66c92d7fbf846965b02a2d7d8b2eb766664e44929c68268a64e54cc1a68dca"
+    },
+    {
+      "path": "records/recovered-continuation-a1/a1-tests.log",
+      "bytes": 2386,
+      "sha256": "2aaff1881c277b46428be70f2d7ea9c850a7cd0b08ff57c5574437da8ed288fb"
+    },
+    {
+      "path": "records/recovered-continuation-a1/manifest.json",
+      "bytes": 9876,
+      "sha256": "b53148a5fdc16f70a2a25ddb88dfcfefaad1e5eea0cde7db35e13af937607482"
+    },
+    {
+      "path": "records/recovered-continuation-a1/original-source-map.json",
+      "bytes": 30758,
+      "sha256": "724322540cb7a90a06dfc2183a85231d4012baa7b8206137d660bed386698d42"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/Cargo.lock",
+      "bytes": 179538,
+      "sha256": "7b8b81fb84b7ce9c1ea67f6455f42e0c8b065480c39e10f3650113838ef374fd"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/Cargo.toml",
+      "bytes": 17229,
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/Cargo.toml",
+      "bytes": 448,
+      "sha256": "e717bc4fbce0898f9e9dcc8539a0c8e16604eb0971f8c87e67b63b2a855be6c3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/coverage.rs",
+      "bytes": 1224,
+      "sha256": "9532eed21ca766a90eb371c5f74aeb45d7a33bf9eae760837cdd8e43e170a686"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/inventory.rs",
+      "bytes": 2163,
+      "sha256": "b9779798e5752035be1018a855df99edcd24d6e86b583057db4f82bd8ffe1e92"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/lib.rs",
+      "bytes": 197,
+      "sha256": "a612449283da8c65ff17bff66904cf6dc53a4354e2f29f88ef6ae2e8f8ef881f"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/model.rs",
+      "bytes": 3709,
+      "sha256": "5e9c83b4564641b9400c59345ded34f869cb10c3b7909be83f57e20c4dc71921"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/normalize.rs",
+      "bytes": 4548,
+      "sha256": "3eac231c48fc9fc2f60d87d434fdb8c1004038445b829ff703a58366434f27be"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/options.rs",
+      "bytes": 3031,
+      "sha256": "c3a157dc554f1a786de010ddf4cc26cf4cc0cb11c5688f4f01ae134ee5045f20"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/src/result.rs",
+      "bytes": 3378,
+      "sha256": "713a9ea00e29eddb5e80257e701d2159e5c6292bca35f27fcc199fd32ca86161"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/tests/contracts.rs",
+      "bytes": 11045,
+      "sha256": "7b7f2392681c2c5640f80011d4867573ffe67f67f06043d458f9707680920ea3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "bytes": 74,
+      "sha256": "570d6eb352b98effae4be99883b4a13d303332821dacfb2beedb2f56856c943f"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/tests/fixtures/empty.json",
+      "bytes": 399,
+      "sha256": "a8034f8d4d435abe04ebbea3eb67f54c1cc1c9ad6fbe0c1aff540b6506af8167"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 674,
+      "sha256": "cd6490f37cfc8831d728b16febf44961d790a6ca0f4c80565aed1845aee9c985"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/.gitignore",
+      "bytes": 59,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/Cargo.toml",
+      "bytes": 453,
+      "sha256": "5caba8155456aacebad9b14959fb265c35da331c5604add8501d27d58125a764"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/README.md",
+      "bytes": 4618,
+      "sha256": "74783f096d6b50c3b55c6e362883a1a00b4d16144f6ea93afe54233d5e078499"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/compatibility.json",
+      "bytes": 44546,
+      "sha256": "c8939c160bb6c3576c59769f4ca5d3814e778370f0109ca9fd5137554a1775c0"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+      "bytes": 981,
+      "sha256": "e084e1a1ee62cc1ab66b452a74e10ccda46dca70d4384651d5c98ffb424a4566"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/expectations/oracle/orphan-file.json",
+      "bytes": 900,
+      "sha256": "ef6e51fc4435f3303053262c0f6e870b674083e8df114e369f7752f9b23e922e"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/expectations/oracle/production-defaults.json",
+      "bytes": 1567,
+      "sha256": "b0e3be49e469a2c2b2f0e49a57ab1df08225eba140cccd7ce5b89da45af09e21"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "bytes": 102,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "bytes": 39,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "bytes": 55,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "bytes": 11,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/orphan-file/package.json",
+      "bytes": 47,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/production-defaults/package.json",
+      "bytes": 225,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "bytes": 85,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/observations/corrupt-artifact.json",
+      "bytes": 708,
+      "sha256": "6bd1b4fb0c0458cab8043729d28bc1737cb2bb5f8fa3ef291fb6583f552e50ea"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/observations/namespace-known-key.json",
+      "bytes": 3187,
+      "sha256": "180a6a4ffff1df7ac069001ba8dbd99fcd5339eea78beb3230ef610aaa989355"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/observations/orphan-file.json",
+      "bytes": 3249,
+      "sha256": "0787a32a7d9a53fd1b10255ebb9015becd9ff2eb51847e53a969957f9415f3d3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/observations/production-defaults.json",
+      "bytes": 4270,
+      "sha256": "f6de757c595c2d75fb4aa1c7afca243d5552bc37fdf2c80efadc926b8af11f84"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/oracle/identity.json",
+      "bytes": 290,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/oracle/package-lock.json",
+      "bytes": 32855,
+      "sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/oracle/package.json",
+      "bytes": 177,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/oracle/validation.json",
+      "bytes": 936,
+      "sha256": "93b5e9f0fe5e2864636bfee36df8ac8ce8aa7a05a7f1cbeea279332804469b0c"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/reference/LICENSE.knip",
+      "bytes": 750,
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/reference/additional-sources.json",
+      "bytes": 14246,
+      "sha256": "5c08986f15d7622d077c58c8c6bd685d0edbd7efe49e11112c1b2c9f9911f157"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/reference/inventory.md",
+      "bytes": 37793,
+      "sha256": "323c66cfe6459519201cfa0b6d5fbe1d0ab2364a70d929c2d1c4d0b8ec9c577c"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/reference/sources.json",
+      "bytes": 29526,
+      "sha256": "7a77e380141ea1f028870d326a404cb1d6c5c6c3a13a11d496e3b6a62ca0eee3"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/reference/tests.json",
+      "bytes": 192805,
+      "sha256": "1a604774aed40d03aa8e296f0103507f70b5c27751d7a849fda79365b203409d"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/src/artifact.rs",
+      "bytes": 7846,
+      "sha256": "5cfe26901dc472366eedd416371d58326c117179c292cf97492e7fd0eccc4483"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/src/conformance.rs",
+      "bytes": 10935,
+      "sha256": "3df5178fec50ccc24b551b3c6160676d3970b87cf65f3a584fa506f571e3ec41"
+    },
+    {
+      "path": "records/recovered-continuation-a1/source/xtask/project_analysis/src/main.rs",
+      "bytes": 1242,
+      "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2"
+    },
+    {
       "path": "records/recovered-d1-api-reconcile/crates/biome_configuration/src/project_analysis.rs.L10-L14.fragment",
       "bytes": 242,
       "sha256": "3fc8197df4cf236b3092435932acfe5cb1de7f87d990fd72672ea5a7de78e4ae"

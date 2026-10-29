@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/.biome-cloud/native-continuation/target/debug/xtask_project_analysis",
+    "conformance",
+    "--case",
+    "orphan-file",
+    "--oracle-only",
+    "--artifact",
+    "/workspace/.biome-cloud/native-continuation/corrupt-check-742i4nzf/corrupt.tgz"
+  ],
+  "cwd": "/workspace/.biome-cloud/native-continuation/worktree",
+  "artifact_sha256": "466bf6cc7dbc95e0a41e7c9574e6b7898717fbbc4b2a78d735b7550cd318d454",
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Error: oracle artifact identity or integrity mismatch; execution refused\n",
+  "node_or_npm_executed": false,
+  "verification": "PATH contained node/npm sentinels that create a marker if reached. The marker was absent."
+}

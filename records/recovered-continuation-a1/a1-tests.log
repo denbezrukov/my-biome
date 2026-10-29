@@ -1,0 +1,44 @@
+   Compiling biome_project_analysis v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_project_analysis)
+   Compiling sha2 v0.10.9
+   Compiling xtask_project_analysis v0.0.0 (/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis)
+    Finished `test` profile [unoptimized] target(s) in 2.11s
+     Running unittests src/lib.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/biome_project_analysis-1c353c199965dbc4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contracts.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/contracts-60654af8635ebd60)
+
+running 8 tests
+test default_and_production_issue_selection_are_explicit ... ok
+test all_issue_keys_have_explicit_disposition ... ok
+test explicitly_enabled_cycles_warn ... ok
+test owned_fixture_loading_does_not_pretend_to_run_an_engine ... ok
+test normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract ... ok
+test result_normalization_keeps_source_ranges_and_related_evidence ... ok
+test every_deferred_plugin_and_public_reporter_has_a_disposition ... ok
+test native_language_fixtures_have_native_owners ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/xtask_project_analysis-74b3790128be14b2)
+
+running 8 tests
+test artifact::runtime_tests::runtime_boundaries_match_the_pinned_package ... ok
+test artifact::tests::artifact_identity_includes_lock_and_runtime ... ok
+test artifact::tests::same_version_different_integrity_is_rejected ... ok
+test conformance::normalization_tests::oracle_normalization_retains_empty_categories_and_locations ... ok
+test artifact::tests::corrupt_artifact_bytes_are_rejected_before_execution ... ok
+test conformance::tests::unsupported_is_not_success ... ok
+test conformance::normalization_tests::oracle_validation_requires_all_profile_cases_and_matching_identity ... ok
+test conformance::tests::untested_is_not_success ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests biome_project_analysis
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

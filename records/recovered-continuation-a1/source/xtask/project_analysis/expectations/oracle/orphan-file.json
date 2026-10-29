@@ -1,0 +1,43 @@
+{
+  "exit_code": 1,
+  "stderr": "",
+  "normalized": {
+    "issues": [
+      {
+        "kind": "files",
+        "path": "orphan.ts",
+        "symbol": "orphan.ts",
+        "severity": "error",
+        "location": {
+          "line": null,
+          "col": null,
+          "pos": null
+        },
+        "details": {
+          "name": "orphan.ts"
+        }
+      }
+    ],
+    "enabled_issue_kinds": [
+      "binaries",
+      "catalog",
+      "catalogReferences",
+      "dependencies",
+      "devDependencies",
+      "duplicates",
+      "enumMembers",
+      "exports",
+      "files",
+      "namespaceMembers",
+      "optionalPeerDependencies",
+      "types",
+      "unlisted",
+      "unresolved"
+    ],
+    "coverage": null,
+    "gaps": null,
+    "capabilities": null,
+    "evidence": null,
+    "unavailable": "The Knip JSON reporter does not expose coverage, capabilities or the evidence graph."
+  }
+}

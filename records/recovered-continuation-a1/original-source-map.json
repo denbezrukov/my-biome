@@ -1,0 +1,713 @@
+{
+  "status": "coherent-original-A1-final-source-overlay",
+  "base": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+  "original_head": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+  "warning": "Original source restoration only. No builds/tests executed here; historical observations are not fresh validation. Per-file hash proofs distinguish independently authenticated bytes from literal transcriptions.",
+  "paths": 51,
+  "gaps": [],
+  "independent_reviewer_copy_matches": [
+    "xtask/project_analysis/.gitignore",
+    "xtask/project_analysis/Cargo.toml",
+    "xtask/project_analysis/README.md",
+    "xtask/project_analysis/compatibility.json",
+    "xtask/project_analysis/expectations/oracle/orphan-file.json",
+    "xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+    "xtask/project_analysis/expectations/oracle/production-defaults.json",
+    "xtask/project_analysis/fixtures/orphan-file/index.ts",
+    "xtask/project_analysis/fixtures/orphan-file/knip.json",
+    "xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+    "xtask/project_analysis/fixtures/orphan-file/package.json",
+    "xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+    "xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+    "xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+    "xtask/project_analysis/fixtures/namespace-known-key/package.json",
+    "xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+    "xtask/project_analysis/fixtures/production-defaults/knip.json",
+    "xtask/project_analysis/fixtures/production-defaults/package.json",
+    "xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+    "xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+    "xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+    "xtask/project_analysis/observations/orphan-file.json",
+    "xtask/project_analysis/observations/namespace-known-key.json",
+    "xtask/project_analysis/observations/production-defaults.json",
+    "xtask/project_analysis/observations/corrupt-artifact.json",
+    "xtask/project_analysis/oracle/package.json",
+    "xtask/project_analysis/oracle/package-lock.json",
+    "xtask/project_analysis/oracle/identity.json",
+    "xtask/project_analysis/oracle/validation.json",
+    "xtask/project_analysis/reference/LICENSE.knip",
+    "xtask/project_analysis/reference/additional-sources.json",
+    "xtask/project_analysis/reference/inventory.md",
+    "xtask/project_analysis/reference/sources.json",
+    "xtask/project_analysis/src/main.rs",
+    "xtask/project_analysis/src/artifact.rs",
+    "xtask/project_analysis/src/conformance.rs"
+  ],
+  "files": [
+    {
+      "path": "Cargo.toml",
+      "source_evidence": [
+        "6359a9b03670e85b50785d59d10eb087cf89fe3f:Cargo.toml",
+        "recovered-a1/diffs/initial-Cargo.diff.txt"
+      ],
+      "transformation": "Exact unified diff with matching original preimage and postimage Git blob prefixes",
+      "bytes": 17229,
+      "lines": 313,
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e",
+      "git_blob_sha1": "e23e97808753cfb0e3acff9f23adfb3762650d92",
+      "historical_proof": {
+        "original_git_blob_prefix": "e23e9780875"
+      }
+    },
+    {
+      "path": "Cargo.lock",
+      "source_evidence": [
+        "6359a9b03670e85b50785d59d10eb087cf89fe3f:Cargo.lock",
+        "recovered-a1/diffs/initial-Cargo.diff.txt"
+      ],
+      "transformation": "Exact unified diff with matching original preimage and postimage Git blob prefixes",
+      "bytes": 179538,
+      "lines": 7860,
+      "sha256": "7b8b81fb84b7ce9c1ea67f6455f42e0c8b065480c39e10f3650113838ef374fd",
+      "git_blob_sha1": "119f104d79cb6e474ebe31b7e515460c8a188d02",
+      "historical_proof": {
+        "original_git_blob_prefix": "119f104d79c"
+      }
+    },
+    {
+      "path": "crates/biome_project_analysis/Cargo.toml",
+      "source_evidence": [
+        "recovered-a1/snapshots/analysis-Cargo.toml.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 448,
+      "lines": 16,
+      "sha256": "e717bc4fbce0898f9e9dcc8539a0c8e16604eb0971f8c87e67b63b2a855be6c3",
+      "git_blob_sha1": "c1d5a7164ef03bf0f771b1da372503490ce4be9a",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/lib.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/lib.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 197,
+      "lines": 8,
+      "sha256": "a612449283da8c65ff17bff66904cf6dc53a4354e2f29f88ef6ae2e8f8ef881f",
+      "git_blob_sha1": "713632285efea85605f76cf0e4c0d3d0dd23b3cc",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/coverage.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/coverage.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 1224,
+      "lines": 45,
+      "sha256": "9532eed21ca766a90eb371c5f74aeb45d7a33bf9eae760837cdd8e43e170a686",
+      "git_blob_sha1": "fe88cfd135685e6b920f395fbfd007ba3e4b4132",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/inventory.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/inventory.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 2163,
+      "lines": 84,
+      "sha256": "b9779798e5752035be1018a855df99edcd24d6e86b583057db4f82bd8ffe1e92",
+      "git_blob_sha1": "a1cab30abd9c0038b949293f3c55234538a55535",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/model.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/model.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 3709,
+      "lines": 139,
+      "sha256": "5e9c83b4564641b9400c59345ded34f869cb10c3b7909be83f57e20c4dc71921",
+      "git_blob_sha1": "ed38d7356d384848c4bb01bbc1e01d0fa3810f46",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/normalize.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/normalize.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 4548,
+      "lines": 136,
+      "sha256": "3eac231c48fc9fc2f60d87d434fdb8c1004038445b829ff703a58366434f27be",
+      "git_blob_sha1": "75f169c3319763df28ff314163bb66938fd9125c",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/options.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/options.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 3031,
+      "lines": 93,
+      "sha256": "c3a157dc554f1a786de010ddf4cc26cf4cc0cb11c5688f4f01ae134ee5045f20",
+      "git_blob_sha1": "d1d6819ca27870982815e2716bb00a461638c73e",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/src/result.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/result.rs.before-evidence-fix.txt",
+        "recovered-a1/commands/140-evidence-identity-fix.sh.txt"
+      ],
+      "transformation": "Four exact literal replacements from command140; archived command not executed",
+      "bytes": 3378,
+      "lines": 123,
+      "sha256": "713a9ea00e29eddb5e80257e701d2159e5c6292bca35f27fcc199fd32ca86161",
+      "git_blob_sha1": "7cc361f00aa86eba4df259ceb2d53f21a57a66b6",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/contracts.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/contracts.rs.initial-commit-final.txt",
+        "recovered-a1/diffs/round1-ownership.diff.txt"
+      ],
+      "transformation": "Exact final ownership fix diff; snapshot already contains earlier EvidenceId fix",
+      "bytes": 11045,
+      "lines": 309,
+      "sha256": "7b7f2392681c2c5640f80011d4867573ffe67f67f06043d458f9707680920ea3",
+      "git_blob_sha1": "fc51184f6c0fb5231203ed55f9a265c2ad6eb7f6",
+      "historical_proof": {
+        "original_git_blob_prefix": "fc51184f6c0"
+      }
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/support/mod.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/support-mod.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 674,
+      "lines": 18,
+      "sha256": "cd6490f37cfc8831d728b16febf44961d790a6ca0f4c80565aed1845aee9c985",
+      "git_blob_sha1": "d4571cc015eb9b68acbc5dee14dfdf3bffe92f1c",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/fixtures/empty.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/empty.json.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 399,
+      "lines": 5,
+      "sha256": "a8034f8d4d435abe04ebbea3eb67f54c1cc1c9ad6fbe0c1aff540b6506af8167",
+      "git_blob_sha1": "165a84744a8ec1ac155aeb716f4688d375298fe6",
+      "historical_proof": null
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/empty.expected.json.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 74,
+      "lines": 1,
+      "sha256": "570d6eb352b98effae4be99883b4a13d303332821dacfb2beedb2f56856c943f",
+      "git_blob_sha1": "1d12870543cb31041f3dc535a8ea180cbe005932",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/.gitignore",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/.gitignore",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 59,
+      "lines": 3,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782",
+      "git_blob_sha1": "b788e7d429ab673c6f66207dc1ba6661ffe13be7",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/Cargo.toml",
+      "source_evidence": [
+        "recovered-a1/snapshots/xtask-Cargo.toml.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 453,
+      "lines": 17,
+      "sha256": "5caba8155456aacebad9b14959fb265c35da331c5604add8501d27d58125a764",
+      "git_blob_sha1": "4b5c3b5664f0f3f8ffe471a90f0f46cba4cbda8b",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/README.md",
+      "source_evidence": [
+        "recovered-a1/snapshots/README.md.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 4618,
+      "lines": 78,
+      "sha256": "74783f096d6b50c3b55c6e362883a1a00b4d16144f6ea93afe54233d5e078499",
+      "git_blob_sha1": "660f4fc925fea4112c420389c8ee91f29e47189e",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/compatibility.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/compatibility.json",
+        "recovered-a1/commands/030-reference-inventory.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 44546,
+      "lines": 2177,
+      "sha256": "c8939c160bb6c3576c59769f4ca5d3814e778370f0109ca9fd5137554a1775c0",
+      "git_blob_sha1": "460b0b66be58f061a8a967ce223f615223924f92",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/orphan-file.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/expectations/oracle/orphan-file.json",
+        "recovered-a1/commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 900,
+      "lines": 43,
+      "sha256": "ef6e51fc4435f3303053262c0f6e870b674083e8df114e369f7752f9b23e922e",
+      "git_blob_sha1": "5b3623c8a9ce9ec9f5d9264f82371a78580611ff",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+        "recovered-a1/commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 981,
+      "lines": 47,
+      "sha256": "e084e1a1ee62cc1ab66b452a74e10ccda46dca70d4384651d5c98ffb424a4566",
+      "git_blob_sha1": "b2d0aadcf6b502fd3bf8c272bdfe4b68e5d53085",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/production-defaults.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/expectations/oracle/production-defaults.json",
+        "recovered-a1/commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 1567,
+      "lines": 74,
+      "sha256": "b0e3be49e469a2c2b2f0e49a57ab1df08225eba140cccd7ce5b89da45af09e21",
+      "git_blob_sha1": "53b245cd9bf4625e3a23e741c88a2c9916721a51",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/orphan-file/index.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 11,
+      "lines": 1,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+      "git_blob_sha1": "cb0ff5c3b541f646105198ee23ac0fc3d805023e",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/orphan-file/knip.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 70,
+      "lines": 8,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704",
+      "git_blob_sha1": "20aa1a3df0aa8cb763ca1758be42fa5855032ec2",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 25,
+      "lines": 1,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3",
+      "git_blob_sha1": "50377611d981fc11af68fbd7eca35bd5a53975ce",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/package.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/orphan-file/package.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 47,
+      "lines": 4,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0",
+      "git_blob_sha1": "aba9e40a121eec152a643fde0a28ad8aaf7cbb41",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 102,
+      "lines": 3,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9",
+      "git_blob_sha1": "d1691215f05e7087019897d73e39b28cbc81bc17",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 70,
+      "lines": 8,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704",
+      "git_blob_sha1": "20aa1a3df0aa8cb763ca1758be42fa5855032ec2",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 39,
+      "lines": 1,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9",
+      "git_blob_sha1": "c97c48bf72aef78243881ca38b8dd434ad1400c8",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/namespace-known-key/package.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 55,
+      "lines": 4,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee",
+      "git_blob_sha1": "c3de2d19a8dc525b254c9e49d70b65a43942d08e",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 48,
+      "lines": 2,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757",
+      "git_blob_sha1": "0cbb07845913f7859132d7ef1b6da8c969958e78",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/production-defaults/knip.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 3,
+      "lines": 1,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "git_blob_sha1": "0967ef424bce6791893e9a57bb952f80fd536e93",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/package.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/production-defaults/package.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 225,
+      "lines": 13,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb",
+      "git_blob_sha1": "f1a8eb5842a5bb10f02e75d11b0fa228e8b1eb13",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 85,
+      "lines": 3,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6",
+      "git_blob_sha1": "7847a18cb07460b0c8798ba562ed376bed56a775",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 25,
+      "lines": 1,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3",
+      "git_blob_sha1": "50377611d981fc11af68fbd7eca35bd5a53975ce",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 48,
+      "lines": 2,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757",
+      "git_blob_sha1": "0cbb07845913f7859132d7ef1b6da8c969958e78",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/observations/orphan-file.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/orphan-file.observation.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 2907,
+      "lines": 90,
+      "sha256": "11b20d1fe14d994702b75a56b038ac02c8fdfae21cce1aa95a258af2a960a1db",
+      "git_blob_sha1": "f7cc60d39654fd347b5125a80404e023eb8c5077",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/observations/namespace-known-key.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/namespace-known-key.observation.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 3055,
+      "lines": 94,
+      "sha256": "728bec8599818cc9df6630d90eaf2997f531d1721412f48af8e7a3cbb2f400d5",
+      "git_blob_sha1": "2b04489abbd7cfcb135b337444c0164160b9e8cb",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/observations/production-defaults.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/production-defaults.observation.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 4138,
+      "lines": 122,
+      "sha256": "7c0fde73f45a7f2b9feeb1f04bdbb188ca5e1b348d5c402dd98766bbcd81f439",
+      "git_blob_sha1": "97e7fb57ecaa6c691bf87046bee2a445a7e44e1f",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/observations/corrupt-artifact.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/corrupt-artifact.observation.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 633,
+      "lines": 18,
+      "sha256": "ba26190b91538f0d388c7757abcb8c9a428a0b441ec2889a1e05c305df3567b6",
+      "git_blob_sha1": "ecaa7e87028ed77a5160786adb49ecda5eeb755a",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/oracle/package.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/oracle/package.json",
+        "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 177,
+      "lines": 7,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7",
+      "git_blob_sha1": "afbfe4d3fdc9d76c534f5d973c1e992b9d799a12",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/oracle/package-lock.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/oracle/package-lock.json",
+        "recovered-a1/snapshots/oracle-identity.json.final.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 32855,
+      "lines": 927,
+      "sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74",
+      "git_blob_sha1": "7f2a9770f4a5df84b262fc960558afe8599a9f87",
+      "historical_proof": {
+        "original_sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74"
+      }
+    },
+    {
+      "path": "xtask/project_analysis/oracle/identity.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/oracle-identity.json.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 290,
+      "lines": 7,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3",
+      "git_blob_sha1": "5b70a3a93aa3bfb56fe2493890254676c5927d8e",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/oracle/validation.json",
+      "source_evidence": [
+        "recovered-a1/snapshots/oracle-validation.json.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 903,
+      "lines": 23,
+      "sha256": "ae111a9db187c0d59bd070e3f84fc55f377c14d49c13b1200343f7a03865e28a",
+      "git_blob_sha1": "61fd6f16e661cd7cd67404969893962b58e00093",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/reference/LICENSE.knip",
+      "source_evidence": [
+        "recovered-a1/snapshots/LICENSE.knip.final.txt",
+        "recovered-a1/commands/160-license-resolution.sh.txt"
+      ],
+      "transformation": null,
+      "bytes": 750,
+      "lines": 15,
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341",
+      "git_blob_sha1": "72f6edbb06d4ae16eeb1f61050575628f913cc5c",
+      "historical_proof": {
+        "original_sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341"
+      }
+    },
+    {
+      "path": "xtask/project_analysis/reference/additional-sources.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/reference/additional-sources.json",
+        "recovered-a1/commands/020-reference-sources.sh.txt",
+        "recovered-a1/commands/030-reference-inventory.sh.txt",
+        "recovered-a1/commands/160-license-resolution.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 14246,
+      "lines": 252,
+      "sha256": "5c08986f15d7622d077c58c8c6bd685d0edbd7efe49e11112c1b2c9f9911f157",
+      "git_blob_sha1": "57fbddf70daa77c51aa3c146d94334593b17be01",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/reference/inventory.md",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/reference/inventory.md",
+        "recovered-a1/commands/030-reference-inventory.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 37793,
+      "lines": 190,
+      "sha256": "323c66cfe6459519201cfa0b6d5fbe1d0ab2364a70d929c2d1c4d0b8ec9c577c",
+      "git_blob_sha1": "d86bd0d44138a55064a035f68e130eca920a0dc3",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/reference/sources.json",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/reference/sources.json",
+        "recovered-a1/commands/030-reference-inventory.sh.txt"
+      ],
+      "transformation": "Complete initial reviewed source unchanged by final b292 ownership-only fix",
+      "bytes": 29526,
+      "lines": 602,
+      "sha256": "7a77e380141ea1f028870d326a404cb1d6c5c6c3a13a11d496e3b6a62ca0eee3",
+      "git_blob_sha1": "7cc95846598c7f4e02d63454bb61c725c849af0b",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/reference/tests.json",
+      "source_evidence": [
+        "recovered-reference-regeneration/b292e878-final/xtask/project_analysis/reference/tests.json",
+        "recovered-a1/commands/010-reference-tree.sh.txt",
+        "recovered-a1/commands/020-reference-sources.sh.txt",
+        "recovered-a1/commands/030-reference-inventory.sh.txt",
+        "recovered-a1/commands/150-reference-title-correction.sh.txt",
+        "recovered-a1/diffs/round1-ownership.diff.txt"
+      ],
+      "transformation": "Exact immutable-input regeneration independently matched original final Git blob",
+      "bytes": 192805,
+      "lines": 5537,
+      "sha256": "1a604774aed40d03aa8e296f0103507f70b5c27751d7a849fda79365b203409d",
+      "git_blob_sha1": "c1cc14c60b6826943cf2812ad4286386afae4c31",
+      "historical_proof": {
+        "original_git_blob_prefix": "c1cc14c60b6"
+      }
+    },
+    {
+      "path": "xtask/project_analysis/src/main.rs",
+      "source_evidence": [
+        "recovered-a1/snapshots/main.rs.final.txt"
+      ],
+      "transformation": null,
+      "bytes": 1242,
+      "lines": 40,
+      "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2",
+      "git_blob_sha1": "7f7364f52793cc764d1c4a1964a8a2d9c0328303",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/src/artifact.rs",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/src/artifact.rs",
+        "recovered-a1/snapshots/artifact.rs.before-clippy.txt",
+        "recovered-a1/commands/100-clippy-and-test-module-order.sh.txt",
+        "recovered-a1/commands/110-artifact-clippy-fix.sh.txt"
+      ],
+      "transformation": "Complete reviewed3d051362 source unchanged by final b292 ownership-only fix; artifact includes map_or_else; both test modules moved to end",
+      "bytes": 7846,
+      "lines": 231,
+      "sha256": "5cfe26901dc472366eedd416371d58326c117179c292cf97492e7fd0eccc4483",
+      "git_blob_sha1": "14b38f6179929ff97ecf2f0dd250be61679fccf8",
+      "historical_proof": null
+    },
+    {
+      "path": "xtask/project_analysis/src/conformance.rs",
+      "source_evidence": [
+        "recovered-a1-review/xtask/project_analysis/src/conformance.rs",
+        "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt",
+        "recovered-a1/commands/100-clippy-and-test-module-order.sh.txt"
+      ],
+      "transformation": "Complete reviewed3d051362 source unchanged by final b292 ownership-only fix; artifact includes map_or_else; both test modules moved to end",
+      "bytes": 10935,
+      "lines": 286,
+      "sha256": "3df5178fec50ccc24b551b3c6160676d3970b87cf65f3a584fa506f571e3ec41",
+      "git_blob_sha1": "e36446cf96b9e99160849babc34fdc650a373da7",
+      "historical_proof": null
+    }
+  ]
+}

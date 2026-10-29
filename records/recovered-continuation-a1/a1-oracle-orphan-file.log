@@ -1,0 +1,4 @@
+   Compiling xtask_project_analysis v0.0.0 (/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis)
+    Finished `dev` profile [unoptimized] target(s) in 0.60s
+     Running `/workspace/.biome-cloud/native-continuation/target/debug/xtask_project_analysis conformance --case orphan-file --oracle-only`
+retained oracle observation orphan-file; profile validated: false; native parity: untested

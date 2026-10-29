@@ -1,0 +1,13 @@
+{
+  "name": "production-defaults",
+  "private": true,
+  "dependencies": {
+    "unused-production": "1.0.0"
+  },
+  "devDependencies": {
+    "unused-development": "1.0.0"
+  },
+  "catalog": {
+    "unused-catalog": "1.0.0"
+  }
+}
