@@ -1,0 +1,24 @@
+   Compiling xtask_project_analysis v0.0.0 (/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis)
+    Finished `test` profile [unoptimized] target(s) in 0.81s
+     Running unittests src/main.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/xtask_project_analysis-9c09fc6f40118c2a)
+
+running 1 test
+test conformance::tests::failed_oracle_process_retains_output_and_invalidates_validation ... FAILED
+
+failures:
+
+---- conformance::tests::failed_oracle_process_retains_output_and_invalidates_validation stdout ----
+
+thread 'conformance::tests::failed_oracle_process_retains_output_and_invalidates_validation' (146724) panicked at xtask/project_analysis/src/conformance.rs:312:9:
+assertion `left == right` failed
+  left: Bool(true)
+ right: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    conformance::tests::failed_oracle_process_retains_output_and_invalidates_validation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p xtask_project_analysis --bin xtask_project_analysis`

@@ -1,0 +1,1030 @@
+//! This module contains the configuration of `biome.json`.
+//!
+//! The configuration is divided by tool and can be further customized by language. Each
+//! language's configuration can contain tool-specific options.
+
+#![deny(clippy::use_self)]
+
+pub mod analyzer;
+pub mod bool;
+#[cfg(feature = "lang_css")]
+pub mod css;
+pub mod diagnostics;
+pub mod editorconfig;
+mod extends;
+pub mod formatter;
+pub mod generated;
+#[cfg(feature = "lang_graphql")]
+pub mod graphql;
+pub mod grit;
+#[cfg(feature = "lang_html")]
+pub mod html;
+#[cfg(feature = "lang_js")]
+pub mod javascript;
+#[cfg(feature = "lang_json")]
+pub mod json;
+#[cfg(feature = "lang_md")]
+pub mod markdown;
+pub mod max_size;
+pub mod project_analysis;
+pub use project_analysis::ProjectAnalysisConfiguration;
+mod overrides;
+pub mod tailwind;
+pub mod vcs;
+#[cfg(feature = "lang_yaml")]
+pub mod yaml;
+
+use crate::analyzer::RuleDomains;
+#[cfg(feature = "cli")]
+use crate::analyzer::assist::assist_configuration;
+use crate::analyzer::assist::{Actions, AssistConfiguration};
+use crate::analyzer::presets::PresetConfig;
+use crate::bool::Bool;
+#[cfg(feature = "lang_css")]
+use crate::css::{CssFormatterConfiguration, CssLinterConfiguration, CssParserConfiguration};
+pub use crate::diagnostics::BiomeDiagnostic;
+pub use crate::diagnostics::CantLoadExtendFile;
+use crate::extends::Extends;
+pub use crate::generated::{push_to_analyzer_assist, push_to_analyzer_rules};
+#[cfg(feature = "lang_graphql")]
+use crate::graphql::{GraphqlFormatterConfiguration, GraphqlLinterConfiguration};
+pub use crate::grit::GritConfiguration;
+#[cfg(feature = "cli")]
+pub use crate::grit::grit_configuration;
+#[cfg(feature = "lang_js")]
+use crate::javascript::{JsFormatterConfiguration, JsLinterConfiguration};
+#[cfg(feature = "lang_json")]
+use crate::json::{JsonFormatterConfiguration, JsonLinterConfiguration};
+#[cfg(feature = "lang_md")]
+pub use crate::markdown::MarkdownConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_md"))]
+pub use crate::markdown::markdown_configuration;
+use crate::max_size::MaxSize;
+pub use crate::tailwind::TailwindConfiguration;
+use crate::vcs::VcsConfiguration;
+#[cfg(feature = "cli")]
+use crate::vcs::vcs_configuration;
+#[cfg(feature = "lang_yaml")]
+pub use crate::yaml::YamlConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_yaml"))]
+pub use crate::yaml::yaml_configuration;
+#[cfg(feature = "cli")]
+pub use analyzer::linter_configuration;
+pub use analyzer::{
+    LinterConfiguration, RuleConfiguration, RuleFixConfiguration, RulePlainConfiguration,
+    RuleWithFixOptions, RuleWithOptions, Rules,
+};
+use biome_analyze::ExtendedConfigurationProvider;
+use biome_console::fmt::{Display, Formatter};
+use biome_console::{KeyValuePair, markup};
+use biome_deserialize::{
+    Deserializable, DeserializableTypes, DeserializableValidator, DeserializableValue,
+    DeserializationContext, DeserializationDiagnostic, DeserializationVisitor, MapMembers, Merge,
+    Text, TextRange,
+};
+use biome_deserialize_macros::{Deserializable, Merge};
+use biome_diagnostics::Severity;
+use biome_formatter::IndentStyle;
+#[cfg(feature = "lang_js")]
+use biome_formatter::QuoteStyle;
+#[cfg(feature = "cli")]
+use bpaf::Bpaf;
+use camino::Utf8PathBuf;
+#[cfg(feature = "lang_css")]
+pub use css::CssConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_css"))]
+pub use css::css_configuration;
+pub use formatter::FormatterConfiguration;
+#[cfg(feature = "cli")]
+pub use formatter::formatter_configuration;
+#[cfg(feature = "lang_html")]
+pub use html::HtmlConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_html"))]
+pub use html::html_configuration;
+#[cfg(feature = "lang_js")]
+pub use javascript::JsConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_js"))]
+pub use javascript::js_configuration;
+#[cfg(feature = "lang_json")]
+pub use json::JsonConfiguration;
+#[cfg(all(feature = "cli", feature = "lang_json"))]
+pub use json::json_configuration;
+pub use overrides::{
+    OverrideAssistConfiguration, OverrideFilesConfiguration, OverrideFormatterConfiguration,
+    OverrideGlobs, OverrideLinterConfiguration, OverridePattern, Overrides,
+};
+use regex::Regex;
+use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::fmt::Debug;
+use std::iter::FusedIterator;
+use std::slice::Iter;
+use std::str::FromStr;
+use std::sync::{Arc, LazyLock};
+use vcs::VcsClientKind;
+
+pub const DEFAULT_SCANNER_IGNORE_ENTRIES: &[&[u8]] = &[
+    b".cache",
+    b".git",
+    b".hg",
+    b".netlify",
+    b".output",
+    b".svn",
+    b".yarn",
+    b".timestamp",
+    b".turbo",
+    b".vercel",
+    b".DS_Store",
+];
+
+pub const VERSION: &str = match option_env!("BIOME_VERSION") {
+    Some(version) => version,
+    None => "0.0.0",
+};
+
+pub type RootEnabled = Bool<true>;
+
+/// The configuration contained in `biome.json` or `biome.jsonc`.
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, Deserializable, Merge)]
+#[cfg_attr(feature = "cli", derive(Bpaf))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("allowTrailingCommas" = true)))] // mute VSCode warning
+#[serde(deny_unknown_fields, default, rename_all = "camelCase")]
+#[deserializable(with_validator)]
+pub struct Configuration {
+    /// The JSON Schema used to validate the configuration and provide editor completion. Biome
+    /// emits a diagnostic when a `biomejs.dev` schema URL specifies a version that differs from the
+    /// running CLI version.
+    #[serde(rename = "$schema")]
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<Schema>,
+
+    /// Marks whether this file is the root configuration for a Biome project. The root configuration
+    /// establishes the project's base settings, while `false` marks a configuration found inside the
+    /// project as nested rather than a second project root.
+    ///
+    /// Defaults to `true`. Biome implicitly treats `root` as `false` when a nested configuration uses
+    /// `"extends": "//"`. All other nested configurations must explicitly set `root` to `false`.
+    #[cfg_attr(feature = "cli", bpaf(hide, hide_usage))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root: Option<RootEnabled>,
+
+    /// Extends the current configuration with settings from one or more other Biome configurations.
+    /// Use `"//"` in a nested configuration to extend the root configuration at any nesting depth.
+    /// Use an array to extend configurations by relative path or installed package specifier.
+    ///
+    /// Biome merges configurations from left to right. Later configurations take precedence for
+    /// single-value options, list entries are combined, and the current file is applied last.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extends: Option<Extends>,
+
+    /// The version control integration configuration.
+    #[cfg_attr(
+        feature = "cli",
+        bpaf(external(vcs_configuration), optional, hide_usage)
+    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vcs: Option<VcsConfiguration>,
+
+    /// Configures which files Biome can discover and process.
+    #[cfg_attr(
+        feature = "cli",
+        bpaf(external(files_configuration), optional, hide_usage)
+    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files: Option<FilesConfiguration>,
+
+    /// Declarative project analysis inputs. Disabled by default; native analysis integration is pending.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_analysis: Option<ProjectAnalysisConfiguration>,
+
+    /// Configures formatting for selected files.
+    #[cfg_attr(feature = "cli", bpaf(external(formatter_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub formatter: Option<FormatterConfiguration>,
+
+    /// The linter configuration.
+    #[cfg_attr(feature = "cli", bpaf(external(linter_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub linter: Option<LinterConfiguration>,
+
+    /// Configures how Biome recognizes Tailwind class strings.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tailwind: Option<TailwindConfiguration>,
+
+    /// Configuration specific to JavaScript.
+    #[cfg(feature = "lang_js")]
+    #[cfg_attr(feature = "cli", bpaf(external(js_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub javascript: Option<JsConfiguration>,
+
+    /// Configuration specific to JSON.
+    #[cfg(feature = "lang_json")]
+    #[cfg_attr(feature = "cli", bpaf(external(json_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub json: Option<JsonConfiguration>,
+
+    /// Configuration specific to CSS.
+    #[cfg(feature = "lang_css")]
+    #[cfg_attr(feature = "cli", bpaf(external(css_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub css: Option<CssConfiguration>,
+
+    /// Configuration specific to Markdown.
+    #[cfg_attr(feature = "cli", bpaf(external(markdown_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg(feature = "lang_md")]
+    pub markdown: Option<MarkdownConfiguration>,
+
+    /// Configuration specific to YAML.
+    #[cfg_attr(feature = "cli", bpaf(external(yaml_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg(feature = "lang_yaml")]
+    pub yaml: Option<YamlConfiguration>,
+
+    /// Configuration specific to GraphQL.
+    #[cfg(feature = "lang_graphql")]
+    #[cfg_attr(
+        all(feature = "cli", feature = "lang_graphql"),
+        bpaf(external(crate::graphql::graphql_configuration), optional)
+    )]
+    #[cfg_attr(
+        all(feature = "lang_graphql"),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub graphql: Option<crate::graphql::GraphqlConfiguration>,
+
+    /// Configuration specific to GritQL.
+    #[cfg_attr(feature = "cli", bpaf(external(grit_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub grit: Option<GritConfiguration>,
+
+    /// Configuration specific to HTML.
+    #[cfg(feature = "lang_html")]
+    #[cfg_attr(feature = "cli", bpaf(external(html_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html: Option<HtmlConfiguration>,
+
+    /// Configures settings for files selected by each override. When multiple overrides configure
+    /// the same single-value setting, the last matching override takes precedence.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub overrides: Option<Overrides>,
+
+    /// A list of GritQL plugins to load.
+    #[cfg(feature = "plugins")]
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[cfg_attr(feature = "plugins", serde(skip_serializing_if = "Option::is_none"))]
+    pub plugins: Option<biome_plugin_loader::Plugins>,
+
+    /// The assist configuration.
+    #[cfg_attr(feature = "cli", bpaf(external(assist_configuration), optional))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assist: Option<AssistConfiguration>,
+}
+
+impl DeserializableValidator for Configuration {
+    fn validate(
+        &mut self,
+        ctx: &mut dyn DeserializationContext,
+        _name: &str,
+        range: TextRange,
+    ) -> bool {
+        if self.root.is_some_and(|root| root.value())
+            && self
+                .extends
+                .as_ref()
+                .is_some_and(|extends| extends.extends_root())
+        {
+            ctx.report(
+                DeserializationDiagnostic::new(
+                    markup!(<Warn>"The configuration file cannot be both a root of a Biome project and extended from a root configuration."</Warn>),
+                )
+                    .with_range(range)
+                    .with_custom_severity(Severity::Error)
+            )
+        }
+
+        true
+    }
+}
+
+impl Configuration {
+    /// Returns the initial configuration as generated by `biome init`.
+    pub fn init() -> Self {
+        Self {
+            schema: Some(format!("https://biomejs.dev/schemas/{VERSION}/schema.json").into()),
+            vcs: Some(VcsConfiguration {
+                enabled: Some(false.into()),
+                client_kind: Some(VcsClientKind::Git),
+                use_ignore_file: Some(false.into()),
+                ..Default::default()
+            }),
+            files: Some(FilesConfiguration {
+                ignore_unknown: Some(false.into()),
+                ..Default::default()
+            }),
+            formatter: Some(FormatterConfiguration {
+                enabled: Some(true.into()),
+                indent_style: Some(IndentStyle::Tab),
+                ..Default::default()
+            }),
+            linter: Some(LinterConfiguration {
+                enabled: Some(true.into()),
+                rules: Some(Rules {
+                    preset: Some(PresetConfig::default()),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            assist: Some(AssistConfiguration {
+                enabled: Some(true.into()),
+                actions: Some({
+                    #[cfg(feature = "lang_js")]
+                    {
+                        Actions {
+                            source: Some(crate::analyzer::assist::Source {
+                                organize_imports: Some(
+                                    crate::analyzer::RuleAssistConfiguration::Plain(
+                                        crate::analyzer::RuleAssistPlainConfiguration::On,
+                                    ),
+                                ),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }
+                    }
+                    #[cfg(not(feature = "lang_js"))]
+                    {
+                        Actions::default()
+                    }
+                }),
+                ..Default::default()
+            }),
+            #[cfg(feature = "lang_js")]
+            javascript: Some(JsConfiguration {
+                formatter: Some(JsFormatterConfiguration {
+                    quote_style: Some(QuoteStyle::Double),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+
+    /// Whether these settings belong to a root.
+    ///
+    /// If [`Self::root`] is `None`, this uses the result of
+    /// [`Self::extends_root()`] to determine an implicit default (a config that
+    /// extends the root cannot be a root itself).
+    pub fn is_root(&self) -> bool {
+        match self.root {
+            Some(root) => root.value(),
+            None => !self.extends_root(),
+        }
+    }
+
+    pub fn extends_root(&self) -> bool {
+        self.extends.as_ref().is_some_and(Extends::extends_root)
+    }
+
+    pub fn get_files_configuration(&self) -> FilesConfiguration {
+        self.files.clone().unwrap_or_default()
+    }
+
+    pub fn get_formatter_configuration(&self) -> FormatterConfiguration {
+        self.formatter.clone().unwrap_or_default()
+    }
+
+    #[cfg(feature = "lang_js")]
+    pub fn get_javascript_formatter_configuration(&self) -> JsFormatterConfiguration {
+        self.javascript
+            .as_ref()
+            .and_then(|lang| lang.formatter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+    #[cfg(feature = "lang_js")]
+    pub fn get_javascript_linter_configuration(&self) -> JsLinterConfiguration {
+        self.javascript
+            .as_ref()
+            .and_then(|lang| lang.linter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    #[cfg(feature = "lang_json")]
+    pub fn get_json_formatter_configuration(&self) -> JsonFormatterConfiguration {
+        self.json
+            .as_ref()
+            .and_then(|lang| lang.formatter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    pub fn is_formatter_enabled(&self) -> bool {
+        self.formatter.as_ref().is_some_and(|f| f.is_enabled())
+    }
+
+    pub fn is_linter_enabled(&self) -> bool {
+        self.linter.as_ref().is_some_and(|f| f.is_enabled())
+    }
+
+    pub fn is_assist_enabled(&self) -> bool {
+        self.assist.as_ref().is_some_and(|f| f.is_enabled())
+    }
+
+    pub fn get_linter_rules(&self) -> Rules {
+        self.linter
+            .as_ref()
+            .map(|f| f.get_rules())
+            .unwrap_or_default()
+    }
+
+    pub fn get_linter_domains(&self) -> Option<&RuleDomains> {
+        self.linter.as_ref().and_then(|l| l.domains.as_ref())
+    }
+
+    pub fn get_assist_actions(&self) -> Actions {
+        self.assist
+            .as_ref()
+            .map(|f| f.get_actions())
+            .unwrap_or_default()
+    }
+
+    pub fn is_vcs_enabled(&self) -> bool {
+        self.vcs.as_ref().is_some_and(|v| v.is_enabled())
+    }
+
+    pub fn use_ignore_file(&self) -> bool {
+        self.is_vcs_enabled()
+            && self
+                .vcs
+                .as_ref()
+                .is_some_and(|vcs| vcs.use_ignore_file == Some(true.into()))
+    }
+
+    /// Whether Biome should check for `.editorconfig` file
+    pub fn use_editorconfig(&self) -> bool {
+        self.formatter
+            .as_ref()
+            .is_some_and(|c| c.use_editorconfig_resolved())
+    }
+
+    #[cfg(feature = "lang_json")]
+    pub fn get_json_linter_configuration(&self) -> JsonLinterConfiguration {
+        self.json
+            .as_ref()
+            .and_then(|lang| lang.linter.clone())
+            .unwrap_or_default()
+    }
+    #[cfg(feature = "lang_css")]
+    pub fn get_css_parser_configuration(&self) -> CssParserConfiguration {
+        self.css
+            .as_ref()
+            .and_then(|lang| lang.parser.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+    #[cfg(feature = "lang_css")]
+    pub fn get_css_formatter_configuration(&self) -> CssFormatterConfiguration {
+        self.css
+            .as_ref()
+            .and_then(|lang| lang.formatter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    #[cfg(feature = "lang_css")]
+    pub fn get_css_linter_configuration(&self) -> CssLinterConfiguration {
+        self.css
+            .as_ref()
+            .and_then(|lang| lang.linter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    #[cfg(feature = "lang_graphql")]
+    pub fn get_graphql_formatter_configuration(&self) -> GraphqlFormatterConfiguration {
+        self.graphql
+            .as_ref()
+            .and_then(|lang| lang.formatter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    #[cfg(feature = "lang_graphql")]
+    pub fn get_graphql_linter_configuration(&self) -> GraphqlLinterConfiguration {
+        self.graphql
+            .as_ref()
+            .and_then(|lang| lang.linter.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, Merge)]
+#[cfg_attr(feature = "cli", derive(Bpaf))]
+#[serde(deny_unknown_fields, default, rename_all = "camelCase")]
+pub struct Schema(String);
+
+impl FromStr for Schema {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(s.into())
+    }
+}
+
+impl From<String> for Schema {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+impl From<&str> for Schema {
+    fn from(value: &str) -> Self {
+        Self(value.into())
+    }
+}
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for Schema {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        std::borrow::Cow::Borrowed("Schema")
+    }
+
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        String::json_schema(generator)
+    }
+}
+
+static SCHEMA_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"https://biomejs.dev/schemas/([\d.]+)/schema.json").unwrap());
+
+impl Deserializable for Schema {
+    fn deserialize(
+        ctx: &mut dyn DeserializationContext,
+        value: &impl DeserializableValue,
+        name: &str,
+    ) -> Option<Self> {
+        struct Visitor;
+        impl DeserializationVisitor for Visitor {
+            type Output = Schema;
+            const EXPECTED_TYPE: DeserializableTypes = DeserializableTypes::STR;
+
+            fn visit_str(
+                self,
+                ctx: &mut dyn DeserializationContext,
+                value: Text,
+                range: TextRange,
+                _name: &str,
+            ) -> Option<Self::Output> {
+                if let Some(captures) = SCHEMA_REGEX.captures(value.text())
+                    && let Some(config_version_match) = captures.get(1)
+                {
+                    let cli_version = Version::new(VERSION);
+                    let config_version_str = Version::new(config_version_match.as_str());
+                    match config_version_str.cmp(&cli_version) {
+                            Ordering::Less | Ordering::Greater => {
+                                ctx.report(
+                                    DeserializationDiagnostic::new(
+                                        markup!(<Warn>"The configuration schema version does not match the CLI version " {VERSION}</Warn>),
+                                    )
+                                        .with_range(range)
+                                        .with_custom_severity(Severity::Information)
+                                        .with_note(markup!(
+                                        {KeyValuePair::new("Expected", markup!({VERSION}))}
+                                        {KeyValuePair::new("Found", markup!({config_version_str}))}
+                                    ))
+                                        .with_note(markup!("Run the command "<Emphasis>"biome migrate"</Emphasis>" to migrate the configuration file."))
+                                )
+
+
+                            }
+                            _ => {},
+                        }
+                }
+
+                Some(Schema(value.text().into()))
+            }
+        }
+
+        value.deserialize(ctx, Visitor, name)
+    }
+}
+
+#[derive(PartialEq, Eq)]
+pub struct Version<'a>(&'a str);
+
+impl<'a> Version<'a> {
+    pub fn new(version: &'a str) -> Self {
+        Version(version)
+    }
+
+    fn parse_version(&self) -> Vec<u32> {
+        self.0
+            .split('.')
+            .filter_map(|part| part.parse::<u32>().ok())
+            .collect()
+    }
+}
+
+impl PartialOrd for Version<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Version<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let self_parts = self.parse_version();
+        let other_parts = other.parse_version();
+
+        for (a, b) in self_parts.iter().zip(other_parts.iter()) {
+            match a.cmp(b) {
+                Ordering::Equal => {}
+                non_eq => return non_eq,
+            }
+        }
+
+        self_parts.len().cmp(&other_parts.len())
+    }
+}
+
+impl Display for Version<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::io::Error> {
+        write!(f, "{}", self.0)
+    }
+}
+
+pub type FilesIgnoreUnknownEnabled = Bool<false>;
+
+/// The file handling configuration.
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, Merge)]
+#[cfg_attr(feature = "cli", derive(Bpaf))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase", default, deny_unknown_fields)]
+pub struct FilesConfiguration {
+    /// The maximum source-file size in bytes. Biome skips larger files and emits a warning
+    /// diagnostic. Defaults to `1 MiB`.
+    #[cfg_attr(feature = "cli", bpaf(long("files-max-size"), argument("NUMBER")))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_size: Option<MaxSize>,
+
+    /// Prevents Biome from emitting diagnostics for unrecognized file types. Defaults to `false`.
+    #[cfg_attr(
+        feature = "cli",
+        bpaf(long("files-ignore-unknown"), argument("true|false"), optional)
+    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ignore_unknown: Option<FilesIgnoreUnknownEnabled>,
+
+    /// A list of glob patterns selecting which files and directories Biome can process. If omitted,
+    /// this option does not further restrict the supported files Biome can process. An empty list
+    /// selects no files. Biome ignores files under `node_modules` even when they match a pattern.
+    ///
+    /// The scanner uses these patterns and, when enabled, VCS ignore files while discovering nested
+    /// configuration and ignore files. When enabled rules use the `project` or `types` domains, it
+    /// also indexes source files and project dependencies. It may still discover required metadata or
+    /// index excluded source files needed for analysis. A pattern beginning with `!!` prevents the
+    /// scanner from indexing matching paths. Patterns are evaluated in order, and a pattern beginning
+    /// with `!` excludes matches.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub includes: Option<Vec<biome_glob::NormalizedGlob>>,
+
+    /// **Deprecated:** Please use _force-ignore syntax_ in `files.includes`
+    /// instead: <https://biomejs.dev/reference/configuration/#filesincludes>
+    ///
+    /// File or directory names that the scanner ignores unconditionally while crawling. Each value
+    /// matches a complete path component, not a glob. Ignored files are not added to the module graph,
+    /// so types are not inferred from them.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub experimental_scanner_ignores: Option<Vec<String>>,
+}
+
+impl FilesConfiguration {
+    fn deserialize_field(
+        &mut self,
+        ctx: &mut dyn DeserializationContext,
+        name: &str,
+        value: &impl DeserializableValue,
+        range: TextRange,
+    ) {
+        match name {
+            "maxSize" => {
+                if let Some(value) = Deserializable::deserialize(ctx, value, name) {
+                    self.max_size = value;
+                }
+            }
+            "ignoreUnknown" => {
+                if let Some(value) = Deserializable::deserialize(ctx, value, name) {
+                    self.ignore_unknown = value;
+                }
+            }
+            "includes" => {
+                if let Some(value) = Deserializable::deserialize(ctx, value, name) {
+                    self.includes = value;
+                }
+            }
+            "experimentalScannerIgnores" => {
+                if let Some(value) = Deserializable::deserialize(ctx, value, name) {
+                    self.experimental_scanner_ignores = value;
+
+                    let mut diagnostic = DeserializationDiagnostic::new_deprecated(name, range);
+                    if let Some(ignores) = &self.experimental_scanner_ignores {
+                        let suggestions: Vec<String> = ignores
+                            .iter()
+                            .filter(|entry| {
+                                !DEFAULT_SCANNER_IGNORE_ENTRIES.contains(&entry.as_bytes())
+                            })
+                            .map(|entry| format!("\"!!**/{entry}\""))
+                            .collect();
+                        diagnostic = diagnostic.note_with_list(
+                            markup! {
+                                "You may want to add the following entries to "
+                                <Emphasis>"files.includes"</Emphasis>" instead:"
+                            },
+                            &suggestions,
+                        );
+                    }
+                    let link = "https://biomejs.dev/reference/configuration/#filesincludes";
+                    ctx.report(diagnostic.with_note(markup! {
+                        "See "<Hyperlink href={link}>"the files.includes documentation"</Hyperlink>
+                        " for more information."
+                    }));
+                }
+            }
+            unknown_key => {
+                const ALLOWED_KEYS: &[&str] = &[
+                    "maxSize",
+                    "ignoreUnknown",
+                    "includes",
+                    "experimentalScannerIgnores",
+                ];
+                ctx.report(DeserializationDiagnostic::new_unknown_key(
+                    unknown_key,
+                    range,
+                    ALLOWED_KEYS,
+                ))
+            }
+        }
+    }
+}
+
+impl biome_deserialize::Deserializable for FilesConfiguration {
+    fn deserialize(
+        ctx: &mut dyn DeserializationContext,
+        value: &impl DeserializableValue,
+        name: &str,
+    ) -> Option<Self> {
+        struct Visitor;
+        impl DeserializationVisitor for Visitor {
+            type Output = FilesConfiguration;
+            const EXPECTED_TYPE: DeserializableTypes = DeserializableTypes::MAP;
+            fn visit_map(
+                self,
+                ctx: &mut dyn DeserializationContext,
+                members: &mut MapMembers<'_>,
+                _range: TextRange,
+                _name: &str,
+            ) -> Option<Self::Output> {
+                let mut result = FilesConfiguration::default();
+                for (key, value) in members.flatten() {
+                    if let Some(key_text) = Text::deserialize(ctx, &key, "") {
+                        result.deserialize_field(ctx, key_text.text(), &value, key.range());
+                    }
+                }
+                Some(result)
+            }
+        }
+
+        value.deserialize(ctx, Visitor, name)
+    }
+}
+
+#[derive(Debug, Default, PartialEq, Clone, Eq, Hash)]
+pub enum ConfigurationPathHint {
+    /// The default mode, not having a configuration file is not an error.
+    /// The path will be filled with the working directory if it is not filled at the time of usage.
+    #[default]
+    None,
+
+    /// Very similar to [ConfigurationPathHint::None]. However, the path provided by this variant
+    /// will be used as **working directory**, which means that all globs defined in the configuration
+    /// will use **this path** as base path.
+    FromWorkspace(Utf8PathBuf),
+
+    /// The configuration path provided by the LSP, not having a configuration file is not an error.
+    /// The path will always be a directory path.
+    FromLsp(Utf8PathBuf),
+
+    /// The configuration path provided by the user, not having a configuration file is an error.
+    /// The path can either be a directory path or a file path.
+    /// Throws any kind of I/O errors.
+    FromUser(Utf8PathBuf),
+
+    /// Very similar to [ConfigurationPathHint::FromUser]. However, this variant is used to indicate
+    /// that the configuration is outside of the current workspace.
+    FromUserExternal(Utf8PathBuf),
+}
+
+impl Display for ConfigurationPathHint {
+    fn fmt(&self, fmt: &mut Formatter) -> std::io::Result<()> {
+        match self {
+            Self::None => write!(fmt, "Configuration file not provided.",),
+            Self::FromWorkspace(path) => {
+                write!(fmt, "Configuration path provided from a workspace: {path}",)
+            }
+            Self::FromLsp(path) => {
+                write!(fmt, "Configuration path provided from the LSP: {path}",)
+            }
+            Self::FromUser(path) | Self::FromUserExternal(path) => {
+                write!(fmt, "Configuration path provided by the user: {path}",)
+            }
+        }
+    }
+}
+
+impl ConfigurationPathHint {
+    pub const fn is_from_user(&self) -> bool {
+        matches!(self, Self::FromUser(_))
+    }
+    pub const fn is_from_lsp(&self) -> bool {
+        matches!(self, Self::FromLsp(_))
+    }
+
+    pub fn to_path_buf(&self) -> Option<Utf8PathBuf> {
+        match self {
+            Self::None => None,
+            Self::FromWorkspace(path)
+            | Self::FromLsp(path)
+            | Self::FromUser(path)
+            | Self::FromUserExternal(path) => Some(path.to_path_buf()),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ConfigurationSource {
+    /// The directory used to resolve paths in the configuration.
+    pub directory_path: Option<Utf8PathBuf>,
+
+    /// The root configuration source.
+    pub root: Option<ConfigurationSourceEntry>,
+
+    /// The extended configuration files in merge order.
+    pub extended_configurations: ExtendedConfigurations,
+}
+
+impl ConfigurationSource {
+    /// Resolves the configuration inputs using the same order as `extends`.
+    pub fn resolve(&self) -> Configuration {
+        let mut root = self
+            .root
+            .as_ref()
+            .and_then(|root| root.configuration.clone())
+            .unwrap_or_default();
+        let mut configuration = Configuration::default();
+        let mut has_extends = false;
+        for extended in self.extended_configurations() {
+            configuration.merge_with(extended.clone());
+            has_extends = true;
+        }
+        if has_extends {
+            root.root = Some(root.is_root().into());
+        }
+        configuration.merge_with(root);
+        configuration
+    }
+
+    pub fn extended_configurations(&self) -> ExtendedConfigurationIterator<'_> {
+        ExtendedConfigurationIterator {
+            inner: self.extended_configurations.0.iter(),
+        }
+    }
+}
+
+/// One unmerged input in a configuration source graph.
+#[derive(Clone, Debug)]
+pub struct ConfigurationSourceEntry {
+    /// The configuration deserialized from this input before merging.
+    pub configuration: Option<Configuration>,
+
+    /// The resolved path when this input came from a file.
+    pub file_path: Option<Utf8PathBuf>,
+
+    /// The exact text used to deserialize the configuration file.
+    pub file_source: Option<Arc<str>>,
+}
+
+/// An extended configuration file and the specifier that resolved to it.
+#[derive(Clone, Debug)]
+pub struct ExtendedConfiguration {
+    /// The value declared in the root configuration's `extends` field.
+    pub specifier: Option<String>,
+
+    /// The unmerged extended configuration.
+    pub source: ConfigurationSourceEntry,
+}
+
+pub struct ExtendedConfigurationIterator<'a> {
+    inner: Iter<'a, ExtendedConfiguration>,
+}
+
+impl<'a> Iterator for ExtendedConfigurationIterator<'a> {
+    type Item = &'a Configuration;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner
+            .find_map(|extended| extended.source.configuration.as_ref())
+    }
+}
+
+impl FusedIterator for ExtendedConfigurationIterator<'_> {}
+
+impl DoubleEndedIterator for ExtendedConfigurationIterator<'_> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        while let Some(extended) = self.inner.next_back() {
+            if let Some(configuration) = extended.source.configuration.as_ref() {
+                return Some(configuration);
+            }
+        }
+        None
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ExtendedConfigurations(Vec<ExtendedConfiguration>);
+
+impl ExtendedConfigurations {
+    pub fn as_slice(&self) -> &[ExtendedConfiguration] {
+        &self.0
+    }
+}
+
+impl From<Vec<ExtendedConfiguration>> for ExtendedConfigurations {
+    fn from(value: Vec<ExtendedConfiguration>) -> Self {
+        Self(value)
+    }
+}
+
+impl<Path> From<Vec<(Path, Configuration)>> for ExtendedConfigurations
+where
+    Path: Into<Utf8PathBuf>,
+{
+    fn from(value: Vec<(Path, Configuration)>) -> Self {
+        Self(
+            value
+                .into_iter()
+                .map(|(path, configuration)| ExtendedConfiguration {
+                    specifier: None,
+                    source: ConfigurationSourceEntry {
+                        configuration: Some(configuration),
+                        file_path: Some(path.into()),
+                        file_source: None,
+                    },
+                })
+                .collect(),
+        )
+    }
+}
+
+impl ConfigurationSource {
+    pub fn source_path(&self) -> Option<Utf8PathBuf> {
+        self.directory_path.clone()
+    }
+}
+
+impl ExtendedConfigurationProvider for ConfigurationSource {
+    fn any_extended_starts_with_catch_all(&self) -> bool {
+        self.extended_configurations().any(|c| {
+            c.files
+                .as_ref()
+                .and_then(|files| files.includes.as_deref())
+                .is_some_and(|globs| globs.first().is_some_and(|glob| glob.as_str() == "**"))
+        })
+    }
+}
+
+impl ExtendedConfigurationProvider for ExtendedConfigurations {
+    fn any_extended_starts_with_catch_all(&self) -> bool {
+        ExtendedConfigurationIterator {
+            inner: self.0.iter(),
+        }
+        .any(|configuration| {
+            configuration
+                .files
+                .as_ref()
+                .and_then(|files| files.includes.as_deref())
+                .is_some_and(|globs| globs.first().is_some_and(|glob| glob.as_str() == "**"))
+        })
+    }
+}

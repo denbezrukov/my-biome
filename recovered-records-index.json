@@ -5458,6 +5458,166 @@
       "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2"
     },
     {
+      "path": "records/recovered-continuation-a2/README.md",
+      "bytes": 444,
+      "sha256": "27fd194f6696b7d35bef666b582149c77618ac5dae452d82caef70629fdb2953"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/a1-review-final-tests.log",
+      "bytes": 1353,
+      "sha256": "59a9c58fec761e457aa769d4408bd0f3cc95aa7ba602ee51f8b0b0323be761cf"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/a1-review-green.log",
+      "bytes": 522,
+      "sha256": "2795e25689b6320a547b1b709731706d615ac45ca70ae625aef1f96656ba34eb"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/a1-review-red.log",
+      "bytes": 1507,
+      "sha256": "6b05cfb4f3f61d5551c71cbdd5abb0098770e662bb45233f58470840f5e2a2ab"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/a1-validation-red.log",
+      "bytes": 1150,
+      "sha256": "84f591e2caebae439eae9bfa3127bf66c2ddb42ab31dc8ef2f9ad45b6752b020"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/a2-final-tests.log",
+      "bytes": 22213,
+      "sha256": "46597b5b6ac0c85ab28187fc74210e1c57c8e074e6f19354c32462668fb3b569"
+    },
+    {
+      "path": "records/recovered-continuation-a2/evidence/progress.md",
+      "bytes": 5375,
+      "sha256": "46dfd805e73e251636c7b5bd252fc858774c5aaadba4a355932f0f4b4dd6f65f"
+    },
+    {
+      "path": "records/recovered-continuation-a2/manifest.json",
+      "bytes": 4738,
+      "sha256": "521e3bd544e2414ec1572682844bca90a7c416727dede4f8b8831c572bbbcbf2"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/.changeset/perky-pumas-camp.md",
+      "bytes": 225,
+      "sha256": "9c740e9b83e2bee24a7b8def503e0770304ede664186e161d30710a3cdff7634"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/Cargo.lock",
+      "bytes": 179579,
+      "sha256": "ada7ddaaf3231feb652da1a575dca55f25decc9e753d409d4efc964cd4ae1b16"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/Cargo.toml",
+      "bytes": 4134,
+      "sha256": "28f57e440a0c08c0c13b5f99ec2d710b7bf0b403ca0ce725072875dbcecf801c"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/src/lib.rs",
+      "bytes": 37188,
+      "sha256": "c1990af407eff75d31aee6c489b7be224f5d8b945de604b7ab991958fff5c4e4"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/src/project_analysis.rs",
+      "bytes": 17689,
+      "sha256": "d216a46b2f99f80a1fc5e499b8b885dd97b4e79493d3498910090fde8dad5d33"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "bytes": 499,
+      "sha256": "50525046e13c886b0edcb8843125509d63c8e29a1ad3561f7e55879b7bd69f8b"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "bytes": 53,
+      "sha256": "f20f8eeb96d9cac3ea0ded012398639c56db90e2681282a8d7d606831296861a"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "bytes": 50,
+      "sha256": "5aeadfb82ae23d7ec0ea20a6fe1f7a904d071c983c2447656705c7aa122a4e03"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "bytes": 23,
+      "sha256": "3458a3605d43476e96a86f2350d393e8927d7ebfeef59eea59213e4b6b694bdb"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_configuration/tests/project_analysis.rs",
+      "bytes": 13164,
+      "sha256": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/src/lib.rs",
+      "bytes": 2734,
+      "sha256": "a03189c0a368aca7822255273ad9c0ef1ca4658739945514e95314873884c238"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/src/node_js_package/mod.rs",
+      "bytes": 4177,
+      "sha256": "de015a22e4f239b68e78d99786e132cc3d640003598c63624c5af790f92939b5"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/src/node_js_package/package_json.rs",
+      "bytes": 35139,
+      "sha256": "a13e31a99a40afecca632b4d416e7b8c415f7980f383e690e4a12af5abc785ae"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 15608,
+      "sha256": "693d8efbf0c2e37ebb2ebd44193dc77136b7999bc8bfd9d54c5bff4a9c8923ec"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "bytes": 21155,
+      "sha256": "1f2896532e5fc47ed600f641896e6b36a6b48d7d816c14eb658c2ec35ff367ff"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/tests/project_metadata.rs",
+      "bytes": 14282,
+      "sha256": "75433266aff2b8b8d0647697199c15e13f821448dc0312a26cc2aa4d298227e3"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "bytes": 3114,
+      "sha256": "6977fde8f7911f3d9c888ca53034139c99d7404ee6649b6f2a480d5a095ce523"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "bytes": 10184,
+      "sha256": "394e452fd1fbac2d518b8c24b47b59f928ccf781ab550f06bb09b2da40b89184"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+      "bytes": 478357,
+      "sha256": "e7acbc9756695f13b04c4517ac6a316a01086eb0ef8d8ed42203825e5251ddef"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/packages/@biomejs/biome/configuration_schema.json",
+      "bytes": 714024,
+      "sha256": "e07b4f61bde4a5fa14a872fcf796d49de4e36513333e47098862fa5eae953ceb"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/xtask/project_analysis/Cargo.toml",
+      "bytes": 493,
+      "sha256": "f324fcf35b7576b4c6f6c3e5c2438ba00a2c2d29d704eed5d2efde313585a1fa"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/xtask/project_analysis/README.md",
+      "bytes": 4893,
+      "sha256": "2012c07939ab7cbecf34c1c1574d5702fd3edd984273b182911a4b40468376fe"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/xtask/project_analysis/compatibility.json",
+      "bytes": 45994,
+      "sha256": "7e498436430b5f4e6ee4c776563ad89539050a53abcb44c1d522ed43346afeca"
+    },
+    {
+      "path": "records/recovered-continuation-a2/source/xtask/project_analysis/src/conformance.rs",
+      "bytes": 17633,
+      "sha256": "ae1b6c08b0c436f589d63d97fa0dea339276891381d3da503db824210b44d2c1"
+    },
+    {
       "path": "records/recovered-continuation-stage-maps/a1-original/README.md",
       "bytes": 1448,
       "sha256": "f5181d6a5ce7f4df5946406dbeb869fec14155bc5b144c57529055bde881982d"
