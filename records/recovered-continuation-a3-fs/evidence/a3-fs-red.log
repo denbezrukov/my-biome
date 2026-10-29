@@ -1,0 +1,84 @@
+   Compiling serde v1.0.229
+   Compiling syn v2.0.106
+   Compiling backtrace v0.3.76
+   Compiling crossbeam-queue v0.3.12
+   Compiling crossbeam v0.8.5
+   Compiling biome_text_size v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_text_size)
+   Compiling smallvec v1.16.2
+   Compiling biome_text_edit v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_text_edit)
+   Compiling parking_lot_core v0.9.12
+   Compiling biome_console v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_console)
+   Compiling biome_diagnostics_categories v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_diagnostics_categories)
+   Compiling biome_rowan v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_rowan)
+   Compiling parking_lot v0.12.5
+   Compiling enumflags2_derive v0.7.12
+   Compiling tracing-attributes v0.1.31
+   Compiling enumflags2 v0.7.12
+   Compiling biome_diagnostics v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_diagnostics)
+   Compiling tracing v0.1.44
+   Compiling biome_fs v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_fs)
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<MemoryFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:11:12
+   |
+11 |         fs.canonicalize_path(Utf8Path::new("/project/./File.ts"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<MemoryFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<MemoryFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:16:12
+   |
+16 |         fs.canonicalize_path(Utf8Path::new("/project/File.ts"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<MemoryFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<MemoryFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:18:12
+   |
+18 |         fs.canonicalize_path(Utf8Path::new("/project/file.ts"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<MemoryFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<MemoryFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:22:12
+   |
+22 |         fs.canonicalize_path(Utf8Path::new("/project/missing.ts"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<MemoryFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<OsFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:43:12
+   |
+43 |         fs.canonicalize_path(&fixture.working_directory.join("alias/File.ts"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<OsFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<OsFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:48:12
+   |
+48 |         fs.canonicalize_path(&fixture.working_directory.join("cycle-a"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<OsFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<OsFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:52:12
+   |
+52 |         fs.canonicalize_path(&fixture.working_directory.join("missing"))
+   |            ^^^^^^^^^^^^^^^^^ method not found in `Arc<OsFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<OsFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:61:16
+   |
+61 |             fs.canonicalize_path(&source).unwrap(),
+   |                ^^^^^^^^^^^^^^^^^ method not found in `Arc<OsFileSystem>`
+
+error[E0599]: no method named `canonicalize_path` found for struct `Arc<OsFileSystem>` in the current scope
+  --> crates/biome_fs/tests/canonical_path.rs:62:16
+   |
+62 |             fs.canonicalize_path(&lower).unwrap()
+   |                ^^^^^^^^^^^^^^^^^ method not found in `Arc<OsFileSystem>`
+
+warning: unused import: `FileSystem`
+ --> crates/biome_fs/tests/canonical_path.rs:1:16
+  |
+1 | use biome_fs::{FileSystem, MemoryFileSystem, TemporaryFs};
+  |                ^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0599`.
+warning: `biome_fs` (test "canonical_path") generated 1 warning
+error: could not compile `biome_fs` (test "canonical_path") due to 9 previous errors; 1 warning emitted

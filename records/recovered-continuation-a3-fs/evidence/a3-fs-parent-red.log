@@ -1,0 +1,25 @@
+    Blocking waiting for file lock on build directory
+   Compiling biome_fs v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_fs)
+    Finished `test` profile [unoptimized] target(s) in 2.16s
+     Running tests/canonical_path.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/canonical_path-76311bdc1c24b769)
+
+running 1 test
+test canonical_path_memory_preserves_root_and_leading_parent_identity ... FAILED
+
+failures:
+
+---- canonical_path_memory_preserves_root_and_leading_parent_identity stdout ----
+
+thread 'canonical_path_memory_preserves_root_and_leading_parent_identity' (154161) panicked at crates/biome_fs/tests/canonical_path.rs:35:5:
+assertion `left == right` failed
+  left: "target.ts"
+ right: "/target.ts"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    canonical_path_memory_preserves_root_and_leading_parent_identity
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p biome_fs --test canonical_path`

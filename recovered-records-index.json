@@ -5618,6 +5618,71 @@
       "sha256": "ae1b6c08b0c436f589d63d97fa0dea339276891381d3da503db824210b44d2c1"
     },
     {
+      "path": "records/recovered-continuation-a3-fs/evidence/CURRENT.md",
+      "bytes": 3093,
+      "sha256": "3210800467676c37b72a9dd89dffa24fe94e2f211f335fa73bd07b04bddba7d1"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/evidence/a3-fs-final-tests.log",
+      "bytes": 1565,
+      "sha256": "1d6d4d23233f834b0ce41f5ce72463475f78021ee6391dcf19dd483b00134630"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/evidence/a3-fs-parent-green.log",
+      "bytes": 628,
+      "sha256": "dee965350198af19f1874be165c93991857c29585cf7f51b46f1c36edf9d94e9"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/evidence/a3-fs-parent-red.log",
+      "bytes": 1084,
+      "sha256": "aa7a55122ab87a9b3bdcbcb52fad702128d2e3ea85700de58939e6d974c4613f"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/evidence/a3-fs-red.log",
+      "bytes": 4531,
+      "sha256": "679303715e0f79fc439d734665de4f42a17b3754cdd8ab8a6c04ef66c4d60204"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/evidence/progress.md",
+      "bytes": 7493,
+      "sha256": "0b02b0e218cf82e2d060ab45af8d3d8a67bc6c77b8702dec2db1c8ebfdd00846"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/manifest.json",
+      "bytes": 1099,
+      "sha256": "44f5aab7ee879aeb10d815872a5aeec09b961c7601c7abce81cd6d4e90ffa023"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/source/.changeset/calm-tips-accept.md",
+      "bytes": 240,
+      "sha256": "e455e6786f0572600ceffe79a4fa8f658a2fa7b5f91814b4738bb2bd5383a1bb"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/source/crates/biome_fs/src/fs.rs",
+      "bytes": 22317,
+      "sha256": "195374d88ac04e12544e0c7e1fbbb2e632de552becf317bcf375dcd02362dedf"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/source/crates/biome_fs/src/fs/memory.rs",
+      "bytes": 20469,
+      "sha256": "b0fb5126cce135af74adf5a96aa4bdcc7ed3380185d7844eae9b602cc90eb1be"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/source/crates/biome_fs/src/fs/os.rs",
+      "bytes": 16577,
+      "sha256": "bad23d1d821a64d78ddb7e6cae76eb2c457b9657fcee5f5458939a5795c2dd56"
+    },
+    {
+      "path": "records/recovered-continuation-a3-fs/source/crates/biome_fs/tests/canonical_path.rs",
+      "bytes": 3329,
+      "sha256": "00dd8075d79a69e607075e969714fc941dc69492d93dd5bc3b32e166b45f394e"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/CURRENT.md",
+      "bytes": 3093,
+      "sha256": "3210800467676c37b72a9dd89dffa24fe94e2f211f335fa73bd07b04bddba7d1"
+    },
+    {
       "path": "records/recovered-continuation-stage-maps/a1-original/README.md",
       "bytes": 1448,
       "sha256": "f5181d6a5ce7f4df5946406dbeb869fec14155bc5b144c57529055bde881982d"
@@ -6058,6 +6123,36 @@
       "sha256": "d886e5f48351f5c64955ba1708441b581e1839215244e3f1636876b3bec73416"
     },
     {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/ASSESSMENT.md",
+      "bytes": 2291,
+      "sha256": "41d6203f41eb773a477eeda52ed8dd7e4685a8b563a3c5542bae20d6b74094a2"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/SOURCE-SHA256SUMS",
+      "bytes": 258,
+      "sha256": "44e8c3707e0e2850c050d69dd072e3988d80aaa026cf71d81b243eb0d9db4299"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/manifest.json",
+      "bytes": 5609,
+      "sha256": "edebf7c6df884f0184c77e29037f7239a0e034633e9e1b4d8bf15a47f19a2ff5"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/materialize.py",
+      "bytes": 9064,
+      "sha256": "f9f9cbe3c0267f014ba23ebf7b4c6c7f65c14329cae5d0bde7f85612a33b67a5"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/source/crates/biome_package/src/node_js_package/workspace_metadata.rs",
+      "bytes": 9366,
+      "sha256": "a2a7bf928cdfa972af89f07683165a4e60d9c84d132e996919b2ebe47087dbb8"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-workspace-original/source/crates/biome_package/tests/workspace_metadata.rs",
+      "bytes": 1628,
+      "sha256": "274fb784f1d240b5e0a4abde6e40046910d88f6ff96a19a35e7b1a858e0abc6e"
+    },
+    {
       "path": "records/recovered-continuation-stage-maps/a4-original/README.md",
       "bytes": 1235,
       "sha256": "1e05077430ecd0f9b3c7585d330e6c5e961691d16854bc89fa9189e233fda7e6"
@@ -6174,8 +6269,8 @@
     },
     {
       "path": "records/recovered-continuation-stage-maps/progress.md",
-      "bytes": 3442,
-      "sha256": "640c21db2c07d0d901c4b1c5ddc2df95ecce9dc598e91564e5f97e67bd363250"
+      "bytes": 7493,
+      "sha256": "0b02b0e218cf82e2d060ab45af8d3d8a67bc6c77b8702dec2db1c8ebfdd00846"
     },
     {
       "path": "records/recovered-d1-api-reconcile/crates/biome_configuration/src/project_analysis.rs.L10-L14.fragment",

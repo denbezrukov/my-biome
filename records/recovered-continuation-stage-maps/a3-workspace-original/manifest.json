@@ -1,0 +1,113 @@
+{
+  "status": "coherent-recovered-A3-workspace-reader-needs-new-registration",
+  "original_A3_initial": "52708197fbcac4abe8231e6c36bda61db6ff4ce2",
+  "original_A3_final": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "base_input_provenance": {
+    "reader": "Original tool-output c3fd82,244-line intermediate reader",
+    "tests": "Original tool-output eb4dcd,complete two-test baseline",
+    "corrections": "Literal archived lint replacements002,quote regression003,andquote decoder005; no archived command execution."
+  },
+  "input_copy_integrity": [
+    {
+      "path": "recovered-a3/full-source/workspace_metadata.rs",
+      "sha256": "c05e3053d37eac65a620a68fdaeffe94f738b5af8e05280c22c1f4ba40801a82"
+    },
+    {
+      "path": "recovered-a3/full-source/workspace_metadata.tests.rs",
+      "sha256": "d8001d11d31d1744ccdd109b51ab9d8ef42a7cf525c229dfb52b030e13c0522b"
+    },
+    {
+      "path": "recovered-a3/patches/002-yaml-lint-command.txt",
+      "sha256": "07c3513ceed85c289598343fa2cb872a8d6dc3291a377915ed7dd1277e3f50b7"
+    },
+    {
+      "path": "recovered-a3/patches/003-yaml-quotes-test-append.rs.txt",
+      "sha256": "88b78ee440bedfb141ae561f60d619ce3f7e181858571f1fa3b9eb0388cb4946"
+    },
+    {
+      "path": "recovered-a3/patches/005-yaml-quotes-command.txt",
+      "sha256": "a1957ebe372a91c2bf923c74b325f1e02e6424896b99f866f7a852520275d30f"
+    }
+  ],
+  "source_transformations": [
+    {
+      "source": "recovered-a3/patches/002-yaml-lint-command.txt",
+      "operation": "Statically parse literal .replace arguments; apply replacements in original evaluation order. Archived statements are never executed.",
+      "replacement_count": 6,
+      "before_sha256": "c05e3053d37eac65a620a68fdaeffe94f738b5af8e05280c22c1f4ba40801a82",
+      "after_sha256": "a67a6760d1937db038a8aef59894be2369d7189b52c8429af30306902a5631ba",
+      "all_preimage_literals_matched_once": true
+    },
+    {
+      "source": "recovered-a3/patches/005-yaml-quotes-command.txt",
+      "operation": "Statically parse literal .replace arguments; apply replacements in original evaluation order. Archived statements are never executed.",
+      "replacement_count": 1,
+      "before_sha256": "a67a6760d1937db038a8aef59894be2369d7189b52c8429af30306902a5631ba",
+      "after_sha256": "a2a7bf928cdfa972af89f07683165a4e60d9c84d132e996919b2ebe47087dbb8",
+      "all_preimage_literals_matched_once": true
+    }
+  ],
+  "files": [
+    {
+      "path": "crates/biome_package/src/node_js_package/workspace_metadata.rs",
+      "bytes": 9366,
+      "lines": 241,
+      "sha256": "a2a7bf928cdfa972af89f07683165a4e60d9c84d132e996919b2ebe47087dbb8",
+      "git_blob_sha1": "b5f79b87b98a630bda58a4fdaf0fe9052c6a0ead",
+      "independent_original_final_hash_available": false,
+      "stage": "Original A3 reader plus its recorded lint and quote correction literals; final formatter output not authenticated."
+    },
+    {
+      "path": "crates/biome_package/tests/workspace_metadata.rs",
+      "bytes": 1628,
+      "lines": 51,
+      "sha256": "274fb784f1d240b5e0a4abde6e40046910d88f6ff96a19a35e7b1a858e0abc6e",
+      "git_blob_sha1": "5b945bf31e6bf0b44ec0dea434c7cb681fae5420",
+      "independent_original_final_hash_available": false,
+      "stage": "Original A3 reader plus its recorded lint and quote correction literals; final formatter output not authenticated."
+    }
+  ],
+  "required_new_integration": [
+    {
+      "path": "crates/biome_package/src/node_js_package/mod.rs",
+      "action": "Declare workspace_metadata submodule and re-export WorkspaceMetadata/read_workspace_metadata at node_js_package scope.",
+      "original_bytes_recovered": false
+    },
+    {
+      "path": "crates/biome_package/src/lib.rs",
+      "action": "Re-export WorkspaceMetadata and read_workspace_metadata from the crate root alongside other node_js_package exports.",
+      "original_bytes_recovered": false
+    }
+  ],
+  "prerequisites": [
+    "A2 MetadataValue re-export in node_js_package",
+    "Existing biome_package YAML parser/syntax,JSON parser/value and deserialize dependencies; no new dependency identified."
+  ],
+  "expected_verification": [
+    {
+      "command": "source /workspace/.biome-cloud/activate.sh && cargo test -p biome_package --test workspace_metadata",
+      "expected_count": 3,
+      "tests": [
+        "workspace_metadata_preserves_empty_providers_and_ranges",
+        "workspace_metadata_diagnoses_non_string_selectors_and_versions",
+        "workspace_metadata_preserves_escaped_quote_boundaries"
+      ],
+      "expected_behavior": "Empty providers/ranges preserved; invalid selector/version YAML diagnosed; escaped single-quote boundaries retained."
+    },
+    {
+      "command": "source /workspace/.biome-cloud/activate.sh && cargo test -p biome_package",
+      "expected": "Full package regression suite passes."
+    },
+    {
+      "command": "source /workspace/.biome-cloud/activate.sh && just f && just l",
+      "expected": "Formatting/lint gates succeed before commit."
+    }
+  ],
+  "verification_status": "Input checksums,literal matching,and output checksums only. No builds/tests or Git mutations.",
+  "limitations": [
+    "Neither final full source has an independently retained original final hash. Current hashes establish copy/derivation integrity only.",
+    "Final rustfmt output is not reconstructed; parent must format and inspect the actual continuation.",
+    "The two registration edits are intentionally not materialized because their original bytes are missing. Parent must record those edits as new integration.",
+    "No workspace discovery/service behavior is included or claimed."
+  ]
+}
