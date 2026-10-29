@@ -12,6 +12,8 @@ The original implementation started at `6359a9b03670e85b50785d59d10eb087cf89fe3f
 
 These product increments passed fresh affected tests, formatting, workspace lint, and independent reviews after corrections. See the [current progress record](records/recovered-continuation-review-fixes/evidence/CURRENT.md), [remote verification](records/recovered-continuation-review-fixes/evidence/remote-verification.json), and [continuation manifest](records/recovered-continuation-review-fixes/manifest.json). Native Knip replacement remains incomplete. The historical archive below remains distinct from these validated branches.
 
+The [continuation verification receipt](CONTINUATION_VERIFICATION.json) checks every currently indexed recovery record and records the verified product branch heads.
+
 ## Assembled source checkpoint
 
 [`records/recovered-assembly/source/`](records/recovered-assembly/source/) contains 194 complete historical source, fixture, and configuration files arranged at their original repository paths. This is a mixture of recovered stages, not a working final checkout. 106 files match recorded original per-file digests or Git blob prefixes; 14 further fixture files are authenticated together by three recorded fixture-group digests.

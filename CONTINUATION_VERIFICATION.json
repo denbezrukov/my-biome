@@ -1,0 +1,18 @@
+{
+  "scope": "Current archive copy integrity and separately verified continuation product refs; historical mixed-stage assembly is not validated as a feature",
+  "checked_at": "2026-10-29T15:55:59.698232+00:00",
+  "indexed_records": 1309,
+  "indexed_bytes": 18358922,
+  "record_errors": [],
+  "records_index_sha256": "3f42504b6a30711b0dcd69f783d3edda429dbca14193a81e37dc2ebe733acdb5",
+  "product_branches": {
+    "repository": "denbezrukov/my-biome",
+    "verified_remote_heads": {
+      "feat/native-project-config": "eafa925c01535ccf6173694fd9652a363fbbcd09",
+      "feat/native-project-filesystem": "cba300340ca9166157609e92b287c80205994841",
+      "feat/native-project-foundation": "e92f1c2d6f67582a2f594305ff87a4950352edb9"
+    },
+    "product_worktree_clean": true
+  },
+  "native_parity": "not implemented or claimed"
+}
