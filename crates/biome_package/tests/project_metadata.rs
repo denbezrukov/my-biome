@@ -227,6 +227,147 @@ fn missing_manifest_value_cannot_look_complete() {
 }
 
 #[test]
+fn parser_recovery_metadata_preserves_presence_ranges_and_array_positions() {
+    use biome_json_value::JsonValue;
+    use biome_package::TsConfigJson;
+    let source = r#"{"types":broken,"typings":"legacy.d.ts","custom":[1,broken,3]}"#;
+    let parsed = metadata(source);
+    assert!(parsed.fields.contains_key("types"));
+    let invalid = &parsed.fields["types"];
+    assert_eq!(invalid.value, JsonValue::Bogus);
+    assert_eq!(parsed.types, None);
+    assert_eq!(
+        &source[usize::from(invalid.range.start())..usize::from(invalid.range.end())],
+        "broken"
+    );
+    let elements = &parsed.fields["custom"].elements;
+    assert_eq!(elements.len(), 3);
+    assert_eq!(elements[1].value, JsonValue::Bogus);
+    assert_eq!(elements[2].value, JsonValue::Number(3.0));
+    assert!(!parsed.diagnostics.is_empty());
+    let package = deserialize_from_json_str::<PackageJson>(
+        source,
+        JsonParserOptions::default(),
+        "package.json",
+    )
+    .into_deserialized()
+    .unwrap();
+    assert_eq!(package.types, None);
+    assert_eq!(package.project_metadata.types, None);
+
+    let config = deserialize_from_json_str::<TsConfigJson>(
+        r#"{"files":["first.ts",broken,"last.ts"]}"#,
+        JsonParserOptions::default(),
+        "tsconfig.json",
+    )
+    .into_deserialized()
+    .unwrap();
+    let raw = config.metadata.unwrap();
+    assert_eq!(raw.members["files"].elements.len(), 3);
+    assert_eq!(raw.members["files"].elements[1].value, JsonValue::Bogus);
+    assert!(!config.metadata_diagnostics.is_empty());
+}
+
+#[test]
+fn missing_property_values_remain_invalid_metadata() {
+    use biome_json_value::JsonValue;
+    use biome_package::TsConfigJson;
+    let source = r#"{"types":,"typings":"legacy.d.ts","custom":{"answer":}}"#;
+    let parsed = metadata(source);
+    assert!(parsed.fields.contains_key("types"));
+    assert_eq!(parsed.fields["types"].value, JsonValue::Bogus);
+    assert_eq!(parsed.types, None);
+    let invalid = &parsed.fields["custom"].members["answer"];
+    assert_eq!(invalid.value, JsonValue::Bogus);
+    assert_eq!(
+        &source[usize::from(invalid.range.start())..usize::from(invalid.range.end())],
+        r#""answer":"#
+    );
+    assert_eq!(parsed.diagnostics.len(), 2);
+
+    let parser_errors = biome_json_parser::parse_json(source, JsonParserOptions::default())
+        .diagnostics()
+        .len();
+    let package = deserialize_from_json_str::<PackageJson>(
+        source,
+        JsonParserOptions::default(),
+        "package.json",
+    );
+    assert_eq!(package.diagnostics().len(), parser_errors);
+    let package = package.into_deserialized().unwrap();
+    assert_eq!(package.types.as_deref(), Some("legacy.d.ts"));
+    assert_eq!(package.project_metadata.types, None);
+    assert_eq!(package.project_metadata.diagnostics.len(), 2);
+
+    let config = deserialize_from_json_str::<TsConfigJson>(
+        r#"{"compilerOptions":{"rootDir":}}"#,
+        JsonParserOptions::default(),
+        "tsconfig.json",
+    )
+    .into_deserialized()
+    .unwrap();
+    assert_eq!(
+        config.metadata.unwrap().members["compilerOptions"].members["rootDir"].value,
+        JsonValue::Bogus
+    );
+    assert!(!config.metadata_diagnostics.is_empty());
+}
+
+#[test]
+fn excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics() {
+    use biome_json_value::JsonValue;
+    use biome_package::TsConfigJson;
+    let source = format!("{{\"custom\":{}0{}}}", "[".repeat(96), "]".repeat(96));
+    let package = deserialize_from_json_str::<PackageJson>(
+        &source,
+        JsonParserOptions::default(),
+        "package.json",
+    );
+    assert!(package.diagnostics().is_empty());
+    let package = package.into_deserialized().unwrap();
+    assert_eq!(package.project_metadata.diagnostics.len(), 1);
+    let mut value = &package.project_metadata.fields["custom"];
+    while let Some(child) = value.elements.first() {
+        value = child;
+    }
+    assert_eq!(value.value, JsonValue::Bogus);
+    assert!(!value.range.is_empty());
+    let config = deserialize_from_json_str::<TsConfigJson>(
+        &source,
+        JsonParserOptions::default(),
+        "tsconfig.json",
+    );
+    assert!(config.diagnostics().is_empty());
+    let config = config.into_deserialized().unwrap();
+    assert_eq!(config.metadata_diagnostics.len(), 1);
+    let raw = config.metadata.unwrap();
+    let mut value = &raw.members["custom"];
+    while let Some(child) = value.elements.first() {
+        value = child;
+    }
+    assert_eq!(value.value, JsonValue::Bogus);
+    assert!(!value.range.is_empty());
+}
+
+#[test]
+fn excessive_metadata_object_nesting_is_explicit_and_safe_to_clone() {
+    use biome_json_value::JsonValue;
+    let source = format!(
+        "{{\"custom\":{}0{}}}",
+        r#"{"nested":"#.repeat(96),
+        "}".repeat(96)
+    );
+    let parsed = metadata(&source).clone();
+    assert_eq!(parsed.diagnostics.len(), 1);
+    let mut value = &parsed.fields["custom"];
+    while let Some(child) = value.members.get("nested") {
+        value = child;
+    }
+    assert_eq!(value.value, JsonValue::Bogus);
+    assert!(!value.range.is_empty());
+}
+
+#[test]
 fn manifest_catalog_candidates_preserve_distinct_origins() {
     let parsed = metadata(
         r#"{"catalog":{"root":"^1"},"catalogs":{"legacy":{"root":"^2"}},"workspaces":{"catalog":{"nested":"^3"},"catalogs":{"legacy":{"nested":"^4"}}}}"#,

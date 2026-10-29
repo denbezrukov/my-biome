@@ -212,6 +212,11 @@ pub type MapMembers<'a> = dyn ExactSizeIterator<Item = Option<(Box<dyn Deseriali
 /// [DeserializationVisitor] is adapted to it automatically by
 /// [DeserializableValue::deserialize].
 pub trait ErasedDeserializationVisitor {
+    /// Whether JSON object traversal retains named properties with missing values.
+    fn preserve_missing_map_values(&self) -> bool {
+        false
+    }
+
     /// The visited value is `null`.
     fn visit_null(&mut self, ctx: &mut dyn DeserializationContext, range: TextRange, name: &str);
 
@@ -269,6 +274,10 @@ struct ErasedVisitor<V: DeserializationVisitor> {
 }
 
 impl<V: DeserializationVisitor> ErasedDeserializationVisitor for ErasedVisitor<V> {
+    fn preserve_missing_map_values(&self) -> bool {
+        V::PRESERVE_MISSING_MAP_VALUES
+    }
+
     fn visit_null(&mut self, ctx: &mut dyn DeserializationContext, range: TextRange, name: &str) {
         if let Some(visitor) = self.visitor.take() {
             self.output = visitor.visit_null(ctx, range, name);
@@ -483,6 +492,11 @@ pub trait DeserializationVisitor: Sized {
 
     /// The expected type of the visited value.
     const EXPECTED_TYPE: DeserializableTypes;
+
+    /// Retains named JSON properties whose values are missing after parser recovery.
+    /// Defaults to false, which skips these properties. When enabled, their values
+    /// have no visitable type and carry the whole property's source range.
+    const PRESERVE_MISSING_MAP_VALUES: bool = false;
 
     /// The visited value is `null`.
     ///

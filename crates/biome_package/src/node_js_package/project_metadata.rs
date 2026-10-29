@@ -9,6 +9,7 @@ use biome_json_value::{JsonArray, JsonObject, JsonValue};
 use indexmap::IndexMap;
 
 /// A metadata value with its original source range and nested value locations.
+/// Invalid values and values beyond the nesting limit remain as `JsonValue::Bogus` with diagnostics.
 #[derive(Clone, Debug)]
 pub struct MetadataValue {
     pub value: JsonValue,
@@ -23,31 +24,125 @@ impl Deserializable for MetadataValue {
         value: &impl DeserializableValue,
         name: &str,
     ) -> Option<Self> {
-        let range = value.range();
-        let mut result = Self {
-            value: JsonValue::Null,
+        Some(Self::read(ctx, value, name, 0))
+    }
+}
+
+impl MetadataValue {
+    fn invalid(ctx: &mut dyn DeserializationContext, range: TextRange, message: &str) -> Self {
+        ctx.report(DeserializationDiagnostic::new(message).with_range(range));
+        Self {
+            value: JsonValue::Bogus,
             range,
             members: IndexMap::new(),
             elements: Vec::new(),
-        };
-        match value.visitable_type()? {
-            DeserializableType::Map => {
-                result.members = IndexMap::<String, Self>::deserialize(ctx, value, name)?;
-                let mut object = JsonObject::default();
-                for (name, field) in &result.members {
-                    object.insert(name.as_str().into(), field.value.clone());
-                }
-                result.value = JsonValue::Object(object);
-            }
-            DeserializableType::Array => {
-                result.elements = Vec::<Self>::deserialize(ctx, value, name)?;
-                let mut array = JsonArray::default();
-                array.extend(result.elements.iter().map(|v| v.value.clone()));
-                result.value = JsonValue::Array(array);
-            }
-            _ => result.value = JsonValue::deserialize(ctx, value, name)?,
         }
-        Some(result)
+    }
+
+    fn read(
+        ctx: &mut dyn DeserializationContext,
+        value: &impl DeserializableValue,
+        name: &str,
+        depth: usize,
+    ) -> Self {
+        const MAX_METADATA_DEPTH: usize = 64;
+        let range = value.range();
+        if depth >= MAX_METADATA_DEPTH {
+            return Self::invalid(
+                ctx,
+                range,
+                "Project metadata exceeds the nesting limit of 64 values.",
+            );
+        }
+        match value.visitable_type() {
+            Some(DeserializableType::Map | DeserializableType::Array) => value
+                .deserialize(ctx, MetadataContainerVisitor { depth }, name)
+                .unwrap_or_else(|| Self::invalid(ctx, range, "Invalid project metadata value.")),
+            Some(_) => match JsonValue::deserialize(ctx, value, name) {
+                Some(value) => Self {
+                    value,
+                    range,
+                    members: IndexMap::new(),
+                    elements: Vec::new(),
+                },
+                None => Self::invalid(ctx, range, "Invalid project metadata value."),
+            },
+            None => Self::invalid(ctx, range, "Invalid project metadata value."),
+        }
+    }
+}
+
+struct MetadataContainerVisitor {
+    depth: usize,
+}
+
+impl DeserializationVisitor for MetadataContainerVisitor {
+    type Output = MetadataValue;
+    const EXPECTED_TYPE: DeserializableTypes =
+        DeserializableTypes::MAP.union(DeserializableTypes::ARRAY);
+    const PRESERVE_MISSING_MAP_VALUES: bool = true;
+
+    fn visit_map(
+        self,
+        ctx: &mut dyn DeserializationContext,
+        members: &mut MapMembers<'_>,
+        range: TextRange,
+        _name: &str,
+    ) -> Option<Self::Output> {
+        let mut fields = IndexMap::new();
+        let mut object = JsonObject::default();
+        for entry in members {
+            let Some((key, value)) = entry else {
+                ctx.report(
+                    DeserializationDiagnostic::new("Invalid project metadata property.")
+                        .with_range(range),
+                );
+                continue;
+            };
+            let Some(key_text) = String::deserialize(ctx, &key, "") else {
+                continue;
+            };
+            ctx.enter_property(&key_text, key.range(), value.range());
+            let field = MetadataValue::read(ctx, &value, &key_text, self.depth + 1);
+            ctx.exit_property();
+            object.insert(key_text.as_str().into(), field.value.clone());
+            fields.insert(key_text, field);
+        }
+        Some(MetadataValue {
+            value: JsonValue::Object(object),
+            range,
+            members: fields,
+            elements: Vec::new(),
+        })
+    }
+
+    fn visit_array(
+        self,
+        ctx: &mut dyn DeserializationContext,
+        values: &mut dyn ExactSizeIterator<Item = Option<Box<dyn DeserializableValue>>>,
+        range: TextRange,
+        _name: &str,
+    ) -> Option<Self::Output> {
+        let mut elements = Vec::new();
+        let mut array = JsonArray::default();
+        for (index, value) in values.enumerate() {
+            let field = if let Some(value) = value {
+                ctx.enter_index(index, value.range());
+                let field = MetadataValue::read(ctx, &value, "", self.depth + 1);
+                ctx.exit_index();
+                field
+            } else {
+                MetadataValue::invalid(ctx, range, "Invalid project metadata array element.")
+            };
+            array.push(field.value.clone());
+            elements.push(field);
+        }
+        Some(MetadataValue {
+            value: JsonValue::Array(array),
+            range,
+            members: IndexMap::new(),
+            elements,
+        })
     }
 }
 
@@ -164,6 +259,7 @@ impl DeserializationContext for MetadataContext<'_> {
 impl DeserializationVisitor for MetadataVisitor {
     type Output = ProjectMetadata;
     const EXPECTED_TYPE: DeserializableTypes = DeserializableTypes::MAP;
+    const PRESERVE_MISSING_MAP_VALUES: bool = true;
     fn visit_map(
         self,
         ctx: &mut dyn DeserializationContext,

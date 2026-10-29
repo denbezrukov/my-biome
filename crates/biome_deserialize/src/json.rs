@@ -136,6 +136,7 @@ impl DeserializableValue for AnyJsonValue {
                 visitor.visit_number(ctx, TextNumber(token_text), range, name)
             }
             Self::JsonObjectValue(object) => {
+                let preserve_missing_values = visitor.preserve_missing_map_values();
                 let mut members = object.json_member_list().iter().map(|member| {
                     let member = member.ok()?;
                     // Extract JsonMemberName from AnyJsonMemberName
@@ -144,10 +145,14 @@ impl DeserializableValue for AnyJsonValue {
                         // Metavariables and bogus nodes can't be deserialized
                         _ => return None,
                     };
-                    Some((
-                        Box::new(name) as Box<dyn DeserializableValue>,
-                        Box::new(member.value().ok()?) as Box<dyn DeserializableValue>,
-                    ))
+                    let value: Box<dyn DeserializableValue> = match member.value() {
+                        Ok(value) => Box::new(value),
+                        Err(_) if preserve_missing_values => Box::new(MissingJsonValue {
+                            range: member.range(),
+                        }),
+                        Err(_) => return None,
+                    };
+                    Some((Box::new(name) as Box<dyn DeserializableValue>, value))
                 });
                 visitor.visit_map(ctx, &mut members, range, name)
             }
@@ -171,6 +176,28 @@ impl DeserializableValue for AnyJsonValue {
             Self::JsonObjectValue(_) => Some(DeserializableType::Map),
             Self::JsonStringValue(_) => Some(DeserializableType::Str),
         }
+    }
+}
+
+struct MissingJsonValue {
+    range: biome_rowan::TextRange,
+}
+
+impl DeserializableValue for MissingJsonValue {
+    fn range(&self) -> biome_rowan::TextRange {
+        self.range
+    }
+
+    fn deserialize_erased(
+        &self,
+        _ctx: &mut dyn DeserializationContext,
+        _visitor: &mut dyn ErasedDeserializationVisitor,
+        _name: &str,
+    ) {
+    }
+
+    fn visitable_type(&self) -> Option<DeserializableType> {
+        None
     }
 }
 
