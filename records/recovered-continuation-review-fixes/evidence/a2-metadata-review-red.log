@@ -1,0 +1,48 @@
+   Compiling biome_fs v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_fs)
+   Compiling biome_languages v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_languages)
+   Compiling biome_json_parser v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_json_parser)
+   Compiling biome_deserialize v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_deserialize)
+   Compiling biome_json_value v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_json_value)
+   Compiling biome_package v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_package)
+    Finished `test` profile [unoptimized] target(s) in 2.95s
+     Running tests/project_metadata.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/project_metadata-8f2a3795b788cf95)
+
+running 14 tests
+test conditional_import_order_is_preserved ... ok
+test manifest_catalog_candidates_preserve_distinct_origins ... ok
+test metadata_diagnostics_preserve_legacy_manifest_behavior ... ok
+test missing_manifest_value_cannot_look_complete ... ok
+test malformed_metadata_and_catalogs_are_visible ... ok
+test package_discovery_retains_raw_evidence_and_reports_once ... ok
+test manifest_entry_metadata_is_lossless ... ok
+test parser_recovery_metadata_preserves_presence_ranges_and_array_positions ... FAILED
+test package_metadata_locations_and_types_precedence ... ok
+test excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics ... FAILED
+test tsconfig_metadata_errors_are_owned_and_ranged ... ok
+test tsconfig_file_reads_retain_project_errors_and_legacy_errors ... ok
+test tsconfig_metadata_preserves_resolution_inputs_and_ranges ... ok
+test tsconfig_project_errors_preserve_legacy_diagnostics ... ok
+
+failures:
+
+---- parser_recovery_metadata_preserves_presence_ranges_and_array_positions stdout ----
+
+thread 'parser_recovery_metadata_preserves_presence_ranges_and_array_positions' (160837) panicked at crates/biome_package/tests/project_metadata.rs:235:5:
+assertion failed: parsed.fields.contains_key("types")
+
+---- excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics stdout ----
+
+thread 'excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics' (160829) panicked at crates/biome_package/tests/project_metadata.rs:283:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    excessive_metadata_nesting_is_explicit_without_changing_legacy_diagnostics
+    parser_recovery_metadata_preserves_presence_ranges_and_array_positions
+
+test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p biome_package --test project_metadata`

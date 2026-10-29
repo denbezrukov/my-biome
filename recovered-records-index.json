@@ -5678,6 +5678,91 @@
       "sha256": "00dd8075d79a69e607075e969714fc941dc69492d93dd5bc3b32e166b45f394e"
     },
     {
+      "path": "records/recovered-continuation-review-fixes/evidence/CURRENT.md",
+      "bytes": 3351,
+      "sha256": "8ff4565cee0142470e97f8e49c0cf5134708670616fc55f98f340567ef6f199b"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a2-metadata-review-green.log",
+      "bytes": 1327,
+      "sha256": "0f0bbdd0fdc57c8360f4bfab28bf3cff392eb063aa80b0ede4fb01bb31b64306"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a2-metadata-review-red.log",
+      "bytes": 2842,
+      "sha256": "706eebdfe1e6bc767ff26c6dfdd4218126c2164ff925a7400216f8631e9f7cdf"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a3-fs-alias-green.log",
+      "bytes": 710,
+      "sha256": "d9c2764882794994d619be49a7c652c2ebcee3de2bf67adc8a5edbb1ab7a7a3b"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a3-fs-alias-red.log",
+      "bytes": 1115,
+      "sha256": "7a69de73e99c27773deca74db1c7d2890ff2e8c2300e6ac1755a1bccb750a069"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a3-fs-reviewed-lint.log",
+      "bytes": 8303,
+      "sha256": "267ac2eaf3dae685e0b9e18d07fd9d0344e106c7e2713e075a935df4a7fad758"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/a3-fs-reviewed-tests.log",
+      "bytes": 1647,
+      "sha256": "dded764a7042179ad77d2d1098fcf5ac3bd70a49c9961356f0fb5024607bff79"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/evidence/progress.md",
+      "bytes": 8959,
+      "sha256": "9fb94a652ea5260230f67a829de4113b82a3e1dc8d3270d9cb396dbf798c2452"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/manifest.json",
+      "bytes": 1605,
+      "sha256": "de74a31f8fec42fa95faaa0ac2cce958da692a11c6d168f2807c3f9770c573d1"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/.changeset/calm-tips-accept.md",
+      "bytes": 240,
+      "sha256": "e455e6786f0572600ceffe79a4fa8f658a2fa7b5f91814b4738bb2bd5383a1bb"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/.changeset/perky-pumas-camp.md",
+      "bytes": 345,
+      "sha256": "b39713168be212009895415f515746592e74458bae5f58d4dec521198ce89bbc"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_fs/src/fs.rs",
+      "bytes": 22317,
+      "sha256": "195374d88ac04e12544e0c7e1fbbb2e632de552becf317bcf375dcd02362dedf"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_fs/src/fs/memory.rs",
+      "bytes": 20789,
+      "sha256": "4c185f6e08ed62ce71a65f6e8fa014598b71d5ec72ce97c4018ed3977641944d"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_fs/src/fs/os.rs",
+      "bytes": 16577,
+      "sha256": "bad23d1d821a64d78ddb7e6cae76eb2c457b9657fcee5f5458939a5795c2dd56"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_fs/tests/canonical_path.rs",
+      "bytes": 4177,
+      "sha256": "bde8057ca776b9670d462ad1d8de766ed2ea048bcd5ac2be2654b6973dbcfe1b"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 18729,
+      "sha256": "9c3238c2df4ce1d424501fd0d7fc244d72c3776c74a14847b2c5f41012c213fb"
+    },
+    {
+      "path": "records/recovered-continuation-review-fixes/source/crates/biome_package/tests/project_metadata.rs",
+      "bytes": 17734,
+      "sha256": "2bfb20ced558ebd668c45942ec64966368b03761fa4b23d86d7ea217bfe6d9d3"
+    },
+    {
       "path": "records/recovered-continuation-stage-maps/CURRENT.md",
       "bytes": 3093,
       "sha256": "3210800467676c37b72a9dd89dffa24fe94e2f211f335fa73bd07b04bddba7d1"

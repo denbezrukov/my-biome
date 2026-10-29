@@ -1,0 +1,22 @@
+   Compiling biome_fs v0.7.0 (/workspace/.biome-cloud/native-continuation/worktree/crates/biome_fs)
+    Finished `test` profile [unoptimized] target(s) in 0.70s
+     Running tests/canonical_path.rs (/workspace/.biome-cloud/native-continuation/target/debug/deps/canonical_path-76311bdc1c24b769)
+
+running 1 test
+test canonical_path_memory_recognizes_stored_aliases_and_their_directories ... FAILED
+
+failures:
+
+---- canonical_path_memory_recognizes_stored_aliases_and_their_directories stdout ----
+
+thread 'canonical_path_memory_recognizes_stored_aliases_and_their_directories' (157761) panicked at crates/biome_fs/tests/canonical_path.rs:59:60:
+called `Result::unwrap()` on an `Err` value: Custom { kind: NotFound, error: "path project/file.ts does not exist in memory filesystem" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    canonical_path_memory_recognizes_stored_aliases_and_their_directories
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p biome_fs --test canonical_path`
