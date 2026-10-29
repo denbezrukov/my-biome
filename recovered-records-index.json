@@ -5458,6 +5458,566 @@
       "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2"
     },
     {
+      "path": "records/recovered-continuation-stage-maps/a1-original/README.md",
+      "bytes": 1448,
+      "sha256": "f5181d6a5ce7f4df5946406dbeb869fec14155bc5b144c57529055bde881982d"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/SOURCE-SHA256SUMS",
+      "bytes": 6282,
+      "sha256": "b8f00d280825471ca1c4c8ec7e70c53b28567677dd67a7326bd9ebd9186823bd"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/manifest.json",
+      "bytes": 30758,
+      "sha256": "724322540cb7a90a06dfc2183a85231d4012baa7b8206137d660bed386698d42"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/materialize.py",
+      "bytes": 8484,
+      "sha256": "22c487e06257ce3c4fce9fd499fa81f904cb677de8a3b530399b3d86f03590ed"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/Cargo.lock",
+      "bytes": 179538,
+      "sha256": "7b8b81fb84b7ce9c1ea67f6455f42e0c8b065480c39e10f3650113838ef374fd"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/Cargo.toml",
+      "bytes": 17229,
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/Cargo.toml",
+      "bytes": 448,
+      "sha256": "e717bc4fbce0898f9e9dcc8539a0c8e16604eb0971f8c87e67b63b2a855be6c3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/coverage.rs",
+      "bytes": 1224,
+      "sha256": "9532eed21ca766a90eb371c5f74aeb45d7a33bf9eae760837cdd8e43e170a686"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/inventory.rs",
+      "bytes": 2163,
+      "sha256": "b9779798e5752035be1018a855df99edcd24d6e86b583057db4f82bd8ffe1e92"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/lib.rs",
+      "bytes": 197,
+      "sha256": "a612449283da8c65ff17bff66904cf6dc53a4354e2f29f88ef6ae2e8f8ef881f"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/model.rs",
+      "bytes": 3709,
+      "sha256": "5e9c83b4564641b9400c59345ded34f869cb10c3b7909be83f57e20c4dc71921"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/normalize.rs",
+      "bytes": 4548,
+      "sha256": "3eac231c48fc9fc2f60d87d434fdb8c1004038445b829ff703a58366434f27be"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/options.rs",
+      "bytes": 3031,
+      "sha256": "c3a157dc554f1a786de010ddf4cc26cf4cc0cb11c5688f4f01ae134ee5045f20"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/src/result.rs",
+      "bytes": 3378,
+      "sha256": "713a9ea00e29eddb5e80257e701d2159e5c6292bca35f27fcc199fd32ca86161"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/tests/contracts.rs",
+      "bytes": 11045,
+      "sha256": "7b7f2392681c2c5640f80011d4867573ffe67f67f06043d458f9707680920ea3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "bytes": 74,
+      "sha256": "570d6eb352b98effae4be99883b4a13d303332821dacfb2beedb2f56856c943f"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/tests/fixtures/empty.json",
+      "bytes": 399,
+      "sha256": "a8034f8d4d435abe04ebbea3eb67f54c1cc1c9ad6fbe0c1aff540b6506af8167"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 674,
+      "sha256": "cd6490f37cfc8831d728b16febf44961d790a6ca0f4c80565aed1845aee9c985"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/.gitignore",
+      "bytes": 59,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/Cargo.toml",
+      "bytes": 453,
+      "sha256": "5caba8155456aacebad9b14959fb265c35da331c5604add8501d27d58125a764"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/README.md",
+      "bytes": 4618,
+      "sha256": "74783f096d6b50c3b55c6e362883a1a00b4d16144f6ea93afe54233d5e078499"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/compatibility.json",
+      "bytes": 44546,
+      "sha256": "c8939c160bb6c3576c59769f4ca5d3814e778370f0109ca9fd5137554a1775c0"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+      "bytes": 981,
+      "sha256": "e084e1a1ee62cc1ab66b452a74e10ccda46dca70d4384651d5c98ffb424a4566"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/expectations/oracle/orphan-file.json",
+      "bytes": 900,
+      "sha256": "ef6e51fc4435f3303053262c0f6e870b674083e8df114e369f7752f9b23e922e"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/expectations/oracle/production-defaults.json",
+      "bytes": 1567,
+      "sha256": "b0e3be49e469a2c2b2f0e49a57ab1df08225eba140cccd7ce5b89da45af09e21"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "bytes": 102,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "bytes": 39,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "bytes": 55,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "bytes": 11,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/orphan-file/package.json",
+      "bytes": 47,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/production-defaults/package.json",
+      "bytes": 225,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "bytes": 85,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/observations/corrupt-artifact.json",
+      "bytes": 633,
+      "sha256": "ba26190b91538f0d388c7757abcb8c9a428a0b441ec2889a1e05c305df3567b6"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/observations/namespace-known-key.json",
+      "bytes": 3055,
+      "sha256": "728bec8599818cc9df6630d90eaf2997f531d1721412f48af8e7a3cbb2f400d5"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/observations/orphan-file.json",
+      "bytes": 2907,
+      "sha256": "11b20d1fe14d994702b75a56b038ac02c8fdfae21cce1aa95a258af2a960a1db"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/observations/production-defaults.json",
+      "bytes": 4138,
+      "sha256": "7c0fde73f45a7f2b9feeb1f04bdbb188ca5e1b348d5c402dd98766bbcd81f439"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/oracle/identity.json",
+      "bytes": 290,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/oracle/package-lock.json",
+      "bytes": 32855,
+      "sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/oracle/package.json",
+      "bytes": 177,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/oracle/validation.json",
+      "bytes": 903,
+      "sha256": "ae111a9db187c0d59bd070e3f84fc55f377c14d49c13b1200343f7a03865e28a"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/reference/LICENSE.knip",
+      "bytes": 750,
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/reference/additional-sources.json",
+      "bytes": 14246,
+      "sha256": "5c08986f15d7622d077c58c8c6bd685d0edbd7efe49e11112c1b2c9f9911f157"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/reference/inventory.md",
+      "bytes": 37793,
+      "sha256": "323c66cfe6459519201cfa0b6d5fbe1d0ab2364a70d929c2d1c4d0b8ec9c577c"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/reference/sources.json",
+      "bytes": 29526,
+      "sha256": "7a77e380141ea1f028870d326a404cb1d6c5c6c3a13a11d496e3b6a62ca0eee3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/reference/tests.json",
+      "bytes": 192805,
+      "sha256": "1a604774aed40d03aa8e296f0103507f70b5c27751d7a849fda79365b203409d"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/src/artifact.rs",
+      "bytes": 7846,
+      "sha256": "5cfe26901dc472366eedd416371d58326c117179c292cf97492e7fd0eccc4483"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/src/conformance.rs",
+      "bytes": 10935,
+      "sha256": "3df5178fec50ccc24b551b3c6160676d3970b87cf65f3a584fa506f571e3ec41"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a1-original/source/xtask/project_analysis/src/main.rs",
+      "bytes": 1242,
+      "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/PROVENANCE.md",
+      "bytes": 1395,
+      "sha256": "126b003aa598e0be3f833406937cc472101facee8ab2a27a19bb562a8dec068a"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/SOURCE-SHA256SUMS",
+      "bytes": 2532,
+      "sha256": "f0a9fe8d7d432ba4a054df5da03914d3a83567dcb0c1fa82f29965b24819d918"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/manifest.json",
+      "bytes": 20497,
+      "sha256": "baafeba96af2418ce8abff4a00fb83d8b65857d4348c1ec7f4f7b168e029101d"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/.changeset/perky-pumas-camp.md",
+      "bytes": 225,
+      "sha256": "9c740e9b83e2bee24a7b8def503e0770304ede664186e161d30710a3cdff7634"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/Cargo.lock",
+      "bytes": 179566,
+      "sha256": "757acd819b4074579c149cb60dfac9dfac094a71d79cbf74358a62f0f2a0f67a"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/Cargo.toml",
+      "bytes": 4134,
+      "sha256": "28f57e440a0c08c0c13b5f99ec2d710b7bf0b403ca0ce725072875dbcecf801c"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/src/lib.rs",
+      "bytes": 37188,
+      "sha256": "c1990af407eff75d31aee6c489b7be224f5d8b945de604b7ab991958fff5c4e4"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/src/project_analysis.rs",
+      "bytes": 17689,
+      "sha256": "d216a46b2f99f80a1fc5e499b8b885dd97b4e79493d3498910090fde8dad5d33"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "bytes": 499,
+      "sha256": "50525046e13c886b0edcb8843125509d63c8e29a1ad3561f7e55879b7bd69f8b"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "bytes": 53,
+      "sha256": "f20f8eeb96d9cac3ea0ded012398639c56db90e2681282a8d7d606831296861a"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "bytes": 50,
+      "sha256": "5aeadfb82ae23d7ec0ea20a6fe1f7a904d071c983c2447656705c7aa122a4e03"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "bytes": 23,
+      "sha256": "3458a3605d43476e96a86f2350d393e8927d7ebfeef59eea59213e4b6b694bdb"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_configuration/tests/project_analysis.rs",
+      "bytes": 13164,
+      "sha256": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/src/lib.rs",
+      "bytes": 2734,
+      "sha256": "a03189c0a368aca7822255273ad9c0ef1ca4658739945514e95314873884c238"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/src/node_js_package/mod.rs",
+      "bytes": 4177,
+      "sha256": "de015a22e4f239b68e78d99786e132cc3d640003598c63624c5af790f92939b5"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/src/node_js_package/package_json.rs",
+      "bytes": 35139,
+      "sha256": "a13e31a99a40afecca632b4d416e7b8c415f7980f383e690e4a12af5abc785ae"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 15608,
+      "sha256": "693d8efbf0c2e37ebb2ebd44193dc77136b7999bc8bfd9d54c5bff4a9c8923ec"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "bytes": 21155,
+      "sha256": "1f2896532e5fc47ed600f641896e6b36a6b48d7d816c14eb658c2ec35ff367ff"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/tests/project_metadata.rs",
+      "bytes": 14282,
+      "sha256": "75433266aff2b8b8d0647697199c15e13f821448dc0312a26cc2aa4d298227e3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "bytes": 3114,
+      "sha256": "6977fde8f7911f3d9c888ca53034139c99d7404ee6649b6f2a480d5a095ce523"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "bytes": 10184,
+      "sha256": "394e452fd1fbac2d518b8c24b47b59f928ccf781ab550f06bb09b2da40b89184"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/xtask/project_analysis/README.md",
+      "bytes": 4893,
+      "sha256": "2012c07939ab7cbecf34c1c1574d5702fd3edd984273b182911a4b40468376fe"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a2-original/source/xtask/project_analysis/compatibility.json",
+      "bytes": 45994,
+      "sha256": "7e498436430b5f4e6ee4c776563ad89539050a53abcb44c1d522ed43346afeca"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/A4-ASSESSMENT.md",
+      "bytes": 3732,
+      "sha256": "198aa825d6bb74b3fbf1a36e20218f51e39070a38b357d441c4c7c488adb2a6d"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/A4-PREIMAGE-CHECKS.json",
+      "bytes": 3929,
+      "sha256": "f9677e428582b84e6ff97c6bfacd54bccaaf885197eea7f6d0c4c930d3ad6853"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/README.md",
+      "bytes": 702,
+      "sha256": "f94aff35c013b08a7e1454007d55db0ff09ef919fd03f12aefa6e76b5f860873"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/SOURCE-SHA256SUMS",
+      "bytes": 420,
+      "sha256": "126f6f8d4f6525c62283cb2f299270d7666f97f5fe360892f19f42ba1666a306"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/manifest.json",
+      "bytes": 3351,
+      "sha256": "8e517608b3bd3a9c92ecc4496b58f286589ecb85389e4309d9e347245ef7496b"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/materialize.py",
+      "bytes": 4917,
+      "sha256": "bf881fad824e0b92d3aeb3e542dad7f7e57e9d917f319dd7eb45d889121e1c92"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/source/crates/biome_fs/src/fs.rs",
+      "bytes": 22317,
+      "sha256": "195374d88ac04e12544e0c7e1fbbb2e632de552becf317bcf375dcd02362dedf"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/source/crates/biome_fs/src/fs/memory.rs",
+      "bytes": 19818,
+      "sha256": "b1a633bbde27d267788ba334420c90689e854059616f67df3821cb68cf44eafa"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/source/crates/biome_fs/src/fs/os.rs",
+      "bytes": 16577,
+      "sha256": "bad23d1d821a64d78ddb7e6cae76eb2c457b9657fcee5f5458939a5795c2dd56"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a3-filesystem-original/source/crates/biome_fs/tests/canonical_path.rs",
+      "bytes": 2656,
+      "sha256": "d886e5f48351f5c64955ba1708441b581e1839215244e3f1636876b3bec73416"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/README.md",
+      "bytes": 1235,
+      "sha256": "1e05077430ecd0f9b3c7585d330e6c5e961691d16854bc89fa9189e233fda7e6"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/SOURCE-SHA256SUMS",
+      "bytes": 2051,
+      "sha256": "31c51a320fd31791948a90075aae47d41f9c3d33a5495ac7458c1acecf50ea92"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/manifest.json",
+      "bytes": 28001,
+      "sha256": "e86b2c25bb50c2dc585acb0372cf0c2a3fb4fda63c7b7378b4a26306e629a0fa"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/materialize.py",
+      "bytes": 9391,
+      "sha256": "8f3d8e7d92b76854c273a71762548af8c56006ad9d7f3df2aedaf2897d6b9dc3"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/db/queries.rs",
+      "bytes": 8677,
+      "sha256": "775d0ced074ae7e13525ee5452c40d10982b7266d4526fa9bcdc38d4382f9547"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/db/queries/dependencies.rs",
+      "bytes": 4562,
+      "sha256": "84d0d4bd393b58a4e561c44d182e52f4bfabb2ab37651bf3474d259689b18347"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/db/queries/project_exports.rs",
+      "bytes": 5995,
+      "sha256": "3d1ff171e22d04b038a5d1a01120f808b6d1c5ee08be9730a538468adb61a97c"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/js_module_info.rs",
+      "bytes": 18461,
+      "sha256": "d5992c1cdd9ed5ed12238c92e6d53effa8798377d180777fd5ca6eaac16ec80a"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/js_module_info/collector.rs",
+      "bytes": 44145,
+      "sha256": "26191ae91904fcf3af5bf14a9d2f0d7d21a271764abc22abc53d3ea1645d8f01"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/js_module_info/visitor.rs",
+      "bytes": 19987,
+      "sha256": "d527ee9af81900ae6a7084bc9fe49066e20dd360e3263b781dbc39a66bb53109"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/lib.rs",
+      "bytes": 3180,
+      "sha256": "dd91ded34c671cdb1f3dcd061a342f6f9888120397eb70436bbba0ca0acbaa8f"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/module_graph.rs",
+      "bytes": 8263,
+      "sha256": "c0a301d090863e80fa0308f63e60d7a733031f653cd3de09d8a8d5ecebdf2400"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/project_facts.rs",
+      "bytes": 67464,
+      "sha256": "ce87a1dc8fcfa0152215cb97f8f283368d44d5abcefe224cac6b83929ba47a41"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/src/resolution.rs",
+      "bytes": 10813,
+      "sha256": "b9a9aa06e27fe1c352e5289535b83cf01f77b36ec5ffc122c3304f60bcc3124c"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/tests/spec_tests.rs",
+      "bytes": 23742,
+      "sha256": "60d8803fbff4424a1f0cb519a9988b17e686ff5e6af030521f4c0a578379eee9"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "bytes": 36227,
+      "sha256": "831831979f021ee4ab7e6b8609d59baa972e593731e995e98ad0892cc3a8e387"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_module_graph/tests/spec_tests/support.rs",
+      "bytes": 8274,
+      "sha256": "709e0aa53550ff9a8a41fd96a647c956887026355b43d62a4940d58e836d3778"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_resolver/src/db.rs",
+      "bytes": 29879,
+      "sha256": "2fdfc39584b3e8abc86d7600ef6999a2cc7a38ef8bfbbbe1d30ff26857e03e64"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_resolver/src/lib.rs",
+      "bytes": 65457,
+      "sha256": "372abe9f3436dbf7ad34340000b3c129b3a5dabb20a3f987861030e463332342"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_resolver/src/resolver_fs_proxy.rs",
+      "bytes": 9462,
+      "sha256": "5cdeb662e933bd292032231070bd994c70aa73363821e9137a0f57bf7b84c95d"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/a4-original/source/crates/biome_resolver/tests/spec_tests.rs",
+      "bytes": 42406,
+      "sha256": "0c46021cfec4613717a4256902552c686ee87ecab87b3e3d778c1acc308de3ac"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/manifest.json",
+      "bytes": 569,
+      "sha256": "e4ac54b56dce9cad23fc93d5fd8ed029f4ac01714d6af4943ae21c66b5449287"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/next-stages.md",
+      "bytes": 9060,
+      "sha256": "09e309c57b7d71a9e5aca92364807a6b359db521a20bef52b2b1ecc98f2a3ff2"
+    },
+    {
+      "path": "records/recovered-continuation-stage-maps/progress.md",
+      "bytes": 3442,
+      "sha256": "640c21db2c07d0d901c4b1c5ddc2df95ecce9dc598e91564e5f97e67bd363250"
+    },
+    {
       "path": "records/recovered-d1-api-reconcile/crates/biome_configuration/src/project_analysis.rs.L10-L14.fragment",
       "bytes": 242,
       "sha256": "3fc8197df4cf236b3092435932acfe5cb1de7f87d990fd72672ea5a7de78e4ae"

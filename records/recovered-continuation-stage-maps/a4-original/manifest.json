@@ -1,0 +1,608 @@
+{
+  "status": "coherent-original-A4-final-source-overlay",
+  "base": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+  "original_A4_main": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+  "original_A4_final": "3c28dae197840dd6adee956e7d884531a073f7cc",
+  "scope": "17 Rust source/test paths only. The original changeset is excluded for parent scope assessment. No A3 service, later B-stage facts, or new behavior composed.",
+  "prerequisites": [
+    {
+      "from_stage": "A2 final65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "interfaces": [
+        "PackageJson.project_metadata.diagnostics",
+        "TsConfigJson.metadata_diagnostics"
+      ],
+      "engine_prerequisite": false,
+      "full_A3_service_prerequisite": false
+    }
+  ],
+  "gaps": [],
+  "files": [
+    {
+      "path": "crates/biome_module_graph/src/db/queries.rs",
+      "original_base_blob": "b82ae96f7673bea1ac9ece70d1c70e5904fc2d12",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "b735a2267d2",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 8677,
+      "lines": 223,
+      "sha256": "775d0ced074ae7e13525ee5452c40d10982b7266d4526fa9bcdc38d4382f9547",
+      "git_blob_sha1": "b735a2267d226cb35c04d9f38fe03c0d656b6309",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/db/queries/dependencies.rs",
+      "original_base_blob": "46be135694a5d3bac7c82dbf3868b1fd2eda4f19",
+      "source_evidence": [
+        "recovered-a4/a4-dependencies.complete.rs"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [],
+      "provenance": "Complete original A4 main source, unchanged by fix1 unless a later transition is recorded; no later B-stage source used.",
+      "bytes": 4562,
+      "lines": 142,
+      "sha256": "84d0d4bd393b58a4e561c44d182e52f4bfabb2ab37651bf3474d259689b18347",
+      "git_blob_sha1": "1bde59843f9c09427dc6f87bd4f2451007520cc6",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/db/queries/project_exports.rs",
+      "original_base_blob": null,
+      "source_evidence": [
+        "recovered-a4/a4-project_exports.complete.rs"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [],
+      "provenance": "Complete original A4 main source, unchanged by fix1 unless a later transition is recorded; no later B-stage source used.",
+      "bytes": 5995,
+      "lines": 157,
+      "sha256": "3d1ff171e22d04b038a5d1a01120f808b6d1c5ee08be9730a538468adb61a97c",
+      "git_blob_sha1": "296abb96c49dfde3f32ec5e5e3b20447f47693e5",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info.rs",
+      "original_base_blob": "1a4bdbd9d110bfb57c2891c3411bd7623abfb048",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "5334fffba7c",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 18461,
+      "lines": 549,
+      "sha256": "d5992c1cdd9ed5ed12238c92e6d53effa8798377d180777fd5ca6eaac16ec80a",
+      "git_blob_sha1": "5334fffba7ca5d6298c7cc83a5ed5adbeaeb78d6",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/collector.rs",
+      "original_base_blob": "3457ffbcea4f874af11ef07f8c99f4a263e2564c",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "175496b41b4",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 44145,
+      "lines": 1113,
+      "sha256": "26191ae91904fcf3af5bf14a9d2f0d7d21a271764abc22abc53d3ea1645d8f01",
+      "git_blob_sha1": "175496b41b47f4457a92bc7c33bf92f4b3dc1166",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/visitor.rs",
+      "original_base_blob": "d07104506b7bf8abae5a5ce4f7cc65ab80271182",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "0ed95533e30",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 19987,
+      "lines": 517,
+      "sha256": "d527ee9af81900ae6a7084bc9fe49066e20dd360e3263b781dbc39a66bb53109",
+      "git_blob_sha1": "0ed95533e30e22d0f5ebfb3f623180f22eda05f4",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/lib.rs",
+      "original_base_blob": "8c597a978041a09f7a0bfe6cc6553ec781508a0b",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "18b438eefeb",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 3180,
+      "lines": 74,
+      "sha256": "dd91ded34c671cdb1f3dcd061a342f6f9888120397eb70436bbba0ca0acbaa8f",
+      "git_blob_sha1": "18b438eefebbaba8c7baba99ce79c5c79ecca1ec",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/module_graph.rs",
+      "original_base_blob": "c56ae67799db79dd41998a3f8d7fe98c7671d2a3",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "f098c1edd0d",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 8263,
+      "lines": 278,
+      "sha256": "c0a301d090863e80fa0308f63e60d7a733031f653cd3de09d8a8d5ecebdf2400",
+      "git_blob_sha1": "f098c1edd0d933118f40c1b3fa5799271d2355c3",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/project_facts.rs",
+      "original_base_blob": null,
+      "source_evidence": [
+        "assembly/derived/a4/crates/biome_module_graph/src/project_facts.rs",
+        "recovered-a4/fix1-01-production.complete.diff"
+      ],
+      "stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "10e023fa4d3",
+          "source": "recovered-a4/fix1-01-production.complete.diff"
+        }
+      ],
+      "provenance": "Complete original A4 main source, unchanged by fix1 unless a later transition is recorded; no later B-stage source used.",
+      "bytes": 67464,
+      "lines": 1819,
+      "sha256": "ce87a1dc8fcfa0152215cb97f8f283368d44d5abcefe224cac6b83929ba47a41",
+      "git_blob_sha1": "10e023fa4d3700de68d50c2afc8eeef42f479a96",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/src/resolution.rs",
+      "original_base_blob": "aa40e479ef5df0719a12d51729eef467d0140c0e",
+      "source_evidence": [
+        "recovered-a4/a4-resolution.complete.rs"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [],
+      "provenance": "Complete original A4 main source, unchanged by fix1 unless a later transition is recorded; no later B-stage source used.",
+      "bytes": 10813,
+      "lines": 311,
+      "sha256": "b9a9aa06e27fe1c352e5289535b83cf01f77b36ec5ffc122c3304f60bcc3124c",
+      "git_blob_sha1": "9bad059770e92296f9ff2e56891d1a8c92ab7e83",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests.rs",
+      "original_base_blob": "6196997c06037ac4afa93e73577f3f7c21581e6a",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "1e22d2c330e",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 23742,
+      "lines": 790,
+      "sha256": "60d8803fbff4424a1f0cb519a9988b17e686ff5e6af030521f4c0a578379eee9",
+      "git_blob_sha1": "1e22d2c330e0198ea083254d180df7182ac6355d",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "original_base_blob": null,
+      "source_evidence": [
+        "assembly/derived/a4/crates/biome_module_graph/tests/spec_tests/project.test.rs",
+        "recovered-a4/fix1-02-tests.complete.diff"
+      ],
+      "stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "76dcfea1091",
+          "source": "recovered-a4/fix1-02-tests.complete.diff"
+        }
+      ],
+      "provenance": "Complete original A4 main source, unchanged by fix1 unless a later transition is recorded; no later B-stage source used.",
+      "bytes": 36227,
+      "lines": 1090,
+      "sha256": "831831979f021ee4ab7e6b8609d59baa972e593731e995e98ad0892cc3a8e387",
+      "git_blob_sha1": "76dcfea1091062574627ca1fbc7d783ba3e9c3c6",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/support.rs",
+      "original_base_blob": "b19b2367d6043692728c3d51c276fcde7d3186ab",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "572cd04636d",
+          "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff"
+        }
+      ],
+      "bytes": 8274,
+      "lines": 230,
+      "sha256": "709e0aa53550ff9a8a41fd96a647c956887026355b43d62a4940d58e836d3778",
+      "git_blob_sha1": "572cd04636d2a2439f29d9dbe80ecab5fb5f4d84",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_resolver/src/db.rs",
+      "original_base_blob": "52b6735ed9313aedf647d407d27961fe1755dd8c",
+      "source_evidence": [
+        "recovered-a4/a4-01-resolver.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "6a835c4dc4a",
+          "source": "recovered-a4/a4-01-resolver.complete.diff"
+        }
+      ],
+      "bytes": 29879,
+      "lines": 862,
+      "sha256": "2fdfc39584b3e8abc86d7600ef6999a2cc7a38ef8bfbbbe1d30ff26857e03e64",
+      "git_blob_sha1": "6a835c4dc4a6f40c878121451101199201c9703a",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_resolver/src/lib.rs",
+      "original_base_blob": "2e3cf9e0ca9840677d588bdf8a076ce94328e795",
+      "source_evidence": [
+        "recovered-a4/a4-01-resolver.complete.diff",
+        "recovered-a4/fix1-01-production.complete.diff"
+      ],
+      "stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "fa5ad8610ef",
+          "source": "recovered-a4/fix1-01-production.complete.diff"
+        }
+      ],
+      "bytes": 65457,
+      "lines": 1846,
+      "sha256": "372abe9f3436dbf7ad34340000b3c129b3a5dabb20a3f987861030e463332342",
+      "git_blob_sha1": "fa5ad8610ef7ed20c20287c8c758879cc0054e66",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_resolver/src/resolver_fs_proxy.rs",
+      "original_base_blob": "15aa237a7d6b3b08b4c13b3de797d06695919222",
+      "source_evidence": [
+        "recovered-a4/a4-01-resolver.complete.diff"
+      ],
+      "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "db7d0fe9072",
+          "source": "recovered-a4/a4-01-resolver.complete.diff"
+        }
+      ],
+      "bytes": 9462,
+      "lines": 276,
+      "sha256": "5cdeb662e933bd292032231070bd994c70aa73363821e9137a0f57bf7b84c95d",
+      "git_blob_sha1": "db7d0fe9072862905e3a066794abd44ebe455e1c",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    },
+    {
+      "path": "crates/biome_resolver/tests/spec_tests.rs",
+      "original_base_blob": "18003f731d3d786d2823fcff91fd907392cf4990",
+      "source_evidence": [
+        "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+        "recovered-a4/fix1-02-tests.complete.diff"
+      ],
+      "stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "authentication": [
+        {
+          "kind": "original_git_blob_prefix",
+          "value": "1fc68f0f68b",
+          "source": "recovered-a4/fix1-02-tests.complete.diff"
+        }
+      ],
+      "bytes": 42406,
+      "lines": 1454,
+      "sha256": "0c46021cfec4613717a4256902552c686ee87ecab87b3e3d778c1acc308de3ac",
+      "git_blob_sha1": "1fc68f0f68b1119a62c040a2755ef82ac676a590",
+      "valid_at_final_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "stage_note": "Original main sources unaffected by the four-file fix remain valid at final A4."
+    }
+  ],
+  "exact_patch_transitions": [
+    {
+      "path": "crates/biome_resolver/src/db.rs",
+      "source": "recovered-a4/a4-01-resolver.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "52b6735ed93",
+      "actual_preimage_blob": "52b6735ed9313aedf647d407d27961fe1755dd8c",
+      "original_postimage_prefix": "6a835c4dc4a",
+      "actual_postimage_blob": "6a835c4dc4a6f40c878121451101199201c9703a",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_resolver/src/lib.rs",
+      "source": "recovered-a4/a4-01-resolver.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "2e3cf9e0ca9",
+      "actual_preimage_blob": "2e3cf9e0ca9840677d588bdf8a076ce94328e795",
+      "original_postimage_prefix": "9c3559e3562",
+      "actual_postimage_blob": "9c3559e35620344a6d401da4047c3330a4b382d4",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_resolver/src/resolver_fs_proxy.rs",
+      "source": "recovered-a4/a4-01-resolver.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "15aa237a7d6",
+      "actual_preimage_blob": "15aa237a7d6b3b08b4c13b3de797d06695919222",
+      "original_postimage_prefix": "db7d0fe9072",
+      "actual_postimage_blob": "db7d0fe9072862905e3a066794abd44ebe455e1c",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/db/queries.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "b82ae96f767",
+      "actual_preimage_blob": "b82ae96f7673bea1ac9ece70d1c70e5904fc2d12",
+      "original_postimage_prefix": "b735a2267d2",
+      "actual_postimage_blob": "b735a2267d226cb35c04d9f38fe03c0d656b6309",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "1a4bdbd9d11",
+      "actual_preimage_blob": "1a4bdbd9d110bfb57c2891c3411bd7623abfb048",
+      "original_postimage_prefix": "5334fffba7c",
+      "actual_postimage_blob": "5334fffba7ca5d6298c7cc83a5ed5adbeaeb78d6",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/collector.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "3457ffbcea4",
+      "actual_preimage_blob": "3457ffbcea4f874af11ef07f8c99f4a263e2564c",
+      "original_postimage_prefix": "175496b41b4",
+      "actual_postimage_blob": "175496b41b47f4457a92bc7c33bf92f4b3dc1166",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/visitor.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "d07104506b7",
+      "actual_preimage_blob": "d07104506b7bf8abae5a5ce4f7cc65ab80271182",
+      "original_postimage_prefix": "0ed95533e30",
+      "actual_postimage_blob": "0ed95533e30e22d0f5ebfb3f623180f22eda05f4",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/lib.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "8c597a97804",
+      "actual_preimage_blob": "8c597a978041a09f7a0bfe6cc6553ec781508a0b",
+      "original_postimage_prefix": "18b438eefeb",
+      "actual_postimage_blob": "18b438eefebbaba8c7baba99ce79c5c79ecca1ec",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/module_graph.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "c56ae67799d",
+      "actual_preimage_blob": "c56ae67799db79dd41998a3f8d7fe98c7671d2a3",
+      "original_postimage_prefix": "f098c1edd0d",
+      "actual_postimage_blob": "f098c1edd0d933118f40c1b3fa5799271d2355c3",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "6196997c060",
+      "actual_preimage_blob": "6196997c06037ac4afa93e73577f3f7c21581e6a",
+      "original_postimage_prefix": "1e22d2c330e",
+      "actual_postimage_blob": "1e22d2c330e0198ea083254d180df7182ac6355d",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/support.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "b19b2367d60",
+      "actual_preimage_blob": "b19b2367d6043692728c3d51c276fcde7d3186ab",
+      "original_postimage_prefix": "572cd04636d",
+      "actual_postimage_blob": "572cd04636d2a2439f29d9dbe80ecab5fb5f4d84",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_resolver/tests/spec_tests.rs",
+      "source": "recovered-a4/a4-02-graph-and-resolver-tests.complete.diff",
+      "from_stage": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+      "to_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "original_preimage_prefix": "18003f731d3",
+      "actual_preimage_blob": "18003f731d3d786d2823fcff91fd907392cf4990",
+      "original_postimage_prefix": "477339692f5",
+      "actual_postimage_blob": "477339692f5e4642c67e35cac1e26b93e213f685",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/src/project_facts.rs",
+      "source": "recovered-a4/fix1-01-production.complete.diff",
+      "from_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "to_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "original_preimage_prefix": "aaeec90614d",
+      "actual_preimage_blob": "aaeec90614dca91b9171126a729ef61afd77623a",
+      "original_postimage_prefix": "10e023fa4d3",
+      "actual_postimage_blob": "10e023fa4d3700de68d50c2afc8eeef42f479a96",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_resolver/src/lib.rs",
+      "source": "recovered-a4/fix1-01-production.complete.diff",
+      "from_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "to_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "original_preimage_prefix": "9c3559e3562",
+      "actual_preimage_blob": "9c3559e35620344a6d401da4047c3330a4b382d4",
+      "original_postimage_prefix": "fa5ad8610ef",
+      "actual_postimage_blob": "fa5ad8610ef7ed20c20287c8c758879cc0054e66",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "source": "recovered-a4/fix1-02-tests.complete.diff",
+      "from_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "to_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "original_preimage_prefix": "fe70beeca51",
+      "actual_preimage_blob": "fe70beeca51222f98204343f01e003e5a6d0f9f5",
+      "original_postimage_prefix": "76dcfea1091",
+      "actual_postimage_blob": "76dcfea1091062574627ca1fbc7d783ba3e9c3c6",
+      "preimage_and_postimage_match": true
+    },
+    {
+      "path": "crates/biome_resolver/tests/spec_tests.rs",
+      "source": "recovered-a4/fix1-02-tests.complete.diff",
+      "from_stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "to_stage": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "original_preimage_prefix": "477339692f5",
+      "actual_preimage_blob": "477339692f5e4642c67e35cac1e26b93e213f685",
+      "original_postimage_prefix": "1fc68f0f68b",
+      "actual_postimage_blob": "1fc68f0f68b1119a62c040a2755ef82ac676a590",
+      "preimage_and_postimage_match": true
+    }
+  ],
+  "verification_status": "Source hashes and exact original patch transitions verified; no builds/tests executed.",
+  "focused_tests": [
+    {
+      "command": "cargo test -p biome_module_graph --test spec_tests project_",
+      "expected_count": 28,
+      "names": [
+        "project_facts_declaration_file_classification",
+        "project_facts_repeated_and_type_occurrences",
+        "project_facts_namespace_keys",
+        "project_facts_custom_element_registration",
+        "project_exports_origin",
+        "project_facts_commonjs_and_entries",
+        "project_resolution_contexts_and_target_union",
+        "project_facts_node_entry_bindings",
+        "project_facts_typeof_and_commonjs_uncertainty",
+        "project_facts_registration_alias_and_scope",
+        "project_exports_unavailable_incremental_and_context",
+        "project_facts_nested_exports_and_import_equals",
+        "project_exports_namespace_alias_and_default_class_facets",
+        "project_resolution_partial_manifest_quality_and_repair",
+        "project_facts_type_namespace_and_default_registration",
+        "project_facts_opaque_commonjs_mutations",
+        "project_exports_requires_trusted_parse",
+        "project_resolution_pinned_condition_matrix",
+        "project_review_import_type_occurrences",
+        "project_review_opposite_facet_registry_shadowing",
+        "project_review_opposite_facet_require_shadowing",
+        "project_review_escaped_reexport_names",
+        "project_review_escaped_import_names",
+        "project_review_escaped_namespace_keys",
+        "project_review_absolute_candidate_mapping_contexts",
+        "project_review_unsupported_namespace_escape",
+        "project_review_escaped_commonjs_import",
+        "project_review_escaped_commonjs_export"
+      ]
+    },
+    {
+      "command": "cargo test -p biome_resolver --test spec_tests resolution_",
+      "expected_count": 6,
+      "names": [
+        "resolution_project_profiles",
+        "resolution_legacy_unchanged",
+        "resolution_project_mapping_provenance_and_errors",
+        "resolution_project_partial_manifest_quality",
+        "resolution_project_review_relative_absolute_mapping",
+        "resolution_project_review_declaration_main_mapping"
+      ]
+    }
+  ],
+  "additional_verification": [
+    "source /workspace/.biome-cloud/activate.sh",
+    "cargo test -p biome_module_graph -p biome_resolver",
+    "just f",
+    "just l",
+    "Fresh repository code review before declaring ready."
+  ],
+  "limitations": [
+    "Three unchanged full-file source snapshots lack an independently retained historical whole-file hash; their provenance is recorded, and current checksums are integrity checks only.",
+    "Historical successful tests are not proof this reconstructed continuation builds or passes today.",
+    "No original Git commit object was reconstructed."
+  ]
+}

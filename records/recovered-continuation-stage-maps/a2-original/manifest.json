@@ -1,0 +1,483 @@
+{
+  "status": "complete_original_a2_non_generated_overlay",
+  "original_base": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+  "original_predecessor_stage": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+  "original_initial_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+  "original_final_stage": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+  "materialized_files": 20,
+  "materialized_bytes": 409871,
+  "source_mtime_policy": "New write times; original filesystem mtimes are not copied.",
+  "missing_non_generated_paths": [],
+  "files": [
+    {
+      "path": ".changeset/perky-pumas-camp.md",
+      "bytes": 225,
+      "lines": 5,
+      "sha256": "9c740e9b83e2bee24a7b8def503e0770304ede664186e161d30710a3cdff7634",
+      "git_blob_sha1": "e5cfd483dd5e3bc2a0c0118c44062ba45abf2b24",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/.changeset/perky-pumas-camp.md",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": "e5cfd483dd5"
+        }
+      ]
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 179566,
+      "lines": 7862,
+      "sha256": "757acd819b4074579c149cb60dfac9dfac094a71d79cbf74358a62f0f2a0f67a",
+      "git_blob_sha1": "34122cb786e1b31ead83b9851c38cf6345d3a515",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "/workspace/.biome-cloud/native-continuation/a1-original/source/Cargo.lock",
+          "preimage_prefix": "119f104d79c",
+          "postimage_prefix": "34122cb786e",
+          "hunks": 1
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/Cargo.toml",
+      "bytes": 4134,
+      "lines": 103,
+      "sha256": "28f57e440a0c08c0c13b5f99ec2d710b7bf0b403ca0ce725072875dbcecf801c",
+      "git_blob_sha1": "7a6f1bf1244fcf48f3551a5f8efaa6c222380bb4",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_configuration/Cargo.toml",
+          "preimage_prefix": "9edc0f3b216",
+          "postimage_prefix": "7a6f1bf1244",
+          "hunks": 3
+        },
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/Cargo.toml",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": "7a6f1bf1244"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/src/lib.rs",
+      "bytes": 37188,
+      "lines": 1030,
+      "sha256": "c1990af407eff75d31aee6c489b7be224f5d8b945de604b7ab991958fff5c4e4",
+      "git_blob_sha1": "3bf49422f1976aea6d6773a3a590a610d368c365",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_configuration/src/lib.rs",
+          "preimage_prefix": "18a3a5c3d9e",
+          "postimage_prefix": "3bf49422f19",
+          "hunks": 2
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/src/project_analysis.rs",
+      "bytes": 17689,
+      "lines": 459,
+      "sha256": "d216a46b2f99f80a1fc5e499b8b885dd97b4e79493d3498910090fde8dad5d33",
+      "git_blob_sha1": "c93fe148667e2e3cff59c00816b6e5764fd79a04",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/src/project_analysis.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "bytes": 499,
+      "lines": 1,
+      "sha256": "50525046e13c886b0edcb8843125509d63c8e29a1ad3561f7e55879b7bd69f8b",
+      "git_blob_sha1": "b9bd2a68dd0d0112a18e521f722f2fbc78cdcd28",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "bytes": 53,
+      "lines": 1,
+      "sha256": "f20f8eeb96d9cac3ea0ded012398639c56db90e2681282a8d7d606831296861a",
+      "git_blob_sha1": "db5db428da5239ca65915346501cf9235b0d6c95",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "bytes": 50,
+      "lines": 2,
+      "sha256": "5aeadfb82ae23d7ec0ea20a6fe1f7a904d071c983c2447656705c7aa122a4e03",
+      "git_blob_sha1": "85291361f7d4e124ab4dfba16ef1f5e054141b5e",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "bytes": 23,
+      "lines": 1,
+      "sha256": "3458a3605d43476e96a86f2350d393e8927d7ebfeef59eea59213e4b6b694bdb",
+      "git_blob_sha1": "8490e23b988579ac9cf44f312093189074bd37be",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_configuration/tests/project_analysis.rs",
+      "bytes": 13164,
+      "lines": 349,
+      "sha256": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4",
+      "git_blob_sha1": "477f0c33a5118643f0f52cb96d2ed0ca8868add6",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_configuration/tests/project_analysis.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/src/lib.rs",
+      "bytes": 2734,
+      "lines": 96,
+      "sha256": "a03189c0a368aca7822255273ad9c0ef1ca4658739945514e95314873884c238",
+      "git_blob_sha1": "ef9743854e7e86aa170118d29cc274bded1f7fcc",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_package/src/lib.rs",
+          "preimage_prefix": "84905d83515",
+          "postimage_prefix": "ef9743854e7",
+          "hunks": 1
+        },
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/src/lib.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": "ef9743854e7"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/mod.rs",
+      "bytes": 4177,
+      "lines": 133,
+      "sha256": "de015a22e4f239b68e78d99786e132cc3d640003598c63624c5af790f92939b5",
+      "git_blob_sha1": "10b6c387394437a57bda11689252952040badf4c",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_package/src/node_js_package/mod.rs",
+          "preimage_prefix": "f96a75841d9",
+          "postimage_prefix": "10b6c387394",
+          "hunks": 1
+        },
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/src/node_js_package/mod.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": "10b6c387394"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/package_json.rs",
+      "bytes": 35139,
+      "lines": 1056,
+      "sha256": "a13e31a99a40afecca632b4d416e7b8c415f7980f383e690e4a12af5abc785ae",
+      "git_blob_sha1": "4a0ffdb0f44bf852004c7e1c7f2adef1d7a61a1d",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_package/src/node_js_package/package_json.rs",
+          "preimage_prefix": "2bc91f22657",
+          "postimage_prefix": "4a0ffdb0f44",
+          "hunks": 2
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 15608,
+      "lines": 439,
+      "sha256": "693d8efbf0c2e37ebb2ebd44193dc77136b7999bc8bfd9d54c5bff4a9c8923ec",
+      "git_blob_sha1": "d78930b4df7afbf0bbaa9c44a15e091746024e20",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/src/node_js_package/project_metadata.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "bytes": 21155,
+      "lines": 621,
+      "sha256": "1f2896532e5fc47ed600f641896e6b36a6b48d7d816c14eb658c2ec35ff367ff",
+      "git_blob_sha1": "4a562b99c926e5fc2f12d3d00d0a428f79cd8513",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/integration.patch",
+          "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:crates/biome_package/src/node_js_package/tsconfig_json.rs",
+          "preimage_prefix": "67175ca1e99",
+          "postimage_prefix": "7275808a6ee",
+          "hunks": 3
+        },
+        {
+          "kind": "complete_original_final_fix_file",
+          "source": "recovered-a2-fix1-review/stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/src/node_js_package/tsconfig_json.rs",
+          "original_stage": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+          "original_blob_prefix": "4a562b99c92",
+          "computed_full_git_blob": "4a562b99c926e5fc2f12d3d00d0a428f79cd8513"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/tests/project_metadata.rs",
+      "bytes": 14282,
+      "lines": 384,
+      "sha256": "75433266aff2b8b8d0647697199c15e13f821448dc0312a26cc2aa4d298227e3",
+      "git_blob_sha1": "780cb544673b869b95cedff9fe78509359936d2c",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/tests/project_metadata.rs",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        },
+        {
+          "kind": "complete_original_final_fix_file",
+          "source": "recovered-a2-fix1-review/stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/project_metadata.rs",
+          "original_stage": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+          "original_blob_prefix": "780cb544673",
+          "computed_full_git_blob": "780cb544673b869b95cedff9fe78509359936d2c"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "bytes": 3114,
+      "lines": 108,
+      "sha256": "6977fde8f7911f3d9c888ca53034139c99d7404ee6649b6f2a480d5a095ce523",
+      "git_blob_sha1": "5b53b50eb26d3ae3b585c9da6e90700f03431ca9",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        },
+        {
+          "kind": "complete_original_final_fix_file",
+          "source": "recovered-a2-fix1-review/stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+          "original_stage": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+          "original_blob_prefix": "5b53b50eb26",
+          "computed_full_git_blob": "5b53b50eb26d3ae3b585c9da6e90700f03431ca9"
+        }
+      ]
+    },
+    {
+      "path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "bytes": 10184,
+      "lines": 245,
+      "sha256": "394e452fd1fbac2d518b8c24b47b59f928ccf781ab550f06bb09b2da40b89184",
+      "git_blob_sha1": "f1b8b1e17192496d4ba36dea0d1b3279aec9d24b",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": null
+        },
+        {
+          "kind": "complete_original_final_fix_file",
+          "source": "recovered-a2-fix1-review/stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+          "original_stage": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+          "original_blob_prefix": "f1b8b1e1719",
+          "computed_full_git_blob": "f1b8b1e17192496d4ba36dea0d1b3279aec9d24b"
+        }
+      ]
+    },
+    {
+      "path": "xtask/project_analysis/README.md",
+      "bytes": 4893,
+      "lines": 81,
+      "sha256": "2012c07939ab7cbecf34c1c1574d5702fd3edd984273b182911a4b40468376fe",
+      "git_blob_sha1": "37b9544e221d2b7beb5e6d6463c2e214ab9bb4fc",
+      "provenance": [
+        {
+          "kind": "complete_original_literal_export",
+          "source": "recovered-a2-review/source/xtask/project_analysis/README.md",
+          "original_stage": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+          "original_blob_prefix": "37b9544e221"
+        }
+      ]
+    },
+    {
+      "path": "xtask/project_analysis/compatibility.json",
+      "bytes": 45994,
+      "lines": 2217,
+      "sha256": "7e498436430b5f4e6ee4c776563ad89539050a53abcb44c1d522ed43346afeca",
+      "git_blob_sha1": "29dabdce1e4f447803fa2154dcee494fcf9152c8",
+      "provenance": [
+        {
+          "kind": "exact_original_diff_composition",
+          "source": "recovered-a2-review/diffs/compatibility.patch",
+          "input": "/workspace/.biome-cloud/native-continuation/a1-original/source/xtask/project_analysis/compatibility.json",
+          "preimage_prefix": "460b0b66be5",
+          "postimage_prefix": "29dabdce1e4",
+          "hunks": 1
+        }
+      ]
+    }
+  ],
+  "exact_diff_transitions": [
+    {
+      "path": "Cargo.lock",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "119f104d79cb6e474ebe31b7e515460c8a188d02",
+      "after_blob": "34122cb786e1b31ead83b9851c38cf6345d3a515",
+      "preimage_prefix": "119f104d79c",
+      "postimage_prefix": "34122cb786e",
+      "hunks": 1
+    },
+    {
+      "path": "crates/biome_configuration/Cargo.toml",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "9edc0f3b216f2fb4ebb1d02d261181310a9b687c",
+      "after_blob": "7a6f1bf1244fcf48f3551a5f8efaa6c222380bb4",
+      "preimage_prefix": "9edc0f3b216",
+      "postimage_prefix": "7a6f1bf1244",
+      "hunks": 3
+    },
+    {
+      "path": "crates/biome_configuration/src/lib.rs",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "18a3a5c3d9e96847618259303ccaa981163030d3",
+      "after_blob": "3bf49422f1976aea6d6773a3a590a610d368c365",
+      "preimage_prefix": "18a3a5c3d9e",
+      "postimage_prefix": "3bf49422f19",
+      "hunks": 2
+    },
+    {
+      "path": "crates/biome_package/src/lib.rs",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "84905d8351519f049800679c0c3b9eb143e78de9",
+      "after_blob": "ef9743854e7e86aa170118d29cc274bded1f7fcc",
+      "preimage_prefix": "84905d83515",
+      "postimage_prefix": "ef9743854e7",
+      "hunks": 1
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/mod.rs",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "f96a75841d990b08dc7f8710a942be78884fa863",
+      "after_blob": "10b6c387394437a57bda11689252952040badf4c",
+      "preimage_prefix": "f96a75841d9",
+      "postimage_prefix": "10b6c387394",
+      "hunks": 1
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/package_json.rs",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "2bc91f22657d94a4c8708e8a2563d716d2416c9b",
+      "after_blob": "4a0ffdb0f44bf852004c7e1c7f2adef1d7a61a1d",
+      "preimage_prefix": "2bc91f22657",
+      "postimage_prefix": "4a0ffdb0f44",
+      "hunks": 2
+    },
+    {
+      "path": "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "source": "recovered-a2-review/diffs/integration.patch",
+      "before_blob": "67175ca1e998b63f10b687b693ab2eeb37479bcf",
+      "after_blob": "7275808a6ee00f134855bc97dcb7e6f9e44530f4",
+      "preimage_prefix": "67175ca1e99",
+      "postimage_prefix": "7275808a6ee",
+      "hunks": 3
+    },
+    {
+      "path": "xtask/project_analysis/compatibility.json",
+      "source": "recovered-a2-review/diffs/compatibility.patch",
+      "before_blob": "460b0b66be58f061a8a967ce223f615223924f92",
+      "after_blob": "29dabdce1e4f447803fa2154dcee494fcf9152c8",
+      "preimage_prefix": "460b0b66be5",
+      "postimage_prefix": "29dabdce1e4",
+      "hunks": 1
+    }
+  ],
+  "generated_output_expectations": [
+    {
+      "path": "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+      "materialized": false,
+      "required_command": "just gen-bindings",
+      "source": "recovered-a2-review/diffs/generated.patch",
+      "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+      "bytes": 478357,
+      "sha256": "e7acbc9756695f13b04c4517ac6a316a01086eb0ef8d8ed42203825e5251ddef",
+      "git_blob_sha1": "69ddc9c6db6068a0909ac051802b78ac639a39af",
+      "preimage_prefix": "e5740e4eddb",
+      "postimage_prefix": "69ddc9c6db6",
+      "hunks": 4
+    },
+    {
+      "path": "packages/@biomejs/biome/configuration_schema.json",
+      "materialized": false,
+      "required_command": "just gen-bindings",
+      "source": "recovered-a2-review/diffs/generated.patch",
+      "input": "git:6359a9b03670e85b50785d59d10eb087cf89fe3f:packages/@biomejs/biome/configuration_schema.json",
+      "bytes": 714024,
+      "sha256": "e07b4f61bde4a5fa14a872fcf796d49de4e36513333e47098862fa5eae953ceb",
+      "git_blob_sha1": "47ee3c62088fcf468bfd8b23e3912f597b2bed2b",
+      "preimage_prefix": "14686cede1a",
+      "postimage_prefix": "47ee3c62088",
+      "hunks": 8
+    }
+  ],
+  "limits": [
+    "This is source composition and integrity verification only; no compilation, code generation, test or lint gate was run.",
+    "Unchanged A2 files are initial-stage literals carried through the final four-file correction. Some literal exports lack an independent historical per-file digest; their evidence is explicitly identified.",
+    "Generated output is intentionally excluded. Parent must run just gen-bindings and compare expected identities.",
+    "Known bad context in the retained final paths snapshot patch was not used; its complete original-blob-verified file was copied."
+  ]
+}

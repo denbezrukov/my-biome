@@ -1,0 +1,10 @@
+{
+  "status": "coherent-original-source-stage-maps",
+  "purpose": "Preserve source compositions and continuation progress independently of the runtime.",
+  "completed_product_commit": "37156c2c36b",
+  "foundation_branch": "feat/native-project-foundation",
+  "foundation_checks": "16unit tests;3oracle cases;corruptartifact gate;formatting;workspace lint passed",
+  "foundation_review": "running",
+  "next_stage": "A2:22focusedtests passed;bindinggenerationrunning;fullgatespending",
+  "later_stages": "A3filesystem and A4sourcecompositions only; no build/passclaims"
+}

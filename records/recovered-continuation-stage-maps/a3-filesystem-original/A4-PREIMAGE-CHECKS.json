@@ -1,0 +1,101 @@
+{
+  "base": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+  "files": [
+    {
+      "path": "crates/biome_resolver/src/db.rs",
+      "base_git_blob": "52b6735ed9313aedf647d407d27961fe1755dd8c",
+      "original_preimage_prefix": "52b6735ed93",
+      "original_postimage_prefix": "6a835c4dc4a",
+      "matches": true,
+      "diff": "a4-01-resolver.complete.diff"
+    },
+    {
+      "path": "crates/biome_resolver/src/lib.rs",
+      "base_git_blob": "2e3cf9e0ca9840677d588bdf8a076ce94328e795",
+      "original_preimage_prefix": "2e3cf9e0ca9",
+      "original_postimage_prefix": "9c3559e3562",
+      "matches": true,
+      "diff": "a4-01-resolver.complete.diff"
+    },
+    {
+      "path": "crates/biome_resolver/src/resolver_fs_proxy.rs",
+      "base_git_blob": "15aa237a7d6b3b08b4c13b3de797d06695919222",
+      "original_preimage_prefix": "15aa237a7d6",
+      "original_postimage_prefix": "db7d0fe9072",
+      "matches": true,
+      "diff": "a4-01-resolver.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/db/queries.rs",
+      "base_git_blob": "b82ae96f7673bea1ac9ece70d1c70e5904fc2d12",
+      "original_preimage_prefix": "b82ae96f767",
+      "original_postimage_prefix": "b735a2267d2",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info.rs",
+      "base_git_blob": "1a4bdbd9d110bfb57c2891c3411bd7623abfb048",
+      "original_preimage_prefix": "1a4bdbd9d11",
+      "original_postimage_prefix": "5334fffba7c",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/collector.rs",
+      "base_git_blob": "3457ffbcea4f874af11ef07f8c99f4a263e2564c",
+      "original_preimage_prefix": "3457ffbcea4",
+      "original_postimage_prefix": "175496b41b4",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/js_module_info/visitor.rs",
+      "base_git_blob": "d07104506b7bf8abae5a5ce4f7cc65ab80271182",
+      "original_preimage_prefix": "d07104506b7",
+      "original_postimage_prefix": "0ed95533e30",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/lib.rs",
+      "base_git_blob": "8c597a978041a09f7a0bfe6cc6553ec781508a0b",
+      "original_preimage_prefix": "8c597a97804",
+      "original_postimage_prefix": "18b438eefeb",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/src/module_graph.rs",
+      "base_git_blob": "c56ae67799db79dd41998a3f8d7fe98c7671d2a3",
+      "original_preimage_prefix": "c56ae67799d",
+      "original_postimage_prefix": "f098c1edd0d",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests.rs",
+      "base_git_blob": "6196997c06037ac4afa93e73577f3f7c21581e6a",
+      "original_preimage_prefix": "6196997c060",
+      "original_postimage_prefix": "1e22d2c330e",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/support.rs",
+      "base_git_blob": "b19b2367d6043692728c3d51c276fcde7d3186ab",
+      "original_preimage_prefix": "b19b2367d60",
+      "original_postimage_prefix": "572cd04636d",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    },
+    {
+      "path": "crates/biome_resolver/tests/spec_tests.rs",
+      "base_git_blob": "18003f731d3d786d2823fcff91fd907392cf4990",
+      "original_preimage_prefix": "18003f731d3",
+      "original_postimage_prefix": "477339692f5",
+      "matches": true,
+      "diff": "a4-02-graph-and-resolver-tests.complete.diff"
+    }
+  ]
+}

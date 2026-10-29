@@ -1,0 +1,2177 @@
+{
+  "profile": "knip-6.43.0-native-core",
+  "source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+  "native_engine": "not implemented",
+  "issues": {
+    "files": {
+      "owner": "B1",
+      "status": "untested"
+    },
+    "dependencies": {
+      "owner": "B5",
+      "status": "untested"
+    },
+    "devDependencies": {
+      "owner": "B5",
+      "status": "untested"
+    },
+    "optionalPeerDependencies": {
+      "owner": "B5",
+      "status": "untested"
+    },
+    "unlisted": {
+      "owner": "B5",
+      "status": "untested"
+    },
+    "binaries": {
+      "owner": "B5",
+      "status": "untested"
+    },
+    "unresolved": {
+      "owner": "B6",
+      "status": "untested"
+    },
+    "exports": {
+      "owner": "B2",
+      "status": "untested"
+    },
+    "types": {
+      "owner": "B2",
+      "status": "untested"
+    },
+    "nsExports": {
+      "owner": "B3",
+      "status": "untested"
+    },
+    "nsTypes": {
+      "owner": "B3",
+      "status": "untested"
+    },
+    "duplicates": {
+      "owner": "B3",
+      "status": "untested"
+    },
+    "enumMembers": {
+      "owner": "B3",
+      "status": "untested"
+    },
+    "namespaceMembers": {
+      "owner": "B3",
+      "status": "untested"
+    },
+    "catalog": {
+      "owner": "B6",
+      "status": "untested"
+    },
+    "catalogReferences": {
+      "owner": "B6",
+      "status": "untested"
+    },
+    "cycles": {
+      "owner": "B6",
+      "status": "untested"
+    }
+  },
+  "root_configuration": {
+    "$schema": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "rules": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "entry": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "project": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "paths": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignore": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreFiles": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreBinaries": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreGlobalBinaries": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreDependencies": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreMembers": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreUnresolved": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreExportsUsedInFile": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreIssues": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "cycles": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreWorkspaces": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "includeEntryExports": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "compilers": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "asyncCompilers": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "tags": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "treatConfigHintsAsErrors": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "treatTagHintsAsErrors": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "preprocessor": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "preprocessorOptions": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "include": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "exclude": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "workspaces": {
+      "owner": "B7",
+      "status": "untested"
+    }
+  },
+  "workspace_configuration": {
+    "entry": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "project": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "paths": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignore": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreFiles": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreBinaries": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreGlobalBinaries": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreDependencies": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreMembers": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreUnresolved": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreExportsUsedInFile": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "ignoreIssues": {
+      "owner": "B7",
+      "status": "untested"
+    },
+    "includeEntryExports": {
+      "owner": "B7",
+      "status": "untested"
+    }
+  },
+  "cli": {
+    "--help": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-h": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--version": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-V": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--no-progress": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-n": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--config": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-c": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--use-tsconfig-files": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--tsConfig": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-t": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--cache": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--cache-location": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--include-entry-exports": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--no-gitignore": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--production": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-p": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--strict": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-s": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--watch": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-w": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--workspace": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-W": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--directory": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-D": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--include": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--exclude": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--dependencies": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--exports": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--files": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--cycles": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--tags": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--fix": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-f": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--fix-type": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--allow-remove-files": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--format": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-F": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--preprocessor": {
+      "owner": "D1",
+      "status": "unsupported"
+    },
+    "--preprocessor-options": {
+      "owner": "D1",
+      "status": "unsupported"
+    },
+    "--reporter": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--reporter-options": {
+      "owner": "D1",
+      "status": "unsupported"
+    },
+    "--no-config-hints": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--no-tag-hints": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--treat-config-hints-as-errors": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--treat-tag-hints-as-errors": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--max-issues": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--max-show-issues": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--no-exit-code": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--debug": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-d": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--memory": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--memory-realtime": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--performance": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--performance-fn": {
+      "owner": "D1",
+      "status": "unsupported"
+    },
+    "--duration": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "-u": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--trace": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--trace-dependency": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--trace-export": {
+      "owner": "D1",
+      "status": "untested"
+    },
+    "--trace-file": {
+      "owner": "D1",
+      "status": "untested"
+    }
+  },
+  "reporters": {
+    "symbols": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "compact": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "codeowners": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "cycles": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "disclosure": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "codeclimate": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "json": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "markdown": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "sarif": {
+      "owner": "C4",
+      "status": "untested"
+    },
+    "github-actions": {
+      "owner": "C4",
+      "status": "untested"
+    }
+  },
+  "fix_families": {
+    "dependencies": {
+      "owner": "D2",
+      "status": "untested"
+    },
+    "exports": {
+      "owner": "D3",
+      "status": "untested"
+    },
+    "types": {
+      "owner": "D3",
+      "status": "untested"
+    },
+    "catalog": {
+      "owner": "D2",
+      "status": "untested"
+    },
+    "files": {
+      "owner": "D2",
+      "status": "untested"
+    }
+  },
+  "plugins": {
+    "angular": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "astro": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "astro-db": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "astro-markdoc": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "astro-og-canvas": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "ava": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "babel": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "biome": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "borp": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "buf": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "bumpp": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "bun": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "c8": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "capacitor": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "catalyst": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "changelogen": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "changelogithub": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "changesets": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "commitizen": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "commitlint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "convex": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "create-typescript-app": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "cspell": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "cucumber": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "cypress": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "danger": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "dependency-cruiser": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "docusaurus": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "dotenv": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "drizzle": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "electron-forge": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "electron-vite": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "eleventy": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "esbuild": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "eslint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "eve": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "execa": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "expo": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "expo-router": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "expressive-code": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "fast": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "filesystem-routing": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "flue": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "fumadocs": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "gatsby": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "github-action": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "github-actions": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "glob": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "graphql-codegen": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "hardhat": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "husky": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "i18next-parser": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "jasmine": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "jest": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "karma": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "knex": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "ladle": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "laravel-vite-plugin": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lefthook": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lint-staged": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "linthtml": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lit": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lockfile-lint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lost-pixel": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "lunaria": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "markdownlint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "marko": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "mcp": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "mdx": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "mdxlint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "metro": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "mise": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "mocha": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "moonrepo": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "msw": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nano-spawn": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nano-staged": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nest": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "netlify": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "next": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "next-intl": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "next-mdx": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nitro": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "node": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "node-modules-inspector": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nodemon": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "npm-package-json-lint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nuxt": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nuxtjs-i18n": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nx": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "nyc": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "oclif": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "openapi-ts": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "openclaw": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "orval": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "osls": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "oxfmt": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "oxlint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "panda-css": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "parcel": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "payload": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "pino": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "playwright": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "playwright-ct": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "playwright-test": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "plop": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "pm2": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "pnpm": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "postcss": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "pre-commit": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "preconstruct": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "prettier": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "prisma": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "quasar": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "qwik": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "railway": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "raycast": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "react-cosmos": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "react-email": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "react-native": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "react-router": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "relay": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "release-it": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "remark": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "remix": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rolldown": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rollup": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rsbuild": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rslib": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rspack": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "rstest": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "sanity": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "semantic-release": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "sentry": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "serverless-framework": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "simple-git-hooks": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "size-limit": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "solidjs-vite-plugin": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "sst": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "starlight": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "stencil": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "storybook": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "stryker": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "stylelint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "svelte": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "sveltejs-package": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "sveltekit": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "svgo": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "svgr": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "swc": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "syncpack": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tailwind": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tanstack-router": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "taskfile": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tauri": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "temporal": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "textlint": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "travis": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "ts-node": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tsd": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tsdown": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tsrs": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tsup": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "tsx": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "turbo": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "typedoc": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "typescript": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "typescript-content-mapper": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unbuild": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unocss": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-auto-import": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-icons": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-vue-components": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-vue-i18n": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-vue-markdown": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "unplugin-vue-router": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "varlock": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vercel": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vercel-og": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vike": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite-plugin-pages": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite-plugin-pwa": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite-plugin-vue-layouts-next": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite-plus": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vite-pwa-assets-generator": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vitepress": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vitest": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "vue": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "webdriver-io": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "webpack": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "wireit": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "wrangler": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "wxt": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "xo": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "yarn": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "yorkie": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    },
+    "zx": {
+      "owner": "deferred plugins",
+      "status": "unsupported",
+      "configuration_scopes": [
+        "root",
+        "workspace"
+      ]
+    }
+  },
+  "extensions": {
+    "executableConfiguration": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "customCompilers": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "customReporters": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "preprocessors": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "nonJsPreprocessing": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    "jsApi": {
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    }
+  },
+  "passed": [],
+  "failed": [],
+  "untested": [
+    "orphan-file",
+    "namespace-known-key",
+    "production-defaults"
+  ],
+  "unsupported": [
+    "executable-configuration",
+    "framework-plugins",
+    "custom-compiler",
+    "custom-reporter",
+    "preprocessor",
+    "non-js-preprocessing",
+    "js-api"
+  ]
+}
