@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/my-biome/target/debug/xtask_project_analysis",
+    "conformance",
+    "--case",
+    "orphan-file",
+    "--oracle-only",
+    "--artifact",
+    "/workspace/my-biome/xtask/project_analysis/cache/corrupt.tgz"
+  ],
+  "cwd": "/workspace/my-biome",
+  "artifact_sha256": "2bd34cddb8a60634499f0804b8fea1bd8ed3b3bf27a00f5f81e54381d7bd3047",
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Error: oracle artifact identity or integrity mismatch; execution refused\n",
+  "node_or_npm_executed": false,
+  "verification": "PATH contained node/npm sentinels that create a marker if reached. The marker was absent."
+}

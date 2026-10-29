@@ -1,0 +1,20 @@
+[
+  {
+    "stage": "3d051362-initial",
+    "bytes": 192931,
+    "lines": 5537,
+    "sha256": "780c8ab87e2440bece93f9de2c5f0108810aa69363e7692a17f812d064559afa",
+    "git_blob_sha1": "a07cd5bf7735050e434c622e5a5ddcb17a13fbd7",
+    "expected_historical_blob_prefix": "a07cd5bf773",
+    "historical_blob_prefix_matches": true
+  },
+  {
+    "stage": "b292e878-final",
+    "bytes": 192805,
+    "lines": 5537,
+    "sha256": "1a604774aed40d03aa8e296f0103507f70b5c27751d7a849fda79365b203409d",
+    "git_blob_sha1": "c1cc14c60b6826943cf2812ad4286386afae4c31",
+    "expected_historical_blob_prefix": "c1cc14c60b6",
+    "historical_blob_prefix_matches": true
+  }
+]

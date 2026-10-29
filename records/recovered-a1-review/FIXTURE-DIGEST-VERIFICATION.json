@@ -1,0 +1,20 @@
+[
+  {
+    "fixture": "orphan-file",
+    "original_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+    "recovered_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+    "matches": true
+  },
+  {
+    "fixture": "namespace-known-key",
+    "original_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+    "recovered_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+    "matches": true
+  },
+  {
+    "fixture": "production-defaults",
+    "original_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+    "recovered_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+    "matches": true
+  }
+]

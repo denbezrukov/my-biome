@@ -1,0 +1,562 @@
+[
+  {
+    "path": "packages/knip/test/entry/files.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/files.test.ts",
+    "sha256": "22d21a6f0e310ddbebba9294b9980c03e786e8eda948e7e5aa37d38433860c34",
+    "bytes": 605,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "Use main, bin and exports fields in package.json to find entry files"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/entry/empty-main.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/empty-main.test.ts",
+    "sha256": "21d11261946902ddc78c76a13a7cfc24fd460a08b2b1ac0e07194896dc181b83",
+    "bytes": 612,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "Empty main, module, types, bin fields in package.json should not crash"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+    "sha256": "dd0ed8d1eeb4d438ddfc4be069698bf03e41050c012053cec720c75f716eb8f5",
+    "bytes": 2675,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "Exclude files behind a null package entry point",
+      "Exclude source files behind a null package entry point with a dist target",
+      "Include files re-exported below a null package entry point",
+      "Exclude files behind null package entry points with subpath suffixes",
+      "Keep manifest entries that a null package entry point would hide"
+    ],
+    "negative_assertions": [
+      "assert(!('src/internal/public.ts' in issues.files));"
+    ]
+  },
+  {
+    "path": "packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+    "sha256": "971d052d25128ffbf1a3291d80a5b7821abfe3c6427fce540ef6ede3c9a830cc",
+    "bytes": 1081,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "Exclude gitignored package entries without removing exported aliases"
+    ],
+    "negative_assertions": [
+      "assert(!('hidden.js' in issues.files));",
+      "assert(!('dist/generated.js' in issues.files));",
+      "assert(!('dist/extra.js' in issues.files));"
+    ]
+  },
+  {
+    "path": "packages/knip/test/entry/package-entry-bare.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-bare.test.ts",
+    "sha256": "9dbd52e3cc8162c42a06c0b70c2cd1e5d442a9de3a8a7331b7e6d49a5c82027e",
+    "bytes": 549,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "No package-entry hint for bare specifier in main when first segment is a listed dependency"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+    "sha256": "acae3ca35c289904ed5fd8b4c51910e3446a7738c458dee916b7e354688c1659",
+    "bytes": 1022,
+    "owner": "B1",
+    "status": "untested",
+    "test_names": [
+      "Skip unused exports in entry source files and scripts",
+      "Report unused exports in source files (skip for scripts and plugin entry files)"
+    ],
+    "negative_assertions": [
+      "const options = await createOptions({ cwd, isIncludeEntryExports: false });",
+      "exports: 0, // skip for scripts and plugin entry files"
+    ]
+  },
+  {
+    "path": "packages/knip/test/exports/basic.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/basic.test.ts",
+    "sha256": "8745ab6b2526968480e79f6aaf5464cffb1d927c16330462579bedb0d39618ab",
+    "bytes": 2687,
+    "owner": "B2",
+    "status": "untested",
+    "test_names": [
+      "Find unused exports"
+    ],
+    "negative_assertions": [
+      "assert(!issues.exports['index.ts']);",
+      "assert(!issues.types['index.ts']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/exports/duplicate-exports-alias.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/duplicate-exports-alias.test.ts",
+    "sha256": "54c03727e5d56dc920aaeff2d89783b85ba8840a867c2a5e3e55b90ec757f27f",
+    "bytes": 909,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Ignore duplicate exports with @alias (JSDoc)"
+    ],
+    "negative_assertions": [
+      "assert(!issues.duplicates['helpers.ts']['reExportedValue|reExportedAlias']);",
+      "assert(!issues.duplicates['specifier-default.ts'], 'export { X }; export default X should not be duplicate');"
+    ]
+  },
+  {
+    "path": "packages/knip/test/imports/namespace.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace.test.ts",
+    "sha256": "5dd732c6200f17895212fc0a57d3c267f646e4a4a852c212a27597ff1e8f532f",
+    "bytes": 1064,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Ignore namespace re-export by entry file"
+    ],
+    "negative_assertions": [
+      "assert(!issues.exports['namespace10.ts'], 'NS10');",
+      "assert(!issues.exports['namespace11-opaque.ts'], 'NS11_OPAQUE');"
+    ]
+  },
+  {
+    "path": "packages/knip/test/imports/namespace-with-nsexports.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace-with-nsexports.test.ts",
+    "sha256": "879376de2f684f1d0b203bfe2a38926fd9903fdc1eee18d9c8d3be55f22a2e56",
+    "bytes": 651,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Don't ignore namespace re-export by entry file (nsExports)"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/imports/opaque.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/opaque.test.ts",
+    "sha256": "87ab9847663751c86d52c86e1f92663e222948b5972862bd58288f0c7916cd72",
+    "bytes": 579,
+    "owner": "B2",
+    "status": "untested",
+    "test_names": [
+      "Ignore exports of opaque import calls"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/namespaces/shadow-false-negative.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/shadow-false-negative.test.ts",
+    "sha256": "8441a5715cc4bae73d3c05d550a9caf4c9ecf11acdbbe8aa72d991dd6514ffbd",
+    "bytes": 755,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Report exports shadowed by local bindings with ignoreExportsUsedInFile"
+    ],
+    "negative_assertions": [
+      "const cwd = resolve('fixtures/namespaces/shadow-false-negative');",
+      "assert(!issues.exports['module.ts']?.['used']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/namespaces/namespace-enumerated.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/namespace-enumerated.test.ts",
+    "sha256": "e573a4b7fb1adbb1eb5a1d0f9747d812fc7ec21e5f0d02e5cc3c587bbe2d5ed7",
+    "bytes": 726,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Consider namespace import members used when enumerated via Object.*"
+    ],
+    "negative_assertions": [
+      "assert.equal(issues.nsExports['colors.ts'], undefined);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/types/enum-members-enumerated.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/enum-members-enumerated.test.ts",
+    "sha256": "326abd1121c24072a4b92f1b49d5512ca918d20bdf20f520d0f827766dadf82a",
+    "bytes": 893,
+    "owner": "B3",
+    "status": "untested",
+    "test_names": [
+      "Consider enum enumerated enum members used",
+      "Consider enum enumerated enum members used (nsTypes)"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/types/skip-exports-analysis.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/skip-exports-analysis.test.ts",
+    "sha256": "ef555912078a91e501e9001f127a919d6054661de27b0c7c25f537a52ac049b8",
+    "bytes": 2021,
+    "owner": "B2",
+    "status": "untested",
+    "test_names": [
+      "ignore exports",
+      "ignore exports (isIncludeEntryExports)",
+      "ignore exports (production)"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+    "sha256": "88a97a1cb2081803f7c78f3525ba3e8f2f4a576f801ebe855dc40e3c5ef20494",
+    "bytes": 598,
+    "owner": "B2",
+    "status": "untested",
+    "test_names": [
+      "Keep exports behind ambiguous barrels alive"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/dependencies/basic.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/basic.test.ts",
+    "sha256": "baca50bd5bd9d72b0d9622ab83e17a3e5b863d5eeac5c837155bf68bbb801e8d",
+    "bytes": 2611,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "Find unused dependencies",
+      "Find unused dependencies (production)",
+      "Find unused dependencies (strict)"
+    ],
+    "negative_assertions": [
+      "assert(!issues.binaries['package.json']['jest']);",
+      "devDependencies: 0,"
+    ]
+  },
+  {
+    "path": "packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+    "sha256": "c71ef093a1e9c2a1b4389f2af38855f8cea26037d8e4c328510e171d638e23aa",
+    "bytes": 710,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "No issues for optional peerDependencies also listed in devDependencies"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/dependencies/binary-provider-collision.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/binary-provider-collision.test.ts",
+    "sha256": "0bbe010397232dbeac1392262166addc208c8a7329d032c0298ce6a4c8ad0477",
+    "bytes": 743,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "Credit only packages that provide a referenced binary"
+    ],
+    "negative_assertions": [
+      "processed: 0,",
+      "total: 0,"
+    ]
+  },
+  {
+    "path": "packages/knip/test/dependencies/declaration-dependencies.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/declaration-dependencies.test.ts",
+    "sha256": "079c0fed615084b99157da723f0d5a23ab1be8dd2a2249b881b841bc59c6b8c1",
+    "bytes": 4145,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "Use the published declaration graph for dependency placement",
+      "Skip published declaration analysis for private workspaces",
+      "Skip published declaration analysis for publishConfig.directory",
+      "Resolve published declarations without author tsconfig paths",
+      "Only analyze declarations selected by the published type surface"
+    ],
+    "negative_assertions": [
+      "assert(!issues.unlisted['dist/features/private.d.ts']?.['private-pattern']);",
+      "assert(!issues.unlisted['src/index.ts']?.['private-source']);",
+      "assert(!strict.issues.unlisted['dist/features/private.d.ts']?.['private-pattern']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/dependencies/catalog.package-json.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.package-json.test.ts",
+    "sha256": "c402692aa76879d75b3051b76c8cd356fdc7c888810f418312e772404bb39bc2",
+    "bytes": 1387,
+    "owner": "B6",
+    "status": "untested",
+    "test_names": [
+      "Should track referenced catalog entries (package.json)",
+      "Should track referenced catalog entries (package.json root)"
+    ],
+    "negative_assertions": [
+      "assert(!issues.catalog['package.json']['frontend.@nu/xt']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/dependencies/catalog.pnpm.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.pnpm.test.ts",
+    "sha256": "963be562df15a1d7e83817b410f8e7c2616679f5abc233d31a5058c8b4a6f7a0",
+    "bytes": 3309,
+    "owner": "B6",
+    "status": "untested",
+    "test_names": [
+      "Should track referenced default catalog entries",
+      "Should track referenced named catalog entries",
+      "Should report unused entries and unresolved references independently",
+      "Should track dependency and script catalog references outside the selected workspaces"
+    ],
+    "negative_assertions": [
+      "assert(!issues.catalog['pnpm-workspace.yaml']['default.left-pad']);",
+      "assert(!issues.catalog['pnpm-workspace.yaml']['default.ms']);",
+      "assert(!issues.catalog['pnpm-workspace.yaml']['default.bar']);",
+      "assert(!issues.catalog['pnpm-workspace.yaml']['default.kleur']);",
+      "assert(!issues.catalog['pnpm-workspace.yaml']['frontend.@nu/xt']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/imports/circular-dependencies.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/circular-dependencies.test.ts",
+    "sha256": "eae7851c7e0cb126f633651b7520271cf35673594f524d79d8a57d2edb282e86",
+    "bytes": 4452,
+    "owner": "B6",
+    "status": "untested",
+    "test_names": [
+      "Does not report circular dependencies by default",
+      "Does not report exports referenced only by each other (production)",
+      "Reports circular dependencies when included",
+      "Allows circular dependencies by exact cycle path",
+      "Includes dynamic import() cycles when cycles.dynamicImports is enabled",
+      "Reports only circular dependencies with --cycles shorthand"
+    ],
+    "negative_assertions": [
+      "assert.equal(issues.cycles['format.ts'], undefined);",
+      "assert.equal(issues.cycles['model.ts'], undefined);",
+      "assert.equal(dynamicIssue, undefined);",
+      "assert.equal(issues.cycles['apricot.ts'], undefined);",
+      "assert.equal(options.isReportFiles, false);",
+      "assert.equal(options.isReportDependencies, false);",
+      "assert.equal(options.isReportExports, false);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/resolution/url-import-meta-url.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/url-import-meta-url.test.ts",
+    "sha256": "842da5614fef5759f5798cfbfefeb378274310e33a4d5f63f1a99f2e461e0dd0",
+    "bytes": 742,
+    "owner": "B4",
+    "status": "untested",
+    "test_names": [
+      "Support URL constructor using import.meta.url"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/resolution/worker-path-join.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/worker-path-join.test.ts",
+    "sha256": "f819b329f6a7848582e0d7510119df094e656d4a29c6c6292126334948269cf8",
+    "bytes": 1017,
+    "owner": "B4",
+    "status": "untested",
+    "test_names": [
+      "Resolve inline path.join(__dirname, ...) in Worker and child_process calls"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/util/get-inputs-from-scripts.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-inputs-from-scripts.test.ts",
+    "sha256": "5b8042f57991cb5b6a6c2b388d821caaadf97addd60f8b47b758ea224c0d1657",
+    "bytes": 33442,
+    "owner": "B4",
+    "status": "untested",
+    "test_names": [
+      "getInputsFromScripts (unknown programs)",
+      "getInputsFromScripts (unknown scripts)",
+      "getInputsFromScripts (node)",
+      "getInputsFromScripts (node --test)",
+      "getInputsFromScripts (node -r)",
+      "getInputsFromScripts (tsx)",
+      "getInputsFromScripts (--require)",
+      "getInputsFromScripts (.bin)",
+      "getInputsFromScripts (dotenv)",
+      "getInputsFromScripts (cross-env/env vars)",
+      "getInputsFromScripts (cross-env/node)",
+      "getInputsFromScripts (nx)",
+      "getInputsFromScripts (npm)",
+      "getInputsFromScripts (npx)",
+      "getInputsFromScripts (bun)",
+      "getInputsFromScripts (nub)",
+      "getInputsFromScripts (pnpm)",
+      "getInputsFromScripts (pnpm exec child options)",
+      "getInputsFromScripts (pnpx/pnpm dlx)",
+      "getInputsFromScripts (pn/pnx aliases)",
+      "getInputsFromScripts (yarn)",
+      "getInputsFromScripts (yarn dlx)",
+      "getInputsFromScripts (rollup)",
+      "getInputsFromScripts (\"positionals\")",
+      "getInputsFromScripts (c8)",
+      "getInputsFromScripts (nodemon)",
+      "getInputsFromScripts (concurrently)",
+      "getInputsFromScripts (double-dash)",
+      "getInputsFromScripts (advanced bash syntax)",
+      "getInputsFromScripts (redirects and shell command wrappers)",
+      "getInputsFromScripts (structured assignments)",
+      "getInputsFromScripts (plugins → double-dash)",
+      "getInputsFromScripts (plugins → config)",
+      "getInputsFromScripts (find -exec)"
+    ],
+    "negative_assertions": [
+      "rootManifest: undefined,",
+      "getManifest: () => undefined,"
+    ]
+  },
+  {
+    "path": "packages/knip/test/util/get-included-issue-types.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-included-issue-types.test.ts",
+    "sha256": "8c0b1084877dea9c0af4344a41b837ada674c92dd1693f6990844f69e0834c6e",
+    "bytes": 4443,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Resolve included issue types (default)",
+      "Resolve included issue types (default add-ons)",
+      "Resolve included issue types (include single)",
+      "Resolve included issue types (exclude some)",
+      "Resolve included issue types (overlap)",
+      "Resolve included issue types (include devDependencies)",
+      "Resolve included issue types (include dependencies)",
+      "Resolve included issue types (exclude dependencies)",
+      "Resolve included issue types (--dependencies)",
+      "Resolve included issue types (--exports)",
+      "Resolve included issue types (--files)",
+      "Resolve included issue types (--cycles)",
+      "Resolve included issue types (all)"
+    ],
+    "negative_assertions": [
+      "const excluded = (type: string) => [type, false];",
+      "assert.deepEqual(config, { ...defaults, duplicates: false, nsTypes: false });",
+      "dependencies: false,",
+      "devDependencies: false,",
+      "optionalPeerDependencies: false,"
+    ]
+  },
+  {
+    "path": "packages/knip/test/util/package-json.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/package-json.test.ts",
+    "sha256": "96beb969577dd7c84f254528a8df1a110881e6298e9be71aaa619ae17d5acb23",
+    "bytes": 3976,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Return a root conditional exports map",
+      "Prefer exact and more specific package subpath matches",
+      "Collect only the published declaration variants",
+      "Apply publishConfig overrides to the published type manifest",
+      "Fall back to an index declaration after package fields",
+      "Exclude declaration files behind a more specific null export",
+      "Apply the same export pattern match to every target wildcard"
+    ],
+    "negative_assertions": [
+      "assert.equal(getPackageMapTarget(map, './missing'), undefined);",
+      "private: false,",
+      "assert(!isPublishedTypeExportTarget(exports, './dist/features/private.d.ts'));",
+      "assert(!isPublishedTypeExportTarget(exports, './dist/dark/theme-light.d.ts'));"
+    ]
+  },
+  {
+    "path": "packages/knip/test/ignore/files.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/files.test.ts",
+    "sha256": "95eb6df10212e1dc1edbf61e864b28ea8522809574421967a02ece8926666180",
+    "bytes": 736,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Respect ignored files"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/ignore/issues.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/issues.test.ts",
+    "sha256": "5e7d477868dd37423a4d96bb332a45a9b29973f2887660efe7d9e87bfa504bd4",
+    "bytes": 1450,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Ignore specific issue types for specific file patterns"
+    ],
+    "negative_assertions": [
+      "assert(!issues.exports['src/generated/types.ts']?.['unusedGenerated']);",
+      "assert(!issues.exports['src/model.generated.ts']?.['unusedExport']);",
+      "assert(!issues.exports['src/model.generated.ts']?.['GeneratedModel']);",
+      "assert(!issues.types['src/generated/types.ts']?.['UnusedType']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+    "sha256": "c26b735ad41770022d61e19cee7264c9e8f61226912f5a7a16c9509cdeb77031",
+    "bytes": 1541,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Do not flag a tag that suppresses member issues",
+      "Report the members a tag suppresses when the tag is not configured"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+    "sha256": "58166120d10689d2fea764d71226570ca7367ec6094a8926b8b6e32a03fc1a2b",
+    "bytes": 1287,
+    "owner": "B7",
+    "status": "untested",
+    "test_names": [
+      "Flag stale @internal tags in production mode",
+      "Do not flag @internal tags in non-production mode"
+    ],
+    "negative_assertions": []
+  },
+  {
+    "path": "packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+    "sha256": "410467cb658c04b667880f1da3bf64c2e6219c11201af2a8da54faf6c6684320",
+    "bytes": 1303,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "Undeclared sibling import is unlisted in a published workspace, suppressed in a private one",
+      "strict mode flags undeclared sibling workspace regardless of visibility"
+    ],
+    "negative_assertions": [
+      "assert(!issues.unlisted['packages/internal/index.ts']?.['@scope/fruit']);"
+    ]
+  },
+  {
+    "path": "packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+    "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+    "sha256": "43eae38ad5d2b32d9a0fd2d1af6dc943d7f667c8216f46c5cd8773e91d21abe3",
+    "bytes": 1740,
+    "owner": "B5",
+    "status": "untested",
+    "test_names": [
+      "Type-only workspace dependencies are not flagged in default mode",
+      "Type-only workspace dependencies are not flagged in production mode",
+      "Type-only workspace devDependencies should not be considered unlisted in strict mode"
+    ],
+    "negative_assertions": [
+      "assert(!issues.unlisted['packages/app/index.ts']?.['@fixtures/workspaces-type-only-dev-dependencies__types']);",
+      "assert(!issues.unlisted['packages/app/index.ts']?.['@fixtures/workspaces-type-only-dev-dependencies__prod-types']);"
+    ]
+  }
+]

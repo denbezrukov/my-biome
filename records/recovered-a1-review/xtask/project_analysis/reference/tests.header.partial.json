@@ -1,0 +1,5 @@
+{
+  "source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+  "tree_sha256": "e26fe31bc43594cc076d8662f15e7ab895aa07cfbcfb1462df553911ad60b026",
+  "scope": "Test-path inventory; unported groups have not been executed. Selected test titles and negative assertions are source research, not native coverage."
+}

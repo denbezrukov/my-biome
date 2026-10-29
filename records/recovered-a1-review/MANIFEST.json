@@ -1,0 +1,251 @@
+{
+  "reviewed_head": "3d051362dd431c1206c97074664f4c91089e15ff",
+  "files": [
+    {
+      "path": ".superpowers/sdd/native-project-analysis-2026-10-26/task-A1-brief.md",
+      "bytes": 13536,
+      "lines": 69,
+      "sha256": "f27ad678d91b623a219cdfb846b711e00be63b23d92affdf18efb2169421b594"
+    },
+    {
+      "path": "FIXTURE-DIGEST-VERIFICATION.json",
+      "bytes": 745,
+      "lines": 20,
+      "sha256": "0eb42ebe488b9996873fd2f375f761801e0c9170921e2aa070cd63a6caa32930"
+    },
+    {
+      "path": "PROVENANCE.md",
+      "bytes": 4369,
+      "lines": 32,
+      "sha256": "685aa6cf0be23fd4d47cd7e873c63ebf47d713512021076c5fd4b3dc35242642"
+    },
+    {
+      "path": "xtask/project_analysis/.gitignore",
+      "bytes": 59,
+      "lines": 3,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782"
+    },
+    {
+      "path": "xtask/project_analysis/Cargo.toml",
+      "bytes": 453,
+      "lines": 17,
+      "sha256": "5caba8155456aacebad9b14959fb265c35da331c5604add8501d27d58125a764"
+    },
+    {
+      "path": "xtask/project_analysis/README.md",
+      "bytes": 4618,
+      "lines": 78,
+      "sha256": "74783f096d6b50c3b55c6e362883a1a00b4d16144f6ea93afe54233d5e078499"
+    },
+    {
+      "path": "xtask/project_analysis/compatibility.json",
+      "bytes": 44546,
+      "lines": 2177,
+      "sha256": "c8939c160bb6c3576c59769f4ca5d3814e778370f0109ca9fd5137554a1775c0"
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+      "bytes": 981,
+      "lines": 47,
+      "sha256": "e084e1a1ee62cc1ab66b452a74e10ccda46dca70d4384651d5c98ffb424a4566"
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/orphan-file.json",
+      "bytes": 900,
+      "lines": 43,
+      "sha256": "ef6e51fc4435f3303053262c0f6e870b674083e8df114e369f7752f9b23e922e"
+    },
+    {
+      "path": "xtask/project_analysis/expectations/oracle/production-defaults.json",
+      "bytes": 1567,
+      "lines": 74,
+      "sha256": "b0e3be49e469a2c2b2f0e49a57ab1df08225eba140cccd7ce5b89da45af09e21"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "bytes": 102,
+      "lines": 3,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "bytes": 70,
+      "lines": 8,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "bytes": 39,
+      "lines": 1,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "bytes": 55,
+      "lines": 4,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "bytes": 48,
+      "lines": 2,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "bytes": 11,
+      "lines": 1,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "bytes": 70,
+      "lines": 8,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "bytes": 25,
+      "lines": 1,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/package.json",
+      "bytes": 47,
+      "lines": 4,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "bytes": 3,
+      "lines": 1,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/package.json",
+      "bytes": 225,
+      "lines": 13,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "bytes": 85,
+      "lines": 3,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "bytes": 25,
+      "lines": 1,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "bytes": 48,
+      "lines": 2,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "xtask/project_analysis/observations/corrupt-artifact.json",
+      "bytes": 633,
+      "lines": 18,
+      "sha256": "ba26190b91538f0d388c7757abcb8c9a428a0b441ec2889a1e05c305df3567b6"
+    },
+    {
+      "path": "xtask/project_analysis/observations/namespace-known-key.json",
+      "bytes": 3055,
+      "lines": 94,
+      "sha256": "728bec8599818cc9df6630d90eaf2997f531d1721412f48af8e7a3cbb2f400d5"
+    },
+    {
+      "path": "xtask/project_analysis/observations/orphan-file.json",
+      "bytes": 2907,
+      "lines": 90,
+      "sha256": "11b20d1fe14d994702b75a56b038ac02c8fdfae21cce1aa95a258af2a960a1db"
+    },
+    {
+      "path": "xtask/project_analysis/observations/production-defaults.json",
+      "bytes": 4138,
+      "lines": 122,
+      "sha256": "7c0fde73f45a7f2b9feeb1f04bdbb188ca5e1b348d5c402dd98766bbcd81f439"
+    },
+    {
+      "path": "xtask/project_analysis/oracle/identity.json",
+      "bytes": 290,
+      "lines": 7,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3"
+    },
+    {
+      "path": "xtask/project_analysis/oracle/package-lock.json",
+      "bytes": 32855,
+      "lines": 927,
+      "sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74"
+    },
+    {
+      "path": "xtask/project_analysis/oracle/package.json",
+      "bytes": 177,
+      "lines": 7,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7"
+    },
+    {
+      "path": "xtask/project_analysis/oracle/validation.json",
+      "bytes": 903,
+      "lines": 23,
+      "sha256": "ae111a9db187c0d59bd070e3f84fc55f377c14d49c13b1200343f7a03865e28a"
+    },
+    {
+      "path": "xtask/project_analysis/reference/LICENSE.knip",
+      "bytes": 750,
+      "lines": 15,
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341"
+    },
+    {
+      "path": "xtask/project_analysis/reference/additional-sources.json",
+      "bytes": 14246,
+      "lines": 252,
+      "sha256": "5c08986f15d7622d077c58c8c6bd685d0edbd7efe49e11112c1b2c9f9911f157"
+    },
+    {
+      "path": "xtask/project_analysis/reference/inventory.md",
+      "bytes": 37793,
+      "lines": 190,
+      "sha256": "323c66cfe6459519201cfa0b6d5fbe1d0ab2364a70d929c2d1c4d0b8ec9c577c"
+    },
+    {
+      "path": "xtask/project_analysis/reference/sources.json",
+      "bytes": 29526,
+      "lines": 602,
+      "sha256": "7a77e380141ea1f028870d326a404cb1d6c5c6c3a13a11d496e3b6a62ca0eee3"
+    },
+    {
+      "path": "xtask/project_analysis/reference/tests.header.partial.json",
+      "bytes": 313,
+      "lines": 5,
+      "sha256": "96c00332c6664ed2e2c3e485d05868229cda6f20c0c6c69a032406b6bd8a7063"
+    },
+    {
+      "path": "xtask/project_analysis/reference/tests.selected_semantics.partial.json",
+      "bytes": 25016,
+      "lines": 562,
+      "sha256": "567a494aeb6621513d5821ed2545e5f6609314781988352a4d5bde7c81475861"
+    },
+    {
+      "path": "xtask/project_analysis/src/artifact.rs",
+      "bytes": 7846,
+      "lines": 231,
+      "sha256": "5cfe26901dc472366eedd416371d58326c117179c292cf97492e7fd0eccc4483"
+    },
+    {
+      "path": "xtask/project_analysis/src/conformance.rs",
+      "bytes": 10935,
+      "lines": 286,
+      "sha256": "3df5178fec50ccc24b551b3c6160676d3970b87cf65f3a584fa506f571e3ec41"
+    },
+    {
+      "path": "xtask/project_analysis/src/main.rs",
+      "bytes": 1242,
+      "lines": 40,
+      "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2"
+    }
+  ]
+}

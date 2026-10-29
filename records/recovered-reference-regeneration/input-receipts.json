@@ -1,0 +1,20 @@
+{
+  "knip_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+  "recursive_tree_url": "https://api.github.com/repos/webpro-nl/knip/git/trees/07121567e60b73d1e640f395028c525a2b1d9778?recursive=1",
+  "downloaded_tree_path": "/tmp/recovery-reference/tree.json",
+  "tree_bytes": 3188756,
+  "tree_sha256": "e26fe31bc43594cc076d8662f15e7ab895aa07cfbcfb1462df553911ad60b026",
+  "tree_sha256_matches_original_header": true,
+  "tree_header_provenance": "Original A1 reviewer retained exact tests.json header and supplied it during recovery; full original immutable GitHub recursive tree body was fetched anew and matched that hash.",
+  "tree_entries": 12167,
+  "test_rows": 828,
+  "selected_semantics_source": "recovered-a1-review/xtask/project_analysis/reference/tests.selected_semantics.partial.json",
+  "selected_semantics_sha256": "567a494aeb6621513d5821ed2545e5f6609314781988352a4d5bde7c81475861",
+  "selected_semantics_records": 34,
+  "original_initial_blob_prefix": "a07cd5bf773",
+  "original_final_blob_prefix": "c1cc14c60b6",
+  "original_blob_proof": "recovered-a1/diffs/round1-ownership.diff.txt index line and recovered-a1/MANIFEST.json",
+  "generation_logic_source": "recovered-a1/commands/030-reference-inventory.sh.txt inspected as inert text only",
+  "final_corrections_source": "recovered-a1/diffs/round1-ownership.diff.txt exactly nine language-owner replacements",
+  "archive_contains_tree_body": false
+}

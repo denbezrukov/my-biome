@@ -1,0 +1,7 @@
+{
+  "package": "knip",
+  "version": "6.43.0",
+  "integrity": "sha512-8l3cCOg/EXoILO0qcSoMra49yQM91+lEIR4fu5Ko8rrArGX8xKdKZiGI9psPiY6rhLmfLERcMfFEByF0wli5CA==",
+  "dependency_lock_digest": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74",
+  "runtime_version": "v24.19.0"
+}
