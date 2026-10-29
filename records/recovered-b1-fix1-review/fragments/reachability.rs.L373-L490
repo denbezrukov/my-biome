@@ -1,0 +1,118 @@
+fn push_gap(snapshot: &AnalysisSnapshot, gaps: &mut Vec<ReachabilityGap>, gap: CoverageGap) {
+    let mut consumers = BTreeSet::new();
+    let mut impact = match gap.producer.as_str() {
+        "file reporting policy" => GapImpact::FileReporting,
+        "source reporting policy" => GapImpact::SourceReporting,
+        _ => GapImpact::FileTargets,
+    };
+    if gap.producer == "resolution metadata" {
+        if let Some(location) = gap.location {
+            for (file, module) in &snapshot.modules {
+                let uses_manifest = module.collected.as_ref().is_some_and(|module| {
+                    module.resolutions.iter().any(|resolution| {
+                        resolution.trace.iter().any(|event| matches!(event, ResolutionEvent::Manifest { file, .. } if *file == location.file))
+                    })
+                });
+                if uses_manifest {
+                    consumers.insert(*file);
+                }
+            }
+        }
+    } else if let Some(location) = gap.location {
+        if snapshot
+            .inventory
+            .files
+            .iter()
+            .any(|record| record.file == location.file)
+        {
+            consumers.insert(location.file);
+        }
+        if gap.producer == "module collection"
+            && snapshot
+                .modules
+                .get(&location.file)
+                .and_then(|module| module.collected.as_ref())
+                .is_some_and(|module| {
+                    module.unknown.iter().any(|unknown| {
+                        unknown.location == location
+                            && gap.reason == GapReason::DynamicReference(unknown.reason.clone())
+                            && matches!(
+                                unknown.kind,
+                                UnknownKind::Declaration
+                                    | UnknownKind::Exports
+                                    | UnknownKind::Registry
+                            )
+                    })
+                })
+        {
+            impact = GapImpact::Symbols;
+        }
+    }
+    let domain = match &gap.domain {
+        TargetDomain::Unbounded => serde_json::json!("unbounded"),
+        TargetDomain::Bounded {
+            files,
+            workspaces,
+            packages,
+        } => {
+            serde_json::json!({ "files": files.iter().map(|file| path(snapshot,*file)).collect::<BTreeSet<_>>(), "workspaces": workspaces.iter().map(|id| snapshot.inventory.workspaces.iter().find(|workspace|workspace.workspace == *id).map(|workspace| workspace.path.clone())).collect::<BTreeSet<_>>(), "packages": packages.iter().collect::<BTreeSet<_>>() })
+        }
+    };
+    let id = GapId(format!(
+        "gap:{}",
+        hash(&serde_json::json!([
+            gap.producer,
+            gap.reason,
+            gap.location
+                .map(|location| (path(snapshot, location.file), location.range)),
+            domain
+        ]))
+    ));
+    if !gaps.iter().any(|record| record.id == id) {
+        gaps.push(ReachabilityGap {
+            id,
+            gap,
+            consumers,
+            impact,
+            active: false,
+        });
+        gaps.sort_by(|left, right| left.id.cmp(&right.id));
+    }
+}
+fn domain_files(snapshot: &AnalysisSnapshot, domain: &TargetDomain) -> BTreeSet<FileId> {
+    let TargetDomain::Bounded {
+        files,
+        workspaces,
+        packages,
+    } = domain
+    else {
+        return snapshot
+            .inventory
+            .files
+            .iter()
+            .map(|record| record.file)
+            .collect();
+    };
+    let mut targets: BTreeSet<_> = files.iter().copied().collect();
+    let package_workspaces: BTreeSet<_> = snapshot
+        .inventory
+        .workspaces
+        .iter()
+        .filter(|workspace| {
+            workspace
+                .name
+                .as_ref()
+                .is_some_and(|name| packages.contains(name))
+        })
+        .map(|workspace| workspace.workspace)
+        .collect();
+    targets.extend(
+        snapshot
+            .inventory
+            .files
+            .iter()
+            .filter(|file| {
+                workspaces.contains(&file.workspace) || package_workspaces.contains(&file.workspace)
+            })
+            .map(|file| file.file),
+    );

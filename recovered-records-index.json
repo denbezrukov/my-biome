@@ -1968,6 +1968,101 @@
       "sha256": "c1104f5fa2d60c06d81228610daeecba3f369068ed7c38eb61078941b5867f0e"
     },
     {
+      "path": "records/recovered-b1-fix1-review/RECOVERY.md",
+      "bytes": 3304,
+      "sha256": "7e709720e0789e3add980735594030eb194c44babf49aacf161a877bfb8e2dd5"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/export-verification.txt",
+      "bytes": 721,
+      "sha256": "26232294eaedb0da1d33f510de9784bcfde41b5c41d04df1046a3a3a0b6fc136"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/final-collector-fix1.diff",
+      "bytes": 2654,
+      "sha256": "63d5b5d94bbdd93048da4253b614e17103195e1a1ab1de7c2aecef5cb9c5acf0"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/final/crates/biome_service/src/project_analysis/reachability.tests.rs",
+      "bytes": 28377,
+      "sha256": "c908424f0f2a96b50caa26d4692ed91eb04339cd6f7510474f3efa8fbc2b5f27"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/lib.rs.L27-L85",
+      "bytes": 2485,
+      "sha256": "6018fcfd3396e4f431867c72150aea920dd3f8076644ebc61de8232faaf26e97"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/owned_facts.rs.L154-L172",
+      "bytes": 748,
+      "sha256": "c0569a2602d585ce6ac81a48d7c46f0a5d80cbcc5a6681a937361025ece00e5f"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/owned_facts.rs.L372-L416",
+      "bytes": 1531,
+      "sha256": "7f08be93816e81660aff8f117ea091215c4571aea53652be0274486fd2c143e6"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/project_facts.rs.L1-L647",
+      "bytes": 23308,
+      "sha256": "e6c756607acafeb66c1f8d38091493d3ed88aa87caf006e32e5f7085ea0d7e81"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/project_facts.rs.L1540-L1560",
+      "bytes": 723,
+      "sha256": "4df3214483bbe5b39ae2cb2628963d1ff6e6b2e06aaa5c40e56066d0b10da1dd"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/project_facts.rs.L513-L561",
+      "bytes": 2055,
+      "sha256": "44e2a6d4c0e09047df64ba1f9b0790e976766cefed6406f13abb6afb34981f82"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/project_facts.rs.L648-L968",
+      "bytes": 13786,
+      "sha256": "caa7cb4b01500dce5fcf7fa05d5e0a7c3cedfe1c789e81cd35cdb86f1535a1a6"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/project_facts.rs.L972-EOF",
+      "bytes": 32782,
+      "sha256": "e0d4d7456faaf24e630706e4735334165a9337321176b5c065aa7d18e0bd23ca"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L134-L189",
+      "bytes": 2081,
+      "sha256": "4abf82e7e3cf42e4424a5d1326b2427eb01a046ed720cd19b213f85f31d84256"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L190-L244",
+      "bytes": 2593,
+      "sha256": "ce097f181d5f52e53a7e7612e9e2672cb0b2a83bbfaecf30cb2b08cb4c36d2bf"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L268-L306",
+      "bytes": 1496,
+      "sha256": "850c01edcf442955b563d0fc1030450fa9ee10b06a8d1440a16d40eb9cdfd7c8"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L307-L370",
+      "bytes": 2277,
+      "sha256": "267e15746336dd9b5cbf3693d91535246c209411cfeb9b12c86be436d1169064"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L33-L129",
+      "bytes": 3261,
+      "sha256": "ba8e9f33b9d3a79269d6505790bcbd9075a95ecc48ce408a461aeadb844ddbb9"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/fragments/reachability.rs.L373-L490",
+      "bytes": 4254,
+      "sha256": "998cd84ded5dbad0e9cf3856f2543ea1ac1b2bf5975bfd00a05e1306df805137"
+    },
+    {
+      "path": "records/recovered-b1-fix1-review/historical-source-hashes.txt",
+      "bytes": 3521,
+      "sha256": "25ffc491ca6c15a4295bb9a240fab49341ba364edf046b535badce93685ce3c2"
+    },
+    {
       "path": "records/recovered-b1/RECOVERY.md",
       "bytes": 5525,
       "sha256": "3db576101507e750331aa8ebda299b0357dc99e84a111fe307a695d6ea5eed82"

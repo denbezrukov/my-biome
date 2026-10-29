@@ -1,0 +1,97 @@
+    pub impact: GapImpact,
+    pub active: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FileMembership {
+    pub file: FileId,
+    pub definite: bool,
+    pub possible: bool,
+    pub diagnostic_eligible: bool,
+    pub affecting_gaps: BTreeSet<GapId>,
+}
+
+/// Indexed candidates are not traversal seeds. Only visited files belong to `files`.
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub struct AnalysisMembership {
+    pub entry_roots: Vec<Root>,
+    pub program_roots: Vec<Root>,
+    pub reporting_candidates: BTreeSet<FileId>,
+    pub files: Vec<FileMembership>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Reachability {
+    pub definite_files: BTreeSet<FileId>,
+    pub possible_files: BTreeSet<FileId>,
+    pub affecting_gaps: BTreeSet<GapId>,
+    pub gaps: Vec<ReachabilityGap>,
+    pub membership: AnalysisMembership,
+    pub evidence: EvidenceGraph,
+    pub coverage: Coverage,
+}
+
+/// Computes the fixed point from real roots, activating uncertainty only from visited producers.
+/// Possible files retain affecting gap identities even when they are also definitely reachable.
+pub fn compute_reachability(
+    snapshot: &AnalysisSnapshot,
+    options: &AnalysisOptions,
+) -> Reachability {
+    let mut membership = AnalysisMembership::default();
+    membership.reporting_candidates.extend(
+        snapshot
+            .inventory
+            .files
+            .iter()
+            .filter(|record| record.role == FileRole::ReportingCandidate)
+            .map(|record| record.file),
+    );
+    let mut evidence = EvidenceGraph::default();
+    let mut definite = BTreeSet::new();
+    let mut queue = VecDeque::new();
+    for root in &snapshot.inventory.roots {
+        if options.mode != AnalysisMode::Default && root.role == RootRole::Default {
+            continue;
+        }
+        if root.producer == "tsconfig program" {
+            membership.program_roots.push(root.clone());
+        } else {
+            membership.entry_roots.push(root.clone());
+        }
+        if definite.insert(root.file) {
+            queue.push_back(root.file);
+        }
+        let explanation = serde_json::json!({"target": path(snapshot, root.file), "role": root.role, "exports": root.exports}).to_string();
+        add_evidence(
+            snapshot,
+            &mut evidence,
+            &root.producer,
+            root.location,
+            root.workspace,
+            explanation.clone(),
+            &explanation,
+        );
+    }
+    let mut edges: BTreeMap<FileId, Vec<(FileId, EvidenceId)>> = BTreeMap::new();
+    let mut gaps = Vec::new();
+    reporting_gaps(snapshot, &mut gaps, &options.ignore, None, false);
+    for policy in &snapshot.inventory.reporting_policies {
+        reporting_gaps(snapshot, &mut gaps, &policy.ignore, policy.workspace, false);
+        reporting_gaps(
+            snapshot,
+            &mut gaps,
+            &policy.ignore_files,
+            policy.workspace,
+            true,
+        );
+    }
+    for gap in snapshot
+        .inventory
+        .gaps
+        .iter()
+        .chain(snapshot.coverage.gaps())
+    {
+        push_gap(snapshot, &mut gaps, gap.clone());
+    }
+    for record in &snapshot.inventory.files {
+        let file = record.file;

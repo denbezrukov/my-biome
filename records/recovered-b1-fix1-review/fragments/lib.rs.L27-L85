@@ -1,0 +1,59 @@
+                .membership
+                .reporting_candidates
+                .contains(&record.file)
+                || reachability.definite_files.contains(&record.file)
+                || reachability.possible_files.contains(&record.file)
+                || matches!(snapshot.coverage, coverage::Coverage::Failed(_))
+            {
+                continue;
+            }
+            let ambient = options.compatibility_profile == "knip-6.43.0-native-core"
+                && snapshot
+                    .modules
+                    .get(&record.file)
+                    .and_then(|module| module.collected.as_ref())
+                    .is_some_and(|module| {
+                        module.parse_status == ParseStatus::Valid
+                            && module.declaration_file.is_some()
+                            && !module.has_static_exports
+                    });
+            if ambient {
+                continue;
+            }
+            let path = reachability::path(snapshot, record.file);
+            if reachability::suppressed(snapshot, options, record.file, true) {
+                continue;
+            }
+            let location = Location {
+                file: record.file,
+                range: Default::default(),
+            };
+            let id = EvidenceId(format!("unreachable:{path}"));
+            reachability.evidence.nodes.insert(id.clone(), Evidence {
+                producer: "file reachability".into(),
+                location: Some(location),
+                workspace: record.workspace,
+                explanation: "No entry, program seed, definite edge or possible reference reaches this candidate".into(),
+                related: Vec::new(),
+            });
+            issues.push(ProjectIssue {
+                kind: IssueKind::Files,
+                severity,
+                identity: format!("files:{path}"),
+                symbol: None,
+                location,
+                workspace: record.workspace,
+                related_evidence: vec![id],
+                eligible_fixes: Vec::new(),
+            });
+        }
+    }
+    issues.sort_by(|left, right| left.identity.cmp(&right.identity));
+    ProjectAnalysisResult {
+        revision: snapshot.revision.clone(),
+        context: AnalysisContext {
+            mode: options.mode,
+            profile_id: options.compatibility_profile.clone(),
+            semantic_options_digest: reachability::hash(options),
+            scope: snapshot
+                .inventory

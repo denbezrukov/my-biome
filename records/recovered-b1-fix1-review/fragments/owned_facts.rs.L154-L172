@@ -1,0 +1,19 @@
+        unknown: facts
+            .unknown
+            .iter()
+            .map(|value| {
+                let location = location(file, value.range);
+                let domain = unknown_domain(capture, facts, resolutions, value);
+                capture.inventory.gaps.push(CoverageGap {
+                    producer: "module collection".into(),
+                    domain,
+                    reason: GapReason::DynamicReference(value.reason.clone()),
+                    location: Some(location),
+                });
+                owned::UnknownFact {
+                    location,
+                    kind: unknown_kind(&value.kind),
+                    reason: value.reason.clone(),
+                }
+            })
+            .collect(),

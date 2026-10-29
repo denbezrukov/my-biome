@@ -1,0 +1,21 @@
+/// Tags can return arbitrary module names, even for empty or static template text.
+fn literal_loader_specifier(expression: &AnyJsExpression) -> Option<String> {
+    if expression
+        .as_js_template_expression()
+        .is_some_and(|template| template.tag().is_some())
+    {
+        return None;
+    }
+    literal_string(expression)
+}
+
+fn literal_string(expression: &AnyJsExpression) -> Option<String> {
+    match expression.as_static_value()? {
+        biome_js_syntax::static_value::StaticValue::String(token) => {
+            decoded_string(biome_js_syntax::inner_string_text(&token))
+        }
+        biome_js_syntax::static_value::StaticValue::EmptyString(_) => Some(String::new()),
+        _ => None,
+    }
+}
+

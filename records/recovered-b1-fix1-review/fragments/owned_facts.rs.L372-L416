@@ -1,0 +1,45 @@
+fn unknown_domain(
+    capture: &mut Capture,
+    facts: &graph::ProjectModuleFacts,
+    resolutions: &[graph::ProjectResolvedOccurrence],
+    unknown: &graph::ProjectUnknownFact,
+) -> TargetDomain {
+    let alternatives: Vec<_> = facts
+        .imports
+        .named_iter()
+        .enumerate()
+        .filter(|(_, (_, import))| import.possible && import.range == unknown.range)
+        .map(|(ordinal, _)| ordinal)
+        .collect();
+    if alternatives.is_empty()
+        || alternatives.iter().any(|ordinal| {
+            !resolutions
+                .iter()
+                .any(|resolution| resolution.occurrence == *ordinal)
+                || resolutions.iter().any(|resolution| {
+                    resolution.occurrence == *ordinal
+                        && matches!(
+                            resolution.resolution,
+                            graph::ProjectResolution::Unknown { .. }
+                        )
+                })
+        })
+    {
+        return TargetDomain::Unbounded;
+    }
+    let files = resolutions
+        .iter()
+        .filter(|resolution| alternatives.contains(&resolution.occurrence))
+        .filter_map(|resolution| match &resolution.resolution {
+            graph::ProjectResolution::Resolved { target, .. } => Some(capture.capture(target)),
+            _ => None,
+        })
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    TargetDomain::Bounded {
+        files,
+        workspaces: Vec::new(),
+        packages: Vec::new(),
+    }
+}

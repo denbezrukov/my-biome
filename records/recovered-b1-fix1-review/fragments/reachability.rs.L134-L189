@@ -1,0 +1,56 @@
+        let Some(module) = snapshot
+            .modules
+            .get(&file)
+            .and_then(|module| module.collected.as_ref())
+        else {
+            push_gap(
+                snapshot,
+                &mut gaps,
+                CoverageGap {
+                    producer: "module facts".into(),
+                    domain: TargetDomain::Unbounded,
+                    reason: GapReason::UnavailableInput(
+                        "Collected module facts are unavailable".into(),
+                    ),
+                    location,
+                },
+            );
+            continue;
+        };
+        if module.parse_status != ParseStatus::Valid
+            || snapshot
+                .sources
+                .get(&file)
+                .is_none_or(|source| matches!(source.content, SourceContent::Unavailable { .. }))
+        {
+            push_gap(
+                snapshot,
+                &mut gaps,
+                CoverageGap {
+                    producer: "module validity".into(),
+                    domain: TargetDomain::Unbounded,
+                    reason: GapReason::UnavailableInput(
+                        "Module parsing or source availability is unverified".into(),
+                    ),
+                    location,
+                },
+            );
+        }
+        for unknown in &module.unknown {
+            if !gaps.iter().any(|record| {
+                record.gap.producer == "module collection"
+                    && record.gap.location == Some(unknown.location)
+                    && record.gap.reason == GapReason::DynamicReference(unknown.reason.clone())
+            }) {
+                push_gap(
+                    snapshot,
+                    &mut gaps,
+                    CoverageGap {
+                        producer: "module collection".into(),
+                        domain: TargetDomain::Unbounded,
+                        reason: GapReason::DynamicReference(unknown.reason.clone()),
+                        location: Some(unknown.location),
+                    },
+                );
+            }
+        }

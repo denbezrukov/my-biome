@@ -1,0 +1,39 @@
+    let mut affected: BTreeMap<FileId, BTreeSet<GapId>> = BTreeMap::new();
+    loop {
+        let mut changed = false;
+        for record in &mut gaps {
+            if !record.active
+                && (record.consumers.is_empty()
+                    || record
+                        .consumers
+                        .iter()
+                        .any(|file| definite.contains(file) || affected.contains_key(file)))
+            {
+                record.active = true;
+                changed = true;
+                if record.impact == GapImpact::FileTargets {
+                    for file in domain_files(snapshot, &record.gap.domain) {
+                        affected.entry(file).or_default().insert(record.id.clone());
+                    }
+                }
+            }
+        }
+        let mut pending: VecDeque<_> = affected
+            .iter()
+            .map(|(file, ids)| (*file, ids.clone()))
+            .collect();
+        while let Some((file, ids)) = pending.pop_front() {
+            for (target, _) in edges.get(&file).into_iter().flatten() {
+                let target_ids = affected.entry(*target).or_default();
+                let before = target_ids.len();
+                target_ids.extend(ids.iter().cloned());
+                if before != target_ids.len() {
+                    changed = true;
+                    pending.push_back((*target, target_ids.clone()));
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }

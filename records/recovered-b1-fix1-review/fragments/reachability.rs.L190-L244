@@ -1,0 +1,55 @@
+        for import in &module.imports {
+            let resolutions: Vec<_> = module
+                .resolutions
+                .iter()
+                .filter(|resolution| resolution.occurrence == import.ordinal)
+                .collect();
+            if resolutions.is_empty() {
+                push_gap(
+                    snapshot,
+                    &mut gaps,
+                    CoverageGap {
+                        producer: "module resolution".into(),
+                        domain: TargetDomain::Unbounded,
+                        reason: GapReason::UnavailableInput(
+                            "Import has no resolution evidence".into(),
+                        ),
+                        location: Some(import.location),
+                    },
+                );
+            }
+            for resolution in resolutions {
+                let explanation = serde_json::to_string(&resolution.context).unwrap();
+                let context_identity = hash(&(
+                    resolution.context.profile,
+                    resolution.context.purpose,
+                    resolution.context.syntax,
+                    &resolution.context.additional_conditions,
+                    &resolution.context.source_mappings,
+                ));
+                let suffix = format!("{}:{}:{context_identity}", import.ordinal, import.specifier);
+                let target = match &resolution.outcome {
+                    ResolutionOutcome::Resolved { file, kind } => {
+                        format!("{} ({kind})", path(snapshot, *file))
+                    }
+                    ResolutionOutcome::Unresolved { error } => format!("unresolved: {error}"),
+                    ResolutionOutcome::Unknown { reason } => format!("unknown: {reason}"),
+                    ResolutionOutcome::Builtin { name } => format!("builtin: {name}"),
+                };
+                let id = add_evidence(
+                    snapshot,
+                    &mut evidence,
+                    "module edge",
+                    Some(import.location),
+                    record.workspace,
+                    format!(
+                        "{} -> {target}; possible={}; context={explanation}",
+                        import.specifier, import.possible
+                    ),
+                    &suffix,
+                );
+                match &resolution.outcome {
+                    ResolutionOutcome::Resolved { file: target, .. } => {
+                        if !import.possible {
+                            edges.entry(file).or_default().push((*target, id));
+                        }

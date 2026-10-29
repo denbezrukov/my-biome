@@ -1,0 +1,49 @@
+        let Some(specifier) = import.inner_string_text() else {
+            let argument = match import {
+                AnyJsImportLike::JsImportCallExpression(call) => {
+                    call.arguments().ok()?.get_arguments_by_index([0])[0].clone()
+                }
+                AnyJsImportLike::JsCallExpression(call) => {
+                    call.arguments().ok()?.get_arguments_by_index([0])[0].clone()
+                }
+                _ => None,
+            };
+            if let Some(expression) = argument
+                .as_ref()
+                .and_then(|argument| argument.as_any_js_expression())
+                && let Some(choice) = expression.as_js_conditional_expression()
+                && let Ok(left) = choice.consequent()
+                && let Ok(right) = choice.alternate()
+                && let Some(left_value) = literal_loader_specifier(&left)
+                && let Some(right_value) = literal_loader_specifier(&right)
+            {
+                for (branch, specifier) in [(left, left_value), (right, right_value)] {
+                    self.imports.push(
+                        specifier.into(),
+                        ProjectImportOccurrence {
+                            range,
+                            specifier_range: branch.range(),
+                            syntax,
+                            type_only,
+                            optional: false,
+                            possible: true,
+                            bindings: Vec::new(),
+                            type_usage: None,
+                        },
+                    );
+                }
+                self.unknown(
+                    range,
+                    ProjectUnknownKind::ModuleSpecifier,
+                    "finite literal-choice module specifier",
+                );
+                return Some(());
+            }
+
+            self.unknown(
+                range,
+                ProjectUnknownKind::ModuleSpecifier,
+                "computed module specifier",
+            );
+            return None;
+        };

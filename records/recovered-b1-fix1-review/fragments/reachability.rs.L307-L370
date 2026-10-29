@@ -1,0 +1,64 @@
+    let mut active_coverage = Vec::new();
+    for record in &gaps {
+        if record.active || !matches!(record.gap.reason, GapReason::DynamicReference(_)) {
+            active_coverage.push(record.gap.clone());
+        }
+        let workspace = record
+            .gap
+            .location
+            .map(|location| owner(snapshot, location.file))
+            .or_else(|| {
+                snapshot
+                    .inventory
+                    .workspaces
+                    .iter()
+                    .min_by_key(|workspace| &workspace.path)
+                    .map(|workspace| workspace.workspace)
+            })
+            .unwrap_or(WorkspaceId(0));
+        evidence.nodes.insert(
+            EvidenceId(record.id.0.clone()),
+            Evidence {
+                producer: record.gap.producer.clone(),
+                location: record.gap.location,
+                workspace,
+                explanation: format!(
+                    "{:?}; active={}; {:?}",
+                    record.impact, record.active, record.gap.reason
+                ),
+                related: Vec::new(),
+            },
+        );
+    }
+    let visited: BTreeSet<_> = definite.iter().chain(affected.keys()).copied().collect();
+    membership.files = visited
+        .into_iter()
+        .map(|file| FileMembership {
+            file,
+            definite: definite.contains(&file),
+            possible: affected.contains_key(&file),
+            diagnostic_eligible: membership.reporting_candidates.contains(&file)
+                && !suppressed(snapshot, options, file, false),
+            affecting_gaps: affected.get(&file).cloned().unwrap_or_default(),
+        })
+        .collect();
+    let coverage = if matches!(snapshot.coverage, Coverage::Failed(_)) {
+        Coverage::Failed(active_coverage)
+    } else if active_coverage.is_empty() {
+        Coverage::Complete
+    } else {
+        Coverage::Incomplete(active_coverage)
+    };
+    Reachability {
+        definite_files: definite,
+        possible_files: affected.keys().copied().collect(),
+        affecting_gaps: gaps
+            .iter()
+            .filter(|gap| gap.active)
+            .map(|gap| gap.id.clone())
+            .collect(),
+        gaps,
+        membership,
+        evidence,
+        coverage,
+    }

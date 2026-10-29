@@ -1,0 +1,321 @@
+    fn collect_export(
+        &mut self,
+        export: &JsExport,
+        model: &SemanticModel,
+        path: &Utf8Path,
+    ) -> Option<()> {
+        if export
+            .syntax()
+            .ancestors()
+            .any(|node| node.kind() == JsSyntaxKind::TS_MODULE_BLOCK)
+        {
+            return None;
+        }
+        let range = export.range();
+        self.has_module_marker = true;
+        let before = self.exports.len();
+        match export.export_clause().ok()? {
+            AnyJsExportClause::JsExportNamedClause(clause) => {
+                for specifier in clause.specifiers().into_iter().flatten() {
+                    let name = match &specifier {
+                        biome_js_syntax::AnyJsExportNamedSpecifier::JsExportNamedSpecifier(specifier) => specifier.exported_name().ok()?.inner_string_text().ok()?,
+                        biome_js_syntax::AnyJsExportNamedSpecifier::JsExportNamedShorthandSpecifier(specifier) => specifier.name().ok()?.value_token().ok()?.token_text_trimmed(),
+                    };
+                    let name = self.export_name(name, specifier.range())?;
+                    let local = specifier.local_name().ok()?;
+                    for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                        if namespace == ProjectSymbolNamespace::Value
+                            && specifier.exports_only_types()
+                        {
+                            continue;
+                        }
+                        if let Some(binding) = binding_for_name(
+                            model,
+                            local.syntax(),
+                            &local.to_trimmed_string(),
+                            namespace,
+                        ) {
+                            self.export_local(
+                                name.clone(),
+                                namespace,
+                                specifier.range(),
+                                ProjectExportForm::Specifier,
+                                identity(path, binding.range(), namespace),
+                                model,
+                            );
+                        }
+                    }
+                }
+            }
+            AnyJsExportClause::JsExportNamedFromClause(clause) => {
+                let source = clause
+                    .source()
+                    .ok()?
+                    .as_js_module_source()?
+                    .inner_string_text()
+                    .ok()?
+                    .to_string();
+                for specifier in clause.specifiers().into_iter().flatten() {
+                    let symbol = self.export_name(
+                        specifier.source_name().ok()?.inner_string_text().ok()?,
+                        specifier.range(),
+                    )?;
+                    let name = if let Some(name) = specifier
+                        .export_as()
+                        .and_then(|alias| alias.exported_name().ok())
+                        .and_then(|name| name.inner_string_text().ok())
+                    {
+                        self.export_name(name, specifier.range())?
+                    } else {
+                        symbol.clone()
+                    };
+                    for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                        if namespace == ProjectSymbolNamespace::Value
+                            && (clause.type_token().is_some() || specifier.type_token().is_some())
+                        {
+                            continue;
+                        }
+                        self.exports.push(ProjectExportSlot {
+                            name: name.clone(),
+                            namespace,
+                            range: specifier.range(),
+                            form: ProjectExportForm::NamedReexport,
+                            target: ProjectExportTarget::Reexport {
+                                specifier: source.clone(),
+                                symbol: symbol.clone(),
+                            },
+                        });
+                    }
+                }
+            }
+            AnyJsExportClause::JsExportFromClause(clause) => {
+                let source = clause
+                    .source()
+                    .ok()?
+                    .as_js_module_source()?
+                    .inner_string_text()
+                    .ok()?
+                    .to_string();
+                let name = if let Some(name) = clause
+                    .export_as()
+                    .and_then(|alias| alias.exported_name().ok())
+                    .and_then(|name| name.inner_string_text().ok())
+                {
+                    Some(self.export_name(name, clause.range())?)
+                } else {
+                    None
+                };
+                for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                    if namespace == ProjectSymbolNamespace::Value && clause.type_token().is_some() {
+                        continue;
+                    }
+                    let (name, form, target) = match &name {
+                        Some(name) => (
+                            name.clone(),
+                            ProjectExportForm::Namespace,
+                            ProjectExportTarget::Namespace {
+                                specifier: source.clone(),
+                                identity: identity(path, range, namespace),
+                            },
+                        ),
+                        None => (
+                            "*".into(),
+                            ProjectExportForm::Star,
+                            ProjectExportTarget::Reexport {
+                                specifier: source.clone(),
+                                symbol: "*".into(),
+                            },
+                        ),
+                    };
+                    self.exports.push(ProjectExportSlot {
+                        name,
+                        namespace,
+                        range,
+                        form,
+                        target,
+                    });
+                }
+            }
+            AnyJsExportClause::JsExportDefaultExpressionClause(clause) => {
+                let expression = clause.expression().ok()?;
+                let id = expression
+                    .as_js_reference_identifier()
+                    .and_then(|reference| model.binding(&reference))
+                    .map_or_else(
+                        || identity(path, expression.range(), ProjectSymbolNamespace::Value),
+                        |binding| identity(path, binding.range(), ProjectSymbolNamespace::Value),
+                    );
+                self.export_local(
+                    "default".into(),
+                    ProjectSymbolNamespace::Value,
+                    range,
+                    ProjectExportForm::DefaultExpression,
+                    id,
+                    model,
+                );
+                if let Some(reference) = expression.as_js_reference_identifier()
+                    && let Some(binding) = binding_for_name(
+                        model,
+                        reference.syntax(),
+                        &reference.to_trimmed_string(),
+                        ProjectSymbolNamespace::Type,
+                    )
+                {
+                    self.export_local(
+                        "default".into(),
+                        ProjectSymbolNamespace::Type,
+                        range,
+                        ProjectExportForm::DefaultExpression,
+                        identity(path, binding.range(), ProjectSymbolNamespace::Type),
+                        model,
+                    );
+                }
+            }
+            AnyJsExportClause::JsExportDefaultDeclarationClause(clause) => {
+                let declaration = clause.declaration().ok()?;
+                let bindings: Vec<_> = self
+                    .declarations
+                    .iter()
+                    .filter(|binding| {
+                        declaration.range().contains_range(binding.id.range)
+                            && model
+                                .as_binding_by_range(binding.id.range)
+                                .is_some_and(|binding| {
+                                    binding
+                                        .syntax()
+                                        .parent()
+                                        .is_some_and(|parent| parent == *declaration.syntax())
+                                })
+                    })
+                    .cloned()
+                    .collect();
+                if bindings.is_empty() {
+                    for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                        if namespace == ProjectSymbolNamespace::Type
+                            && !biome_js_syntax::AnyJsClass::can_cast(declaration.syntax().kind())
+                        {
+                            continue;
+                        }
+                        self.exports.push(ProjectExportSlot {
+                            name: "default".into(),
+                            namespace,
+                            range,
+                            form: ProjectExportForm::DefaultDeclaration,
+                            target: ProjectExportTarget::Local(identity(
+                                path,
+                                declaration.range(),
+                                namespace,
+                            )),
+                        });
+                    }
+                }
+                for binding in bindings {
+                    self.export_local(
+                        "default".into(),
+                        binding.id.namespace,
+                        range,
+                        ProjectExportForm::DefaultDeclaration,
+                        binding.id,
+                        model,
+                    );
+                }
+            }
+            AnyJsExportClause::AnyJsDeclarationClause(_)
+            | AnyJsExportClause::TsExportDeclareClause(_) => {
+                let bindings: Vec<_> = self
+                    .declarations
+                    .iter()
+                    .filter(|declaration| {
+                        model
+                            .as_binding_by_range(declaration.id.range)
+                            .is_some_and(|binding| {
+                                binding
+                                    .syntax()
+                                    .ancestors()
+                                    .find_map(JsExport::cast)
+                                    .is_some_and(|owner| owner == *export)
+                                    && binding.is_exported()
+                            })
+                    })
+                    .cloned()
+                    .collect();
+                for binding in bindings {
+                    self.export_local(
+                        binding.name,
+                        binding.id.namespace,
+                        range,
+                        ProjectExportForm::Declaration,
+                        binding.id,
+                        model,
+                    );
+                }
+            }
+            AnyJsExportClause::TsExportAssignmentClause(_)
+            | AnyJsExportClause::TsExportAsNamespaceClause(_) => {
+                self.unknown(
+                    range,
+                    ProjectUnknownKind::Exports,
+                    "TypeScript export assignment or global namespace export",
+                );
+                self.exports.push(ProjectExportSlot {
+                    name: "*".into(),
+                    namespace: ProjectSymbolNamespace::Value,
+                    range,
+                    form: ProjectExportForm::CommonJs,
+                    target: ProjectExportTarget::Unknown("TypeScript namespace export".into()),
+                });
+            }
+        }
+        self.has_static_exports |= self.exports.len() != before;
+        Some(())
+    }
+
+    fn export_name(&mut self, text: TokenText, range: TextRange) -> Option<String> {
+        let name = decoded_string(text);
+        if name.is_none() {
+            self.has_static_exports = true;
+            self.unknown(
+                range,
+                ProjectUnknownKind::Exports,
+                "unsupported exported-name escape",
+            );
+        }
+        name
+    }
+
+    fn export_local(
+        &mut self,
+        name: String,
+        namespace: ProjectSymbolNamespace,
+        range: TextRange,
+        form: ProjectExportForm,
+        id: ProjectDeclarationId,
+        model: &SemanticModel,
+    ) {
+        let target = model
+            .as_binding_by_range(id.range)
+            .filter(|binding| binding.is_imported())
+            .and_then(|binding| {
+                let import = binding.syntax().ancestors().find_map(JsImport::cast)?;
+                let specifier = import.source_text().ok()?.to_string();
+                let Some(symbol) = imported_name(&binding) else {
+                    return Some(ProjectExportTarget::Unknown(
+                        "unsupported imported-name escape".into(),
+                    ));
+                };
+                Some(if symbol == "*" {
+                    ProjectExportTarget::Namespace {
+                        specifier,
+                        identity: id.clone(),
+                    }
+                } else {
+                    ProjectExportTarget::Reexport { specifier, symbol }
+                })
+            })
+            .unwrap_or(ProjectExportTarget::Local(id));
+        self.exports.push(ProjectExportSlot {
+            name,
+            namespace,
+            range,
+            form,
+            target,

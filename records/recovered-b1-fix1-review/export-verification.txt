@@ -1,0 +1,15 @@
+Stage: df22208cc013659d537dc12e6d95cbf3c25ba11c
+Export file: final/crates/biome_service/src/project_analysis/reachability.tests.rs
+Historical SHA-256: c908424f0f2a96b50caa26d4692ed91eb04339cd6f7510474f3efa8fbc2b5f27
+Actual exported SHA-256: c908424f0f2a96b50caa26d4692ed91eb04339cd6f7510474f3efa8fbc2b5f27
+Result: exact match.
+Line count: 821
+
+Collector retained fragments:
+Original 1–647: 647 lines exported.
+Original 648–968: 321 lines exported.
+Original 972–EOF: 907 lines exported; original EOF line 1878.
+Missing original 969–971: not synthesized.
+
+Historical hash manifest: all 29 lines have a 64-character lowercase hexadecimal digest and an original repository path.
+No current rebuilt checkout was read.
