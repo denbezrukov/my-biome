@@ -1,0 +1,560 @@
+diff --git a/crates/biome_module_graph/src/db/queries/project_exports.rs b/crates/biome_module_graph/src/db/queries/project_exports.rs
+index f1d755470f6..b3fc7e4a6f3 100644
+--- a/crates/biome_module_graph/src/db/queries/project_exports.rs
++++ b/crates/biome_module_graph/src/db/queries/project_exports.rs
+@@ -93,7 +93,13 @@ fn project_export(db: &dyn ModuleDb, request: ProjectExportRequest<'_>) -> Proje
+             });
+             match &slot.target {
+                 ProjectExportTarget::Local(identity) => {
+-                    origins.insert(identity.clone());
++                    origins.insert(
++                        facts
++                            .merges
++                            .iter()
++                            .find(|relation| relation.declaration == *identity)
++                            .map_or_else(|| identity.clone(), |relation| relation.target.clone()),
++                    );
+                 }
+                 ProjectExportTarget::Namespace {
+                     specifier,
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 4bef19f73d0..34c6abf6640 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -13,8 +13,11 @@ use biome_rowan::{AstNode, AstNodeList, Text, TokenText};
+ use camino::Utf8Path;
+ 
+ use crate::ImportPathMap;
++#[path = "project_members.rs"]
++mod members;
+ use biome_rowan::TextRange;
+ use camino::Utf8PathBuf;
++pub use members::{ProjectDeclarationRelation, ProjectMember};
+ 
+ #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+ pub enum ProjectSymbolNamespace {
+@@ -90,6 +93,7 @@ pub struct ProjectUse {
+     pub range: TextRange,
+     pub write: bool,
+     pub namespace_access: Option<ProjectNamespaceAccess>,
++    pub member_path: Vec<ProjectNamespaceAccess>,
+     pub owner: Option<ProjectDeclarationId>,
+     pub role: ProjectUseRole,
+ }
+@@ -176,6 +180,7 @@ pub struct ProjectExportSlot {
+     pub namespace: ProjectSymbolNamespace,
+     pub range: TextRange,
+     pub form: ProjectExportForm,
++    pub tags: Vec<String>,
+     pub target: ProjectExportTarget,
+ }
+ 
+@@ -228,6 +233,9 @@ pub struct ProjectModuleFacts {
+     pub has_static_exports: bool,
+     pub has_module_marker: bool,
+     pub declarations: Vec<ProjectDeclaration>,
++    pub members: Vec<ProjectMember>,
++    pub merges: Vec<ProjectDeclarationRelation>,
++    pub aliases: Vec<ProjectDeclarationRelation>,
+     pub uses: Vec<ProjectUse>,
+     pub imports: ImportPathMap<ProjectImportOccurrence>,
+     pub exports: Vec<ProjectExportSlot>,
+@@ -264,7 +272,25 @@ impl ProjectModuleFacts {
+             ..Self::default()
+         };
+         for binding in model.all_bindings() {
+-            let kind = binding.declaration_kind();
++            let kind = match binding.declaration_kind() {
++                JsDeclarationKind::Unknown
++                    if binding
++                        .syntax()
++                        .ancestors()
++                        .any(|node| node.kind() == JsSyntaxKind::JS_FOR_VARIABLE_DECLARATION) =>
++                {
++                    JsDeclarationKind::Value
++                }
++                JsDeclarationKind::Module
++                    if binding
++                        .syntax()
++                        .ancestors()
++                        .any(|node| node.kind() == JsSyntaxKind::TS_MODULE_DECLARATION) =>
++                {
++                    JsDeclarationKind::Namespace
++                }
++                kind => kind,
++            };
+             let type_only = binding.tree().is_type_only();
+             if kind == JsDeclarationKind::Unknown {
+                 facts.unknown(
+@@ -317,7 +343,9 @@ impl ProjectModuleFacts {
+                     ProjectSymbolNamespace::Value
+                 };
+                 let (owner, role) = use_context(&node, model, path);
++                let access = namespace_access(&node, model);
+                 facts.uses.push(ProjectUse {
++                    member_path: members::member_path(&node),
+                     owner,
+                     role,
+                     kind: if node
+@@ -343,11 +371,15 @@ impl ProjectModuleFacts {
+                     declaration: identity(path, binding.range(), namespace),
+                     range: node.text_trimmed_range(),
+                     write: reference.is_write(),
+-                    namespace_access: (namespace_import || binding.is_imported())
+-                        .then(|| namespace_access(&node, model)),
++                    namespace_access: (namespace_import
++                        || binding.is_imported()
++                        || access == ProjectNamespaceAccess::Enumerate)
++                        .then_some(access),
+                 });
+             }
+         }
++        facts.members = members::collect(model, path);
++        (facts.merges, facts.aliases) = members::relations(model, path);
+         facts.uses.sort_by_key(|usage| usage.range);
+         facts
+     }
+@@ -770,6 +802,7 @@ impl ProjectModuleFacts {
+                             continue;
+                         }
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: name.clone(),
+                             namespace,
+                             range: specifier.range(),
+@@ -822,6 +855,7 @@ impl ProjectModuleFacts {
+                         ),
+                     };
+                     self.exports.push(ProjectExportSlot {
++                        tags: Vec::new(),
+                         name,
+                         namespace,
+                         range,
+@@ -903,6 +937,7 @@ impl ProjectModuleFacts {
+                             },
+                         });
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: "default".into(),
+                             namespace,
+                             range,
+@@ -964,6 +999,7 @@ impl ProjectModuleFacts {
+                     "TypeScript export assignment or global namespace export",
+                 );
+                 self.exports.push(ProjectExportSlot {
++                    tags: Vec::new(),
+                     name: "*".into(),
+                     namespace: ProjectSymbolNamespace::Value,
+                     range,
+@@ -972,6 +1008,9 @@ impl ProjectModuleFacts {
+                 });
+             }
+         }
++        for slot in &mut self.exports[before..] {
++            slot.tags = members::node_tags(export.syntax());
++        }
+         self.has_static_exports |= self.exports.len() != before;
+         Some(())
+     }
+@@ -1020,6 +1059,7 @@ impl ProjectModuleFacts {
+             })
+             .unwrap_or(ProjectExportTarget::Local(id));
+         self.exports.push(ProjectExportSlot {
++            tags: Vec::new(),
+             name,
+             namespace,
+             range,
+@@ -1345,6 +1385,7 @@ impl ProjectModuleFacts {
+                     AnyJsImportLike::JsCallExpression(call.clone()).inner_string_text()
+             {
+                 self.exports.push(ProjectExportSlot {
++                    tags: Vec::new(),
+                     name: "*".into(),
+                     namespace: ProjectSymbolNamespace::Value,
+                     range: assignment.range(),
+@@ -1409,6 +1450,7 @@ impl ProjectModuleFacts {
+                             identity(path, binding.range(), ProjectSymbolNamespace::Value)
+                         });
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: name.to_trimmed_string(),
+                             namespace: ProjectSymbolNamespace::Value,
+                             range: property.range(),
+@@ -1533,6 +1575,7 @@ impl ProjectModuleFacts {
+                 |binding| identity(path, binding.range(), ProjectSymbolNamespace::Value),
+             );
+         self.exports.push(ProjectExportSlot {
++            tags: Vec::new(),
+             name,
+             namespace: ProjectSymbolNamespace::Value,
+             range,
+diff --git a/crates/biome_project_analysis/src/exports.rs b/crates/biome_project_analysis/src/exports.rs
+index a4cb43eeec4..b84e51cd779 100644
+--- a/crates/biome_project_analysis/src/exports.rs
++++ b/crates/biome_project_analysis/src/exports.rs
+@@ -23,6 +23,8 @@ pub struct ExportAnalysis {
+     pub consumed: Vec<DeclarationId>,
+     pub used_slots: Vec<ExportSlotId>,
+     pub protected_slots: Vec<ExportSlotId>,
++    /// Determinate whole-namespace references use the independently enabled namespace categories.
++    pub namespace_only: Vec<ExportSlotId>,
+     pub member_uses: Vec<MemberUse>,
+     pub uncertainty: Vec<ExportUncertainty>,
+     pub issues: Vec<ProjectIssue>,
+@@ -39,6 +41,9 @@ pub struct MemberUse {
+     pub kind: UseKind,
+     pub access: NamespaceAccess,
+     pub target: FileId,
++    pub context: ResolutionContext,
++    pub namespace_import: bool,
++    pub path: Vec<NamespaceAccess>,
+ }
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+ pub struct ExportUncertainty {
+@@ -58,6 +63,7 @@ pub fn analyze_exports(
+         snapshot,
+         output: ExportAnalysis::default(),
+         consumed: HashSet::new(),
++        intrinsic: HashSet::new(),
+         used: HashSet::new(),
+         protected: HashSet::new(),
+         uncertain: HashSet::new(),
+@@ -234,6 +240,9 @@ pub fn analyze_exports(
+                                                 kind: usage.kind,
+                                                 access: access.clone(),
+                                                 target,
++                                                context: resolution.context.clone(),
++                                                namespace_import: false,
++                                                path: usage.member_path.clone(),
+                                             };
+                                             if !state.output.member_uses.contains(&member) {
+                                                 state.output.member_uses.push(member);
+@@ -267,6 +276,7 @@ pub fn analyze_exports(
+                     id,
+                     registration.location,
+                     "native custom-element registration",
++                    true,
+                 );
+             } else if !registration.rejected {
+                 let declarations: Vec<_> = registration.declaration.into_iter().collect();
+@@ -314,7 +324,12 @@ pub fn analyze_exports(
+                 .find(|d| d.id.location == usage.declaration.location)
+                 && local_enabled(options, declaration.kind)
+             {
+-                state.credit(usage.declaration, usage.location, "local reference policy");
++                state.credit(
++                    usage.declaration,
++                    usage.location,
++                    "local reference policy",
++                    true,
++                );
+             }
+         }
+     }
+@@ -327,7 +342,12 @@ pub fn analyze_exports(
+                         && !usage.write
+                         && usage.owner.is_some_and(|id| state.is_consumed(id))
+                     {
+-                        state.credit(usage.declaration, usage.location, "consumed signature");
++                        state.credit(
++                            usage.declaration,
++                            usage.location,
++                            "consumed signature",
++                            true,
++                        );
+                     }
+                 }
+             }
+@@ -360,8 +380,9 @@ pub fn analyze_exports(
+             for export in &module.exports {
+                 if matches!(
+                     export.form,
+-                    ExportForm::Star | ExportForm::CommonJsObjectMember
++                    ExportForm::Star | ExportForm::Namespace | ExportForm::CommonJsObjectMember
+                 ) || export.name == "*"
++                    || export.tags.iter().any(|tag| tag == "alias")
+                 {
+                     continue;
+                 }
+@@ -408,7 +429,14 @@ pub fn analyze_exports(
+                 if matches!(
+                     export.target,
+                     ExportTarget::Local(_) | ExportTarget::Namespace { .. }
+-                ) && (state.is_consumed(origin)
++                ) && ((state.is_consumed(origin)
++                    && (!matches!(
++                        export.form,
++                        ExportForm::DefaultExpression | ExportForm::DefaultDeclaration
++                    ) || state
++                        .intrinsic
++                        .iter()
++                        .any(|id| id.location == origin.location)))
+                     || state
+                         .uncertain_declarations
+                         .iter()
+@@ -421,18 +449,37 @@ pub fn analyze_exports(
+                         .iter()
+                         .find(|d| d.id.location == origin.location)
+                 });
+-                let kind = if declaration.is_some_and(|d| {
++                let mut kind = if declaration.is_some_and(|d| {
+                     matches!(
+                         d.kind,
+                         DeclarationKind::Enum | DeclarationKind::Interface | DeclarationKind::Type
+                     )
+-                }) || (declaration.is_none_or(|d| d.kind == DeclarationKind::Other)
++                }) || (declaration
++                    .is_none_or(|d| d.kind == DeclarationKind::Other)
+                     && origin.namespace == SymbolNamespace::Type)
+                 {
+                     IssueKind::Types
+                 } else {
+                     IssueKind::Exports
+                 };
++                if matches!(export.target, ExportTarget::Reexport { .. }) {
++                    kind = if module.exports.iter().any(|other| {
++                        other.location == export.location
++                            && other.name == export.name
++                            && other.namespace == SymbolNamespace::Value
++                    }) {
++                        IssueKind::Exports
++                    } else {
++                        IssueKind::Types
++                    };
++                }
++                if state.output.namespace_only.contains(&key) {
++                    kind = if kind == IssueKind::Types {
++                        IssueKind::NsTypes
++                    } else {
++                        IssueKind::NsExports
++                    };
++                }
+                 if declaration.is_some_and(|d| {
+                     (!options.included_tags.is_empty()
+                         && !d.tags.iter().any(|tag| options.included_tags.contains(tag)))
+@@ -506,10 +553,10 @@ pub fn analyze_exports(
+     state.output
+ }
+ 
+-fn get_module(snapshot: &AnalysisSnapshot, file: FileId) -> Option<&CollectedModule> {
++pub(crate) fn get_module(snapshot: &AnalysisSnapshot, file: FileId) -> Option<&CollectedModule> {
+     snapshot.modules.get(&file)?.collected.as_ref()
+ }
+-fn workspace(snapshot: &AnalysisSnapshot, file: FileId) -> crate::model::WorkspaceId {
++pub(crate) fn workspace(snapshot: &AnalysisSnapshot, file: FileId) -> crate::model::WorkspaceId {
+     snapshot
+         .inventory
+         .files
+@@ -552,7 +599,7 @@ fn local_enabled(options: &AnalysisOptions, kind: DeclarationKind) -> bool {
+             DeclarationKind::Import | DeclarationKind::Other => "unknown",
+         })
+ }
+-fn context_matches(left: &ResolutionContext, right: &ResolutionContext) -> bool {
++pub(crate) fn context_matches(left: &ResolutionContext, right: &ResolutionContext) -> bool {
+     left.profile == right.profile
+         && left.purpose == right.purpose
+         && left.config_revision == right.config_revision
+@@ -560,7 +607,7 @@ fn context_matches(left: &ResolutionContext, right: &ResolutionContext) -> bool
+         && left.additional_conditions == right.additional_conditions
+         && left.source_mappings == right.source_mappings
+ }
+-fn surface<'a>(
++pub(crate) fn surface<'a>(
+     snapshot: &'a AnalysisSnapshot,
+     file: FileId,
+     namespace: SymbolNamespace,
+@@ -577,6 +624,8 @@ struct Consumption<'a> {
+     snapshot: &'a AnalysisSnapshot,
+     output: ExportAnalysis,
+     consumed: HashSet<DeclarationId>,
++    // Local, signature and registration uses protect declarations independently of slot selection.
++    intrinsic: HashSet<DeclarationId>,
+     used: HashSet<ExportSlotId>,
+     protected: HashSet<ExportSlotId>,
+     uncertain: HashSet<ExportSlotId>,
+@@ -616,6 +665,9 @@ impl Consumption<'_> {
+                 kind: usage.kind,
+                 access: access.clone(),
+                 target,
++                context: context.clone(),
++                namespace_import: true,
++                path: usage.member_path.clone(),
+             };
+             if !self.output.member_uses.contains(&member) {
+                 self.output.member_uses.push(member);
+@@ -642,12 +694,57 @@ impl Consumption<'_> {
+                 NamespaceAccess::Escape
+                     if !has_selection && usage.kind != UseKind::RuntimeTypeof =>
+                 {
+-                    self.unknown_namespace(target, context, usage.location)
++                    self.namespace_fallback(target, context, usage.location)
+                 }
+                 NamespaceAccess::Escape => {}
+             }
+         }
+     }
++    fn namespace_fallback(
++        &mut self,
++        file: FileId,
++        context: &ResolutionContext,
++        location: Location,
++    ) {
++        let mut pending = vec![file];
++        let mut seen = HashSet::new();
++        while let Some(file) = pending.pop() {
++            if !seen.insert(file) {
++                continue;
++            }
++            for namespace in [SymbolNamespace::Value, SymbolNamespace::Type] {
++                let Some(surface) = surface(self.snapshot, file, namespace, context) else {
++                    self.unknown_namespace(file, context, location);
++                    continue;
++                };
++                if !surface.complete {
++                    self.unknown_namespace(file, context, location);
++                    continue;
++                }
++                for slot in &surface.slots {
++                    match slot.resolution {
++                        ExportResolution::Found(_) => {
++                            for key in &slot.slots {
++                                if !self.output.namespace_only.contains(key) {
++                                    self.output.namespace_only.push(key.clone());
++                                }
++                            }
++                            if let Some(target) = slot.namespace_target {
++                                pending.push(target);
++                            }
++                        }
++                        ExportResolution::Missing => {}
++                        _ => self.consume(slot, location, false, "namespace fallback origin"),
++                    }
++                }
++            }
++        }
++        self.evidence(
++            location,
++            "namespace fallback",
++            reachability::path(self.snapshot, file),
++        );
++    }
+     fn is_consumed(&self, id: DeclarationId) -> bool {
+         self.consumed
+             .iter()
+@@ -683,8 +780,11 @@ impl Consumption<'_> {
+         );
+         id
+     }
+-    fn credit(&mut self, id: DeclarationId, location: Location, reason: &str) {
++    fn credit(&mut self, id: DeclarationId, location: Location, reason: &str, intrinsic: bool) {
+         self.consumed.insert(id);
++        if intrinsic {
++            self.intrinsic.insert(id);
++        }
+         self.evidence(
+             location,
+             reason,
+@@ -705,7 +805,7 @@ impl Consumption<'_> {
+     ) {
+         match &slot.resolution {
+             ExportResolution::Found(id) => {
+-                self.credit(*id, location, reason);
++                self.credit(*id, location, reason, false);
+                 for key in &slot.slots {
+                     if protected {
+                         self.protected.insert(key.clone());
+@@ -871,7 +971,7 @@ impl Consumption<'_> {
+         }
+     }
+ }
+-fn reporting_uncertain(
++pub(crate) fn reporting_uncertain(
+     snapshot: &AnalysisSnapshot,
+     reachability: &Reachability,
+     file: FileId,
+diff --git a/crates/biome_project_analysis/src/lib.rs b/crates/biome_project_analysis/src/lib.rs
+index 6ae1dfe4ceb..7c14f2a288a 100644
+--- a/crates/biome_project_analysis/src/lib.rs
++++ b/crates/biome_project_analysis/src/lib.rs
+@@ -4,6 +4,7 @@ pub mod coverage;
+ pub mod exports;
+ pub mod facts;
+ pub mod inventory;
++pub mod members;
+ pub mod model;
+ pub mod normalize;
+ pub mod options;
+@@ -18,18 +19,25 @@ use result::{
+     AnalysisContext, Evidence, EvidenceId, IssueKind, ProjectAnalysisResult, ProjectIssue,
+ };
+ 
+-/// Reports proven unused files, exports and types from immutable inputs.
++/// Reports supported file, export and member findings from immutable inputs.
+ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> ProjectAnalysisResult {
+     let mut reachability = reachability::compute_reachability(snapshot, options);
+     let exports = exports::analyze_exports(snapshot, &reachability, options);
++    let members = members::analyze_members(snapshot, &exports, &reachability, options);
+     let mut issues = exports.issues.clone();
++    issues.extend(members.issues.clone());
++    reachability
++        .evidence
++        .nodes
++        .extend(members.evidence.nodes.clone());
+     reachability
+         .evidence
+         .nodes
+         .extend(exports.evidence.nodes.clone());
+-    if !exports.gaps.is_empty() {
++    if !exports.gaps.is_empty() || !members.gaps.is_empty() {
+         let mut gaps = reachability.coverage.gaps().to_vec();
+         gaps.extend(exports.gaps.clone());
++        gaps.extend(members.gaps.clone());
+         reachability.coverage = if matches!(reachability.coverage, coverage::Coverage::Failed(_)) {
+             coverage::Coverage::Failed(gaps)
+         } else {
+@@ -92,6 +100,7 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+     issues.sort_by(|left, right| left.identity.cmp(&right.identity));
+     ProjectAnalysisResult {
+         exports,
++        members,
+         revision: snapshot.revision.clone(),
+         context: AnalysisContext {
+             mode: options.mode,
+@@ -125,7 +134,14 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+                     kind,
+                     if matches!(
+                         kind,
+-                        IssueKind::Files | IssueKind::Exports | IssueKind::Types
++                        IssueKind::Files
++                            | IssueKind::Exports
++                            | IssueKind::Types
++                            | IssueKind::NsExports
++                            | IssueKind::NsTypes
++                            | IssueKind::EnumMembers
++                            | IssueKind::NamespaceMembers
++                            | IssueKind::Duplicates
+                     ) {
+                         CapabilityStatus::Supported
+                     } else {
+diff --git a/crates/biome_service/src/project_analysis/exports.tests.rs b/crates/biome_service/src/project_analysis/exports.tests.rs
+index 809c97b3499..9693e44297b 100644
+--- a/crates/biome_service/src/project_analysis/exports.tests.rs
++++ b/crates/biome_service/src/project_analysis/exports.tests.rs
+@@ -857,7 +857,16 @@ fn namespace_escape_is_not_definite_member_consumption() {
+         Default::default(),
+     );
+     assert!(result.exports.consumed.is_empty());
+-    assert!(!result.exports.uncertainty.is_empty());
++    assert!(result.exports.uncertainty.is_empty());
++    assert!(!result.exports.namespace_only.is_empty());
++    assert!(
++        result
++            .exports
++            .evidence
++            .nodes
++            .values()
++            .any(|evidence| evidence.producer == "namespace fallback")
++    );
+ }
+ #[test]
+ fn nested_namespace_selection_retains_explicit_uncertainty() {

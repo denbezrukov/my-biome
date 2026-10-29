@@ -1,0 +1,17 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_project_analysis/tests/reachability.rs
+@@
+-    let snapshot = support::load_case("bounded_loader_keeps_unrelated_findings");
++    let mut snapshot = support::load_case("bounded_loader_keeps_unrelated_findings");
++    snapshot.inventory.analysis_scope = Some(
++        snapshot
++            .inventory
++            .workspaces
++            .iter()
++            .map(|workspace| workspace.workspace)
++            .collect(),
++    );
+@@
+     shuffled.inventory.roots.reverse();
++    shuffled.inventory.analysis_scope.as_mut().unwrap().reverse();
+*** End Patch

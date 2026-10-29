@@ -1,0 +1,45 @@
+diff --git a/xtask/project_analysis/README.md b/xtask/project_analysis/README.md
+index 37b9544e221..88f1bb5027c 100644
+--- a/xtask/project_analysis/README.md
++++ b/xtask/project_analysis/README.md
+@@ -1,9 +1,11 @@
+ # Project analysis conformance
+ 
+ This internal harness pins Knip 6.43.0 as a development oracle. The native Rust
+-engine is not implemented. Every native issue capability and native case is
+-untested; deferred plugins and executable extensions are unsupported. An oracle
+-observation is not a native conformance pass.
++engine implements partial file reachability, tested through owned snapshots and
++service source acquisition. Other issue categories and CLI integration remain
++unsupported. The shared conformance cases and compatibility profile remain
++unvalidated; deferred plugins and executable extensions are unsupported. An
++oracle observation is not a native conformance pass.
+ 
+ Run the three reviewed smoke cases from the repository root:
+ 
+@@ -62,8 +64,10 @@ cargo run -p xtask_project_analysis -- conformance --case orphan-file --engine /
+ The binary receives `--case <name>` in the fixture directory and must emit its
+ own JSON. Its output is retained separately and the harness exits untested until
+ reviewed native expectations and capability support exist. Oracle output is never
+-substituted for engine output. `crates/biome_project_analysis/tests/support` only
+-loads owned snapshots in this stage.
++substituted for engine output. `crates/biome_project_analysis/tests/support` loads
++owned snapshots and executes the partial engine for native reachability fixtures.
++Service tests additionally exercise real parsing, resolution and snapshot acquisition.
++These native tests do not promote the separate conformance harness or its profile.
+ 
+ `compatibility.json` enumerates issue keys, root/workspace configuration, CLI
+ flags (including short aliases), reporters, fix families and all 198 deferred
+diff --git a/xtask/project_analysis/compatibility.json b/xtask/project_analysis/compatibility.json
+index 29dabdce1e4..d4250bcae16 100644
+--- a/xtask/project_analysis/compatibility.json
++++ b/xtask/project_analysis/compatibility.json
+@@ -1,7 +1,7 @@
+ {
+   "profile": "knip-6.43.0-native-core",
+   "source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+-  "native_engine": "not implemented",
++  "native_engine": "partial: file reachability",
+   "issues": {
+     "files": {
+       "owner": "B1",

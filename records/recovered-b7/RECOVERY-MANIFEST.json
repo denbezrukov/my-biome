@@ -1,0 +1,227 @@
+{
+  "recovery_only": true,
+  "original_commits": [
+    "e2dcaceab06c4870fa5e9c9eeef13e31db8c8aee",
+    "b0adffecc6ff7d18497f8b487f2f3ef5b0c8ea3f",
+    "20104d6aeff4c50f6fb5d308270f747b6bffd878"
+  ],
+  "files": [
+    {
+      "path": "20104d6/.changeset/breezy-carpets-brake.md",
+      "bytes": 304,
+      "sha256": "34bd8ef0c4cbb7276be7a388d6f0c6dd2bfa69f41d9d6f45237dc592dae89a29",
+      "git_blob_sha1": "e1a98ae0b5ef66a5de2b0d673f713809fa15347a"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 41459,
+      "sha256": "30a00ebfc23e2d8408b894ccaa71ad269b23a06b403f819325ef22561a6a2c15",
+      "git_blob_sha1": "dddddd4484f3150a5f3063123eec1f963d4f1c06"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/src/members.rs",
+      "bytes": 18878,
+      "sha256": "f2079a28a205dd66300dd773c570b79bf03c1b27320303478f6679cd05a5d0b4",
+      "git_blob_sha1": "3128506c077ce1b8a3d96422e979bf74b8a7a0f0"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/src/options.rs",
+      "bytes": 6619,
+      "sha256": "f89af9b4a7ce860395bb53efbeb0fc4e31b118fc18e99b55164a1d826e7cb2bb",
+      "git_blob_sha1": "6b6c5488dcf5a880cbfb680483503dd981a65ab8"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/src/policy.rs",
+      "bytes": 25506,
+      "sha256": "15e827f8ca0410ee01a2059bcc4c9f2ee8c6c8c719cb5f544ddaab6468b1b935",
+      "git_blob_sha1": "87542e41e320c4edaad8a0d0b20e5421920a6afe"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/src/resolution.rs",
+      "bytes": 5854,
+      "sha256": "2a8e53c2d1b9749cdec1a19a93ce97dfab722e9efb2b7ab95820b11193d8867d",
+      "git_blob_sha1": "57c6032449875bc56af4ab3a9b5ad84375bcfe70"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/tests/policy.rs",
+      "bytes": 9695,
+      "sha256": "bacd546d7a3f447b2b95e6ac461238088ba95197a9dcb0b5b2e75f41a8ce5ef9",
+      "git_blob_sha1": "0ded073150930497076e1b869626d26ba7547662"
+    },
+    {
+      "path": "20104d6/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 1263,
+      "sha256": "d8fd7f3d4c9928ec5fe6c79323039134ad06c71b4e2e4995d7324a903f537817",
+      "git_blob_sha1": "9add9dba3efe8b55983034623eaa29fc505dce6e"
+    },
+    {
+      "path": "20104d6/xtask/project_analysis/policy/comparison-index.json",
+      "bytes": 12791,
+      "sha256": "cc634fa476876d0fab91abb46fefb41761045dc9dec62cd506cd0232bfd3a037",
+      "git_blob_sha1": "63c53f79e153a72477e7647f244e7e7aeee82071"
+    },
+    {
+      "path": "20104d6/xtask/project_analysis/policy/native-expectations.json",
+      "bytes": 3928,
+      "sha256": "ec6090f2f102d9f6d8f4bb072f8f826e0d6c4a2707719171f3ded7ecdadd4b07",
+      "git_blob_sha1": "252720564c690930615409c16988cd224e7dff0f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7570,
+      "sha256": "e897c754c8c117b3618663ed5aeceaef18c032ad8fe192d6a56514cf624ed105",
+      "git_blob_sha1": "0bb1c678885f86996f7e557f75f33e85312efe41"
+    },
+    {
+      "path": "b0adffe/.changeset/breezy-carpets-brake.md",
+      "bytes": 304,
+      "sha256": "34bd8ef0c4cbb7276be7a388d6f0c6dd2bfa69f41d9d6f45237dc592dae89a29",
+      "git_blob_sha1": "e1a98ae0b5ef66a5de2b0d673f713809fa15347a"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 41352,
+      "sha256": "92c09e84fb676bbf9adaab8c320ba81c6e66cdc5582d8663236c0ba4a331e0e9",
+      "git_blob_sha1": "246b19847ce8248d5635805b935f2f03fbef658d"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/src/members.rs",
+      "bytes": 18238,
+      "sha256": "8b4fbb2ce0f32d7f834e9b7795cb633102316656cbde4a961f4aeea6ca53cd56",
+      "git_blob_sha1": "699fe0552c6c694cb4323125bf6ff6e89185e9ef"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/src/options.rs",
+      "bytes": 6277,
+      "sha256": "35f6430373785ef37888481dd51ecfb5320800a65ee7b6c4daf0dc16fb74e5f7",
+      "git_blob_sha1": "f6cb936a25154f72449a174ac624cb21544c85a1"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/src/policy.rs",
+      "bytes": 25499,
+      "sha256": "0a2b650045545b1347b266b40db1019309b7f4e6dc3391738bd51d8d9460c782",
+      "git_blob_sha1": "e1888bf6d3c13ee3a5f11a28f422a9db0e451b75"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/src/resolution.rs",
+      "bytes": 5854,
+      "sha256": "2a8e53c2d1b9749cdec1a19a93ce97dfab722e9efb2b7ab95820b11193d8867d",
+      "git_blob_sha1": "57c6032449875bc56af4ab3a9b5ad84375bcfe70"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/tests/policy.rs",
+      "bytes": 9695,
+      "sha256": "bacd546d7a3f447b2b95e6ac461238088ba95197a9dcb0b5b2e75f41a8ce5ef9",
+      "git_blob_sha1": "0ded073150930497076e1b869626d26ba7547662"
+    },
+    {
+      "path": "b0adffe/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 1263,
+      "sha256": "d8fd7f3d4c9928ec5fe6c79323039134ad06c71b4e2e4995d7324a903f537817",
+      "git_blob_sha1": "9add9dba3efe8b55983034623eaa29fc505dce6e"
+    },
+    {
+      "path": "b0adffe/xtask/project_analysis/policy/comparison-index.json",
+      "bytes": 12791,
+      "sha256": "cc634fa476876d0fab91abb46fefb41761045dc9dec62cd506cd0232bfd3a037",
+      "git_blob_sha1": "63c53f79e153a72477e7647f244e7e7aeee82071"
+    },
+    {
+      "path": "b0adffe/xtask/project_analysis/policy/native-expectations.json",
+      "bytes": 3928,
+      "sha256": "ec6090f2f102d9f6d8f4bb072f8f826e0d6c4a2707719171f3ded7ecdadd4b07",
+      "git_blob_sha1": "252720564c690930615409c16988cd224e7dff0f"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.all17-leading-cases.rs",
+      "bytes": 1370,
+      "sha256": "e266bfeb5e51f333f12f10379c837860510b90da39f73ad0d1e69b47c1e0662c",
+      "git_blob_sha1": "252721aa254c51c5d50ed74125554b369ee56c30"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.all17-lines-200-347.rs",
+      "bytes": 5104,
+      "sha256": "34bbf6b9603c42e4a58c9d871aa9c185ac0fbecdd21fece46e108f4b416e945d",
+      "git_blob_sha1": "d2c97a934818428f549b643862217b937e3619cf"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.all17-types-case.rs",
+      "bytes": 467,
+      "sha256": "9dd22b14a70f8a685b3f7be73a471bdf5604586c3fa03fbb6243d9d36d0e664e",
+      "git_blob_sha1": "2fe6e1bbae53f2a285ca1bc40ed3e5730386db21"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.b0adffe-prefix.rs",
+      "bytes": 3212,
+      "sha256": "26f3863769bd64baf3fc50937a1038fe8bed007d1bfb40b45f9f59b009f9fb7b",
+      "git_blob_sha1": "a0e369ef2199b9e1ad0e0441530b43a1229b37ff"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.b0adffe-tail.rs",
+      "bytes": 10142,
+      "sha256": "33e3d3a2279fc39442199da0c9e5f20546816a4c094e50a3519f517f21a6e04d",
+      "git_blob_sha1": "69debe32e45d2e858e5028c595841a9601885cf2"
+    },
+    {
+      "path": "excerpts/service-policy.tests.rs.final-added-lines-700-954.rs",
+      "bytes": 9698,
+      "sha256": "8b00efb6af9712210a23c07c117b581d304e8a009dfa0425919fc74bf914ab00",
+      "git_blob_sha1": "5bcaa4e8605270c03ec9803206199aa0f33b77e7"
+    },
+    {
+      "path": "patches/b0adffe-to-20104d6-engine.diff",
+      "bytes": 6376,
+      "sha256": "a747856932e027773d92c41f33f22599ceb840387265a10061d4e5fb883ae8b7",
+      "git_blob_sha1": "b9d52f695862fb1f93f01f0a392e90f1a6d772d9"
+    },
+    {
+      "path": "patches/b0adffe-to-20104d6-service-test-append.diff",
+      "bytes": 10268,
+      "sha256": "a0d8166a8b6e61381b142b721a9517aef46fa64cbdc2ed328f4a7302dae0e04f",
+      "git_blob_sha1": "5827e3e7f589e3821951f861a0892858660d8c9f"
+    },
+    {
+      "path": "patches/e2dcace-to-b0adffe-observed-integration.diff",
+      "bytes": 7567,
+      "sha256": "98cc2125f09f2274b8bb316a29d7c6ac897e9cfd44cd1aad52d49661d81d0824",
+      "git_blob_sha1": "9554d6d2d94193e813a2553d328ba806de76812b"
+    },
+    {
+      "path": "receipts/fix1-02-tags-green.log",
+      "bytes": 948,
+      "sha256": "7bd0ea1c37301ac5ed523c2f9e32cc4ab756d56f8a7151ddb166b566f45f28b0",
+      "git_blob_sha1": "de22b3896d46a2c9b8b1f2a23c30706be15b5375"
+    },
+    {
+      "path": "receipts/fix1-07-final-lint.log",
+      "bytes": 276,
+      "sha256": "f64142b45d27fafb1473e7909c81a150221f08242acd931be639d0c11a4e1583",
+      "git_blob_sha1": "10d9a2b15b40e74872e445c48a3853064442913c"
+    },
+    {
+      "path": "receipts/fix1-final-result-tool-output.txt",
+      "bytes": 1357,
+      "sha256": "875b3ef8331d8be456cd9e3f389f394f70c1ab30adc623fb2f94575f20372db9",
+      "git_blob_sha1": "c481569c448d15c50721c30f364191094d7a3820"
+    },
+    {
+      "path": "receipts/original-b7-post-commit.json",
+      "bytes": 514,
+      "sha256": "24b50130e20a06d7ed96f27d27c378a584256db525b0771aa77e2ac971eb2519",
+      "git_blob_sha1": "08a7a9d8e54905d2eab1eedc59540ba4282e76cc"
+    },
+    {
+      "path": "receipts/original-fix1-post-commit.json",
+      "bytes": 531,
+      "sha256": "f9eb3e861b31f2c805375ee9831f5b6e2c7f49424c78a10790c994069ef3e3af",
+      "git_blob_sha1": "efa6840496179a95fd76cc10b9abccd797e88e27"
+    },
+    {
+      "path": "replay-observed-fix.py",
+      "bytes": 4158,
+      "sha256": "d101e15910a126b0607f4c8655114cb63611d46d05563ce9dad715eb25ea53f0",
+      "git_blob_sha1": "aa2931fdc602ec6fb7df8801aea79e16865001c3"
+    }
+  ],
+  "limitations": "Read README.md. Hashes are recovered-byte hashes; historical prefix/digest matching is explicitly distinguished there."
+}

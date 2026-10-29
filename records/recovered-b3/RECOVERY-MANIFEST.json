@@ -1,0 +1,285 @@
+{
+  "recovery_mode": "archival exact text only; no repository commands, builds, tests, installs, original scripts, or child agents executed",
+  "repository_unmodified": "/workspace/my-biome",
+  "original_base": "990a42e751d276e8b403a0de8d099864dea54bf0",
+  "original_main": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+  "original_final": "43c453530573278cfcdae0b78c1195ba3a99262b",
+  "original_titles": {
+    "main": "feat(project): analyze namespace members and duplicate exports",
+    "fix1": "fix(project): preserve member identity and uncertainty"
+  },
+  "historical_verification_only": {
+    "main_rust_tests_passed": 850,
+    "final_rust_tests_passed": 854,
+    "ignored_doctests": 10,
+    "b3_reference_records": 54,
+    "b2_reference_records": 40,
+    "note": "Historical tool outputs, not rerun or reverified as executable behavior in recovery."
+  },
+  "complete_text_hash_validation": "Pure in-memory SHA-256 of exact recovered strings matches recorded historical hashes for all six complete source/test/documentation paths at both stages. No file readback or repository execution was performed.",
+  "patch_order": [
+    "main retained five-file diff plus complete new files; remaining main changes explicitly missing",
+    "fix1 four source regressions appended before RED (final 143-line formatted appended region retained)",
+    "02 F1 imported aliases",
+    "03 F2 tag uncertainty",
+    "04 F3 declaration decoding",
+    "first formatting/lint",
+    "05 direct-binding guard preservation",
+    "final formatting/lint and affected tests (historical only)"
+  ],
+  "missing_full_text_paths": [
+    "crates/biome_module_graph/src/db/queries/project_exports.rs",
+    "crates/biome_module_graph/src/project_facts.rs",
+    "crates/biome_project_analysis/src/exports.rs",
+    "crates/biome_project_analysis/src/lib.rs",
+    "crates/biome_project_analysis/src/normalize.rs",
+    "crates/biome_project_analysis/src/options.rs",
+    "crates/biome_project_analysis/src/reachability.rs",
+    "crates/biome_project_analysis/src/result.rs",
+    "crates/biome_project_analysis/tests/contracts.rs",
+    "crates/biome_project_analysis/tests/exports.rs",
+    "crates/biome_project_analysis/tests/fixtures/duplicate_binding.json",
+    "crates/biome_project_analysis/tests/fixtures/duplicate_spelling.json",
+    "crates/biome_service/src/project_analysis.rs",
+    "crates/biome_service/src/project_analysis/exports.tests.rs",
+    "crates/biome_service/src/project_analysis/members.tests.rs",
+    "crates/biome_service/src/project_analysis/fixtures/members-oracle.json",
+    "crates/biome_service/src/project_analysis/owned_facts.rs"
+  ],
+  "missing_exact_source_or_patch_paths": [
+    "crates/biome_project_analysis/src/normalize.rs",
+    "crates/biome_project_analysis/src/options.rs",
+    "crates/biome_project_analysis/src/reachability.rs",
+    "crates/biome_project_analysis/src/result.rs",
+    "crates/biome_project_analysis/tests/contracts.rs",
+    "crates/biome_project_analysis/tests/exports.rs",
+    "crates/biome_project_analysis/tests/fixtures/duplicate_binding.json",
+    "crates/biome_project_analysis/tests/fixtures/duplicate_spelling.json",
+    "crates/biome_service/src/project_analysis.rs",
+    "crates/biome_service/src/project_analysis/fixtures/members-oracle.json",
+    "crates/biome_service/src/project_analysis/owned_facts.rs"
+  ],
+  "missing_service_test_regions": [
+    "member_membership_uncertainty_and_report_selection: tail after selected.coverage equality",
+    "genuine_uncertainty_is_independent_of_namespace_fallback: whole function",
+    "warm_fresh_merge_edits_preserve_member_evidence: opening portion before fresh_service creation"
+  ],
+  "not_recovered": [
+    "Git commit/tree objects",
+    "54-record members-oracle.json exact bytes and raw external observations",
+    "duplicate owned fixture JSON bytes",
+    "complete task reports and full build/test log files"
+  ],
+  "retained_report_hashes": {
+    "main": "be2f6cf47aaa40b1cf2ac53a9fe6742f4355a5cf16c13542b64c9c1774584de4",
+    "final": "ce4da34d86d22c7bd87e4bc96a540f5f0834611ca93a6b8cc05e7555528fb8bf"
+  },
+  "artifacts": [
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/src/members.rs",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": "crates/biome_project_analysis/src/members.rs",
+      "sha256": "14066171fff24c1e1005ab672a28a35da24968e615e24d17eeb3b27a1478852b",
+      "complete": true,
+      "provenance": "exact full tool read plus retained fix patch for final stage"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/members.rs",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": "crates/biome_project_analysis/src/members.rs",
+      "sha256": "dadea064cc2d7615a40b708807a42eb34ebe6941322d2ebdf901d44e831ba89c",
+      "complete": true,
+      "provenance": "exact full tool read plus retained fix patch for final stage"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_module_graph/src/project_members.rs",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": "crates/biome_module_graph/src/project_members.rs",
+      "sha256": "6c1efc25de11475687ad3bc09b1fe491a0e63c59cb5b10a4e35474c3957fbad8",
+      "complete": true,
+      "provenance": "exact full read plus retained lint correction; final stage applies exact retained F3 patch"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_module_graph/src/project_members.rs",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": "crates/biome_module_graph/src/project_members.rs",
+      "sha256": "c45d43634bfa553e25722a3b7ef3de2d72c8bacfae8395ce760a89d4cfb99892",
+      "complete": true,
+      "provenance": "exact full read plus retained lint correction; final stage applies exact retained F3 patch"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/src/facts.rs",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": "crates/biome_project_analysis/src/facts.rs",
+      "sha256": "4840a0678d1a9a6c66870c14e0aed7b35423e5c35644a275f2483dc282cdef65",
+      "complete": true,
+      "provenance": "exact complete tool-read region; unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/facts.rs",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": "crates/biome_project_analysis/src/facts.rs",
+      "sha256": "4840a0678d1a9a6c66870c14e0aed7b35423e5c35644a275f2483dc282cdef65",
+      "complete": true,
+      "provenance": "exact complete tool-read region; unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/tests/members.rs",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": "crates/biome_project_analysis/tests/members.rs",
+      "sha256": "bd3886ce9834424636d03a4fbfa1e7f7bf1ebd5185478ceb9e748e6d486ffd62",
+      "complete": true,
+      "provenance": "exact full tool read; unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/tests/members.rs",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": "crates/biome_project_analysis/tests/members.rs",
+      "sha256": "bd3886ce9834424636d03a4fbfa1e7f7bf1ebd5185478ceb9e748e6d486ffd62",
+      "complete": true,
+      "provenance": "exact full tool read; unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/patches/01-main-990a42e7-to-07d3c3e7-retained-five-file-diff.patch",
+      "base": "990a42e751d276e8b403a0de8d099864dea54bf0",
+      "head": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "complete": false,
+      "provenance": "exact retained git diff for five selected paths; complete per-file deltas, not complete task patch",
+      "sha256": "8387029a7cb230aabeb000470ce6c5931002b40d877cb15716323e3c45f03e08"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/patches/02-fix1-F1-imported-aliases-before-format.apply_patch",
+      "base": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "head": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "complete": false,
+      "provenance": "exact original apply_patch payload; sequential patch order; formatting occurred before patch05 and after patch05",
+      "sha256": "fc335e79b9356011c7e6809e360e07adac3616aa35777735a7751b5d39f8d56e"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/patches/03-fix1-F2-tag-uncertainty.apply_patch",
+      "base": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "head": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "complete": false,
+      "provenance": "exact original apply_patch payload; sequential patch order; formatting occurred before patch05 and after patch05",
+      "sha256": "676b7855fd0a5d897cc2d6dbc6dd3a44c05e19e0ed764e3048c07f753b19ff25"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/patches/04-fix1-F3-decoded-member-paths.apply_patch",
+      "base": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "head": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "complete": false,
+      "provenance": "exact original apply_patch payload; sequential patch order; formatting occurred before patch05 and after patch05",
+      "sha256": "7030e6d7a734a67ee57fc37655cc048c4d20bec1fd18ba257e8f50cf27d549e2"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/patches/05-fix1-final-direct-binding-guard-after-first-format.apply_patch",
+      "base": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "head": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "complete": false,
+      "provenance": "exact original apply_patch payload; sequential patch order; formatting occurred before patch05 and after patch05",
+      "sha256": "ff35e4851856ca68405d172a00e72314d2f118b358a5dbb598a96f51539804fe"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/exports.rs.member-helper-region",
+      "original_path": "crates/biome_project_analysis/src/exports.rs",
+      "complete": false,
+      "provenance": "exact formatted helper region; unchanged by final direct-binding guard patch",
+      "sha256": "eee186ac258b447e905a64c35c3d738f141102e05f8bfdf799879c9d308e4b0a"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_service/src/project_analysis/members.tests.rs.fix1-appended-lines-684-826",
+      "original_path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "complete": false,
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "source_lines": "684-826",
+      "provenance": "exact final formatted appended region, 143 added lines; preceding 683-line main file only partially retained",
+      "sha256": "217ae37f6d862fb274d600d1c3add008e7cd0259aae770656f02c21430877281",
+      "expected_whole_file_sha256": "636c43ae3231df0b8c5b04360e2ec7513c4b6bea5b472fdeb66e090b55a0d964"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.prefix-through-retained_b3_oracle_cases",
+      "original_path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "complete": false,
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "provenance": "exact retained region from truncated full read; source between prefix and suffix missing",
+      "sha256": "01989c3e3909c81941eb6b0201e59342b2633d0a37ffc46601471421dda20e14",
+      "lines": 378,
+      "expected_whole_file_sha256": "2a4af7986bc7676eb5ee82649a2ada93e56f1fcfa76f02a309f94cc85bb09959"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.suffix-from-forwarding-policy-through-EOF",
+      "original_path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "complete": false,
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "provenance": "exact retained region from truncated full read; source between prefix and suffix missing",
+      "sha256": "d8e26de7d6ed24bed3a3f1dd17134760caac926627dff073cdce0e3fb236917b",
+      "lines": 130,
+      "expected_whole_file_sha256": "2a4af7986bc7676eb5ee82649a2ada93e56f1fcfa76f02a309f94cc85bb09959"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.incomplete-membership-function-prefix",
+      "complete": false,
+      "original_path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "provenance": "exact retained partial function; deliberately incomplete, not standalone Rust source",
+      "sha256": "4a7c74a8e2d3aaadb8059c41904df433193b620802ead154280e489c56b36bf4"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.incomplete-warm-function-suffix",
+      "complete": false,
+      "original_path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "provenance": "exact retained partial function; deliberately incomplete, not standalone Rust source",
+      "sha256": "f633ffb9472446fc7e3798237ea7c9404701d6cec130b7abc26c4e1e4453f781"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/metadata/original-main-frozen-files.sha256",
+      "complete": true,
+      "provenance": "exact retained historical hash manifest, not a claim missing files were recovered",
+      "sha256": "5961b1c31e140540d540b9650662fc1f5db5379cb8bf55058eecc10dcfcaf1e6"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/metadata/original-fix1-frozen-files.sha256",
+      "complete": true,
+      "provenance": "exact retained historical hash manifest, not a claim missing files were recovered",
+      "sha256": "0ee59f43f60dfd221fba265743df0e7e6ec8c720dd247cbe9f294a06555c0b87"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/.changeset/eight-otters-try.md",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": ".changeset/eight-otters-try.md",
+      "complete": true,
+      "sha256": "f571160b65f483e62eee58ee6cb5a7b83e7a22c8e3b9add648d897f2d5fd4b75",
+      "provenance": "exact full tool read, unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/.changeset/eight-otters-try.md",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": ".changeset/eight-otters-try.md",
+      "complete": true,
+      "sha256": "f571160b65f483e62eee58ee6cb5a7b83e7a22c8e3b9add648d897f2d5fd4b75",
+      "provenance": "exact full tool read, unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/artifacts/.superpowers/sdd/native-project-analysis-2026-10-26/b3-logs/verify-corpus.py",
+      "complete": true,
+      "provenance": "exact retained script text plus exact retained uniqueness/exhaustion patch; archived only, not executed",
+      "sha256": "59430ab78098777b2dd9b4e044fa51ae41872a82a324c0ce504bfef0584ee68a",
+      "historical_sha256_not_individually_retained": true
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "stage": "07d3c3e786f0e59434a7ee0f2e406b8e96592353",
+      "original_path": "crates/biome_service/src/project_analysis/fixtures/README.md",
+      "complete": true,
+      "sha256": "03494d80097e30f965195e163ea110b2c19cb21f047fbd68fbcb08dc9a50c543",
+      "provenance": "exact full tool read; in-memory hash matches original; unchanged in fix1"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+      "original_path": "crates/biome_service/src/project_analysis/fixtures/README.md",
+      "complete": true,
+      "sha256": "03494d80097e30f965195e163ea110b2c19cb21f047fbd68fbcb08dc9a50c543",
+      "provenance": "exact full tool read; in-memory hash matches original; unchanged in fix1"
+    }
+  ]
+}

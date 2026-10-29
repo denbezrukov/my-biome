@@ -1,0 +1,13 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_module_graph/src/project_members.rs
+@@
+-                .map(|name| name.to_trimmed_string())
++                .map(|name| {
++                    biome_js_syntax::unescape_js_identifier(&name.to_trimmed_string()).into_owned()
++                })
+@@
+-                    .map(|token| token.text_trimmed().to_string())
++                    .map(|token| {
++                        biome_js_syntax::unescape_js_identifier(token.text_trimmed()).into_owned()
++                    })
+*** End Patch

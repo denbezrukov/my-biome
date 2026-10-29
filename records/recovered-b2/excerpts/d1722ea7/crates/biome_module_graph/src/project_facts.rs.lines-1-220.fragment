@@ -1,0 +1,220 @@
+//! Owned syntax evidence for project analysis, independent of inferred types.
+
+use biome_js_semantic::{Binding, JsDeclarationKind, SemanticModel, TsBindingReference};
+use biome_js_syntax::{
+    AnyJsExportClause, AnyJsExpression, AnyJsIdentifierReference, AnyJsImportLike,
+    AnyJsNamedImportSpecifier, JsAssignmentExpression, JsCallExpression,
+    JsComputedMemberAssignment, JsComputedMemberExpression, JsExport, JsImport,
+    JsNamespaceImportSpecifier, JsNewExpression, JsObjectExpression, JsPropertyObjectMember,
+    JsShorthandPropertyObjectMember, JsStaticMemberAssignment, JsStaticMemberExpression,
+    JsSyntaxKind, JsSyntaxNode, JsVariableDeclarator,
+};
+use biome_rowan::{AstNode, AstNodeList, Text, TokenText};
+use camino::Utf8Path;
+
+use crate::ImportPathMap;
+use biome_rowan::TextRange;
+use camino::Utf8PathBuf;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum ProjectSymbolNamespace {
+    Value,
+    Type,
+}
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct ProjectDeclarationId {
+    pub module: Utf8PathBuf,
+    pub range: TextRange,
+    pub namespace: ProjectSymbolNamespace,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectDeclaration {
+    pub id: ProjectDeclarationId,
+    pub name: String,
+    pub tags: Vec<String>,
+    pub kind: ProjectDeclarationKind,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProjectDeclarationKind {
+    Class,
+    Enum,
+    Function,
+    Interface,
+    Type,
+    Variable,
+    Namespace,
+    Import,
+    Other,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProjectUseRole {
+    Local,
+    /// Syntactically collected exported signature or return-expression dependencies.
+    Signature,
+    TypeBody,
+    Export,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum ProjectParseStatus {
+    Valid,
+    Invalid,
+    #[default]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ProjectNamespaceAccess {
+    Known(String),
+    Computed,
+    Escape,
+    Enumerate,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ProjectUseKind {
+    Runtime,
+    Type,
+    TypeQuery,
+    RuntimeTypeof,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectUse {
+    pub kind: ProjectUseKind,
+    pub declaration: ProjectDeclarationId,
+    pub range: TextRange,
+    pub write: bool,
+    pub namespace_access: Option<ProjectNamespaceAccess>,
+    pub owner: Option<ProjectDeclarationId>,
+    pub role: ProjectUseRole,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectImportBinding {
+    pub declaration: ProjectDeclarationId,
+    pub imported: String,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+pub enum ProjectImportSyntax {
+    #[default]
+    Import,
+    Require,
+    DynamicImport,
+    ImportType,
+    Reexport,
+    RequireResolve,
+    ImportMetaResolve,
+    Url,
+    Worker,
+    NodeEntry,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectImportOccurrence {
+    pub range: TextRange,
+    pub specifier_range: TextRange,
+    pub syntax: ProjectImportSyntax,
+    pub type_only: bool,
+    pub optional: bool,
+    /// A finite alternative contributes a possible target, not a definite dependency.
+    pub possible: bool,
+    pub bindings: Vec<ProjectImportBinding>,
+    /// Inline type-import selection, separate from local import bindings.
+    pub type_usage: Option<ProjectImportTypeUse>,
+}
+
+/// A type import selects a target without introducing a local binding.
+/// An empty qualifier denotes the whole module namespace.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectImportTypeUse {
+    pub kind: ProjectUseKind,
+    pub namespace: ProjectSymbolNamespace,
+    pub qualifier: Vec<String>,
+    /// The qualifier including its leading dot, or the whole import type when unqualified.
+    pub range: TextRange,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProjectExportForm {
+    Declaration,
+    Specifier,
+    DefaultDeclaration,
+    DefaultExpression,
+    NamedReexport,
+    Star,
+    Namespace,
+    CommonJs,
+    /// A named member of a static object assignment also represented by a default export.
+    CommonJsObjectMember,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ProjectExportTarget {
+    Local(ProjectDeclarationId),
+    Reexport {
+        specifier: String,
+        symbol: String,
+    },
+    Namespace {
+        specifier: String,
+        identity: ProjectDeclarationId,
+    },
+    Unknown(String),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectExportSlot {
+    pub name: String,
+    pub namespace: ProjectSymbolNamespace,
+    pub range: TextRange,
+    pub form: ProjectExportForm,
+    pub target: ProjectExportTarget,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProjectRegistryProvenance {
+    Global,
+    Host,
+    Constructor,
+    ShadowRoot,
+    Alias,
+    Unknown,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectRegistration {
+    pub range: TextRange,
+    pub declaration: Option<ProjectDeclarationId>,
+    pub provenance: ProjectRegistryProvenance,
+    /// A closed literal receiver proves that its own define method cannot register a class.
+    pub rejected: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ProjectUnknownKind {
+    Declaration,
+    ModuleSpecifier,
+    Exports,
+    Registry,
+    Entry,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProjectUnknownFact {
+    pub range: TextRange,
+    pub kind: ProjectUnknownKind,
+    pub reason: String,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProjectDeclarationFileKind {
+    TypeScript,
+    Module,
+    CommonJs,
+}

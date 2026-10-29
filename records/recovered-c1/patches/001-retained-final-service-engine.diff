@@ -1,0 +1,407 @@
+diff --git a/crates/biome_project_analysis/src/lib.rs b/crates/biome_project_analysis/src/lib.rs
+index b2d53ea16f3..fb8407a47dc 100644
+--- a/crates/biome_project_analysis/src/lib.rs
++++ b/crates/biome_project_analysis/src/lib.rs
+@@ -143,6 +143,7 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+         members,
+         revision: snapshot.revision.clone(),
+         context: AnalysisContext {
++            virtual_scope: snapshot.inventory.virtual_scope.clone(),
+             mode: options.mode,
+             profile_id: options.compatibility_profile.clone(),
+             semantic_options_digest: reachability::hash(options),
+@@ -199,7 +200,8 @@ pub fn select_report(
+ ) -> ProjectAnalysisResult {
+     let mut selected = result.clone();
+     selected.issues.retain(|issue| {
+-        (selection.workspaces.is_empty() || selection.workspaces.contains(&issue.workspace))
++        ((!selection.restrict_workspaces && selection.workspaces.is_empty())
++            || selection.workspaces.contains(&issue.workspace))
+             && ((!selection.restrict_issues && selection.issues.is_empty())
+                 || selection.issues.contains(&issue.kind))
+             && selection.changed_paths.as_ref().is_none_or(|paths| {
+@@ -221,7 +223,7 @@ pub fn select_report(
+     });
+     selected.hints.retain(|hint| {
+         hint.kind == crate::result::HintKind::Tag
+-            || selection.workspaces.is_empty()
++            || (!selection.restrict_workspaces && selection.workspaces.is_empty())
+             || (selection.workspaces.contains(&hint.workspace)
+                 && result
+                     .workspaces
+diff --git a/crates/biome_project_analysis/src/model.rs b/crates/biome_project_analysis/src/model.rs
+index 4affa405bab..653ba569fe0 100644
+--- a/crates/biome_project_analysis/src/model.rs
++++ b/crates/biome_project_analysis/src/model.rs
+@@ -8,14 +8,17 @@ use serde::{Deserialize, Serialize};
+ use std::collections::BTreeMap;
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct FileId(pub u32);
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct WorkspaceId(pub u32);
+ 
+ /// Freshness is scoped to a service session and project, including close/reopen epochs.
+ /// Digests are lowercase SHA-256 hex strings.
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct SnapshotRevision {
+     pub session_id: String,
+     pub project_root: String,
+@@ -24,19 +27,33 @@ pub struct SnapshotRevision {
+     pub input_digest: String,
+ }
+ 
++/// Supplied virtual files do not establish completeness of the host project inventory.
++#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++pub struct VirtualAnalysisScope {
++    /// Input accepts absolute or actual-project-relative paths. The service adds open overlays,
++    /// filters outside-root paths, and returns normalized, sorted, unique project-relative paths.
++    #[cfg_attr(feature = "schema", schemars(with = "Vec<String>"))]
++    pub supplied_files: Vec<Utf8PathBuf>,
++}
++
+ #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++#[cfg_attr(feature = "schema", schemars(rename = "ProjectAnalysisLocation"))]
+ pub struct Location {
+     pub file: FileId,
+     pub range: TextRange,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct DeclarationId {
+     pub location: Location,
+     pub namespace: SymbolNamespace,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ #[serde(rename_all = "camelCase")]
+ pub enum SymbolNamespace {
+     Value,
+@@ -54,13 +71,16 @@ pub struct AnalysisSnapshot {
+ 
+ /// Text and paths belong to the snapshot; consumers must not reread the current disk.
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct SourceRecord {
++    #[cfg_attr(feature = "schema", schemars(with = "String"))]
+     pub logical_path: Utf8PathBuf,
+     pub canonical_uri: String,
+     pub content: SourceContent,
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ #[serde(tag = "status", rename_all = "camelCase")]
+ pub enum SourceContent {
+     Available {
+@@ -69,6 +89,7 @@ pub enum SourceContent {
+     },
+     Unavailable {
+         reason: String,
++        #[cfg_attr(feature = "schema", schemars(with = "String"))]
+         fallback: Utf8PathBuf,
+     },
+ }
+@@ -137,6 +158,7 @@ pub struct SymbolUse {
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct Tag {
+     /// Syntax receiving this tag, in the same source as the token location.
+     #[serde(default)]
+diff --git a/crates/biome_project_analysis/src/options.rs b/crates/biome_project_analysis/src/options.rs
+index 6b6c5488dcf..f9f17f436f9 100644
+--- a/crates/biome_project_analysis/src/options.rs
++++ b/crates/biome_project_analysis/src/options.rs
+@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
+ use std::collections::{BTreeMap, BTreeSet};
+ 
+ #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ #[serde(rename_all = "camelCase")]
+ pub enum AnalysisMode {
+     #[default]
+@@ -180,8 +181,13 @@ impl AnalysisOptions {
+ 
+ /// Selection applies after analysis and cannot establish capability or completeness.
+ #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct ReportSelection {
+     pub workspaces: BTreeSet<WorkspaceId>,
++    /// Treats an empty workspace set as selecting no workspaces.
++    #[serde(default)]
++    pub restrict_workspaces: bool,
++    #[cfg_attr(feature = "schema", schemars(with = "Vec<String>"))]
+     pub paths: Vec<Utf8PathBuf>,
+     pub issues: BTreeSet<IssueKind>,
+     /// Treats an empty issues set as selecting no categories.
+@@ -189,5 +195,6 @@ pub struct ReportSelection {
+     pub restrict_issues: bool,
+     /// Exact changed paths intersect the other report predicates; an empty list selects none.
+     #[serde(default)]
++    #[cfg_attr(feature = "schema", schemars(with = "Option<BTreeSet<String>>"))]
+     pub changed_paths: Option<BTreeSet<Utf8PathBuf>>,
+ }
+diff --git a/crates/biome_service/src/project_analysis/provenance.rs b/crates/biome_service/src/project_analysis/provenance.rs
+index a8d9c19a5f9..001a3e8175d 100644
+--- a/crates/biome_service/src/project_analysis/provenance.rs
++++ b/crates/biome_service/src/project_analysis/provenance.rs
+@@ -13,7 +13,9 @@ use std::collections::BTreeMap;
+ 
+ /// A range is meaningful only for the exact text used by the configuration loader.
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ pub struct ConfigurationOrigin {
++    #[cfg_attr(feature = "schema", schemars(with = "String"))]
+     pub path: Utf8PathBuf,
+     pub digest: String,
+     pub range: TextRange,
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index 600615e74bd..8f5ac0ad9c2 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -69,14 +69,47 @@ impl WorkspaceServerWithDb<'_> {
+         &self,
+         project: ProjectKey,
+         request: &ProjectAnalysisRequest,
++    ) -> Result<SnapshotBuildOutcome, WorkspaceError> {
++        self.build_project_snapshot_inner(project, request, true)
++    }
++    pub(crate) fn try_build_project_snapshot_now(
++        &self,
++        project: ProjectKey,
++        request: &ProjectAnalysisRequest,
++    ) -> Result<SnapshotBuildOutcome, WorkspaceError> {
++        self.build_project_snapshot_inner(project, request, false)
++    }
++    fn build_project_snapshot_inner(
++        &self,
++        project: ProjectKey,
++        request: &ProjectAnalysisRequest,
++        wait: bool,
+     ) -> Result<SnapshotBuildOutcome, WorkspaceError> {
+         let coordinator = &self.db_state.analysis;
+         let Some(token) = coordinator.begin_request(project, digest(request)) else {
+             return Ok(SnapshotBuildOutcome::Superseded);
+         };
+-        let Some(mut generation) = coordinator.wait_until_settled(project, token) else {
++        let settled = if wait {
++            coordinator.wait_until_settled(project, token)
++        } else {
++            coordinator.settled_generation(project, token)
++        };
++        let Some(mut generation) = settled else {
+             return Ok(SnapshotBuildOutcome::Superseded);
+         };
++        let Some(session_id) = coordinator.session_id.as_deref() else {
++            return Ok(coordinator.fail(
++                project,
++                token,
++                generation,
++                Coverage::Failed(vec![CoverageGap {
++                    producer: "session identity".into(),
++                    domain: TargetDomain::Unbounded,
++                    reason: GapReason::UnavailableInput("Session entropy is unavailable".into()),
++                    location: None,
++                }]),
++            ));
++        };
+         let result: Result<SnapshotBuildOutcome, WorkspaceError> = (|| {
+             let root = self
+                 .project_get_path(project)
+@@ -95,10 +128,28 @@ impl WorkspaceServerWithDb<'_> {
+             let overlay_paths: Vec<_> = overlays.keys().cloned().collect();
+             let pinned = Arc::new(PinnedFs::new(self.analysis_fs(), overlays));
+             let (acquisition, key) = self.analysis_acquisition(project, pinned.clone())?;
+-            let discovery =
++            let mut discovery =
+                 inventory::discover_with_context(&acquisition, key, request, &overlay_paths)?;
+-            let root = paths::canonical(pinned.as_ref(), &root).unwrap_or(root);
++            // Compare rediscovery before adding transport-owned scope and capability metadata.
+             let discovered_inventory = discovery.inventory.clone();
++            discovery
++                .inventory
++                .virtual_scope
++                .clone_from(&request.virtual_scope);
++            if request.virtual_scope.is_some() {
++                for reason in [
++                    GapReason::UnavailableInput("Host project inventory is unavailable".into()),
++                    GapReason::Capability("Host filesystem capabilities are unavailable".into()),
++                ] {
++                    discovery.inventory.gaps.push(CoverageGap {
++                        producer: "virtual analysis scope".into(),
++                        domain: TargetDomain::Unbounded,
++                        reason,
++                        location: None,
++                    });
++                }
++            }
++            let root = paths::canonical(pinned.as_ref(), &root).unwrap_or(root);
+             let config_digest = digest(&(
+                 request,
+                 &discovery.mappings,
+@@ -376,7 +427,7 @@ impl WorkspaceServerWithDb<'_> {
+             let input_digest = digest(&(&capture.inventory, &modules, &coverage));
+             let snapshot = Arc::new(AnalysisSnapshot {
+                 revision: SnapshotRevision {
+-                    session_id: format!("{}:{project}", coordinator.session_id),
++                    session_id: format!("{session_id}:{project}"),
+                     project_root: root.to_string(),
+                     epoch: generation,
+                     config_digest,
+diff --git a/crates/biome_service/src/workspace.rs b/crates/biome_service/src/workspace.rs
+index 1a7cdfc1dc4..a6587f253fd 100644
+--- a/crates/biome_service/src/workspace.rs
++++ b/crates/biome_service/src/workspace.rs
+@@ -56,6 +56,7 @@ pub(crate) mod document;
+ pub mod search;
+ mod server;
+ 
++use crate::project_analysis::{PolicyOverrides, ProjectAnalysisRequest};
+ use biome_analyze::{ActionCategory, RuleCategories};
+ use biome_configuration::{Configuration, analyzer::AnalyzerSelector};
+ use biome_console::{Markup, MarkupBuf, markup};
+@@ -63,6 +64,10 @@ use biome_diagnostics::{Applicability, CodeSuggestion, Severity, serde::Diagnost
+ use biome_formatter::Printed;
+ use biome_fs::BiomePath;
+ use biome_languages::DocumentFileSource;
++pub use biome_project_analysis::result::ProjectAnalysisResult;
++use biome_project_analysis::{
++    coverage::Coverage, model::SnapshotRevision, options::ReportSelection,
++};
+ use biome_resolver::FsWithResolverProxy;
+ use biome_rowan::{TextRange, TextSize};
+ use biome_text_edit::TextEdit;
+@@ -1612,12 +1617,70 @@ pub struct GetModuleGraphResult {
+     pub data: FxHashMap<String, SerializedModuleInfo>,
+ }
+ 
++/// Captures and analyzes the open project, including files without open documents.
++#[derive(Clone, Debug, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++#[serde(rename_all = "camelCase")]
++pub struct PullProjectDiagnosticsParams {
++    pub project_key: ProjectKey,
++    pub request: ProjectAnalysisRequest,
++    #[serde(default)]
++    pub selection: ReportSelection,
++    /// Required for nonempty workspace-ID selection; IDs belong to this exact snapshot.
++    #[serde(default)]
++    pub selection_revision: Option<SnapshotRevision>,
++    #[serde(default)]
++    pub overrides: PolicyOverrides,
++}
++
++/// Reconciles active and previously published project keys, including closed keys.
++#[derive(Clone, Debug, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++#[serde(rename_all = "camelCase")]
++pub struct PullProjectAnalysisStatesParams {
++    pub project_keys: Vec<ProjectKey>,
++}
++
++/// Retained project state. Notifications only prompt clients to pull this state again.
++#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++#[serde(rename_all = "camelCase")]
++pub struct ProjectAnalysisState {
++    pub project_key: ProjectKey,
++    pub generation: u64,
++    pub status: ProjectAnalysisStatus,
++}
++
++#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
++#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
++#[serde(tag = "kind", rename_all = "camelCase")]
++pub enum ProjectAnalysisStatus {
++    Dirty,
++    Completed { revision: SnapshotRevision },
++    Failed { coverage: Coverage },
++    Closed,
++}
++
+ // NOTE: when you add new functions to this trait, you must update:
+ // - the macro `delegate_workspace_methods` to include the new function if necessary
+ // - the macro `retrying_workspace_methods` to include the new function if necessary
+ pub trait Workspace: Send + Sync + RefUnwindSafe {
+     // #region PROJECT-LEVEL METHODS
+ 
++    /// Returns a self-contained report from one completed snapshot. Concurrent updates
++    /// are retried at most twice before returning an unavailable-database error.
++    fn pull_project_diagnostics(
++        &self,
++        params: PullProjectDiagnosticsParams,
++    ) -> Result<ProjectAnalysisResult, WorkspaceError>;
++
++    /// Registers analysis interest and returns retained state for every requested key.
++    /// Unknown keys are returned individually as closed. Completion includes the full revision.
++    fn pull_project_analysis_states(
++        &self,
++        params: PullProjectAnalysisStatesParams,
++    ) -> Result<Vec<ProjectAnalysisState>, WorkspaceError>;
++
+     /// Opens a project within the workspace.
+     ///
+     /// The path given as part of the `params` is used to determine the root of
+@@ -1913,6 +1976,19 @@ macro_rules! retrying_workspace_methods {
+ }
+ 
+ impl<W: Workspace> Workspace for RetryingWorkspace<W> {
++    fn pull_project_diagnostics(
++        &self,
++        params: PullProjectDiagnosticsParams,
++    ) -> Result<ProjectAnalysisResult, WorkspaceError> {
++        self.0.pull_project_diagnostics(params)
++    }
++    fn pull_project_analysis_states(
++        &self,
++        params: PullProjectAnalysisStatesParams,
++    ) -> Result<Vec<ProjectAnalysisState>, WorkspaceError> {
++        self.0.pull_project_analysis_states(params)
++    }
++
+     fn scan_project(&self, params: ScanProjectParams) -> Result<ScanProjectResult, WorkspaceError> {
+         self.0.scan_project(params)
+     }
+diff --git a/crates/biome_service/src/workspace/server.rs b/crates/biome_service/src/workspace/server.rs
+index a2f3bbd6ab1..4ed1553607c 100644
+--- a/crates/biome_service/src/workspace/server.rs
++++ b/crates/biome_service/src/workspace/server.rs
+@@ -2771,6 +2771,8 @@ macro_rules! delegate_retrying_workspace_methods {
+ 
+ impl Workspace for LocalWorkspace {
+     delegate_workspace_methods! {
++        fn pull_project_diagnostics(params: PullProjectDiagnosticsParams) -> Result<ProjectAnalysisResult, WorkspaceError>;
++        fn pull_project_analysis_states(params: PullProjectAnalysisStatesParams) -> Result<Vec<ProjectAnalysisState>, WorkspaceError>;
+         fn open_project(params: OpenProjectParams) -> Result<OpenProjectResult, WorkspaceError>;
+         fn scan_project(params: ScanProjectParams) -> Result<ScanProjectResult, WorkspaceError>;
+         fn update_settings(params: UpdateSettingsParams) -> Result<UpdateSettingsResult, WorkspaceError>;
+@@ -2873,6 +2875,19 @@ impl WorkspaceServerWithDb<'_> {
+ }
+ 
+ impl Workspace for WorkspaceServerWithDb<'_> {
++    fn pull_project_diagnostics(
++        &self,
++        params: PullProjectDiagnosticsParams,
++    ) -> Result<ProjectAnalysisResult, WorkspaceError> {
++        self.project_diagnostics(params)
++    }
++    fn pull_project_analysis_states(
++        &self,
++        params: PullProjectAnalysisStatesParams,
++    ) -> Result<Vec<ProjectAnalysisState>, WorkspaceError> {
++        Ok(self.db_state.analysis.reconcile(&params.project_keys))
++    }
++
+     fn open_project(&self, params: OpenProjectParams) -> Result<OpenProjectResult, WorkspaceError> {
+         let path = if params.open_uninitialized {
+             let path = params.path.to_path_buf();

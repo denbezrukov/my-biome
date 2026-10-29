@@ -1,0 +1,134 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running unittests src/lib.rs (target/debug/deps/biome_module_graph-1958eba13fe5ab30)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.00s
+
+     Running tests/js_scc.rs (target/debug/deps/js_scc-87b5156684aa9eea)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/spec_tests.rs (target/debug/deps/spec_tests-b6cca5aaaae8b668)
+
+running 1 test
+test project::b4_review_present_spread_command_arguments_are_unsupported ... FAILED
+
+failures:
+
+---- project::b4_review_present_spread_command_arguments_are_unsupported stdout ----
+
+thread 'project::b4_review_present_spread_command_arguments_are_unsupported' (1054907) panicked at crates/biome_module_graph/tests/spec_tests/project.test.rs:1162:9:
+spawn('node', ['app.js'], ...[{cwd:'nested'}]);
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    project::b4_review_present_spread_command_arguments_are_unsupported
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 376 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p biome_module_graph --test spec_tests`
+     Running unittests src/lib.rs (target/debug/deps/biome_project_analysis-7e9ef2ff0ca28953)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contracts.rs (target/debug/deps/contracts-eb38bcae0cb25e27)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+     Running tests/exports.rs (target/debug/deps/exports-bae469f046113574)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/members.rs (target/debug/deps/members-88534333c4b7ade6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/reachability.rs (target/debug/deps/reachability-5125f30452526012)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 0.00s
+
+     Running tests/scripts.rs (target/debug/deps/scripts-5fd2d2c3fc8f81c2)
+
+running 3 tests
+test b4_review_node_separator_keeps_stdin_uncertainty ... FAILED
+test b4_review_pipeline_cwd_is_local_to_each_command ... FAILED
+test b4_review_nested_yarn_workspace_is_bounded ... FAILED
+
+failures:
+
+---- b4_review_node_separator_keeps_stdin_uncertainty stdout ----
+
+thread 'b4_review_node_separator_keeps_stdin_uncertainty' (1054915) panicked at crates/biome_project_analysis/tests/scripts.rs:294:9:
+node --
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- b4_review_pipeline_cwd_is_local_to_each_command stdout ----
+
+thread 'b4_review_pipeline_cwd_is_local_to_each_command' (1054916) panicked at crates/biome_project_analysis/tests/scripts.rs:286:9:
+assertion `left == right` failed: cd child | node app.js; node after.js
+  left: ["child", "child"]
+ right: [".", "."]
+
+---- b4_review_nested_yarn_workspace_is_bounded stdout ----
+
+thread 'b4_review_nested_yarn_workspace_is_bounded' (1054914) panicked at crates/biome_project_analysis/tests/scripts.rs:313:9:
+assertion `left == right` failed: prefixes=66
+  left: false
+ right: true
+
+
+failures:
+    b4_review_nested_yarn_workspace_is_bounded
+    b4_review_node_separator_keeps_stdin_uncertainty
+    b4_review_pipeline_cwd_is_local_to_each_command
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p biome_project_analysis --test scripts`
+     Running unittests src/lib.rs (target/debug/deps/biome_service-9c4868c2c36d3b86)
+
+running 2 tests
+test project_analysis::scripts_tests::b4_review_pipeline_roots_the_original_cwd_target ... FAILED
+test project_analysis::scripts_tests::b4_review_spread_options_gap_is_source_gated ... FAILED
+
+failures:
+
+---- project_analysis::scripts_tests::b4_review_pipeline_roots_the_original_cwd_target stdout ----
+
+thread 'project_analysis::scripts_tests::b4_review_pipeline_roots_the_original_cwd_target' (1054918) panicked at crates/biome_service/src/project_analysis/scripts.tests.rs:858:5:
+assertion `left == right` failed
+  left: ["app.js"]
+ right: ["child/app.js"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- project_analysis::scripts_tests::b4_review_spread_options_gap_is_source_gated stdout ----
+
+thread 'project_analysis::scripts_tests::b4_review_spread_options_gap_is_source_gated' (1054919) panicked at crates/biome_service/src/project_analysis/scripts.tests.rs:877:13:
+spawn('node', ['app.js'], ...[{cwd:'nested'}]);
+
+
+failures:
+    project_analysis::scripts_tests::b4_review_pipeline_roots_the_original_cwd_target
+    project_analysis::scripts_tests::b4_review_spread_options_gap_is_source_gated
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 439 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p biome_service --lib`
+error: 3 targets failed:
+    `-p biome_module_graph --test spec_tests`
+    `-p biome_project_analysis --test scripts`
+    `-p biome_service --lib`

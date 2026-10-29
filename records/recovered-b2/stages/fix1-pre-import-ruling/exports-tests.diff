@@ -1,0 +1,218 @@
+diff --git a/crates/biome_service/src/project_analysis/exports.tests.rs b/crates/biome_service/src/project_analysis/exports.tests.rs
+index 861ec598740..ffd370a7382 100644
+--- a/crates/biome_service/src/project_analysis/exports.tests.rs
++++ b/crates/biome_service/src/project_analysis/exports.tests.rs
+@@ -1353,3 +1353,213 @@ fn expression_arrow_return_dependencies_follow_reference_policy() {
+     );
+     assert!(symbols(&result).is_empty());
+ }
++
++#[test]
++fn dynamic_import_results_retain_target_uncertainty() {
++    use biome_project_analysis::coverage::Coverage;
++    for expression in [
++        "const { used } = await import('./lib'); console.log(used);",
++        "const NS = await import('./lib'); NS.used;",
++        "import('./lib').then(NS => NS.used);",
++        "consume(await import('./lib'));",
++        "(await import('./lib')).used;",
++        "function load() { return import('./lib'); }",
++        "const load = () => import('./lib');",
++        "const pending = import('./lib');",
++    ] {
++        let entry = format!("import './control'; {expression}");
++        let (_, result) = run(
++            &[
++                ("index.ts", &entry),
++                ("lib.ts", "export const used = 1; export const unused = 2;"),
++                ("control.ts", "export const control = 3;"),
++            ],
++            Default::default(),
++        );
++        assert_eq!(
++            symbols(&result),
++            expected(&[("control.ts", "control", IssueKind::Exports)]),
++            "{expression}"
++        );
++        assert!(result.exports.consumed.is_empty(), "{expression}");
++        assert!(!result.exports.uncertainty.is_empty(), "{expression}");
++        assert!(
++            matches!(result.coverage, Coverage::Incomplete(_)),
++            "{expression}"
++        );
++        let selected = biome_project_analysis::select_report(
++            &result,
++            &biome_project_analysis::options::ReportSelection {
++                paths: vec!["control.ts".into()],
++                ..Default::default()
++            },
++        );
++        assert_eq!(selected.exports.uncertainty, result.exports.uncertainty);
++        assert_eq!(selected.coverage, result.coverage);
++        assert_eq!(selected.evidence, result.evidence);
++    }
++    let (_, dead) = run(
++        &[
++            ("index.ts", "export {};"),
++            ("loader.ts", "const { used } = await import('./lib'); used;"),
++            ("lib.ts", "export const used = 1;"),
++        ],
++        Default::default(),
++    );
++    assert!(dead.exports.uncertainty.is_empty());
++    assert!(symbols(&dead).is_empty());
++    for expression in [
++        "import('./lib');",
++        "await import('./lib');",
++        "(await (import('./lib')));",
++    ] {
++        let (_, result) = run(
++            &[
++                ("index.ts", expression),
++                ("lib.ts", "export const unused = 1;"),
++            ],
++            Default::default(),
++        );
++        assert_eq!(
++            symbols(&result),
++            expected(&[("lib.ts", "unused", IssueKind::Exports)]),
++            "{expression}"
++        );
++        assert!(result.exports.uncertainty.is_empty(), "{expression}");
++    }
++}
++
++#[test]
++fn registered_class_alias_requires_proven_terminal_identity() {
++    use biome_project_analysis::coverage::TargetDomain;
++    for alias in [
++        "const Candidate = flag ? MyCard : OtherCard;",
++        "let Candidate = MyCard; Candidate = OtherCard;",
++        "let Candidate = MyCard; if (flag) Candidate = OtherCard;",
++    ] {
++        let source = format!(
++            "export class MyCard {{}} export class OtherCard {{}} {alias} customElements.define('my-card', Candidate);"
++        );
++        let (_, result) = run(
++            &[("index.ts", "import './lib';"), ("lib.ts", &source)],
++            Default::default(),
++        );
++        assert!(
++            symbols(&result).is_empty(),
++            "{alias}: {:?}",
++            symbols(&result)
++        );
++        assert!(result.exports.consumed.is_empty(), "{alias}");
++        assert!(
++            result
++                .exports
++                .gaps
++                .iter()
++                .any(|gap| gap.domain == TargetDomain::Unbounded),
++            "{alias}"
++        );
++        let (_, dead) = run(
++            &[("index.ts", "export {};"), ("lib.ts", &source)],
++            Default::default(),
++        );
++        assert!(dead.exports.gaps.is_empty());
++    }
++    let (_, result) = run(
++        &[
++            ("index.ts", "import './lib';"),
++            (
++                "lib.ts",
++                "export class MyCard {} export class Control {} const First = MyCard; const Candidate = First; customElements.define('my-card', Candidate);",
++            ),
++        ],
++        Default::default(),
++    );
++    assert_eq!(
++        symbols(&result),
++        expected(&[("lib.ts", "Control", IssueKind::Exports)])
++    );
++    assert!(result.exports.uncertainty.is_empty());
++}
++
++#[test]
++fn bound_registry_constructor_accounts_for_prebound_arguments() {
++    use biome_project_analysis::coverage::TargetDomain;
++    for registration in [
++        "const register = customElements.define.bind(customElements, 'my-card', MyCard); register({}, Control);",
++        "const register = customElements.define.bind(customElements, 'my-card'); register(MyCard, Control);",
++        "const register = customElements.define.bind(customElements); register('my-card', MyCard);",
++    ] {
++        let source = format!("export class MyCard {{}} export class Control {{}} {registration}");
++        let (_, result) = run(
++            &[("index.ts", "import './lib';"), ("lib.ts", &source)],
++            Default::default(),
++        );
++        assert_eq!(
++            symbols(&result),
++            expected(&[("lib.ts", "Control", IssueKind::Exports)]),
++            "{registration}"
++        );
++        assert!(result.exports.consumed.is_empty());
++        assert!(!result.exports.uncertainty.is_empty());
++        assert!(
++            result
++                .exports
++                .gaps
++                .iter()
++                .all(|gap| gap.domain != TargetDomain::Unbounded)
++        );
++        let (_, dead) = run(
++            &[("index.ts", "export {};"), ("lib.ts", &source)],
++            Default::default(),
++        );
++        assert!(dead.exports.gaps.is_empty());
++    }
++    for registration in [
++        "const register = customElements.define.bind(customElements, ...args); register({}, Control);",
++        "const register = customElements.define.bind(customElements); register(...args, Control);",
++        "let register = customElements.define.bind(customElements, 'my-card', Control); register = customElements.define.bind(customElements, 'my-card', MyCard); register({}, Control);",
++    ] {
++        let source = format!("export class MyCard {{}} export class Control {{}} {registration}");
++        let (_, result) = run(
++            &[("index.ts", "import './lib';"), ("lib.ts", &source)],
++            Default::default(),
++        );
++        assert!(
++            symbols(&result).is_empty(),
++            "{registration}: {:?}",
++            symbols(&result)
++        );
++        assert!(result.exports.consumed.is_empty());
++        assert!(
++            result
++                .exports
++                .gaps
++                .iter()
++                .any(|gap| gap.domain == TargetDomain::Unbounded)
++        );
++    }
++}
++
++#[test]
++fn registered_class_destructuring_is_not_an_identity_alias() {
++    use biome_project_analysis::coverage::TargetDomain;
++    let (_, result) = run(
++        &[
++            ("index.ts", "import './lib';"),
++            (
++                "lib.ts",
++                "export class MyCard {} export class Control {} class Holder { static Candidate = MyCard; } const {Candidate} = Holder; customElements.define('my-card', Candidate);",
++            ),
++        ],
++        Default::default(),
++    );
++    assert!(symbols(&result).is_empty(), "{:?}", symbols(&result));
++    assert!(result.exports.consumed.is_empty());
++    assert!(
++        result
++            .exports
++            .gaps
++            .iter()
++            .any(|gap| gap.domain == TargetDomain::Unbounded)
++    );
++}

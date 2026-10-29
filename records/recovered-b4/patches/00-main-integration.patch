@@ -1,0 +1,389 @@
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 34c6abf6640..7dc2dd9f28c 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -13,10 +13,13 @@ use biome_rowan::{AstNode, AstNodeList, Text, TokenText};
+ use camino::Utf8Path;
+ 
+ use crate::ImportPathMap;
++#[path = "project_commands.rs"]
++mod commands;
+ #[path = "project_members.rs"]
+ mod members;
+ use biome_rowan::TextRange;
+ use camino::Utf8PathBuf;
++pub use commands::ProjectCommand;
+ pub use members::{ProjectDeclarationRelation, ProjectMember};
+ 
+ #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+@@ -228,6 +231,7 @@ pub enum ProjectDeclarationFileKind {
+ 
+ #[derive(Clone, Debug, Default)]
+ pub struct ProjectModuleFacts {
++    pub commands: Vec<ProjectCommand>,
+     pub declaration_file: Option<ProjectDeclarationFileKind>,
+     pub parse_status: ProjectParseStatus,
+     pub has_static_exports: bool,
+@@ -1078,6 +1082,13 @@ impl ProjectModuleFacts {
+         let arguments = call.arguments().ok()?;
+         let [first, second] = arguments.get_arguments_by_index([0, 1]);
+         if let Some((object, member)) = member_expression(&callee) {
++            if global_named(&object, "Bun", model)
++                && matches!(member.as_str(), "spawn" | "spawnSync")
++            {
++                let mut command = commands::collect(call, "Bun");
++                command.unsupported = true;
++                self.commands.push(command);
++            }
+             if member == "define" {
+                 let provenance = registry_provenance(&object, model, 0);
+                 let declaration = second
+@@ -1169,26 +1180,38 @@ impl ProjectModuleFacts {
+             } else if package == "child_process"
+                 && matches!(
+                     method.as_str(),
+-                    "fork" | "spawn" | "spawnSync" | "execFile" | "execFileSync"
++                    "fork"
++                        | "spawn"
++                        | "spawnSync"
++                        | "execFile"
++                        | "execFileSync"
++                        | "exec"
++                        | "execSync"
+                 )
+             {
+-                if let Some(expression) = first
++                if matches!(
++                    method.as_str(),
++                    "fork" | "spawn" | "spawnSync" | "execFile" | "execFileSync"
++                ) && first
+                     .as_ref()
+-                    .and_then(|argument| argument.as_any_js_expression())
++                    .and_then(|arg| arg.as_any_js_expression())
++                    .and_then(|expression| dirname_path(expression, model))
++                    .is_some()
+                 {
+                     self.path_entry(
+-                        expression,
++                        first.as_ref().unwrap().as_any_js_expression().unwrap(),
+                         call.range(),
+                         ProjectImportSyntax::NodeEntry,
+                         model,
+                     );
++                    let mut command = commands::collect(call, &method);
++                    command.unsupported |= method != "fork";
++                    if command.unsupported || command.args.is_none() {
++                        self.commands.push(command);
++                    }
++                } else {
++                    self.commands.push(commands::collect(call, &method));
+                 }
+-            } else if package == "child_process" && matches!(method.as_str(), "exec" | "execSync") {
+-                self.unknown(
+-                    call.range(),
+-                    ProjectUnknownKind::Entry,
+-                    "shell entry requires script analysis",
+-                );
+             }
+         }
+         Some(())
+@@ -1235,19 +1258,27 @@ impl ProjectModuleFacts {
+                         .callee()
+                         .is_ok_and(|callee| global_named(&callee, "URL", model))
+                 {
++                    if let Some(arguments) = url.arguments() {
++                        let [value, base] = arguments.get_arguments_by_index([0, 1]);
++                        if base
++                            .as_ref()
++                            .and_then(|a| a.as_any_js_expression())
++                            .is_some_and(import_meta_url)
++                        {
++                            self.entry_argument(
++                                value.as_ref().and_then(|a| a.as_any_js_expression()),
++                                new.range(),
++                                ProjectImportSyntax::Worker,
++                                false,
++                            );
++                        }
++                    }
+                     return Some(());
+                 }
+-                if callee
+-                    .as_js_reference_identifier()
+-                    .is_some_and(|reference| reference.to_trimmed_string() != "Worker")
+-                {
+-                    self.unknown(
+-                        new.range(),
+-                        ProjectUnknownKind::Entry,
+-                        "aliased Worker entry",
+-                    );
+-                } else {
++                if dirname_path(expression, model).is_some() {
+                     self.path_entry(expression, new.range(), ProjectImportSyntax::Worker, model);
++                } else {
++                    self.commands.push(commands::collect_worker(new));
+                 }
+             }
+         }
+diff --git a/crates/biome_project_analysis/src/exports.rs b/crates/biome_project_analysis/src/exports.rs
+index 337a3201c13..6144848da97 100644
+--- a/crates/biome_project_analysis/src/exports.rs
++++ b/crates/biome_project_analysis/src/exports.rs
+@@ -70,7 +70,21 @@ pub fn analyze_exports(
+         uncertain_declarations: HashSet::new(),
+         root_workspace: None,
+     };
+-    for root in &reachability.membership.entry_roots {
++    let script_roots = reachability
++        .membership
++        .script_targets
++        .iter()
++        .filter(|script| {
++            !reachability.membership.entry_roots.iter().any(|root| {
++                root.file == script.file && root.exports == ExportProtection::IncludeWhenRequested
++            })
++        });
++    for root in reachability
++        .membership
++        .entry_roots
++        .iter()
++        .chain(script_roots)
++    {
+         state.root_workspace = Some(root.workspace);
+         if (root.exports == ExportProtection::Protected
+             || (root.exports == ExportProtection::IncludeWhenRequested
+diff --git a/crates/biome_project_analysis/src/reachability.rs b/crates/biome_project_analysis/src/reachability.rs
+index 75b955ff6c4..cda403714a9 100644
+--- a/crates/biome_project_analysis/src/reachability.rs
++++ b/crates/biome_project_analysis/src/reachability.rs
+@@ -32,6 +32,8 @@ pub struct ReachabilityGap {
+     pub consumers: BTreeSet<FileId>,
+     pub impact: GapImpact,
+     pub active: bool,
++    #[serde(default)]
++    pub script_producer: Option<crate::scripts::ScriptProducer>,
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+@@ -50,6 +52,10 @@ pub struct AnalysisMembership {
+     pub program_roots: Vec<Root>,
+     pub reporting_candidates: BTreeSet<FileId>,
+     pub files: Vec<FileMembership>,
++    #[serde(default)]
++    pub script_targets: Vec<Root>,
++    #[serde(default)]
++    pub script_producers: Vec<crate::scripts::ProducerActivation>,
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq)]
+@@ -258,6 +264,62 @@ pub fn compute_reachability(
+             }
+         }
+     }
++    for target in snapshot
++        .inventory
++        .script_usage
++        .targets
++        .iter()
++        .filter(|t| t.mode == options.mode)
++    {
++        for resolution in &target.resolutions {
++            if let ResolutionOutcome::Resolved { file, .. } = resolution.outcome {
++                let id = add_evidence(
++                    snapshot,
++                    &mut evidence,
++                    "script target",
++                    Some(target.location),
++                    target.workspace,
++                    target.specifier.clone(),
++                    &format!(
++                        "{}:{}",
++                        producer_identity(snapshot, &target.producer),
++                        path(snapshot, file)
++                    ),
++                );
++                match target.producer {
++                    crate::scripts::ScriptProducer::Manifest { .. } => {
++                        if definite.insert(file) {
++                            queue.push_back(file);
++                        }
++                    }
++                    crate::scripts::ScriptProducer::Source { file: producer } => {
++                        edges.entry(producer).or_default().push((file, id));
++                    }
++                }
++            } else if let ResolutionOutcome::Unknown { reason } = &resolution.outcome {
++                push_script_gap(
++                    snapshot,
++                    &mut gaps,
++                    &target.producer,
++                    CoverageGap {
++                        producer: "script resolution".into(),
++                        domain: TargetDomain::Unbounded,
++                        reason: GapReason::UnavailableInput(reason.clone()),
++                        location: Some(target.location),
++                    },
++                );
++            }
++        }
++    }
++    for record in snapshot
++        .inventory
++        .script_usage
++        .gaps
++        .iter()
++        .filter(|g| g.mode == options.mode)
++    {
++        push_script_gap(snapshot, &mut gaps, &record.producer, record.gap.clone());
++    }
+     while let Some(file) = queue.pop_front() {
+         for (target, _) in edges.get(&file).into_iter().flatten() {
+             if definite.insert(*target) {
+@@ -304,9 +366,54 @@ pub fn compute_reachability(
+             break;
+         }
+     }
++    for producer in snapshot.inventory.script_usage.producers(options.mode) {
++        let activation = match producer {
++            crate::scripts::ScriptProducer::Manifest { .. } => crate::scripts::Activation::Definite,
++            crate::scripts::ScriptProducer::Source { file } if definite.contains(&file) => {
++                crate::scripts::Activation::Definite
++            }
++            crate::scripts::ScriptProducer::Source { file } if affected.contains_key(&file) => {
++                crate::scripts::Activation::Possible
++            }
++            _ => crate::scripts::Activation::Dead,
++        };
++        membership
++            .script_producers
++            .push(crate::scripts::ProducerActivation {
++                producer,
++                activation,
++            });
++    }
++    for target in snapshot
++        .inventory
++        .script_usage
++        .targets
++        .iter()
++        .filter(|t| t.mode == options.mode)
++    {
++        if membership.script_producers.iter().any(|p| {
++            p.producer == target.producer && p.activation != crate::scripts::Activation::Dead
++        }) {
++            for resolution in &target.resolutions {
++                if let ResolutionOutcome::Resolved { file, .. } = resolution.outcome {
++                    membership.script_targets.push(Root {
++                        file,
++                        workspace: target.workspace,
++                        producer: "script target".into(),
++                        location: Some(target.location),
++                        role: RootRole::Both,
++                        exports: crate::inventory::ExportProtection::Protected,
++                    });
++                }
++            }
++        }
++    }
+     let mut active_coverage = Vec::new();
+     for record in &gaps {
+-        if record.active || !matches!(record.gap.reason, GapReason::DynamicReference(_)) {
++        if record.active
++            || (record.script_producer.is_none()
++                && !matches!(record.gap.reason, GapReason::DynamicReference(_)))
++        {
+             active_coverage.push(record.gap.clone());
+         }
+         let workspace = record
+@@ -447,10 +554,44 @@ fn push_gap(snapshot: &AnalysisSnapshot, gaps: &mut Vec<ReachabilityGap>, gap: C
+             consumers,
+             impact,
+             active: false,
++            script_producer: None,
+         });
+         gaps.sort_by(|left, right| left.id.cmp(&right.id));
+     }
+ }
++fn push_script_gap(
++    snapshot: &AnalysisSnapshot,
++    gaps: &mut Vec<ReachabilityGap>,
++    producer: &crate::scripts::ScriptProducer,
++    gap: CoverageGap,
++) {
++    let identity = producer_identity(snapshot, producer);
++    let id = GapId(format!(
++        "script-gap:{}",
++        hash(&(
++            identity,
++            &gap.reason,
++            gap.location.map(|l| (path(snapshot, l.file), l.range)),
++            &gap.domain
++        ))
++    ));
++    if gaps.iter().any(|g| g.id == id) {
++        return;
++    }
++    let consumers = match producer {
++        crate::scripts::ScriptProducer::Source { file } => [*file].into(),
++        _ => BTreeSet::new(),
++    };
++    gaps.push(ReachabilityGap {
++        id,
++        gap,
++        consumers,
++        impact: GapImpact::FileTargets,
++        active: false,
++        script_producer: Some(producer.clone()),
++    });
++}
++
+ fn domain_files(snapshot: &AnalysisSnapshot, domain: &TargetDomain) -> BTreeSet<FileId> {
+     let TargetDomain::Bounded {
+         files,
+@@ -648,3 +789,17 @@ fn reporting_gaps(
+         }
+     }
+ }
++
++fn producer_identity(
++    snapshot: &AnalysisSnapshot,
++    producer: &crate::scripts::ScriptProducer,
++) -> serde_json::Value {
++    match producer {
++        crate::scripts::ScriptProducer::Source { file } => {
++            serde_json::json!({"source":path(snapshot,*file)})
++        }
++        crate::scripts::ScriptProducer::Manifest { workspace, script } => {
++            serde_json::json!({"workspace":snapshot.inventory.workspaces.iter().find(|w|w.workspace==*workspace).map(|w|&w.path),"script":script})
++        }
++    }
++}
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index 73354fcb0b8..7c44bcb492c 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -294,6 +294,24 @@ impl WorkspaceServerWithDb<'_> {
+                         owned_facts::convert(&mut capture, file, &facts, &resolutions),
+                     );
+                 }
++                {
++                    let db = workspace.get_db();
++                    for target in super::scripts::discover(
++                        &mut capture,
++                        &modules,
++                        &*db,
++                        &contexts,
++                        request.mode,
++                    ) {
++                        required.insert(target.clone());
++                        if !attempted.contains_key(&target) {
++                            pending.insert(target);
++                        }
++                    }
++                }
++                if !pending.is_empty() {
++                    continue;
++                }
+                 {
+                     let db = workspace.get_db();
+                     let all_contexts: Vec<_> = contexts

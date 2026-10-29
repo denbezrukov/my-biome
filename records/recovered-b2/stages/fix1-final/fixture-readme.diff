@@ -1,0 +1,16 @@
+diff --git a/crates/biome_service/src/project_analysis/fixtures/README.md b/crates/biome_service/src/project_analysis/fixtures/README.md
+index 4d8682e02fd..94e6d143ca0 100644
+--- a/crates/biome_service/src/project_analysis/fixtures/README.md
++++ b/crates/biome_service/src/project_analysis/fixtures/README.md
+@@ -27,3 +27,11 @@ The named corrections preserve reference findings while distinguishing native ex
+ Static CommonJS objects retain named property origins alongside their whole-object default export. Their named facts remain available for resolution/member analysis while the pinned export-reporting policy reports the default slot. A property literally named `default` currently collides with that whole-object slot in the snapshot representation. Native controls retain both identities, bounded uncertainty, incomplete coverage, and provenance even for a side-effect-only consumer. This is a representation limitation, not JavaScript semantic ambiguity or a reference parity claim; workflows affected by it require explicit migration mapping or further representation support.
+ 
+ The expression-arrow observation retains both its parameter type and asserted result type. The native `Signature` role includes syntactically collected return-expression dependencies; it does not mean only explicit annotation sites. The earlier observed block-body annotations follow a different traversal rule. This distinction requires no whole-module type inference.
++
++## Native precision limits outside the reference corpus
++
++Used dynamic-import results currently retain uncertainty over the resolved target's export surface and origins. The native engine does not yet recover precise bindings or member selections from those results, so affected exports remain protected from definitive unused findings without being marked definitely consumed. Directly discarded import expressions, including parentheses and `await`, only retain module reachability.
++
++Custom-element registration requires a proven local constructor identity for definite consumption. Conditional, reassigned, destructured, and imported constructor identities can instead require unbounded uncertainty. Ordinary import consumption remains independent, but even a simple imported-class registration can have incomplete coverage until graph-origin constructor proof is available. Pre-bound registry methods remain possible registrations; spreads or mutable aliases invalidate a positional constructor bound.
++
++These are conservative native precision limits, not additional observed Knip differences or changes to the 40 reference projections. Capability support alone does not qualify affected workflows for migration acceptance (D4); their uncertainty and limitations require explicit review.

@@ -1,0 +1,116 @@
+                        target,
+                        kind,
+                        trace,
+                    } => (
+                        owned::ResolutionOutcome::Resolved {
+                            file: capture.capture(target),
+                            kind: format!("{kind:?}"),
+                        },
+                        trace,
+                    ),
+                    graph::ProjectResolution::Unresolved { error, trace } => (
+                        owned::ResolutionOutcome::Unresolved {
+                            error: format!("{error:?}"),
+                        },
+                        trace,
+                    ),
+                    graph::ProjectResolution::Builtin { name, trace } => (
+                        owned::ResolutionOutcome::Builtin { name: name.clone() },
+                        trace,
+                    ),
+                    graph::ProjectResolution::Unknown { reason, trace } => {
+                        capture.gap(
+                            "module resolution",
+                            reason.clone(),
+                            Some(location(
+                                file,
+                                facts
+                                    .imports
+                                    .named_iter()
+                                    .nth(value.occurrence)
+                                    .unwrap()
+                                    .1
+                                    .range,
+                            )),
+                        );
+                        (
+                            owned::ResolutionOutcome::Unknown {
+                                reason: reason.clone(),
+                            },
+                            trace,
+                        )
+                    }
+                };
+                owned::ResolvedOccurrence {
+                    occurrence: value.occurrence,
+                    context: context(&value.context),
+                    outcome,
+                    trace: trace
+                        .events
+                        .iter()
+                        .map(|event| match event {
+                            ResolutionEvent::Manifest { path, quality } => {
+                                let manifest = capture.capture(path);
+                                if !quality.known || quality.has_errors() {
+                                    capture.gap(
+                                        "resolution metadata",
+                                        format!("Incomplete manifest {path}"),
+                                        Some(location(manifest, TextRange::default())),
+                                    );
+                                }
+                                owned::ResolutionEvent::Manifest {
+                                    file: manifest,
+                                    known: quality.known,
+                                    diagnostics: quality
+                                        .diagnostics
+                                        .iter()
+                                        .map(|diagnostic| owned::ManifestDiagnostic {
+                                            severity: format!("{:?}", diagnostic.severity),
+                                            message: diagnostic.message.clone(),
+                                            location: diagnostic
+                                                .range
+                                                .map(|range| location(manifest, range)),
+                                        })
+                                        .collect(),
+                                }
+                            }
+                            ResolutionEvent::Package { path, name } => {
+                                owned::ResolutionEvent::Package {
+                                    path: path.clone(),
+                                    name: name.clone(),
+                                }
+                            }
+                            ResolutionEvent::Condition(value) => {
+                                owned::ResolutionEvent::Condition(value.clone())
+                            }
+                            ResolutionEvent::Target(path) => {
+                                owned::ResolutionEvent::Target(path.clone())
+                            }
+                            ResolutionEvent::Mapping(value) => {
+                                owned::ResolutionEvent::Mapping(mapping(value))
+                            }
+                            ResolutionEvent::Failure(error) => {
+                                owned::ResolutionEvent::Failure(format!("{error:?}"))
+                            }
+                        })
+                        .collect(),
+                }
+            })
+            .collect(),
+    };
+    ModuleFacts {
+        commands: facts
+            .commands
+            .iter()
+            .map(|command| biome_project_analysis::scripts::SourceCommand {
+                location: location(file, command.range),
+                method: command.method.clone(),
+                command: command.command.clone(),
+                args: command.args.clone(),
+                cwd: command.cwd.clone(),
+                unsupported: command.unsupported,
+            })
+            .collect(),
+        collected: Some(collected),
+        ..Default::default()
+    }

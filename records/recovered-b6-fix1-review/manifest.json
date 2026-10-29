@@ -1,0 +1,72 @@
+{
+  "purpose": "Recovery of exact source retained in the completed B6 fix-round1 review context; no new review or project execution",
+  "original_repository": "/workspace/my-biome",
+  "stage": "final-e2dcace",
+  "commit": "e2dcaceab06c4870fa5e9c9eeef13e31db8c8aee",
+  "fix_base": "b07d051a6260282912d5cf0ada1369d2ba1a182f",
+  "provenance": "Original read-only review tool output retained in this agent's conversation; recovered on 2026-10-29",
+  "files": [
+    {
+      "original_path": "crates/biome_project_analysis/src/lib.rs",
+      "artifact_path": "final-e2dcace/full/crates/biome_project_analysis/src/lib.rs",
+      "completeness": "full",
+      "role": "auxiliary unchanged-at-fix source retained in review context",
+      "sha256": "80541167fd0c29e7ebd9b7f9bdf515c2f41ca50b7ed27080246e18e749835559",
+      "matches_original_frozen_manifest": true
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/normalize.rs",
+      "artifact_path": "final-e2dcace/full/crates/biome_project_analysis/src/normalize.rs",
+      "completeness": "full",
+      "role": "auxiliary unchanged-at-fix source retained in review context",
+      "sha256": "5769a65f971a1dc7109555fda0ab17fca8a9f9004c8d75e48edcbba1e70dc748",
+      "matches_original_frozen_manifest": true
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/catalogs.rs",
+      "artifact_path": "final-e2dcace/full/crates/biome_project_analysis/src/catalogs.rs",
+      "completeness": "full",
+      "sha256": "f2e72b6b60622819e611e37e8f9008a0bee8f2f0343af15b1289ae6d77917a3e",
+      "matches_original_frozen_manifest": true
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/inventory.rs",
+      "artifact_path": "final-e2dcace/full/crates/biome_project_analysis/src/inventory.rs",
+      "completeness": "full",
+      "sha256": "65194e35b23d918496b8e953c95e866ff980fb583ff06102d5a8dd9d6a985f2b",
+      "matches_original_frozen_manifest": true
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis/b6.tests.rs",
+      "artifact_path": "final-e2dcace/full/crates/biome_service/src/project_analysis/b6.tests.rs",
+      "completeness": "full",
+      "sha256": "371094017bd08561c7a1e93023ccc229933f31e4bb76aa13e75a3ee0464eee77",
+      "matches_original_frozen_manifest": true
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial",
+      "expected_original_full_sha256": "eab578c1e86e144da42f310fa857123fa1217a77345d21ad266c87c79927f9c1",
+      "original_total_lines": 1571,
+      "missing_original_lines": [872, 878],
+      "missing_reason": "Original whole-file output truncated the beginning of the root WorkspaceAnalysisConfiguration constructor; no inferred replacement was written",
+      "segments": [
+        {
+          "artifact_path": "final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.lines-1-871",
+          "original_first_line": 1,
+          "original_last_line": 871,
+          "line_count": 871,
+          "sha256": "827830a5c7722225fc3ce7d7473c586b16f559bd964d46bdd1dca8bcc9c9205f"
+        },
+        {
+          "artifact_path": "final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.tail-from-ignore_dependencies",
+          "original_first_line": 879,
+          "original_last_line": 1571,
+          "line_count": 693,
+          "sha256": "62dc9b5aad20dc5f0fea4a6bfd0c22b48ae63466b43c6cc7db2afd702378b4e7",
+          "line_mapping_evidence": "Original line1108 load_yaml is recovered tail line230; original line1242 retain_catalogs is recovered tail line364. Both imply original tail start879."
+        }
+      ]
+    }
+  ]
+}

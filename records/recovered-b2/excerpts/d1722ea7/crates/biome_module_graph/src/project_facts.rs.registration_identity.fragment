@@ -1,0 +1,50 @@
+fn registration_identity(
+    expression: &AnyJsExpression,
+    model: &SemanticModel,
+    path: &Utf8Path,
+) -> Option<ProjectDeclarationId> {
+    if let Some(reference) = expression.as_js_reference_identifier() {
+        let mut binding = model.binding(&reference)?;
+        let mut seen = std::collections::BTreeSet::new();
+        while seen.insert(binding.range()) && binding.all_writes().next().is_none() {
+            let Some(next) = initializer(&binding)
+                .and_then(|expression| expression.as_js_reference_identifier())
+                .and_then(|reference| model.binding(&reference))
+            else {
+                break;
+            };
+            binding = next;
+        }
+        return Some(identity(
+            path,
+            binding.range(),
+            ProjectSymbolNamespace::Value,
+        ));
+    }
+    if expression.syntax().kind() != JsSyntaxKind::JS_THIS_EXPRESSION {
+        return None;
+    }
+    let mut static_block = false;
+    for ancestor in expression.syntax().ancestors().skip(1) {
+        if biome_js_syntax::AnyJsFunction::can_cast(ancestor.kind())
+            || matches!(
+                ancestor.kind(),
+                JsSyntaxKind::JS_METHOD_CLASS_MEMBER | JsSyntaxKind::JS_METHOD_OBJECT_MEMBER
+            )
+        {
+            return None;
+        }
+        static_block |=
+            ancestor.kind() == JsSyntaxKind::JS_STATIC_INITIALIZATION_BLOCK_CLASS_MEMBER;
+        if let Some(class) = biome_js_syntax::AnyJsClass::cast_ref(&ancestor) {
+            return static_block.then(|| {
+                identity(
+                    path,
+                    class.id().map_or_else(|| class.range(), |id| id.range()),
+                    ProjectSymbolNamespace::Value,
+                )
+            });
+        }
+    }
+    None
+}

@@ -1,0 +1,163 @@
+#[test]
+fn namespace_escape_is_not_definite_member_consumption() {
+    let (_, result) = run(
+        &[
+            ("index.ts", "import * as NS from './lib'; consume(NS);"),
+            ("lib.ts", "export const used = 1;"),
+        ],
+        Default::default(),
+    );
+    assert!(result.exports.consumed.is_empty());
+    assert!(!result.exports.uncertainty.is_empty());
+}
+#[test]
+fn nested_namespace_selection_retains_explicit_uncertainty() {
+    use biome_project_analysis::coverage::Coverage;
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import * as Outer from './barrel'; Outer.NS.used; import './control';",
+            ),
+            ("barrel.ts", "export * as NS from './lib';"),
+            ("lib.ts", "export const used = 1; export const unused = 2;"),
+            ("control.ts", "export const control = 1;"),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("control.ts", "control", IssueKind::Exports)])
+    );
+    assert!(matches!(result.coverage, Coverage::Incomplete(_)));
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import * as NS from './barrel'; NS[key]; import './control';",
+            ),
+            ("barrel.ts", "export * as Nested from './lib';"),
+            ("lib.ts", "export const used = 1;"),
+            ("control.ts", "export const control = 1;"),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("control.ts", "control", IssueKind::Exports)])
+    );
+}
+#[test]
+fn uncertain_registry_retains_only_the_affected_class() {
+    use biome_project_analysis::coverage::Coverage;
+    for registration in [
+        "declare const registry: CustomElementRegistry; registry.define('my-card', MyCard);",
+        "const define = customElements.define.bind(customElements); define('my-card', MyCard);",
+        "declare const registry: CustomElementRegistry; const define = registry.define.bind(registry); define('my-card', MyCard);",
+    ] {
+        let source = format!("export class MyCard {{}} export class Control {{}} {registration}");
+        let (_, result) = run(
+            &[
+                ("index.ts", "import './registry';"),
+                ("registry.ts", &source),
+            ],
+            Default::default(),
+        );
+        assert_eq!(
+            symbols(&result),
+            expected(&[("registry.ts", "Control", IssueKind::Exports)])
+        );
+        assert!(result.exports.consumed.is_empty());
+        assert!(!result.exports.uncertainty.is_empty());
+        assert!(matches!(result.coverage, Coverage::Incomplete(_)));
+        let (_, result) = run(
+            &[("index.ts", "export {};"), ("registry.ts", &source)],
+            Default::default(),
+        );
+        assert!(result.exports.uncertainty.is_empty());
+        assert!(symbols(&result).is_empty());
+        assert_eq!(
+            result
+                .issues
+                .iter()
+                .filter(|issue| issue.kind == IssueKind::Files)
+                .count(),
+            1
+        );
+    }
+}
+#[test]
+fn exported_arrow_signature_references_keep_types() {
+    let (_, result) = run(
+        &[
+            ("index.ts", "import { api } from './lib';"),
+            (
+                "lib.ts",
+                "export interface Input {} export interface Output {} export interface Body {} export const api = (input: Input): Output => { let body: Body; return input; };",
+            ),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("lib.ts", "Body", IssueKind::Types)])
+    );
+}
+#[test]
+fn registry_noop_proof_rejects_executable_or_mutable_shapes() {
+    for setup in [
+        "const registry = {define(value = sideEffect()) {}};",
+        "const registry = {define({value}) {}};",
+        "const registry = {define() {void external;}};",
+        "const registry = {define() {}, define: customElements.define.bind(customElements)};",
+        "const registry = {define() {}, ...unknown};",
+        "const fake = {define() {}}; const host = {customElements: fake, customElements: window.customElements}; const registry = host.customElements;",
+        "const registry = {get define() {return customElements.define.bind(customElements)}};",
+        "const registry = {define() {}}; registry.define = customElements.define.bind(customElements);",
+        "const registry = {define() {}}; consume(registry);",
+        "let registry = customElements; if(flag) { registry = {define() {}}; }",
+        "const fake = {define() {}}; let registry = customElements; function change() {registry = fake;}",
+    ] {
+        let source = format!(
+            "export class MyCard {{}} export class Control {{}} {setup} registry.define('my-card', MyCard);"
+        );
+        let (_, result) = run(
+            &[
+                ("index.ts", "import './registry';"),
+                ("registry.ts", &source),
+            ],
+            Default::default(),
+        );
+        assert_eq!(
+            symbols(&result),
+            expected(&[("registry.ts", "Control", IssueKind::Exports)]),
+            "{setup}"
+        );
+        assert!(!result.exports.uncertainty.is_empty(), "{setup}");
+    }
+}
+#[test]
+fn unknown_registered_class_identity_is_not_an_empty_effect() {
+    use biome_project_analysis::coverage::TargetDomain;
+    let source = "export class MyCard {} export class OtherCard {} export class Control {} customElements.define('my-card', flag ? MyCard : OtherCard);";
+    let (_, result) = run(
+        &[
+            ("index.ts", "import './registry';"),
+            ("registry.ts", source),
+        ],
+        Default::default(),
+    );
+    assert!(symbols(&result).is_empty());
+    assert!(
+        result
+            .exports
+            .gaps
+            .iter()
+            .any(|gap| gap.domain == TargetDomain::Unbounded)
+    );
+    let (_, result) = run(
+        &[("index.ts", "export {};"), ("registry.ts", source)],
+        Default::default(),
+    );
+    assert!(result.exports.gaps.is_empty());
+}

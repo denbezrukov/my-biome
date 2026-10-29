@@ -1,0 +1,32 @@
+        let (fresh_service, fresh_project) = crate::test_utils::setup_workspace_and_open_project(
+            MemoryFileSystem::from_files(fs.files.0.clone()),
+            "/project",
+        );
+        let fresh = fresh_service
+            .build_project_snapshot(fresh_project, &request)
+            .unwrap();
+        assert_ne!(warm.revision, fresh.revision);
+        assert_eq!(normalize_snapshot(&warm), normalize_snapshot(&fresh));
+        let result = analyze(&warm, &Default::default());
+        assert_eq!(
+            normalize_result(&result),
+            normalize_result(&analyze(&fresh, &Default::default()))
+        );
+        let mut shuffled = (*warm).clone();
+        for module in shuffled
+            .modules
+            .values_mut()
+            .filter_map(|module| module.collected.as_mut())
+        {
+            module.declarations.reverse();
+            module.members.reverse();
+            module.merges.reverse();
+            module.exports.reverse();
+            module.uses.reverse();
+        }
+        assert_eq!(
+            normalize_result(&result),
+            normalize_result(&analyze(&shuffled, &Default::default()))
+        );
+    }
+}

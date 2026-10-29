@@ -1,0 +1,65 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_project_analysis/src/exports.rs
+@@
+-        ResolvedExport, UnknownKind, UseKind, UseRole,
++        ResolvedExport, UnknownKind, Use, UseKind, UseRole,
+@@
+-                                    for usage in module.uses.iter().filter(|usage| {
+-                                        usage.declaration == binding.declaration
+-                                            && !usage.write
+-                                            && usage.role != UseRole::Export
+-                                    }) {
+-                                        if let Some(access) = &usage.namespace_access {
++                                    for usage in module.uses.iter().filter(|usage| {
++                                        member_use_of(module, usage, binding.declaration)
++                                    }) {
++                                        if let Some(access) = member_access(usage) {
+@@
+ pub(crate) fn surface<'a>(
+@@
+ }
++
++fn member_access(usage: &Use) -> Option<&NamespaceAccess> {
++    usage.namespace_access.as_ref().or_else(|| usage.member_path.first())
++}
++
++fn member_use_of(module: &CollectedModule, usage: &Use, binding: DeclarationId) -> bool {
++    if usage.write || usage.role == UseRole::Export {
++        return false;
++    }
++    if usage.declaration == binding {
++        return true;
++    }
++    if member_access(usage).is_none() {
++        return false;
++    }
++    let mut id = usage.declaration;
++    let mut seen = HashSet::new();
++    while seen.insert(id.location) {
++        let Some(alias) = module.aliases.iter().find(|alias| alias.declaration.location == id.location) else {
++            return false;
++        };
++        id = alias.target;
++        if id == binding {
++            return true;
++        }
++    }
++    false
++}
+@@
+         let has_selection = module.uses.iter().any(|usage| {
+-            usage.declaration.location == binding.location
+-                && matches!(usage.namespace_access, Some(NamespaceAccess::Known(_)))
++            member_use_of(module, usage, binding)
++                && matches!(member_access(usage), Some(NamespaceAccess::Known(_)))
+         });
+         for usage in module.uses.iter().filter(|usage| {
+-            usage.declaration == binding && !usage.write && usage.role != UseRole::Export
++            member_use_of(module, usage, binding)
+@@
+-            let access = usage
+-                .namespace_access
+-                .clone()
++            let access = member_access(usage)
++                .cloned()
+*** End Patch

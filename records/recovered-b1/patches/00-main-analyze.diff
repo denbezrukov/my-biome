@@ -1,0 +1,150 @@
+diff --git a/crates/biome_project_analysis/src/lib.rs b/crates/biome_project_analysis/src/lib.rs
+index 1fb0a389720..a321734417d 100644
+--- a/crates/biome_project_analysis/src/lib.rs
++++ b/crates/biome_project_analysis/src/lib.rs
+@@ -6,4 +6,145 @@ pub mod inventory;
+ pub mod model;
+ pub mod normalize;
+ pub mod options;
++pub mod reachability;
+ pub mod result;
++
++use coverage::CapabilityStatus;
++use facts::ParseStatus;
++use model::{AnalysisSnapshot, Location};
++use options::{AnalysisOptions, ReportSelection};
++use result::{
++    AnalysisContext, Evidence, EvidenceId, IssueKind, ProjectAnalysisResult, ProjectIssue,
++};
++
++/// Reports proven unused files from immutable inputs; other issue capabilities remain unsupported.
++pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> ProjectAnalysisResult {
++    let mut reachability = reachability::compute_reachability(snapshot, options);
++    let mut issues = Vec::new();
++    if let Some(severity) = options.severity(IssueKind::Files) {
++        for record in &snapshot.inventory.files {
++            if !reachability
++                .membership
++                .reporting_candidates
++                .contains(&record.file)
++                || reachability.definite_files.contains(&record.file)
++                || reachability.possible_files.contains(&record.file)
++                || matches!(snapshot.coverage, coverage::Coverage::Failed(_))
++            {
++                continue;
++            }
++            let ambient = options.compatibility_profile == "knip-6.43.0-native-core"
++                && snapshot
++                    .modules
++                    .get(&record.file)
++                    .and_then(|module| module.collected.as_ref())
++                    .is_some_and(|module| {
++                        module.parse_status == ParseStatus::Valid
++                            && module.declaration_file.is_some()
++                            && !module.has_static_exports
++                    });
++            if ambient {
++                continue;
++            }
++            let path = reachability::path(snapshot, record.file);
++            if reachability::suppressed(snapshot, options, record.file, true) {
++                continue;
++            }
++            let location = Location {
++                file: record.file,
++                range: Default::default(),
++            };
++            let id = EvidenceId(format!("unreachable:{path}"));
++            reachability.evidence.nodes.insert(id.clone(), Evidence {
++                producer: "file reachability".into(),
++                location: Some(location),
++                workspace: record.workspace,
++                explanation: "No entry, program seed, definite edge or possible reference reaches this candidate".into(),
++                related: Vec::new(),
++            });
++            issues.push(ProjectIssue {
++                kind: IssueKind::Files,
++                severity,
++                identity: format!("files:{path}"),
++                symbol: None,
++                location,
++                workspace: record.workspace,
++                related_evidence: vec![id],
++                eligible_fixes: Vec::new(),
++            });
++        }
++    }
++    issues.sort_by(|left, right| left.identity.cmp(&right.identity));
++    ProjectAnalysisResult {
++        revision: snapshot.revision.clone(),
++        context: AnalysisContext {
++            mode: options.mode,
++            profile_id: options.compatibility_profile.clone(),
++            semantic_options_digest: reachability::hash(options),
++            scope: snapshot
++                .inventory
++                .analysis_scope
++                .clone()
++                .unwrap_or_else(|| {
++                    snapshot
++                        .inventory
++                        .workspaces
++                        .iter()
++                        .map(|workspace| workspace.workspace)
++                        .collect()
++                }),
++        },
++        sources: snapshot.sources.clone(),
++        workspaces: snapshot
++            .inventory
++            .workspaces
++            .iter()
++            .map(|workspace| (workspace.workspace, workspace.clone()))
++            .collect(),
++        coverage: reachability.coverage,
++        capabilities: IssueKind::ALL
++            .into_iter()
++            .map(|kind| {
++                (
++                    kind,
++                    if kind == IssueKind::Files {
++                        CapabilityStatus::Supported
++                    } else {
++                        CapabilityStatus::Unsupported
++                    },
++                )
++            })
++            .collect(),
++        issues,
++        hints: Vec::new(),
++        evidence: reachability.evidence,
++        membership: reachability.membership,
++        gaps: reachability.gaps,
++    }
++}
++
++/// Report selection retains the complete analysis context and uncertainty evidence.
++pub fn select_report(
++    result: &ProjectAnalysisResult,
++    selection: &ReportSelection,
++) -> ProjectAnalysisResult {
++    let mut selected = result.clone();
++    selected.issues.retain(|issue| {
++        (selection.workspaces.is_empty() || selection.workspaces.contains(&issue.workspace))
++            && (selection.issues.is_empty() || selection.issues.contains(&issue.kind))
++            && (selection.paths.is_empty()
++                || result
++                    .sources
++                    .get(&issue.location.file)
++                    .is_some_and(|source| {
++                        selection
++                            .paths
++                            .iter()
++                            .any(|path| source.logical_path.starts_with(path))
++                    }))
++    });
++    selected.hints.retain(|hint| {
++        selection.workspaces.is_empty() || selection.workspaces.contains(&hint.workspace)
++    });
++    selected
++}

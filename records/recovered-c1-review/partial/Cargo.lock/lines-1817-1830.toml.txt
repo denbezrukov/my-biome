@@ -1,0 +1,14 @@
+[[package]]
+name = "biome_project_analysis"
+version = "0.7.0"
+dependencies = [
+ "biome_diagnostics",
+ "biome_glob",
+ "biome_text_size",
+ "camino",
+ "regex",
+ "schemars",
+ "serde",
+ "serde_json",
+ "sha2",
+]

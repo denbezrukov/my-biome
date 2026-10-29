@@ -1,0 +1,590 @@
+fn dependencies_peer_retention_is_transitive_and_not_direct_optional_credit() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"dependencies":{"host":"*","peer":"*","leaf":"*"},"peerDependencies":{"optional":"*"},"peerDependenciesMeta":{"optional":{"optional":true}}}"#,
+            ),
+            ("index.ts", "import 'host';"),
+            (
+                "node_modules/host/package.json",
+                r#"{"name":"host","main":"index.js","peerDependencies":{"peer":"*","optional":"*"}}"#,
+            ),
+            ("node_modules/host/index.js", "export {};"),
+            (
+                "node_modules/peer/package.json",
+                r#"{"name":"peer","main":"index.js","peerDependencies":{"leaf":"*"}}"#,
+            ),
+            ("node_modules/peer/index.js", "export {};"),
+            (
+                "node_modules/leaf/package.json",
+                r#"{"name":"leaf","main":"index.js","peerDependencies":{"host":"*"}}"#,
+            ),
+            ("node_modules/leaf/index.js", "export {};"),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty(), "{:?}", packages(&result));
+    let optional = result
+        .dependencies
+        .declarations
+        .iter()
+        .find(|d| d.declaration.package == "optional")
+        .unwrap();
+    assert!(optional.used.is_empty());
+    assert!(!optional.retained.is_empty());
+}
+#[test]
+fn dependencies_strict_internal_type_import_credits_direct_dev() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"workspaces":["packages/*"],"devDependencies":{"child":"workspace:*"}}"#,
+            ),
+            ("index.ts", "import type { Shape } from 'child';"),
+            (
+                "packages/child/package.json",
+                r#"{"name":"child","private":true,"types":"index.d.ts"}"#,
+            ),
+            ("packages/child/index.d.ts", "export interface Shape {}"),
+            (
+                "node_modules/child/package.json",
+                r#"{"name":"child","private":true,"types":"../../packages/child/index.d.ts"}"#,
+            ),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Strict,
+    );
+    assert!(packages(&result).is_empty());
+    assert!(
+        result
+            .dependencies
+            .declarations
+            .iter()
+            .any(|d| d.declaration.package == "child" && !d.used.is_empty())
+    );
+}
+#[test]
+fn dependencies_public_type_metadata_entry_variants() {
+    for field in [
+        json!({"main":"dist/index.js"}),
+        json!({"typings":"dist/index.d.ts"}),
+        json!({"exports":{".":{"types":"./dist/index.d.ts","default":"./ignored.js"}}}),
+        json!({"types":"missing.d.ts","publishConfig":{"types":"dist/index.d.ts"}}),
+    ] {
+        let mut manifest = json!({"name":"public","private":false});
+        manifest
+            .as_object_mut()
+            .unwrap()
+            .extend(field.as_object().unwrap().clone());
+        let manifest = manifest.to_string();
+        let (_, result) = run(
+            &[
+                ("package.json", &manifest),
+                ("dist/index.d.ts", "export type {Shape} from 'external';"),
+                ("ignored.js", "export {};"),
+            ],
+            json!({"entry":[],"project":[]}),
+            AnalysisMode::Strict,
+        );
+        assert_eq!(
+            packages(&result),
+            vec![(
+                "unlisted".into(),
+                "dist/index.d.ts".into(),
+                "external".into()
+            )],
+            "{field}"
+        );
+        let usage = result
+            .dependencies
+            .uses
+            .iter()
+            .find(|u| {
+                matches!(
+                    u.producer,
+                    biome_project_analysis::dependencies::DependencyProducer::PublicOutput { .. }
+                )
+            })
+            .unwrap();
+        assert_eq!(u32::from(usage.location.range.start()), 25);
+        assert_eq!(
+            usage.resolutions[0].context.syntax,
+            biome_project_analysis::facts::ImportSyntax::Reexport
+        );
+    }
+}
+#[test]
+fn dependencies_public_output_uncertainty_remains_visible() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":false,"publishConfig":{"types":"dist/index.d.ts"},"dependencies":{"uncertain":"*"}}"#,
+            ),
+            ("dist/index.d.ts", "export type T = import(name).Shape;"),
+        ],
+        json!({"entry":[],"project":["**/*.ts!"]}),
+        AnalysisMode::Strict,
+    );
+    assert!(!result.coverage.gaps().is_empty());
+    assert!(
+        !packages(&result)
+            .iter()
+            .any(|(_, _, name)| name == "uncertain")
+    );
+}
+#[test]
+fn dependencies_source_command_activation_retains_provider_identity() {
+    for (source, definite, possible) in [
+        ("export {};", false, false),
+        ("import './command.js';", true, false),
+        ("import(flag ? './command.js' : './other.js');", false, true),
+    ] {
+        let (snapshot, result) = run(
+            &[
+                (
+                    "package.json",
+                    r#"{"private":true,"dependencies":{"alias":"npm:actual-cli@1"}}"#,
+                ),
+                ("index.js", source),
+                (
+                    "command.js",
+                    "import {exec} from 'node:child_process'; exec('tool');",
+                ),
+                ("other.js", "export {};"),
+                (
+                    "node_modules/alias/package.json",
+                    r#"{"name":"actual-cli","bin":{"tool":"cli.js"}}"#,
+                ),
+                ("node_modules/alias/cli.js", "export {};"),
+            ],
+            json!({"entry":["index.js!"],"project":["*.js!"]}),
+            AnalysisMode::Default,
+        );
+        assert_eq!(
+            packages(&result)
+                .iter()
+                .any(|(kind, _, _)| kind == "dependencies"),
+            !definite && !possible
+        );
+        let declaration = &result.dependencies.declarations[0];
+        assert_eq!(!declaration.used.is_empty(), definite);
+        if possible {
+            assert!(!declaration.affecting_gaps.is_empty());
+        }
+        let uses: Vec<_> = result
+            .dependencies
+            .uses
+            .iter()
+            .filter(|u| u.package == "alias")
+            .collect();
+        assert_eq!(uses.is_empty(), !definite && !possible);
+        if let Some(usage) = uses.first() {
+            assert!(matches!(
+                usage.producer,
+                biome_project_analysis::dependencies::DependencyProducer::Script(
+                    biome_project_analysis::scripts::ScriptProducer::Source { .. }
+                )
+            ));
+            let provider = usage.binary_providers.iter().find(|p| p.available).unwrap();
+            assert_eq!(provider.requested_package.as_deref(), Some("alias"));
+            assert_eq!(provider.package_name.as_deref(), Some("actual-cli"));
+            assert_eq!(
+                snapshot.sources[&provider.manifest.unwrap()].logical_path,
+                "node_modules/alias/package.json"
+            );
+            assert!(!result.coverage.gaps().is_empty());
+        }
+    }
+}
+#[test]
+fn dependencies_runtime_use_credits_installed_definitely_typed_companion() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"dependencies":{"untyped":"*"},"devDependencies":{"@types/untyped":"*"}}"#,
+            ),
+            ("index.ts", "import 'untyped';"),
+            (
+                "node_modules/untyped/package.json",
+                r#"{"name":"untyped","main":"index.js"}"#,
+            ),
+            ("node_modules/untyped/index.js", "export {};"),
+            (
+                "node_modules/@types/untyped/package.json",
+                r#"{"name":"@types/untyped","types":"index.d.ts"}"#,
+            ),
+            (
+                "node_modules/@types/untyped/index.d.ts",
+                "export interface T {}",
+            ),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty(), "{:?}", packages(&result));
+}
+
+#[test]
+fn dependencies_public_resolution_uncertainty_is_not_hidden_by_author_mapping() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public","private":false,"publishConfig":{"types":"dist/index.d.ts"},"dependencies":{"other":"*"}}"#,
+            ),
+            (
+                "tsconfig.json",
+                r#"{"compilerOptions":{"paths":{"broken":["./src/shim.ts"]}}}"#,
+            ),
+            ("dist/index.d.ts", "export type {Shape} from 'broken';"),
+            ("src/shim.ts", "export interface Shape {}"),
+            (
+                "node_modules/broken/package.json",
+                r#"{"name":false,"types":"index.d.ts"}"#,
+            ),
+            (
+                "node_modules/broken/index.d.ts",
+                "export interface Shape {}",
+            ),
+        ],
+        json!({"entry":[],"project":["**/*.ts!"]}),
+        AnalysisMode::Strict,
+    );
+    assert!(!result.dependencies.gaps.is_empty());
+    assert!(
+        !packages(&result)
+            .iter()
+            .any(|(kind, _, _)| kind == "dependencies")
+    );
+}
+
+#[test]
+fn dependencies_public_exports_specific_target_masks_wildcard_output() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public","private":false,"exports":{"./feature/*":{"types":"./features/*.d.ts"},"./feature/special":{"types":"./alternate/special.d.ts"}}}"#,
+            ),
+            (
+                "features/special.d.ts",
+                "export type {Shape} from 'masked';",
+            ),
+            (
+                "features/visible.d.ts",
+                "export type {Shape} from 'visible';",
+            ),
+            (
+                "alternate/special.d.ts",
+                "export type {Shape} from 'selected';",
+            ),
+        ],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Strict,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![
+            (
+                "unlisted".into(),
+                "alternate/special.d.ts".into(),
+                "selected".into()
+            ),
+            (
+                "unlisted".into(),
+                "features/visible.d.ts".into(),
+                "visible".into()
+            )
+        ]
+    );
+}
+
+#[test]
+fn dependencies_manifest_entry_transitive_dependencies() {
+    for mode in [
+        AnalysisMode::Default,
+        AnalysisMode::Production,
+        AnalysisMode::Strict,
+    ] {
+        for manifest_root in [true, false] {
+            let manifest = if manifest_root {
+                r#"{"private":true,"types":"types.d.ts","dependencies":{"pkg":"*"}}"#
+            } else {
+                r#"{"private":true,"dependencies":{"pkg":"*"}}"#
+            };
+            let mut files = vec![
+                ("package.json", manifest),
+                ("types.d.ts", "import './provider'; export {};"),
+                ("provider.ts", "import 'pkg';"),
+                (
+                    "node_modules/pkg/package.json",
+                    r#"{"name":"pkg","main":"index.js"}"#,
+                ),
+                ("node_modules/pkg/index.js", "export {};"),
+            ];
+            if !manifest_root {
+                files.push(("tsconfig.json", r#"{"files":["types.d.ts"]}"#));
+            }
+            let (snapshot, result) = run(&files, json!({"entry":[],"project":[]}), mode);
+            assert!(packages(&result).is_empty(), "{mode:?} {manifest_root}");
+            assert!(!result.dependencies.declarations[0].used.is_empty());
+            let usage = result
+                .dependencies
+                .uses
+                .iter()
+                .find(|u| u.package == "pkg")
+                .unwrap();
+            assert_eq!(
+                snapshot.sources[&usage.location.file].logical_path,
+                "provider.ts"
+            );
+            assert!(usage.definite);
+        }
+    }
+}
+
+#[test]
+fn dependencies_resolved_peer_host_exception_is_not_missing_or_strict() {
+    for mode in [
+        AnalysisMode::Default,
+        AnalysisMode::Production,
+        AnalysisMode::Strict,
+    ] {
+        for installed in [false, true] {
+            let mut files = vec![
+                (
+                    "package.json",
+                    r#"{"private":true,"dependencies":{"host":"*"}}"#,
+                ),
+                ("index.ts", "import 'peer';"),
+                (
+                    "node_modules/host/package.json",
+                    r#"{"name":"host","main":"index.js","peerDependencies":{"peer":"*"}}"#,
+                ),
+                ("node_modules/host/index.js", "export {};"),
+            ];
+            if installed {
+                files.extend([
+                    (
+                        "node_modules/peer/package.json",
+                        r#"{"name":"peer","main":"index.js"}"#,
+                    ),
+                    ("node_modules/peer/index.js", "export {};"),
+                ]);
+            }
+            let (_, result) = run(
+                &files,
+                json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+                mode,
+            );
+            let unlisted = packages(&result)
+                .iter()
+                .any(|(kind, _, name)| kind == "unlisted" && name == "peer");
+            assert_eq!(
+                unlisted,
+                !installed || mode == AnalysisMode::Strict,
+                "{mode:?} installed={installed}"
+            );
+            assert!(
+                packages(&result)
+                    .iter()
+                    .any(|(kind, _, name)| kind == "dependencies" && name == "host")
+            );
+        }
+    }
+}
+
+#[test]
+fn dependencies_ordinary_type_only_can_use_declared_companion_without_installation() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"devDependencies":{"@types/legacy":"*"}}"#,
+            ),
+            ("index.ts", "import type {Shape} from 'legacy';"),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty(), "{:?}", packages(&result));
+}
+#[test]
+fn dependencies_runtime_and_ambient_type_exceptions() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"engines":{"custom-runtime":"*"},"devDependencies":{"@types/node":"*","@types/bun":"*","@types/jest":"*"}}"#,
+            ),
+            ("index.ts", "import 'custom-runtime'; import 'deno';"),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty());
+}
+#[test]
+fn dependencies_public_provider_types_versions_are_bundled_metadata() {
+    let (snapshot, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":false,"types":"public.d.ts","dependencies":{"@types/typed":"*"},"devDependencies":{"typed":"*"}}"#,
+            ),
+            ("public.d.ts", "export type {Shape} from 'typed';"),
+            (
+                "node_modules/typed/package.json",
+                r#"{"name":"typed","main":"index.js","typesVersions":{"*":{"*":["types/*"]}}}"#,
+            ),
+            ("node_modules/typed/index.js", "export {};"),
+        ],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Strict,
+    );
+    assert_eq!(snapshot.inventory.public_requirements[0].package, "typed");
+    assert!(packages(&result).is_empty());
+}
+
+#[test]
+fn dependencies_public_transitive_output_credits_required_peer() {
+    let (snapshot, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public","private":false,"types":"index.d.ts","peerDependencies":{"external":"*"}}"#,
+            ),
+            ("index.d.ts", "export type {Shape} from './nested.js';"),
+            (
+                "nested.d.ts",
+                "export type {Shape} from 'external'; export type {Shape as Again} from './index.js';",
+            ),
+        ],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Strict,
+    );
+    assert!(packages(&result).is_empty());
+    assert!(!result.dependencies.declarations[0].used.is_empty());
+    let usage = result
+        .dependencies
+        .uses
+        .iter()
+        .find(|u| u.package == "external")
+        .unwrap();
+    assert!(matches!(
+        usage.producer,
+        biome_project_analysis::dependencies::DependencyProducer::PublicOutput { .. }
+    ));
+    assert_eq!(
+        snapshot.sources[&usage.location.file].logical_path,
+        "nested.d.ts"
+    );
+}
+#[test]
+fn dependencies_missing_binary_has_manifest_evidence() {
+    let (_, result) = run(
+        &[(
+            "package.json",
+            r#"{"private":true,"scripts":{"start":"missing-command"}}"#,
+        )],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Default,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![(
+            "binaries".into(),
+            "package.json".into(),
+            "missing-command".into()
+        )]
+    );
+    assert!(!result.issues[0].related_evidence.is_empty());
+}
+
+#[test]
+fn dependencies_binary_report_suppression_preserves_provider_credit() {
+    for (config, expected) in [
+        (json!({"entry":[],"project":[]}), vec!["local-tool"]),
+        (
+            json!({"entry":[],"project":[],"ignoreGlobalBinaries":false}),
+            vec!["echo", "local-tool"],
+        ),
+        (
+            json!({"entry":[],"project":[],"ignoreBinaries":["local-tool"]}),
+            vec![],
+        ),
+    ] {
+        let (snapshot, result) = run(
+            &[(
+                "package.json",
+                r#"{"private":true,"scripts":{"start":"echo done; local-tool"}}"#,
+            )],
+            config,
+            AnalysisMode::Default,
+        );
+        let names: Vec<_> = result
+            .issues
+            .iter()
+            .filter(|i| i.kind == IssueKind::Binaries)
+            .map(|i| i.symbol.as_deref().unwrap())
+            .collect();
+        assert_eq!(names, expected);
+        let echo = snapshot
+            .inventory
+            .script_usage
+            .binaries
+            .iter()
+            .find(|b| b.binary == "echo")
+            .unwrap();
+        assert_eq!(
+            echo.report_suppression
+                .contains(&biome_project_analysis::scripts::BinaryReportSuppression::Global),
+            !expected.contains(&"echo")
+        );
+        assert!(!echo.optional);
+        let local = snapshot
+            .inventory
+            .script_usage
+            .binaries
+            .iter()
+            .find(|b| b.binary == "local-tool")
+            .unwrap();
+        assert_eq!(
+            local.report_suppression.contains(
+                &biome_project_analysis::scripts::BinaryReportSuppression::ExplicitIgnore
+            ),
+            expected.is_empty()
+        );
+        assert!(!result.coverage.gaps().is_empty());
+    }
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"scripts":{"start":"local-tool"},"dependencies":{"alias":"npm:actual@1"}}"#,
+            ),
+            (
+                "node_modules/alias/package.json",
+                r#"{"name":"actual","bin":{"local-tool":"index.js"}}"#,
+            ),
+            ("node_modules/alias/index.js", "export {};"),
+        ],
+        json!({"entry":[],"project":[],"ignoreBinaries":["local-tool"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty());
+    assert!(!result.dependencies.declarations[0].used.is_empty());
+    assert!(
+        result
+            .dependencies
+            .uses
+            .iter()
+            .any(|u| u.package == "alias")
+    );
+}
+

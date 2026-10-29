@@ -1,0 +1,41 @@
+#[test]
+fn member_membership_uncertainty_and_report_selection() {
+    use biome_project_analysis::{coverage::Coverage, options::ReportSelection, select_report};
+    let files = [
+        ("index.ts", "import './consumer';"),
+        (
+            "consumer.ts",
+            "import { Known, Unknown } from './lib'; Known.used; Unknown[key];",
+        ),
+        (
+            "lib.ts",
+            "export namespace Known { export const used=1; export const unused=2; } export namespace Unknown { export const used=1; export const unused=2; }",
+        ),
+    ];
+    let (_, result) = run_config(
+        &files,
+        json!({"entry":["index.ts"], "project":["**/*.ts"], "ignore":["consumer.ts"]}),
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("lib.ts", "Known.unused", IssueKind::NamespaceMembers)])
+    );
+    assert!(matches!(result.coverage, Coverage::Incomplete(_)));
+    assert!(!result.members.uncertainty.is_empty());
+    assert!(result.members.used.iter().all(|id| {
+        !result
+            .members
+            .uncertainty
+            .iter()
+            .any(|unknown| unknown.parent == *id)
+    }));
+    let selected = select_report(
+        &result,
+        &ReportSelection {
+            paths: vec!["lib.ts".into()],
+            ..Default::default()
+        },
+    );
+    assert_eq!(selected.members, result.members);
+    assert_eq!(selected.coverage, result.coverage);

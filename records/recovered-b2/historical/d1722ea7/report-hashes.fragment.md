@@ -1,0 +1,12 @@
+| `crates/biome_project_analysis/tests/fixtures/known_bracket.json` | 9260 | `c8ad1aa0dbc2aa31865be2aa186133ef209ad8d95f897164049e2255504bf1b6` |
+| `crates/biome_project_analysis/tests/fixtures/known_dot.expected.json` | 20 | `ad9f30423c31ca82e85882a3599fdbe4607b88575478fe818bc31e7b0a36ab2d` |
+| `crates/biome_project_analysis/tests/fixtures/known_dot.json` | 9257 | `efbe321c34e586ee042bcf556d617bd686481155c51c1b28b38b50399134c357` |
+| `crates/biome_service/src/project_analysis.rs` | 2683 | `653bf4b385e0e1ab84fdae751d82cf2d3d55f00844225d3c07b778fc470258af` |
+| `crates/biome_service/src/project_analysis/exports.tests.rs` | 45547 | `deffbbe2833393375b80723f89fb18356ae16be1a63dc59610e4357be06d8c8e` |
+| `crates/biome_service/src/project_analysis/fixtures/README.md` | 5085 | `c166f3d3be3692923ed9ce7205dc40a86fb7c6636b6c830ce57cf0a5782e36df` |
+| `crates/biome_service/src/project_analysis/fixtures/exports-oracle.json` | 65060 | `53806302caa1196731c18df88a9ac66e0bc94d26448364fe08c55d4bafb231fc` |
+| `crates/biome_service/src/project_analysis/owned_facts.rs` | 24109 | `9bb527fd0066a911c2de13c9017694b8d83323a36902ab6c294dc9412f56675f` |
+| `crates/biome_service/src/project_analysis/reachability.tests.rs` | 29574 | `117976b9947630f6fd81fb9c0776823cee2ad7ad2383a56aa5cb7d7904ef01db` |
+| `crates/biome_service/src/project_analysis/snapshot.rs` | 22739 | `583beb4f91a02bd772fa1414bb13c11748adf0681097dd03c5a6d421f6f25d7b` |
+| `xtask/project_analysis/README.md` | 5646 | `97e2449be44e1356b1a30fe3c043dd208230b82bec1077c81059176e59af0953` |
+| `xtask/project_analysis/compatibility.json` | 46024 | `fb6f025d62a85fc6025ed1969f01698bfbeb1d0f4e1d99e9ffcca705f65f802c` |

@@ -1,0 +1,24 @@
+    fn select(
+        &mut self,
+        file: FileId,
+        name: &str,
+        namespace: SymbolNamespace,
+        context: &ResolutionContext,
+        location: Location,
+        reason: &str,
+    ) {
+        if let Some(surface) = surface(self.snapshot, file, namespace, context) {
+            if let Some(slot) = surface.slots.iter().find(|slot| slot.name == name) {
+                self.consume(slot, location, false, reason);
+                if matches!(reason, "known namespace member" | "inline import type")
+                    && let Some(target) = slot.namespace_target
+                {
+                    self.unknown_namespace(target, context, location);
+                }
+            } else if !surface.complete {
+                self.unknown_namespace(file, context, location);
+            }
+        } else {
+            self.unknown_namespace(file, context, location);
+        }
+    }

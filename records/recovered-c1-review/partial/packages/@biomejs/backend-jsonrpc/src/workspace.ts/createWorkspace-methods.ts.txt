@@ -1,0 +1,6 @@
+		pullProjectDiagnostics(params) {
+			return transport.request("biome/pull_project_diagnostics", params);
+		},
+		pullProjectAnalysisStates(params) {
+			return transport.request("biome/pull_project_analysis_states", params);
+		},

@@ -1,0 +1,81 @@
+diff --git a/crates/biome_project_analysis/src/scripts.rs b/crates/biome_project_analysis/src/scripts.rs
+index 3cf517617c3..0b207acd653 100644
+--- a/crates/biome_project_analysis/src/scripts.rs
++++ b/crates/biome_project_analysis/src/scripts.rs
+@@ -376,6 +376,7 @@ impl Extraction<'_> {
+         let mut invalid_command = false;
+         let mut redirect = false;
+         let mut stack = Vec::new();
++        let mut pipeline = false;
+         for token in tokens
+             .into_iter()
+             .chain(std::iter::once(Token::Operator(";".into())))
+@@ -394,7 +395,11 @@ impl Extraction<'_> {
+                 }
+                 Token::Operator(op) => {
+                     if !argv.is_empty() && !invalid_command {
+-                        self.command(&mut context, &argv, depth);
++                        if pipeline || op == "|" {
++                            self.command(&mut context.clone(), &argv, depth);
++                        } else {
++                            self.command(&mut context, &argv, depth);
++                        }
+                     }
+                     argv.clear();
+                     invalid_command = false;
+@@ -403,14 +408,17 @@ impl Extraction<'_> {
+                         redirect = false;
+                     }
+                     if op == "(" {
+-                        stack.push(context.clone());
+-                    }
+-                    if op == ")" {
+-                        if let Some(previous) = stack.pop() {
++                        stack.push((context.clone(), pipeline));
++                        pipeline = false;
++                    } else if op == ")" {
++                        if let Some((previous, previous_pipeline)) = stack.pop() {
+                             context = previous;
++                            pipeline = previous_pipeline;
+                         } else {
+                             self.gap(&context, "Unmatched shell parenthesis");
+                         }
++                    } else {
++                        pipeline = op == "|";
+                     }
+                 }
+             }
+@@ -516,10 +524,11 @@ impl Extraction<'_> {
+                 continue;
+             }
+             if arg == "--" {
+-                if let Some(value) = args.get(i) {
++                if let Some(value) = args.get(i).filter(|value| value.as_str() != "-") {
+                     self.target(context, relative(value));
++                    return;
+                 }
+-                return;
++                break;
+             }
+             if matches!(
+                 arg.as_str(),
+@@ -549,6 +558,10 @@ impl Extraction<'_> {
+         }
+     }
+     fn manager(&mut self, context: &Context, manager: &str, args: &[String], depth: usize) {
++        if depth > 64 {
++            self.gap(context, "Static command limit");
++            return;
++        }
+         let mut context = context.clone();
+         let mut i = 0;
+         while let Some(arg) = args.get(i) {
+@@ -612,7 +625,7 @@ impl Extraction<'_> {
+             };
+             context.workspace = ws.workspace;
+             context.cwd = ws.path.clone();
+-            self.manager(&context, manager, &args[2..], depth);
++            self.manager(&context, manager, &args[2..], depth + 1);
+             return;
+         }
+         if matches!(manager, "npx" | "pnpx")

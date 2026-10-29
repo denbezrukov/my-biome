@@ -1,0 +1,14 @@
+fn literal_member_name(name: &biome_js_syntax::AnyJsObjectMemberName) -> Option<String> {
+    let token = name.as_js_literal_member_name()?.value().ok()?;
+    decoded_string(biome_js_syntax::inner_string_text(&token))
+}
+
+fn literal_string(expression: &AnyJsExpression) -> Option<String> {
+    match expression.as_static_value()? {
+        biome_js_syntax::static_value::StaticValue::String(token) => {
+            decoded_string(biome_js_syntax::inner_string_text(&token))
+        }
+        biome_js_syntax::static_value::StaticValue::EmptyString(_) => Some(String::new()),
+        _ => None,
+    }
+}

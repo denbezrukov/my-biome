@@ -1,0 +1,17 @@
+$ cargo test -p biome_service --features stable b7_review_
+available_before=2312814592
+   Compiling biome_project_analysis v0.7.0 (/workspace/my-biome/crates/biome_project_analysis)
+   Compiling biome_service v0.0.0 (/workspace/my-biome/crates/biome_service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 54.69s
+     Running unittests src/lib.rs (target/debug/deps/biome_service-35b4b4b7ad610172)
+
+running 4 tests
+test project_analysis::policy_tests::b7_review_untagged_imports_survive_positive_tag_selection ... ok
+test project_analysis::policy_tests::b7_review_independent_member_protection_leaves_stale_parent_hint ... ok
+test project_analysis::policy_tests::b7_review_import_tags_only_apply_configured_selectors ... ok
+test project_analysis::policy_tests::b7_review_named_reexport_combines_own_and_origin_tags ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 507 filtered out; finished in 1.17s
+
+
+exit=0

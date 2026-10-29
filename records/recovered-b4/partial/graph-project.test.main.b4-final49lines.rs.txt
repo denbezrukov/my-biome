@@ -1,0 +1,48 @@
+#[test]
+fn project_commands_retain_binding_argv_and_options() {
+    let f = facts(
+        "import {spawn as launch} from 'node:child_process'; launch('node', ['semi;colon.js'], {cwd:'nested'}); function shadow(launch){launch('node',['wrong.js']);}",
+        "/app/main.js",
+        ProjectParseStatus::Valid,
+    );
+    assert_eq!(f.commands.len(), 1);
+    assert_eq!(f.commands[0].command.as_deref(), Some("node"));
+    assert_eq!(f.commands[0].args.as_ref().unwrap(), &["semi;colon.js"]);
+    assert_eq!(f.commands[0].cwd.as_deref(), Some("nested"));
+    assert!(!f.commands[0].unsupported);
+}
+#[test]
+fn project_commands_unsupported_bun_is_a_gap() {
+    let f = facts(
+        "Bun.spawn(['node','app.js']);",
+        "/app/main.js",
+        ProjectParseStatus::Valid,
+    );
+    assert!(f.commands.iter().any(|c| c.unsupported));
+}
+
+#[test]
+fn project_commands_preserve_existing_dirname_executable_targets() {
+    let f = facts(
+        "import {spawn,execFile} from 'child_process'; import {join} from 'path'; spawn(join(__dirname,'spawn.js'),[]); execFile(join(__dirname,'file.js'),[]);",
+        "/app/main.js",
+        ProjectParseStatus::Valid,
+    );
+    let paths: Vec<_> = f
+        .imports
+        .named_iter()
+        .filter(|(_, i)| i.syntax == ProjectImportSyntax::NodeEntry)
+        .map(|(s, _)| s.to_string())
+        .collect();
+    assert_eq!(paths, ["./spawn.js", "./file.js"]);
+}
+
+#[test]
+fn project_commands_dirname_options_keep_uncertainty() {
+    let f = facts(
+        "import {fork} from 'child_process'; import {join} from 'path'; fork(join(__dirname,'child.js'),[],{execArgv:['--require','./setup.cjs']});",
+        "/app/main.js",
+        ProjectParseStatus::Valid,
+    );
+    assert!(f.commands.iter().any(|c| c.unsupported));
+}

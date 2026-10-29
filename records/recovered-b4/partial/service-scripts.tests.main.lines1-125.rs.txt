@@ -1,0 +1,125 @@
+use super::ProjectAnalysisRequest;
+use biome_fs::MemoryFileSystem;
+use biome_project_analysis::{
+    analyze,
+    model::AnalysisSnapshot,
+    options::{AnalysisMode, AnalysisOptions},
+    result::IssueKind,
+};
+use serde_json::json;
+use std::sync::Arc;
+
+fn snapshot(files: &[(&str, &str)], mode: AnalysisMode, entries: &[&str]) -> Arc<AnalysisSnapshot> {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"type":"module"}"#,
+    );
+    for (path, text) in files {
+        fs.insert(format!("/project/{path}").into(), *text);
+    }
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    service
+        .build_project_snapshot(
+            project,
+            &ProjectAnalysisRequest {
+                configuration: serde_json::from_value(
+                    json!({"entry":entries,"project":["**/*.js!", "**/*.cjs!"]}),
+                )
+                .unwrap(),
+                mode,
+                ..Default::default()
+            },
+        )
+        .unwrap()
+}
+
+#[test]
+fn source_exec_discovers_and_activates_node_target() {
+    let s = snapshot(
+        &[
+            (
+                "index.js",
+                "import { exec } from 'node:child_process'; exec('node hidden/app.js');",
+            ),
+            ("hidden/app.js", "export const value = 1;"),
+        ],
+        AnalysisMode::Default,
+        &["index.js"],
+    );
+    let result = analyze(&s, &AnalysisOptions::default());
+    let target = s
+        .sources
+        .iter()
+        .find(|(_, s)| s.logical_path == "hidden/app.js")
+        .unwrap()
+        .0;
+    assert!(
+        result
+            .membership
+            .files
+            .iter()
+            .any(|m| &m.file == target && m.definite)
+    );
+    assert!(
+        !result
+            .coverage
+            .gaps()
+            .iter()
+            .any(|g| format!("{:?}", g.reason).contains("shell entry"))
+    );
+}
+
+#[test]
+fn production_start_node_targets_and_explicit_overlap() {
+    for mode in [
+        AnalysisMode::Default,
+        AnalysisMode::Production,
+        AnalysisMode::Strict,
+    ] {
+        for explicit in [false, true] {
+            let entries: &[&str] = if explicit {
+                &["app.js!", "setup.cjs!"]
+            } else {
+                &[]
+            };
+            let s = snapshot(
+                &[
+                    (
+                        "package.json",
+                        r#"{"private":true,"scripts":{"start":"node --require ./setup.cjs app.js","build":"node build.js"}}"#,
+                    ),
+                    ("app.js", "export const app = 1;"),
+                    ("setup.cjs", "exports.setup = 1;"),
+                    ("build.js", "export const build = 1;"),
+                ],
+                mode,
+                entries,
+            );
+            let result = analyze(
+                &s,
+                &AnalysisOptions {
+                    mode,
+                    include_entry_exports: true,
+                    ..Default::default()
+                },
+            );
+            for path in ["app.js", "setup.cjs"] {
+                assert!(
+                    !result.issues.iter().any(|i| i.kind == IssueKind::Files
+                        && result.sources[&i.location.file].logical_path == path),
+                    "{mode:?} {path}"
+                );
+                assert_eq!(
+                    result.issues.iter().any(|i| i.kind == IssueKind::Exports
+                        && result.sources[&i.location.file].logical_path == path),
+                    explicit,
+                    "{mode:?} {path}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn node_child_process_binding() {

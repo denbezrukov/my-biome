@@ -1,0 +1,378 @@
+use super::ProjectAnalysisRequest;
+use biome_fs::MemoryFileSystem;
+use biome_project_analysis::{
+    analyze,
+    model::AnalysisSnapshot,
+    options::AnalysisOptions,
+    result::{IssueKind, ProjectAnalysisResult},
+};
+use serde_json::json;
+use std::sync::Arc;
+
+fn run(
+    files: &[(&str, &str)],
+    options: AnalysisOptions,
+) -> (Arc<AnalysisSnapshot>, ProjectAnalysisResult) {
+    run_config(
+        files,
+        json!({"entry":["index.ts!"],"project":["**/*.ts!","**/*.js!"]}),
+        options,
+    )
+}
+fn run_config(
+    files: &[(&str, &str)],
+    config: serde_json::Value,
+    options: AnalysisOptions,
+) -> (Arc<AnalysisSnapshot>, ProjectAnalysisResult) {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"type":"module"}"#,
+    );
+    for (path, text) in files {
+        fs.insert(format!("/project/{path}").into(), *text);
+    }
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let request = ProjectAnalysisRequest {
+        configuration: serde_json::from_value(config).unwrap(),
+        mode: options.mode,
+        ..Default::default()
+    };
+    let snapshot = service.build_project_snapshot(project, &request).unwrap();
+    let result = analyze(&snapshot, &options);
+    (snapshot, result)
+}
+fn symbols(result: &ProjectAnalysisResult) -> Vec<(String, String, IssueKind)> {
+    let mut values: Vec<_> = result
+        .issues
+        .iter()
+        .filter(|i| {
+            matches!(
+                i.kind,
+                IssueKind::NsExports
+                    | IssueKind::NsTypes
+                    | IssueKind::EnumMembers
+                    | IssueKind::NamespaceMembers
+                    | IssueKind::Duplicates
+            )
+        })
+        .map(|i| {
+            (
+                result.sources[&i.location.file].logical_path.to_string(),
+                i.symbol.clone().unwrap(),
+                i.kind,
+            )
+        })
+        .collect();
+    values.sort();
+    values
+}
+fn expected(items: &[(&str, &str, IssueKind)]) -> Vec<(String, String, IssueKind)> {
+    let mut values: Vec<_> = items
+        .iter()
+        .map(|(p, n, k)| (p.to_string(), n.to_string(), *k))
+        .collect();
+    values.sort();
+    values
+}
+
+#[test]
+fn namespace_controls_are_independent() {
+    for expression in [
+        "consume(NS)",
+        "const copy = {...NS}",
+        "const alias = NS",
+        "let alias; alias = NS",
+        "type Shape = typeof NS",
+    ] {
+        for value in [false, true] {
+            for types in [false, true] {
+                let mut options = AnalysisOptions::default();
+                if value {
+                    options.enabled_issues.insert(IssueKind::NsExports);
+                }
+                if types {
+                    options.enabled_issues.insert(IssueKind::NsTypes);
+                }
+                let entry = format!(
+                    "import * as NS from './lib'; function consume(v: unknown) {{}} {expression};"
+                );
+                let (_, result) = run(
+                    &[
+                        ("index.ts", &entry),
+                        ("lib.ts", "export const value=1; export interface Shape {}"),
+                    ],
+                    options,
+                );
+                let mut wanted = vec![];
+                if value {
+                    wanted.push(("lib.ts", "value", IssueKind::NsExports));
+                }
+                if types {
+                    wanted.push(("lib.ts", "Shape", IssueKind::NsTypes));
+                }
+                assert_eq!(
+                    symbols(&result),
+                    expected(&wanted),
+                    "{expression} {value} {types}"
+                );
+            }
+        }
+    }
+}
+#[test]
+fn source_retains_member_identity_and_paths() {
+    let (snapshot, _) = run(
+        &[
+            ("index.ts", "import { N } from './lib'; N.Nested.used;"),
+            (
+                "lib.ts",
+                "export namespace N { export namespace Nested { export const used=1; export const unused=2; } }",
+            ),
+        ],
+        Default::default(),
+    );
+    let module = snapshot
+        .modules
+        .iter()
+        .find(|(id, _)| snapshot.sources[id].logical_path == "lib.ts")
+        .unwrap()
+        .1
+        .collected
+        .as_ref()
+        .unwrap();
+    let facts = serde_json::to_value(module).unwrap();
+    assert!(
+        facts["members"].as_array().is_some_and(|members| members
+            .iter()
+            .any(|m| m["path"] == json!(["Nested", "unused"]))),
+        "Missing nested member inventory: {facts}"
+    );
+}
+#[test]
+fn typescript_member_identity() {
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import { N, E } from './lib'; N.Nested.used; E.used;",
+            ),
+            (
+                "lib.ts",
+                "export namespace N { export namespace Nested { export const used=1; export const unused=2; } } export enum E { used, unused }",
+            ),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[
+            ("lib.ts", "N.Nested.unused", IssueKind::NamespaceMembers),
+            ("lib.ts", "E.unused", IssueKind::EnumMembers)
+        ])
+    );
+}
+#[test]
+fn duplicate_export_form_exceptions() {
+    for (declaration, count) in [
+        ("export function handler() {}", 1),
+        ("function handler() {}; export { handler };", 0),
+    ] {
+        let source = format!("{declaration} export default handler;");
+        let (_, result) = run(
+            &[
+                (
+                    "index.ts",
+                    "import def, { handler } from './lib'; def(); handler();",
+                ),
+                ("lib.ts", &source),
+            ],
+            Default::default(),
+        );
+        assert_eq!(symbols(&result).len(), count, "{source}");
+    }
+}
+#[test]
+fn source_retains_duplicate_alias_and_export_tags() {
+    let (snapshot, _) = run(
+        &[
+            ("index.ts", "import './lib';"),
+            (
+                "lib.ts",
+                "export const original = true; export const alias = original; /** @alias */ export default original;",
+            ),
+        ],
+        Default::default(),
+    );
+    let module = snapshot
+        .modules
+        .iter()
+        .find(|(id, _)| snapshot.sources[id].logical_path == "lib.ts")
+        .unwrap()
+        .1
+        .collected
+        .as_ref()
+        .unwrap();
+    let facts = serde_json::to_value(module).unwrap();
+    assert!(
+        facts["aliases"]
+            .as_array()
+            .is_some_and(|aliases| !aliases.is_empty()),
+        "Missing alias identity: {facts}"
+    );
+    assert!(
+        facts["exports"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|export| export["name"] == "default" && export["tags"] == json!(["alias"]))
+    );
+}
+#[test]
+fn merged_member_origins_are_not_ambiguous() {
+    let (snapshot, result) = run(
+        &[
+            ("index.ts", "import { N } from './lib'; N.used;"),
+            (
+                "lib.ts",
+                "export namespace N { export const used=1; } export namespace N { export const unused=2; }",
+            ),
+        ],
+        Default::default(),
+    );
+    let module = snapshot
+        .modules
+        .iter()
+        .find(|(id, _)| snapshot.sources[id].logical_path == "lib.ts")
+        .unwrap()
+        .1
+        .collected
+        .as_ref()
+        .unwrap();
+    assert!(
+        module
+            .export_surfaces
+            .iter()
+            .flat_map(|surface| &surface.slots)
+            .all(|slot| !matches!(
+                slot.resolution,
+                biome_project_analysis::facts::ExportResolution::Ambiguous(_)
+            )),
+        "{module:?}"
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("lib.ts", "N.unused", IssueKind::NamespaceMembers)])
+    );
+}
+#[test]
+fn retained_b3_oracle_cases() {
+    use sha2::{Digest, Sha256};
+    let cases: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/members-oracle.json")).unwrap();
+    assert_eq!(cases.as_array().unwrap().len(), 54);
+    let mut failures = Vec::new();
+    for case in cases.as_array().unwrap() {
+        for file in case["files"].as_array().unwrap() {
+            assert_eq!(
+                format!(
+                    "{:x}",
+                    Sha256::digest(file["source"].as_str().unwrap().as_bytes())
+                ),
+                file["sha256"].as_str().unwrap()
+            );
+        }
+        let files: Vec<_> = case["files"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|file| {
+                (
+                    file["path"].as_str().unwrap(),
+                    file["source"].as_str().unwrap(),
+                )
+            })
+            .collect();
+        let config = &case["native_config"];
+        let mut options = AnalysisOptions {
+            include_entry_exports: config["includeEntryExports"].as_bool().unwrap_or(false),
+            ..Default::default()
+        };
+        if config["ignoreExportsUsedInFile"] == true {
+            options.ignore_local_uses.insert("*".into());
+        }
+        if let Some(kinds) = config["include"].as_array() {
+            for kind in kinds {
+                if let Ok(kind) = serde_json::from_value(kind.clone()) {
+                    options.enabled_issues.insert(kind);
+                }
+            }
+        }
+        if let Some(tags) = config["tags"].as_array() {
+            for tag in tags.iter().filter_map(|tag| tag.as_str()) {
+                if let Some(tag) = tag.strip_prefix('-') {
+                    options.excluded_tags.insert(tag.into());
+                }
+            }
+        }
+        let (_, result) = run_config(
+            &files,
+            json!({"entry":config["entry"], "project":config["project"]}),
+            options,
+        );
+        let mut actual: Vec<_> = result
+            .issues
+            .iter()
+            .map(|issue| {
+                json!([
+                    result.sources[&issue.location.file].logical_path,
+                    issue.symbol,
+                    issue.kind
+                ])
+            })
+            .collect();
+        actual.sort_by_key(serde_json::Value::to_string);
+        for observed in case["oracle_items"].as_array().unwrap() {
+            let kind = observed["kind"].as_str().unwrap();
+            if !matches!(
+                kind,
+                "enumMembers" | "namespaceMembers" | "nsExports" | "nsTypes"
+            ) {
+                continue;
+            }
+            let item = &observed["item"];
+            let symbol = if matches!(kind, "enumMembers" | "namespaceMembers") {
+                format!(
+                    "{}.{}",
+                    item["namespace"].as_str().unwrap(),
+                    item["name"].as_str().unwrap()
+                )
+            } else {
+                item["name"].as_str().unwrap().to_string()
+            };
+            if let Some(issue) = result.issues.iter().find(|issue| {
+                issue.symbol.as_ref() == Some(&symbol)
+                    && result.sources[&issue.location.file].logical_path
+                        == observed["path"].as_str().unwrap()
+            }) {
+                assert_eq!(
+                    u32::from(issue.location.range.start()) as u64,
+                    item["pos"].as_u64().unwrap(),
+                    "{}: {symbol}",
+                    case["id"]
+                );
+            }
+        }
+        let mut wanted = case["expected"].as_array().unwrap().clone();
+        wanted.sort_by_key(serde_json::Value::to_string);
+        if actual != wanted {
+            failures.push(format!(
+                "{}: actual={}, expected={}",
+                case["id"],
+                json!(actual),
+                json!(wanted)
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}

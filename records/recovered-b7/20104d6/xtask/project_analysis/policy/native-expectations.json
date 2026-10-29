@@ -1,0 +1,211 @@
+{
+  "basis": "Independent native expectations for source semantics and explicitly mapped Knip tag input; each issue records path, kind, symbol, zero-based UTF-8 start. Exact original observations remain separate. No native process exit assertions before C2/C4.",
+  "cases": {
+    "selection-rule-off-cli-include": [],
+    "selection-config-exclude-cli-include": [
+      [
+        "provider.ts",
+        "exports",
+        "unused",
+        13
+      ]
+    ],
+    "selection-config-include-cli-exclude": [],
+    "selection-cli-overlap": [],
+    "workspace-entry-root-false-cli-true": [
+      [
+        "packages/app/entry.ts",
+        "exports",
+        "childUnused",
+        13
+      ]
+    ],
+    "workspace-entry-root-true-child-false": [
+      [
+        "entry.ts",
+        "exports",
+        "rootUnused",
+        13
+      ],
+      [
+        "packages/lib/entry.ts",
+        "exports",
+        "childUnused",
+        13
+      ]
+    ],
+    "workspace-local-object-replacement": [
+      [
+        "packages/app/provider.ts",
+        "types",
+        "Shape",
+        17
+      ],
+      [
+        "packages/app/provider.ts",
+        "types",
+        "Alias",
+        54
+      ],
+      [
+        "packages/lib/provider.ts",
+        "exports",
+        "usedLocally",
+        85
+      ],
+      [
+        "packages/off/provider.ts",
+        "exports",
+        "usedLocally",
+        85
+      ],
+      [
+        "packages/off/provider.ts",
+        "types",
+        "Shape",
+        17
+      ],
+      [
+        "packages/off/provider.ts",
+        "types",
+        "Alias",
+        54
+      ]
+    ],
+    "workspace-local-true-false-inherit": [
+      [
+        "packages/app/provider.ts",
+        "exports",
+        "usedLocally",
+        85
+      ],
+      [
+        "packages/app/provider.ts",
+        "types",
+        "Shape",
+        17
+      ],
+      [
+        "packages/app/provider.ts",
+        "types",
+        "Alias",
+        54
+      ],
+      [
+        "packages/off/provider.ts",
+        "exports",
+        "usedLocally",
+        85
+      ],
+      [
+        "packages/off/provider.ts",
+        "types",
+        "Shape",
+        17
+      ],
+      [
+        "packages/off/provider.ts",
+        "types",
+        "Alias",
+        54
+      ]
+    ],
+    "tags-spelling-digit-underscore": [
+      [
+        "provider.ts",
+        "exports",
+        "underscore",
+        67
+      ],
+      [
+        "provider.ts",
+        "exports",
+        "digit",
+        148
+      ]
+    ],
+    "tags-attachment-controls": [
+      [
+        "provider.ts",
+        "exports",
+        "beforeTrailingLine",
+        53
+      ],
+      [
+        "provider.ts",
+        "exports",
+        "afterTrailingLine",
+        101
+      ],
+      [
+        "provider.ts",
+        "exports",
+        "beforeTrailingBlock",
+        137
+      ],
+      [
+        "provider.ts",
+        "exports",
+        "afterCode",
+        295
+      ],
+      [
+        "provider.ts",
+        "exports",
+        "stringTag",
+        327
+      ]
+    ],
+    "tags-positive-control": [
+      [
+        "provider.ts",
+        "exports",
+        "custom",
+        28
+      ]
+    ],
+    "tags-positive-negative-overlap": []
+  },
+  "hints": {
+    "hints-symbols-both": {
+      "configuration": 1,
+      "tag": 1
+    },
+    "hints-json-both": {
+      "configuration": 1,
+      "tag": 1
+    },
+    "hints-no-config": {
+      "configuration": 0,
+      "tag": 1
+    },
+    "hints-no-tag": {
+      "configuration": 1,
+      "tag": 0
+    },
+    "hints-neither": {
+      "configuration": 0,
+      "tag": 0
+    },
+    "hints-production": {
+      "configuration": 0,
+      "tag": 1
+    },
+    "hints-no-exit": {
+      "configuration": 1,
+      "tag": 1
+    },
+    "hints-exports-only": {
+      "configuration": 0,
+      "tag": 1
+    },
+    "hints-workspace-child": {
+      "configuration": 1,
+      "tag": 2
+    },
+    "hints-workspace-root": {
+      "configuration": 0,
+      "tag": 2
+    }
+  }
+}

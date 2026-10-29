@@ -1,0 +1,34 @@
+fn member_access(usage: &Use) -> Option<&NamespaceAccess> {
+    usage
+        .namespace_access
+        .as_ref()
+        .or_else(|| usage.member_path.first())
+}
+
+fn member_use_of(module: &CollectedModule, usage: &Use, binding: DeclarationId) -> bool {
+    if usage.write || usage.role == UseRole::Export {
+        return false;
+    }
+    if usage.declaration == binding {
+        return true;
+    }
+    if member_access(usage).is_none() {
+        return false;
+    }
+    let mut id = usage.declaration;
+    let mut seen = HashSet::new();
+    while seen.insert(id.location) {
+        let Some(alias) = module
+            .aliases
+            .iter()
+            .find(|alias| alias.declaration.location == id.location)
+        else {
+            return false;
+        };
+        id = alias.target;
+        if id == binding {
+            return true;
+        }
+    }
+    false
+}

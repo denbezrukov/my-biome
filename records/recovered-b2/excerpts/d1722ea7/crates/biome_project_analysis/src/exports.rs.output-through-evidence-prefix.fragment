@@ -1,0 +1,191 @@
+                });
+            }
+        }
+    }
+    state.output.consumed = state.consumed.into_iter().collect();
+    state.output.used_slots = state.used.into_iter().collect();
+    state.output.protected_slots = state.protected.into_iter().collect();
+    state
+        .output
+        .consumed
+        .sort_by_cached_key(|id| serde_json::to_string(id).unwrap());
+    state
+        .output
+        .used_slots
+        .sort_by_cached_key(|id| serde_json::to_string(id).unwrap());
+    state
+        .output
+        .protected_slots
+        .sort_by_cached_key(|id| serde_json::to_string(id).unwrap());
+    state
+        .output
+        .issues
+        .sort_by(|a, b| a.identity.cmp(&b.identity));
+    state.output
+}
+
+fn get_module(snapshot: &AnalysisSnapshot, file: FileId) -> Option<&CollectedModule> {
+    snapshot.modules.get(&file)?.collected.as_ref()
+}
+fn workspace(snapshot: &AnalysisSnapshot, file: FileId) -> crate::model::WorkspaceId {
+    snapshot
+        .inventory
+        .files
+        .iter()
+        .find(|record| record.file == file)
+        .map(|record| record.workspace)
+        .or_else(|| {
+            snapshot
+                .inventory
+                .workspaces
+                .iter()
+                .find(|workspace| workspace.manifest == file)
+                .map(|workspace| workspace.workspace)
+        })
+        .or_else(|| {
+            snapshot.sources.get(&file).and_then(|source| {
+                snapshot
+                    .inventory
+                    .workspaces
+                    .iter()
+                    .filter(|workspace| {
+                        workspace.path == "." || source.logical_path.starts_with(&workspace.path)
+                    })
+                    .max_by_key(|workspace| workspace.path.components().count())
+                    .map(|workspace| workspace.workspace)
+            })
+        })
+        .unwrap_or(crate::model::WorkspaceId(0))
+}
+fn local_enabled(options: &AnalysisOptions, kind: DeclarationKind) -> bool {
+    options.ignore_local_uses.contains("*")
+        || options.ignore_local_uses.contains(match kind {
+            DeclarationKind::Class => "class",
+            DeclarationKind::Enum => "enum",
+            DeclarationKind::Function => "function",
+            DeclarationKind::Interface => "interface",
+            DeclarationKind::Type => "type",
+            DeclarationKind::Variable => "variable",
+            DeclarationKind::Namespace => "namespace",
+            DeclarationKind::Import | DeclarationKind::Other => "unknown",
+        })
+}
+fn context_matches(left: &ResolutionContext, right: &ResolutionContext) -> bool {
+    left.profile == right.profile
+        && left.purpose == right.purpose
+        && left.config_revision == right.config_revision
+        && left.mapping_revision == right.mapping_revision
+        && left.additional_conditions == right.additional_conditions
+        && left.source_mappings == right.source_mappings
+}
+fn surface<'a>(
+    snapshot: &'a AnalysisSnapshot,
+    file: FileId,
+    namespace: SymbolNamespace,
+    context: &ResolutionContext,
+) -> Option<&'a ExportSurface> {
+    get_module(snapshot, file)?
+        .export_surfaces
+        .iter()
+        .find(|surface| {
+            surface.namespace == namespace && context_matches(&surface.context, context)
+        })
+}
+struct Consumption<'a> {
+    snapshot: &'a AnalysisSnapshot,
+    output: ExportAnalysis,
+    consumed: HashSet<DeclarationId>,
+    used: HashSet<ExportSlotId>,
+    protected: HashSet<ExportSlotId>,
+    uncertain: HashSet<ExportSlotId>,
+    uncertain_declarations: HashSet<DeclarationId>,
+    root_workspace: Option<WorkspaceId>,
+}
+impl Consumption<'_> {
+    fn namespace_uses(
+        &mut self,
+        module: &CollectedModule,
+        binding: DeclarationId,
+        target: FileId,
+        context: &ResolutionContext,
+    ) {
+        let has_selection = module.uses.iter().any(|usage| {
+            usage.declaration.location == binding.location
+                && matches!(usage.namespace_access, Some(NamespaceAccess::Known(_)))
+        });
+        for usage in module.uses.iter().filter(|usage| {
+            usage.declaration == binding && !usage.write && usage.role != UseRole::Export
+        }) {
+            let purpose = if matches!(usage.kind, UseKind::Type | UseKind::TypeQuery) {
+                ResolutionPurpose::Declaration
+            } else {
+                ResolutionPurpose::Runtime
+            };
+            if context.purpose != purpose {
+                continue;
+            }
+            let access = usage
+                .namespace_access
+                .clone()
+                .unwrap_or(NamespaceAccess::Escape);
+            let member = MemberUse {
+                declaration: binding,
+                location: usage.location,
+                kind: usage.kind,
+                access: access.clone(),
+                target,
+            };
+            if !self.output.member_uses.contains(&member) {
+                self.output.member_uses.push(member);
+            }
+            match access {
+                NamespaceAccess::Known(name) => self.select(
+                    target,
+                    &name,
+                    usage.declaration.namespace,
+                    context,
+                    usage.location,
+                    "known namespace member",
+                ),
+                NamespaceAccess::Computed => {
+                    self.unknown_namespace(target, context, usage.location)
+                }
+                NamespaceAccess::Enumerate => self.whole(
+                    target,
+                    context,
+                    usage.location,
+                    false,
+                    "namespace enumeration",
+                ),
+                NamespaceAccess::Escape
+                    if !has_selection && usage.kind != UseKind::RuntimeTypeof =>
+                {
+                    self.unknown_namespace(target, context, usage.location)
+                }
+                NamespaceAccess::Escape => {}
+            }
+        }
+    }
+    fn is_consumed(&self, id: DeclarationId) -> bool {
+        self.consumed
+            .iter()
+            .any(|used| used.location == id.location)
+    }
+    fn evidence(&mut self, location: Location, producer: &str, explanation: String) -> EvidenceId {
+        let workspace = self
+            .root_workspace
+            .unwrap_or_else(|| workspace(self.snapshot, location.file));
+        let workspace_path = self
+            .snapshot
+            .inventory
+            .workspaces
+            .iter()
+            .find(|record| record.workspace == workspace)
+            .map(|record| record.path.as_str())
+            .unwrap_or_default();
+        let id = EvidenceId(format!(
+            "export:{producer}:{workspace_path}:{}:{}:{}",
+            reachability::path(self.snapshot, location.file),
+            u32::from(location.range.start()),
+            reachability::hash(&explanation)
+        ));

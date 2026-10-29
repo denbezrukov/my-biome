@@ -1,0 +1,124 @@
+diff --git a/crates/biome_project_analysis/src/exports.rs b/crates/biome_project_analysis/src/exports.rs
+index 246b19847ce8248d5635805b935f2f03fbef658d..dddddd4484f3150a5f3063123eec1f963d4f1c06 100644
+--- a/crates/biome_project_analysis/src/exports.rs
++++ b/crates/biome_project_analysis/src/exports.rs
+@@ -495,12 +495,14 @@
+                         IssueKind::NsExports
+                     };
+                 }
+-                if declaration.is_some_and(|d| {
+-                    !options.allows_tags(&declaration_tags(
++                let mut tags = export.tags.clone();
++                if let Some(declaration) = declaration {
++                    tags.extend(declaration_tags(
+                         get_module(snapshot, origin.location.file).unwrap_or(module),
+-                        d,
+-                    ))
+-                }) {
++                        declaration,
++                    ));
++                }
++                if !options.allows_tags(&tags) {
+                     continue;
+                 }
+                 let Some(severity) = options.severity(kind) else {
+diff --git a/crates/biome_project_analysis/src/members.rs b/crates/biome_project_analysis/src/members.rs
+index 699fe0552c6c694cb4323125bf6ff6e89185e9ef..3128506c077ce1b8a3d96422e979bf74b8a7a0f0 100644
+--- a/crates/biome_project_analysis/src/members.rs
++++ b/crates/biome_project_analysis/src/members.rs
+@@ -7,7 +7,7 @@
+         NamespaceAccess, ParseStatus, UseKind, UseRole,
+     },
+     model::{AnalysisSnapshot, DeclarationId, Location},
+-    options::AnalysisOptions,
++    options::{AnalysisMode, AnalysisOptions},
+     reachability::{self, Reachability},
+     result::{Evidence, EvidenceGraph, EvidenceId, IssueKind, ProjectIssue},
+ };
+@@ -21,7 +21,7 @@
+     pub gaps: Vec<CoverageGap>,
+     pub used: Vec<DeclarationId>,
+     pub uncertainty: Vec<MemberUncertainty>,
+-    /// Parents with an unused member retain a useful tag suppression even when no finding is shown.
++    /// Parents with unused members that lack independent tag protection.
+     #[serde(default)]
+     pub tag_retentions: Vec<DeclarationId>,
+ }
+@@ -309,17 +309,33 @@
+                         }
+                     }
+                 }
+-                if !used && eligible && !ignored && !result.tag_retentions.contains(&parent_id) {
++                let parent_tags = exports::declaration_tags(module, parent);
++                let independently_reportable = allowed_tags(
++                    &parent_tags
++                        .iter()
++                        .filter(|tag| {
++                            !options.excluded_tags.contains(*tag)
++                                && !(tag.as_str() == "internal"
++                                    && options.mode != AnalysisMode::Default)
++                        })
++                        .chain(&tags)
++                        .cloned()
++                        .collect::<Vec<_>>(),
++                    options,
++                );
++                if !used
++                    && eligible
++                    && !ignored
++                    && independently_reportable
++                    && !result.tag_retentions.contains(&parent_id)
++                {
+                     result.tag_retentions.push(parent_id);
+                 }
+                 if !used
+                     && eligible
+                     && !ignored
+                     && allowed_tags(
+-                        &exports::declaration_tags(module, parent)
+-                            .into_iter()
+-                            .chain(tags)
+-                            .collect::<Vec<_>>(),
++                        &parent_tags.into_iter().chain(tags).collect::<Vec<_>>(),
+                         options,
+                     )
+                 {
+diff --git a/crates/biome_project_analysis/src/options.rs b/crates/biome_project_analysis/src/options.rs
+index f6cb936a25154f72449a174ac624cb21544c85a1..6b6c5488dcf5a880cbfb680483503dd981a65ab8 100644
+--- a/crates/biome_project_analysis/src/options.rs
++++ b/crates/biome_project_analysis/src/options.rs
+@@ -118,9 +118,18 @@
+         !tags.iter().any(|tag| {
+             matches!(tag.as_str(), "public" | "beta" | "alias")
+                 || (tag == "internal" && self.mode != AnalysisMode::Default)
+-                || self.excluded_tags.contains(tag)
+-        }) && (self.included_tags.is_empty()
+-            || tags.iter().any(|tag| self.included_tags.contains(tag)))
++        }) && self.allows_custom_tags(tags)
++    }
++
++    /// Imports use configured selectors only when an annotation is attached.
++    pub(crate) fn allows_import_tags(&self, tags: &[String]) -> bool {
++        tags.is_empty() || self.allows_custom_tags(tags)
++    }
++
++    fn allows_custom_tags(&self, tags: &[String]) -> bool {
++        !tags.iter().any(|tag| self.excluded_tags.contains(tag))
++            && (self.included_tags.is_empty()
++                || tags.iter().any(|tag| self.included_tags.contains(tag)))
+     }
+ 
+     pub fn includes(&self, kind: IssueKind) -> bool {
+diff --git a/crates/biome_project_analysis/src/policy.rs b/crates/biome_project_analysis/src/policy.rs
+index e1888bf6d3c13ee3a5f11a28f422a9db0e451b75..87542e41e320c4edaad8a0d0b20e5421920a6afe 100644
+--- a/crates/biome_project_analysis/src/policy.rs
++++ b/crates/biome_project_analysis/src/policy.rs
+@@ -288,7 +288,7 @@
+     result.issues.retain(|issue| {
+         if !matches!(issue.kind, IssueKind::Unlisted | IssueKind::Unresolved) { return true; }
+         let tags: Vec<_> = snapshot.modules.get(&issue.location.file).into_iter().flat_map(|module| &module.tags).filter(|tag| tag.target.is_some_and(|target| target.contains_range(issue.location.range))).map(|tag| tag.name.clone()).collect();
+-        if options.allows_tags(&tags) { return true; }
++        if options.allows_import_tags(&tags) { return true; }
+         let id = EvidenceId(format!("tag-suppression:{}", hash(&(&issue.identity, &tags))));
+         result.evidence.nodes.insert(id.clone(), Evidence { producer: "import tag reporting policy".into(), location: Some(issue.location), workspace: issue.workspace, explanation: format!("Tags {tags:?} suppress reporting; original attribution and resolution remain available"), related: issue.related_evidence.clone() });
+         result.policy.tag_suppressions.push(TagSuppression { issue: issue.identity.clone(), tags, evidence: id });

@@ -1,0 +1,351 @@
+#[test]
+fn dependencies_review_unavailable_public_outputs_suppress_unused() {
+    use crate::{Workspace, workspace::UpdateSettingsParams};
+    use biome_fs::BiomePath;
+    fn configure(service: &crate::LocalWorkspace, project: crate::projects::ProjectKey) {
+        service
+            .update_settings(UpdateSettingsParams {
+                project_key: project,
+                configuration: serde_json::from_value(json!({"files":{"maxSize":1024}})).unwrap(),
+                workspace_directory: Some(BiomePath::new("/project")),
+                extended_configurations: Vec::new(),
+                module_graph_resolution_kind: Default::default(),
+            })
+            .unwrap();
+    }
+    for transitive in [false, true] {
+        let fs = MemoryFileSystem::default();
+        fs.insert("/project/package.json".into(), r#"{"private":false,"publishConfig":{"types":"dist/index.d.ts"},"dependencies":{"uncertain":"*"}}"#);
+        let oversized = format!(
+            "{}\nexport type {{Shape}} from 'uncertain';",
+            "/* padding */\n".repeat(200)
+        );
+        let unavailable = if transitive {
+            "dist/nested.d.ts"
+        } else {
+            "dist/index.d.ts"
+        };
+        if transitive {
+            fs.insert(
+                "/project/dist/index.d.ts".into(),
+                "export type {Shape} from './nested.js';",
+            );
+        }
+        fs.insert(format!("/project/{unavailable}").into(), oversized.as_str());
+        let (service, project) = crate::test_utils::setup_workspace_and_open_project(
+            MemoryFileSystem::from_files(fs.files.0.clone()),
+            "/project",
+        );
+        configure(&service, project);
+        let request = ProjectAnalysisRequest {
+            configuration: serde_json::from_value(json!({"entry":[],"project":[]})).unwrap(),
+            ..Default::default()
+        };
+        let snapshot = service.build_project_snapshot(project, &request).unwrap();
+        let result = analyze(&snapshot, &Default::default());
+        assert!(
+            packages(&result).is_empty(),
+            "transitive={transitive}: {:?}",
+            packages(&result)
+        );
+        assert!(
+            !result.dependencies.declarations[0]
+                .affecting_gaps
+                .is_empty()
+        );
+        assert!(result.dependencies.declarations[0].used.is_empty());
+        let gap = result
+            .dependencies
+            .gaps
+            .iter()
+            .find(|gap| {
+                gap.location
+                    .is_some_and(|l| snapshot.sources[&l.file].logical_path == unavailable)
+            })
+            .unwrap();
+        assert!(matches!(
+            gap.reason,
+            biome_project_analysis::coverage::GapReason::UnavailableInput(_)
+        ));
+        assert!(result.membership.entry_roots.is_empty());
+        assert!(!result.membership.files.iter().any(|f| f.definite));
+        assert!(
+            result
+                .dependencies
+                .evidence
+                .nodes
+                .values()
+                .any(|e| e.location == gap.location)
+        );
+        fs.insert(
+            format!("/project/{unavailable}").into(),
+            "export type {Shape} from 'uncertain';",
+        );
+        let warm = service.build_project_snapshot(project, &request).unwrap();
+        let (fresh, fresh_project) = crate::test_utils::setup_workspace_and_open_project(
+            MemoryFileSystem::from_files(fs.files.0.clone()),
+            "/project",
+        );
+        configure(&fresh, fresh_project);
+        let fresh = fresh
+            .build_project_snapshot(fresh_project, &request)
+            .unwrap();
+        let warm_result = analyze(&warm, &Default::default());
+        assert_eq!(
+            biome_project_analysis::normalize::normalize_snapshot(&warm),
+            biome_project_analysis::normalize::normalize_snapshot(&fresh)
+        );
+        assert_eq!(
+            biome_project_analysis::normalize::normalize_result(&warm_result),
+            biome_project_analysis::normalize::normalize_result(&analyze(
+                &fresh,
+                &Default::default()
+            ))
+        );
+        assert!(warm_result.dependencies.gaps.is_empty());
+        assert!(!warm_result.dependencies.declarations[0].used.is_empty());
+        let usage = warm_result
+            .dependencies
+            .uses
+            .iter()
+            .find(|u| u.package == "uncertain")
+            .unwrap();
+        assert_eq!(warm.sources[&usage.location.file].logical_path, unavailable);
+        assert_eq!(u32::from(usage.location.range.start()), 25);
+    }
+}
+
+#[test]
+fn dependencies_review_public_uncertainty_affects_ancestor_declarations() {
+    for mode in [AnalysisMode::Default, AnalysisMode::Production] {
+        for output in [
+            "export type T = import(name).Shape;",
+            "export type {Shape} from 'broken';",
+        ] {
+            let (snapshot, result) = run(
+                &[
+                    (
+                        "package.json",
+                        r#"{"private":true,"workspaces":["packages/*"],"dependencies":{"uncertain":"*"}}"#,
+                    ),
+                    (
+                        "packages/child/package.json",
+                        r#"{"name":"child","publishConfig":{"types":"dist/index.d.ts"}}"#,
+                    ),
+                    ("packages/child/dist/index.d.ts", output),
+                    (
+                        "node_modules/broken/package.json",
+                        r#"{"name":false,"types":"index.d.ts"}"#,
+                    ),
+                    (
+                        "node_modules/broken/index.d.ts",
+                        "export interface Shape {}",
+                    ),
+                ],
+                json!({"entry":[],"project":[],"workspaces":{"packages/child":{"entry":[],"project":[]}}}),
+                mode,
+            );
+            assert!(
+                !packages(&result)
+                    .iter()
+                    .any(|(kind, _, _)| kind == "dependencies"),
+                "{mode:?} {output}: {:?}",
+                packages(&result)
+            );
+            assert!(result.dependencies.declarations[0].used.is_empty());
+            assert!(
+                !result.dependencies.declarations[0]
+                    .affecting_gaps
+                    .is_empty()
+            );
+            assert!(result.membership.entry_roots.is_empty());
+            assert!(!result.membership.files.iter().any(|f| f.definite));
+            assert!(
+                result.dependencies.gaps.iter().any(|g| g
+                    .location
+                    .is_some_and(|l| snapshot.sources[&l.file].logical_path
+                        == "packages/child/dist/index.d.ts"))
+            );
+        }
+    }
+}
+
+#[test]
+fn dependencies_review_inherited_peer_chain_uses_consumer_installation() {
+    for mode in [AnalysisMode::Default, AnalysisMode::Production] {
+        for nested in [false, true] {
+            let mut files = vec![
+                (
+                    "package.json",
+                    r#"{"private":true,"workspaces":["packages/*"],"dependencies":{"host":"*","peer":"npm:outer@1","leaf":"*","wrong":"*"}}"#,
+                ),
+                (
+                    "packages/child/package.json",
+                    r#"{"name":"child","private":true}"#,
+                ),
+                ("packages/child/src/index.ts", "import 'host';"),
+                (
+                    "node_modules/host/package.json",
+                    r#"{"name":"host","main":"index.js","peerDependencies":{"peer":"*"}}"#,
+                ),
+                ("node_modules/host/index.js", "export {};"),
+                (
+                    "node_modules/peer/package.json",
+                    r#"{"name":"outer","main":"index.js","peerDependencies":{"leaf":"*"}}"#,
+                ),
+                ("node_modules/peer/index.js", "export {};"),
+                (
+                    "node_modules/leaf/package.json",
+                    r#"{"name":"leaf","main":"index.js","peerDependencies":{"host":"*"}}"#,
+                ),
+                ("node_modules/leaf/index.js", "export {};"),
+            ];
+            if nested {
+                files[5].1 =
+                    r#"{"name":"outer","main":"index.js","peerDependencies":{"wrong":"*"}}"#;
+                files.extend([
+                    (
+                        "packages/child/src/node_modules/peer/package.json",
+                        r#"{"name":"inner","main":"index.js","peerDependencies":{"leaf":"*"}}"#,
+                    ),
+                    (
+                        "packages/child/src/node_modules/peer/index.js",
+                        "export {};",
+                    ),
+                ]);
+            }
+            let (snapshot, result) = run(
+                &files,
+                json!({"entry":[],"project":[],"workspaces":{"packages/child":{"entry":["src/index.ts!"],"project":["src/*.ts!"]}}}),
+                mode,
+            );
+            assert_eq!(
+                packages(&result),
+                vec![("dependencies".into(), "package.json".into(), "wrong".into())],
+                "{mode:?} nested={nested}"
+            );
+            let leaf = result
+                .dependencies
+                .declarations
+                .iter()
+                .find(|d| d.declaration.package == "leaf")
+                .unwrap();
+            assert!(leaf.used.is_empty());
+            assert!(!leaf.retained.is_empty());
+            let usage = result
+                .dependencies
+                .uses
+                .iter()
+                .find(|u| u.package == "peer")
+                .unwrap();
+            assert_ne!(usage.workspace, leaf.declaration.workspace);
+            assert_eq!(
+                snapshot.sources[&usage.location.file].logical_path,
+                "packages/child/src/index.ts"
+            );
+            assert!(usage.resolutions.iter().flat_map(|r|&r.trace).any(|e|matches!(e,biome_project_analysis::facts::ResolutionEvent::Package{name:Some(name),..} if name==if nested {"inner"} else {"outer"})));
+        }
+    }
+}
+
+#[test]
+fn dependencies_review_extensionless_types_versions_select_only_declarations() {
+    let (snapshot, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public","publishConfig":{"typesVersions":{"*":{"*":["versions/*"]}}},"dependencies":{"required":"*"}}"#,
+            ),
+            (
+                "versions/old.d.ts",
+                "export type {Shape} from 'required'; export type {Other} from 'unlisted';",
+            ),
+            ("versions/runtime.js", "import 'runtime-only';"),
+            ("versions/source.ts", "import 'source-only';"),
+        ],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Strict,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![(
+            "unlisted".into(),
+            "versions/old.d.ts".into(),
+            "unlisted".into()
+        )]
+    );
+    assert_eq!(snapshot.inventory.public_outputs.len(), 1);
+    assert_eq!(
+        snapshot.sources[&snapshot.inventory.public_outputs[0].file].logical_path,
+        "versions/old.d.ts"
+    );
+    assert!(result.membership.entry_roots.is_empty());
+    assert!(!result.membership.files.iter().any(|f| f.definite));
+}
+
+#[test]
+fn dependencies_review_alternate_export_alias_keeps_public_output() {
+    let (snapshot, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public","publishConfig":{"exports":{"./a/*":{"types":"./types/*.d.ts"},"./a/special":null,"./z/*":{"types":"./types/*.d.ts"}}}}"#,
+            ),
+            ("types/special.d.ts", "export type {Shape} from 'external';"),
+        ],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Strict,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![(
+            "unlisted".into(),
+            "types/special.d.ts".into(),
+            "external".into()
+        )]
+    );
+    assert!(!snapshot.inventory.public_outputs.is_empty());
+    assert!(result.membership.entry_roots.is_empty());
+    assert!(!result.membership.files.iter().any(|f| f.definite));
+}
+
+#[test]
+fn dependencies_review_peer_expansion_keeps_distinct_source_consumers() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"dependencies":{"host":"*","peer":"*","first":"*","second":"*"}}"#,
+            ),
+            ("a/index.ts", "import 'host';"),
+            ("b/index.ts", "import 'host';"),
+            (
+                "node_modules/host/package.json",
+                r#"{"name":"host","main":"index.js","peerDependencies":{"peer":"*"}}"#,
+            ),
+            ("node_modules/host/index.js", "export {};"),
+            (
+                "a/node_modules/peer/package.json",
+                r#"{"name":"first-peer","main":"index.js","peerDependencies":{"first":"*"}}"#,
+            ),
+            ("a/node_modules/peer/index.js", "export {};"),
+            (
+                "b/node_modules/peer/package.json",
+                r#"{"name":"second-peer","main":"index.js","peerDependencies":{"second":"*"}}"#,
+            ),
+            ("b/node_modules/peer/index.js", "export {};"),
+        ],
+        json!({"entry":["a/index.ts!","b/index.ts!"],"project":["**/*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty(), "{:?}", packages(&result));
+    for name in ["first", "second"] {
+        assert!(
+            result
+                .dependencies
+                .declarations
+                .iter()
+                .any(|d| d.declaration.package == name && !d.retained.is_empty())
+        );
+    }
+}

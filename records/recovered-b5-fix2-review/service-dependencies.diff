@@ -1,0 +1,380 @@
+diff --git a/crates/biome_service/src/project_analysis/dependencies.rs b/crates/biome_service/src/project_analysis/dependencies.rs
+index 7b755a445c2..4a4dc37304b 100644
+--- a/crates/biome_service/src/project_analysis/dependencies.rs
++++ b/crates/biome_service/src/project_analysis/dependencies.rs
+@@ -13,13 +13,17 @@ use biome_project_analysis::{
+ };
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]
+ use biome_project_analysis::{
+-    dependencies::{DependencyProducer, DependencyUse, InstalledPackage, package_name},
++    dependencies::{
++        DependencyProducer, DependencyUse, InstalledPackage, PackageProvider, derived_dependencies,
++        package_name, provider_manifests, provider_uncertain,
++    },
+     facts::ResolutionOutcome,
+-    model::{FileId, ModuleFacts},
++    model::{FileId, ModuleFacts, WorkspaceId},
++    scripts::ScriptResolution,
+ };
+ use camino::{Utf8Path, Utf8PathBuf};
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]
+-use std::collections::{BTreeMap, BTreeSet};
++use std::collections::{BTreeMap, BTreeSet, HashSet};
+ 
+ pub(super) fn select_outputs(capture: &mut Capture) {
+     for marker in [".pnp.cjs", ".pnp.js", ".pnp.data.json"] {
+@@ -478,8 +482,11 @@ pub(super) fn discover(
+     }
+     capture.inventory.public_requirements = requirements;
+     capture.inventory.package_providers.clear();
++    let mut owners = BTreeSet::new();
+     for declaration in capture.inventory.declarations.clone() {
+-        if declaration.kind == biome_project_analysis::inventory::DependencyKind::Catalog {
++        if declaration.kind == biome_project_analysis::inventory::DependencyKind::Catalog
++            || !owners.insert((declaration.workspace, declaration.package.clone()))
++        {
+             continue;
+         }
+         let Some(workspace) = capture
+@@ -505,6 +512,7 @@ pub(super) fn discover(
+             },
+         );
+     }
++    let mut consumers = Vec::new();
+     for (file, module) in modules {
+         let Some(module) = &module.collected else {
+             continue;
+@@ -528,82 +536,60 @@ pub(super) fn discover(
+             continue;
+         }
+         for import in &module.imports {
+-            if package_name(&import.specifier).is_none() {
++            let Some(package) = package_name(&import.specifier) else {
+                 continue;
+-            }
+-            let contexts: Vec<_> = module
++            };
++            let resolutions: Vec<_> = module
+                 .resolutions
+                 .iter()
+                 .filter(|r| r.occurrence == import.ordinal)
+-                .map(|r| provider_context(&r.context))
++                .map(|r| ScriptResolution {
++                    context: r.context.clone(),
++                    outcome: r.outcome.clone(),
++                    trace: r.trace.clone(),
++                })
+                 .collect();
+-            consumer_providers(
+-                capture,
+-                db,
++            let effective = if import.type_only || module.declaration_file.is_some() {
++                resolutions
++                    .iter()
++                    .filter(|r| {
++                        r.context.purpose
++                            == biome_project_analysis::facts::ResolutionPurpose::Declaration
++                    })
++                    .flat_map(|r| &r.trace)
++                    .find_map(|e| match e {
++                        biome_project_analysis::facts::ResolutionEvent::Package {
++                            name: Some(name),
++                            ..
++                        } if name.starts_with("@types/") => Some(name.as_str()),
++                        _ => None,
++                    })
++                    .unwrap_or(package)
++            } else {
++                package
++            };
++            consumers.push(ProviderConsumer {
+                 workspace,
+-                import.specifier_location,
+-                path.parent().unwrap(),
+-                &contexts,
+-            );
++                location: import.specifier_location,
++                base: path.parent().unwrap().to_path_buf(),
++                package: effective.to_string(),
++                resolutions,
++            });
+         }
+     }
+     for requirement in capture.inventory.public_requirements.clone() {
+         let path = capture
+             .root
+             .join(&capture.inventory.sources[&requirement.location.file].logical_path);
+-        let contexts: Vec<_> = requirement
+-            .resolutions
+-            .iter()
+-            .map(|r| provider_context(&r.context))
+-            .collect();
+-        consumer_providers(
+-            capture,
+-            db,
+-            requirement.workspace,
+-            requirement.location,
+-            path.parent().unwrap(),
+-            &contexts,
+-        );
+-    }
+-    capture.inventory.installed_packages.clear();
+-    let manifests: Vec<_> = capture
+-        .inventory
+-        .sources
+-        .iter()
+-        .filter(|(_, s)| s.logical_path.file_name() == Some("package.json"))
+-        .map(|(f, s)| (*f, s.logical_path.clone()))
+-        .collect();
+-    for (manifest, path) in manifests {
+-        let Some(text) = capture.text(manifest) else {
+-            continue;
+-        };
+-        let parsed = biome_json_parser::parse_json(text, Default::default());
+-        let metadata = biome_package::read_project_metadata(&parsed.tree());
+-        let name = metadata
+-            .fields
+-            .get("name")
+-            .and_then(|v| v.value.as_string())
+-            .map(|v| v.as_str().to_string());
+-        let has_types = ["types", "typings"].iter().any(|key| {
+-            metadata
+-                .fields
+-                .get(*key)
+-                .is_some_and(|v| v.value.as_string().is_some())
+-        });
+-        let peers = metadata
+-            .fields
+-            .get("peerDependencies")
+-            .map(|v| v.members.keys().cloned().collect())
+-            .unwrap_or_default();
+-        capture.inventory.installed_packages.push(InstalledPackage {
+-            manifest,
+-            path,
+-            name,
+-            has_types,
+-            peers,
+-            metadata_known: !parsed.has_errors() && metadata.diagnostics.is_empty(),
++        consumers.push(ProviderConsumer {
++            workspace: requirement.workspace,
++            location: requirement.location,
++            base: path.parent().unwrap().to_path_buf(),
++            package: requirement.package,
++            resolutions: requirement.resolutions,
+         });
+     }
++    consumer_providers(capture, db, consumers);
+     pending
+ }
+ 
+@@ -674,59 +660,171 @@ fn public_bundled(
+         .is_some_and(|base| capture.fs.path_is_file(&base.join("index.d.ts")))
+ }
+ 
++#[cfg(all(feature = "module_graph", feature = "lang_js"))]
++struct ProviderConsumer {
++    workspace: WorkspaceId,
++    location: Location,
++    base: Utf8PathBuf,
++    package: String,
++    resolutions: Vec<ScriptResolution>,
++}
++
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]
+ fn consumer_providers(
+     capture: &mut Capture,
+     db: &dyn biome_module_graph::ModuleDb,
+-    workspace: biome_project_analysis::model::WorkspaceId,
+-    consumer: Location,
+-    base: &Utf8Path,
+-    contexts: &[ProjectResolutionContext],
++    consumers: Vec<ProviderConsumer>,
+ ) {
+-    let Some(owner) = capture
++    let mut declarations: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
++    for declaration in &capture.inventory.declarations {
++        if declaration.kind != biome_project_analysis::inventory::DependencyKind::Catalog {
++            declarations
++                .entry(declaration.workspace)
++                .or_default()
++                .insert(declaration.package.clone());
++        }
++    }
++    let eligible: BTreeMap<_, BTreeSet<_>> = capture
+         .inventory
+         .workspaces
+         .iter()
+-        .find(|w| w.workspace == workspace)
+-    else {
+-        return;
+-    };
+-    let packages: BTreeSet<_> = capture
+-        .inventory
+-        .declarations
+-        .iter()
+-        .filter(|d| d.kind != biome_project_analysis::inventory::DependencyKind::Catalog)
+-        .filter(|d| {
+-            capture.inventory.workspaces.iter().any(|w| {
+-                w.workspace == d.workspace
+-                    && (w.path.as_str() == "." || owner.path.starts_with(&w.path))
+-            })
++        .map(|consumer| {
++            let packages = capture
++                .inventory
++                .workspaces
++                .iter()
++                .filter(|owner| {
++                    owner.path.as_str() == "." || consumer.path.starts_with(&owner.path)
++                })
++                .filter_map(|owner| declarations.get(&owner.workspace))
++                .flatten()
++                .cloned()
++                .collect();
++            (consumer.workspace, packages)
+         })
+-        .map(|d| d.package.clone())
+         .collect();
+-    for package in packages {
+-        let mut resolutions = Vec::new();
+-        for context in contexts {
+-            let resolved = resolve_project_specifier(db, base, &package, context.clone());
+-            let before = capture.inventory.gaps.len();
+-            let resolution = scripts::convert(capture, &resolved, context.clone());
+-            capture.inventory.gaps.truncate(before);
+-            if !resolutions.contains(&resolution) {
+-                resolutions.push(resolution);
++    let mut requested = HashSet::new();
++    let mut records = BTreeMap::new();
++    let mut metadata = BTreeMap::new();
++    for consumer in consumers {
++        let Some(eligible) = eligible.get(&consumer.workspace) else {
++            continue;
++        };
++        let mut unique_contexts = HashSet::new();
++        let contexts: Vec<_> = consumer
++            .resolutions
++            .iter()
++            .map(|r| provider_context(&r.context))
++            .filter(|context| unique_contexts.insert(context.clone()))
++            .collect();
++        let mut pending = vec![(consumer.package, consumer.resolutions)];
++        let mut expanded = BTreeSet::new();
++        while let Some((package, resolutions)) = pending.pop() {
++            if !expanded.insert(package.clone()) {
++                continue;
+             }
+-        }
+-        if !resolutions.is_empty() {
+-            let provider = biome_project_analysis::dependencies::PackageProvider {
+-                workspace,
+-                consumer: Some(consumer),
+-                requested_package: package,
+-                resolutions,
+-            };
+-            if !capture.inventory.package_providers.contains(&provider) {
+-                capture.inventory.package_providers.push(provider);
++            let provider = provider_manifests(&package, &resolutions)
++                .into_iter()
++                .rev()
++                .find_map(|file| {
++                    metadata
++                        .entry(file)
++                        .or_insert_with(|| installed_metadata(capture, file))
++                        .clone()
++                });
++            if provider_uncertain(provider.as_ref(), &resolutions) {
++                continue;
++            }
++            for (package, _) in derived_dependencies(&package, provider.as_ref()) {
++                if !eligible.contains(&package) {
++                    continue;
++                }
++                let key = (
++                    consumer.workspace,
++                    consumer.location.file,
++                    u32::from(consumer.location.range.start()),
++                    u32::from(consumer.location.range.end()),
++                    package.clone(),
++                );
++                for context in &contexts {
++                    if !requested.insert((key.clone(), context.clone())) {
++                        continue;
++                    }
++                    let resolved =
++                        resolve_project_specifier(db, &consumer.base, &package, context.clone());
++                    let before = capture.inventory.gaps.len();
++                    let resolution = scripts::convert(capture, &resolved, context.clone());
++                    capture.inventory.gaps.truncate(before);
++                    records
++                        .entry(key.clone())
++                        .or_insert_with(|| PackageProvider {
++                            workspace: consumer.workspace,
++                            consumer: Some(consumer.location),
++                            requested_package: package.clone(),
++                            resolutions: Vec::new(),
++                        })
++                        .resolutions
++                        .push(resolution);
++                }
++                if let Some(provider) = records.get(&key) {
++                    let resolutions = provider
++                        .resolutions
++                        .iter()
++                        .filter(|r| unique_contexts.contains(&provider_context(&r.context)))
++                        .cloned()
++                        .collect();
++                    pending.push((package, resolutions));
++                }
+             }
+         }
+     }
++    capture
++        .inventory
++        .package_providers
++        .extend(records.into_values());
++    for (file, source) in &capture.inventory.sources {
++        if source.logical_path.file_name() == Some("package.json") {
++            metadata
++                .entry(*file)
++                .or_insert_with(|| installed_metadata(capture, *file));
++        }
++    }
++    capture.inventory.installed_packages = metadata.into_values().flatten().collect();
++}
++
++#[cfg(all(feature = "module_graph", feature = "lang_js"))]
++fn installed_metadata(capture: &Capture, manifest: FileId) -> Option<InstalledPackage> {
++    let path = &capture.inventory.sources.get(&manifest)?.logical_path;
++    if path.file_name() != Some("package.json") {
++        return None;
++    }
++    let text = capture.text(manifest)?;
++    let parsed = biome_json_parser::parse_json(text, Default::default());
++    let metadata = biome_package::read_project_metadata(&parsed.tree());
++    let name = metadata
++        .fields
++        .get("name")
++        .and_then(|v| v.value.as_string())
++        .map(|v| v.as_str().to_string());
++    let has_types = ["types", "typings"].iter().any(|key| {
++        metadata
++            .fields
++            .get(*key)
++            .is_some_and(|v| v.value.as_string().is_some())
++    });
++    let peers = metadata
++        .fields
++        .get("peerDependencies")
++        .map(|v| v.members.keys().cloned().collect())
++        .unwrap_or_default();
++    Some(InstalledPackage {
++        manifest,
++        path: path.clone(),
++        name,
++        has_types,
++        peers,
++        metadata_known: !parsed.has_errors() && metadata.diagnostics.is_empty(),
++    })
+ }
+ 
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]

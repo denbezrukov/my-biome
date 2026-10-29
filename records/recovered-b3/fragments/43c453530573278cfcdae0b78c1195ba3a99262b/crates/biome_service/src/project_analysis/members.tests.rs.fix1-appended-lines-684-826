@@ -1,0 +1,143 @@
+
+#[test]
+fn imported_alias_member_accesses_keep_resolved_parent_identity() {
+    use biome_project_analysis::coverage::Coverage;
+    for (import, root, initializer, alias_root) in [
+        ("import { N, Control } from './lib';", "N", "N", "alias"),
+        ("import { N, Control } from './barrel';", "N", "N", "alias"),
+        (
+            "import * as NS from './lib'; import { Control } from './lib';",
+            "NS.N",
+            "NS",
+            "alias.N",
+        ),
+    ] {
+        for (access, uncertain) in [("[key]", true), (".unused", false)] {
+            let entry = format!(
+                "{import} {root}.used; Control.used; const first = {initializer}; const alias = first; {alias_root}{access};"
+            );
+            let (_, result) = run(
+                &[
+                    ("index.ts", &entry),
+                    ("barrel.ts", "export { N, Control } from './lib';"),
+                    (
+                        "lib.ts",
+                        "export namespace N { export const used=1; export const unused=2; } export namespace Control { export const used=1; export const unused=2; }",
+                    ),
+                ],
+                Default::default(),
+            );
+            assert_eq!(
+                symbols(&result),
+                expected(&[("lib.ts", "Control.unused", IssueKind::NamespaceMembers)]),
+                "{entry}"
+            );
+            assert_eq!(
+                result.members.uncertainty.len(),
+                usize::from(uncertain),
+                "{entry}"
+            );
+            assert_eq!(
+                matches!(result.coverage, Coverage::Incomplete(_)),
+                uncertain,
+                "{entry}"
+            );
+            if uncertain {
+                let unknown = &result.members.uncertainty[0];
+                assert_eq!(
+                    result.sources[&unknown.parent.location.file].logical_path,
+                    "lib.ts"
+                );
+                assert_eq!(
+                    result.sources[&unknown.location.file].logical_path,
+                    "index.ts"
+                );
+                assert!(unknown.path.is_empty());
+            }
+        }
+    }
+}
+
+fn assert_member_tags_preserve_uncertainty(source: &str) {
+    use biome_project_analysis::coverage::Coverage;
+    let files = [
+        ("index.ts", "import { N } from './lib'; N[key];"),
+        ("lib.ts", source),
+    ];
+    let (_, normal) = run(&files, Default::default());
+    assert!(matches!(normal.coverage, Coverage::Incomplete(_)));
+    assert_eq!(normal.members.uncertainty.len(), 1);
+    for included in [false, true] {
+        let mut options = AnalysisOptions::default();
+        if included {
+            options.included_tags.insert("keep".into());
+        } else {
+            options.excluded_tags.insert("hidden".into());
+        }
+        let (_, filtered) = run(&files, options);
+        assert_eq!(filtered.members.uncertainty, normal.members.uncertainty);
+        assert_eq!(filtered.members.gaps, normal.members.gaps);
+        assert_eq!(filtered.members.evidence, normal.members.evidence);
+        assert_eq!(filtered.coverage, normal.coverage);
+    }
+}
+
+#[test]
+fn parent_tag_filters_preserve_member_uncertainty() {
+    assert_member_tags_preserve_uncertainty(
+        "/** @hidden */ export namespace N { export const item=1; }",
+    );
+}
+
+#[test]
+fn leaf_tag_filters_preserve_member_uncertainty() {
+    assert_member_tags_preserve_uncertainty(
+        "export namespace N { /** @hidden */ export const item=1; }",
+    );
+}
+
+#[test]
+fn escaped_member_declarations_match_decoded_accesses() {
+    let source = r"export namespace N { export const \u0075sed=1; export const \u0075nused=2; export namespace \u004eested { export const used=3; export const \u0075nused=4; } }";
+    let (snapshot, result) = run(
+        &[
+            (
+                "index.ts",
+                "import { N } from './lib'; N.used; N.Nested.used;",
+            ),
+            ("lib.ts", source),
+        ],
+        Default::default(),
+    );
+    let module = snapshot
+        .modules
+        .iter()
+        .find(|(id, _)| snapshot.sources[id].logical_path == "lib.ts")
+        .unwrap()
+        .1
+        .collected
+        .as_ref()
+        .unwrap();
+    let mut paths: Vec<_> = module
+        .members
+        .iter()
+        .map(|member| member.path.join("."))
+        .collect();
+    paths.sort();
+    assert_eq!(paths, ["Nested.unused", "Nested.used", "unused", "used"]);
+    assert_eq!(
+        symbols(&result),
+        expected(&[
+            ("lib.ts", "N.unused", IssueKind::NamespaceMembers),
+            ("lib.ts", "N.Nested.unused", IssueKind::NamespaceMembers),
+        ])
+    );
+    for issue in &result.issues {
+        assert_eq!(
+            &source[usize::from(issue.location.range.start())
+                ..usize::from(issue.location.range.end())],
+            r"\u0075nused"
+        );
+    }
+    assert!(result.members.uncertainty.is_empty());
+}

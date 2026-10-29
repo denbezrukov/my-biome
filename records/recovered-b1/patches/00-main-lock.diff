@@ -1,0 +1,17 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 4c228560a1c..327e7180dde 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1818,10 +1818,12 @@ name = "biome_project_analysis"
+ version = "0.7.0"
+ dependencies = [
+  "biome_diagnostics",
++ "biome_glob",
+  "biome_text_size",
+  "camino",
+  "serde",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]

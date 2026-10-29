@@ -1,0 +1,21 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_project_analysis/src/members.rs
+@@
+             });
+             if public
+-                || !allowed_tags(&parent.tags, options)
+                 || !exports
+@@
+                 );
+                 if path.iter().any(String::is_empty)
+-                    || !allowed_tags(&tags, options)
+                     || declarations.iter().any(|member| {
+@@
+-                if !used && eligible && !ignored {
++                if !used
++                    && eligible
++                    && !ignored
++                    && allowed_tags(&parent.tags, options)
++                    && allowed_tags(&tags, options)
++                {
+*** End Patch

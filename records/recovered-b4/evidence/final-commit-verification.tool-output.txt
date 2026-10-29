@@ -1,0 +1,4 @@
+    Checking biome_js_transform v0.7.0 (/workspace/my-biome/crates/biome_js_transform)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 35s
+[feat/native-project-analysis 185e908965a] fix(project): preserve script context and parser bounds
+ 5 files changed, 198 insertions(+), 17 deletions(-)

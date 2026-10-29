@@ -1,0 +1,55 @@
+--- a/crates/biome_module_graph/src/project_commands.rs
++++ b/crates/biome_module_graph/src/project_commands.rs
+@@ -30,7 +30,11 @@
+         .next()
+         .and_then(Result::ok)
+         .and_then(|a| a.as_any_js_expression().and_then(literal_string));
+-    if let Some(argument) = arguments.next().and_then(Result::ok) {
++    if let Some(argument) = arguments.next() {
++        let Ok(argument) = argument else {
++            command.unsupported = true;
++            return command;
++        };
+         if let Some(AnyJsExpression::JsArrayExpression(array)) = argument.as_any_js_expression() {
+             command.args = array
+                 .elements()
+@@ -42,15 +46,18 @@
+                         .and_then(literal_string)
+                 })
+                 .collect();
+-            if let Some(options) = arguments
+-                .next()
+-                .and_then(Result::ok)
+-                .and_then(|a| a.as_any_js_expression().cloned())
+-            {
+-                read_options(&mut command, &options);
++            if let Some(options) = arguments.next() {
++                if let Some(options) = options.ok().and_then(|a| a.as_any_js_expression().cloned())
++                {
++                    read_options(&mut command, &options);
++                } else {
++                    command.unsupported = true;
++                }
+             }
+         } else if let Some(options) = argument.as_any_js_expression() {
+             read_options(&mut command, options);
++        } else {
++            command.unsupported = true;
+         }
+     }
+     command
+@@ -116,8 +123,12 @@
+             .as_ref()
+             .and_then(|a| a.as_any_js_expression())
+             .and_then(literal_string);
+-        if let Some(options) = second.as_ref().and_then(|a| a.as_any_js_expression()) {
+-            read_options(&mut command, options);
++        if let Some(options) = second {
++            if let Some(options) = options.as_any_js_expression() {
++                read_options(&mut command, options);
++            } else {
++                command.unsupported = true;
++            }
+         }
+     }
+     command

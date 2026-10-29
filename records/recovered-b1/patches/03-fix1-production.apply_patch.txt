@@ -1,0 +1,22 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_module_graph/src/project_facts.rs
+@@
+-                && let Some(left_value) = literal_string(&left)
+-                && let Some(right_value) = literal_string(&right)
++                && let Some(left_value) = literal_loader_specifier(&left)
++                && let Some(right_value) = literal_loader_specifier(&right)
+@@
+-fn literal_string(expression: &AnyJsExpression) -> Option<String> {
++/// Tags can return arbitrary module names, even for empty or static template text.
++fn literal_loader_specifier(expression: &AnyJsExpression) -> Option<String> {
++    if expression
++        .as_js_template_expression()
++        .is_some_and(|template| template.tag().is_some())
++    {
++        return None;
++    }
++    literal_string(expression)
++}
++
++fn literal_string(expression: &AnyJsExpression) -> Option<String> {
+*** End Patch

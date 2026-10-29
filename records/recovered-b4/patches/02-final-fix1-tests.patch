@@ -1,0 +1,181 @@
+diff --git a/crates/biome_module_graph/tests/spec_tests/project.test.rs b/crates/biome_module_graph/tests/spec_tests/project.test.rs
+index a40ee8d92e8..f3d8cb343f4 100644
+--- a/crates/biome_module_graph/tests/spec_tests/project.test.rs
++++ b/crates/biome_module_graph/tests/spec_tests/project.test.rs
+@@ -1145,3 +1145,22 @@ fn project_commands_dirname_options_keep_uncertainty() {
+     );
+     assert!(f.commands.iter().any(|c| c.unsupported));
+ }
++
++#[test]
++fn b4_review_present_spread_command_arguments_are_unsupported() {
++    for command in [
++        "spawn('node', ['app.js'], ...[{cwd:'nested'}]);",
++        "spawn('node', ...[['app.js'], {cwd:'nested'}]);",
++        "new Worker('./app.js', ...[{eval:true}]);",
++    ] {
++        let f = facts(
++            &format!(
++                "import {{spawn}} from 'node:child_process'; import {{Worker}} from 'node:worker_threads'; {command}"
++            ),
++            "/app/main.js",
++            ProjectParseStatus::Valid,
++        );
++        assert_eq!(f.commands.len(), 1);
++        assert!(f.commands[0].unsupported, "{command}");
++    }
++}
+diff --git a/crates/biome_project_analysis/tests/scripts.rs b/crates/biome_project_analysis/tests/scripts.rs
+index c8badd3a4a0..f35bd3eaad0 100644
+--- a/crates/biome_project_analysis/tests/scripts.rs
++++ b/crates/biome_project_analysis/tests/scripts.rs
+@@ -272,3 +272,69 @@ fn shell_newlines_comments_and_descriptor_adjacency() {
+         ["./first.js", "./second.js", "./123", "./app.js"]
+     );
+ }
++
++#[test]
++fn b4_review_pipeline_cwd_is_local_to_each_command() {
++    for (body, expected) in [
++        ("cd child | node app.js; node after.js", vec![".", "."]),
++        ("node app.js | cd child; node after.js", vec![".", "."]),
++        (
++            "cd child && node app.js | node other.js; node after.js",
++            vec!["child", "child", "child"],
++        ),
++        (
++            "cd child | (cd nested; node app.js); node after.js",
++            vec!["nested", "."],
++        ),
++    ] {
++        let usage = extract_script_uses(&inventory(body), &BTreeMap::new(), AnalysisMode::Default);
++        assert!(usage.gaps.is_empty(), "{body}: {:?}", usage.gaps);
++        assert_eq!(
++            usage
++                .targets
++                .iter()
++                .map(|t| t.cwd.as_str())
++                .collect::<Vec<_>>(),
++            expected,
++            "{body}"
++        );
++    }
++}
++
++#[test]
++fn b4_review_node_separator_keeps_stdin_uncertainty() {
++    for body in ["node --", "node -- -"] {
++        let usage = extract_script_uses(&inventory(body), &BTreeMap::new(), AnalysisMode::Default);
++        assert!(!usage.gaps.is_empty(), "{body}");
++        assert!(usage.targets.is_empty(), "{body}");
++    }
++    let usage = extract_script_uses(
++        &inventory("node -- app.js"),
++        &BTreeMap::new(),
++        AnalysisMode::Default,
++    );
++    assert!(usage.gaps.is_empty());
++    assert_eq!(usage.targets[0].specifier, "./app.js");
++}
++
++#[test]
++fn b4_review_nested_yarn_workspace_is_bounded() {
++    for (prefixes, limited) in [(2, false), (66, true)] {
++        let mut inv = inventory(&format!(
++            "yarn {}run task",
++            "workspace child ".repeat(prefixes)
++        ));
++        let mut child = inventory("node app.js").workspaces.remove(0);
++        child.workspace = WorkspaceId(1);
++        child.path = "child".into();
++        child.name = Some("child".into());
++        child.metadata[0].1.members[0].0 = "task".into();
++        inv.workspaces.push(child);
++        let usage = extract_script_uses(&inv, &BTreeMap::new(), AnalysisMode::Production);
++        assert_eq!(!usage.gaps.is_empty(), limited, "prefixes={prefixes}");
++        assert_eq!(usage.targets.is_empty(), limited);
++        if !limited {
++            assert_eq!(usage.targets[0].cwd.as_str(), "child");
++        }
++    }
++}
+diff --git a/crates/biome_service/src/project_analysis/scripts.tests.rs b/crates/biome_service/src/project_analysis/scripts.tests.rs
+index 035db9a9ad2..cd0b64eb249 100644
+--- a/crates/biome_service/src/project_analysis/scripts.tests.rs
++++ b/crates/biome_service/src/project_analysis/scripts.tests.rs
+@@ -844,3 +844,75 @@ fn supplemental_command_observations_keep_native_evidence_and_limits_separate()
+         }
+     }
+ }
++
++#[test]
++fn b4_review_pipeline_roots_the_original_cwd_target() {
++    let s = snapshot(
++        &[
++            (
++                "package.json",
++                r#"{"scripts":{"start":"cd child | node app.js"}}"#,
++            ),
++            ("app.js", "export const root = 1;"),
++            ("child/app.js", "export const child = 1;"),
++        ],
++        AnalysisMode::Default,
++        &[],
++    );
++    let result = analyze(&s, &AnalysisOptions::default());
++    assert!(result.coverage.gaps().is_empty());
++    let unused: Vec<_> = result
++        .issues
++        .iter()
++        .filter(|i| i.kind == IssueKind::Files)
++        .map(|i| result.sources[&i.location.file].logical_path.as_str())
++        .collect();
++    assert_eq!(unused, ["child/app.js"]);
++}
++
++#[test]
++fn b4_review_spread_options_gap_is_source_gated() {
++    for command in [
++        "spawn('node', ['app.js'], ...[{cwd:'nested'}]);",
++        "spawn('node', ...[['app.js'], {cwd:'nested'}]);",
++        "new Worker('./app.js', ...[{eval:true}]);",
++    ] {
++        for live in [false, true] {
++            let producer = format!(
++                "import {{spawn}} from 'node:child_process'; import {{Worker}} from 'node:worker_threads'; {command}"
++            );
++            let s = snapshot(
++                &[
++                    (
++                        "index.js",
++                        if live { "import './producer.js';" } else { "" },
++                    ),
++                    ("producer.js", &producer),
++                    ("app.js", "export const root = 1;"),
++                    ("nested/app.js", "export const nested = 1;"),
++                ],
++                AnalysisMode::Default,
++                &["index.js"],
++            );
++            let source = *s
++                .sources
++                .iter()
++                .find(|(_, source)| source.logical_path == "producer.js")
++                .unwrap()
++                .0;
++            assert!(
++                s.inventory.script_usage.gaps.iter().any(|g| g.producer
++                    == biome_project_analysis::scripts::ScriptProducer::Source { file: source }),
++                "{command}"
++            );
++            let result = analyze(&s, &AnalysisOptions::default());
++            assert_eq!(!result.coverage.gaps().is_empty(), live, "{command}");
++            assert_eq!(
++                result.issues.iter().any(|i| i.kind == IssueKind::Files
++                    && result.sources[&i.location.file].logical_path == "nested/app.js"),
++                !live,
++                "{command}"
++            );
++        }
++    }
++}

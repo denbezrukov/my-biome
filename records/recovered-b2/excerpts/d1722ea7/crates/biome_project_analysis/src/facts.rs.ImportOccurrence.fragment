@@ -1,0 +1,14 @@
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ImportOccurrence {
+    pub ordinal: usize,
+    pub specifier: String,
+    pub location: Location,
+    pub specifier_location: Location,
+    pub syntax: ImportSyntax,
+    pub type_only: bool,
+    pub optional: bool,
+    #[serde(default)]
+    pub possible: bool,
+    pub bindings: Vec<ImportBinding>,
+    pub type_usage: Option<ImportTypeUse>,
+}

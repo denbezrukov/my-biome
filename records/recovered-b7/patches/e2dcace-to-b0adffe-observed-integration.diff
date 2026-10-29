@@ -1,0 +1,179 @@
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 7dc2dd9f28c..30cd92660e3 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -237,6 +237,7 @@ pub struct ProjectModuleFacts {
+     pub has_static_exports: bool,
+     pub has_module_marker: bool,
+     pub declarations: Vec<ProjectDeclaration>,
++    pub tags: Vec<ProjectTag>,
+     pub members: Vec<ProjectMember>,
+     pub merges: Vec<ProjectDeclarationRelation>,
+     pub aliases: Vec<ProjectDeclarationRelation>,
+@@ -247,6 +248,14 @@ pub struct ProjectModuleFacts {
+     pub unknown: Vec<ProjectUnknownFact>,
+ }
+ 
++/// A source tag keeps both its exact token and the syntax receiving it.
++#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
++pub struct ProjectTag {
++    pub name: String,
++    pub range: TextRange,
++    pub target: TextRange,
++}
++
+ impl ProjectModuleFacts {
+     /// A recovered or unverified parse cannot establish the ambient exemption.
+     pub fn is_ambient_declaration_file(&self) -> bool {
+@@ -420,6 +429,20 @@ impl ProjectModuleFacts {
+         model: &SemanticModel,
+         path: &Utf8Path,
+     ) {
++        if JsImport::can_cast(node.kind())
++            || JsExport::can_cast(node.kind())
++            || biome_js_syntax::TsEnumMember::can_cast(node.kind())
++        {
++            self.tags.extend(
++                members::node_tag_ranges(node)
++                    .into_iter()
++                    .map(|(name, range)| ProjectTag {
++                        name,
++                        range,
++                        target: node.text_trimmed_range(),
++                    }),
++            );
++        }
+         if let Some(reference) = AnyJsIdentifierReference::cast_ref(node) {
+             self.collect_commonjs_reference(&reference, model);
+         }
+diff --git a/crates/biome_project_analysis/src/lib.rs b/crates/biome_project_analysis/src/lib.rs
+index 80df60b2b5a..b2d53ea16f3 100644
+--- a/crates/biome_project_analysis/src/lib.rs
++++ b/crates/biome_project_analysis/src/lib.rs
+@@ -11,6 +11,7 @@ pub mod members;
+ pub mod model;
+ pub mod normalize;
+ pub mod options;
++pub mod policy;
+ pub mod reachability;
+ pub mod resolution;
+ pub mod result;
+@@ -107,9 +108,6 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+                 continue;
+             }
+             let path = reachability::path(snapshot, record.file);
+-            if reachability::suppressed(snapshot, options, record.file, true) {
+-                continue;
+-            }
+             let location = Location {
+                 file: record.file,
+                 range: Default::default(),
+@@ -135,7 +133,8 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+         }
+     }
+     issues.sort_by(|left, right| left.identity.cmp(&right.identity));
+-    ProjectAnalysisResult {
++    let mut result = ProjectAnalysisResult {
++        policy: Default::default(),
+         catalogs,
+         cycles,
+         resolution,
+@@ -186,10 +185,14 @@ pub fn analyze(snapshot: &AnalysisSnapshot, options: &AnalysisOptions) -> Projec
+         evidence: reachability.evidence,
+         membership: reachability.membership,
+         gaps: reachability.gaps,
+-    }
++    };
++    policy::collect_policy_causes(snapshot, &mut result, options);
++    policy::apply_policy(result, options)
+ }
+ 
+ /// Report selection retains the complete analysis context and uncertainty evidence.
++/// Tag hints keep semantic scope. Workspace selection shows configuration hints only
++/// for selected non-root workspaces; path and category predicates apply to findings.
+ pub fn select_report(
+     result: &ProjectAnalysisResult,
+     selection: &ReportSelection,
+@@ -197,7 +200,14 @@ pub fn select_report(
+     let mut selected = result.clone();
+     selected.issues.retain(|issue| {
+         (selection.workspaces.is_empty() || selection.workspaces.contains(&issue.workspace))
+-            && (selection.issues.is_empty() || selection.issues.contains(&issue.kind))
++            && ((!selection.restrict_issues && selection.issues.is_empty())
++                || selection.issues.contains(&issue.kind))
++            && selection.changed_paths.as_ref().is_none_or(|paths| {
++                result
++                    .sources
++                    .get(&issue.location.file)
++                    .is_some_and(|source| paths.contains(&source.logical_path))
++            })
+             && (selection.paths.is_empty()
+                 || result
+                     .sources
+@@ -210,7 +220,13 @@ pub fn select_report(
+                     }))
+     });
+     selected.hints.retain(|hint| {
+-        selection.workspaces.is_empty() || selection.workspaces.contains(&hint.workspace)
++        hint.kind == crate::result::HintKind::Tag
++            || selection.workspaces.is_empty()
++            || (selection.workspaces.contains(&hint.workspace)
++                && result
++                    .workspaces
++                    .get(&hint.workspace)
++                    .is_some_and(|workspace| workspace.path != "."))
+     });
+     selected
+ }
+diff --git a/crates/biome_service/src/project_analysis.rs b/crates/biome_service/src/project_analysis.rs
+index 6a784fc33fc..f97ee5feebd 100644
+--- a/crates/biome_service/src/project_analysis.rs
++++ b/crates/biome_service/src/project_analysis.rs
+@@ -7,6 +7,10 @@ mod inventory;
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]
+ mod owned_facts;
+ mod paths;
++mod policy;
++mod provenance;
++pub use policy::PolicyOverrides;
++pub use provenance::ConfigurationOrigin;
+ mod pinned_fs;
+ #[cfg(all(feature = "module_graph", feature = "lang_js"))]
+ mod scripts;
+@@ -27,6 +31,7 @@ use biome_project_analysis::{inventory::Inventory, options::AnalysisMode};
+ #[derive(Clone, Debug, Default, serde::Deserialize, serde::Serialize)]
+ #[serde(rename_all = "camelCase", default)]
+ pub struct ProjectAnalysisRequest {
++    pub configuration_origins: std::collections::BTreeMap<String, ConfigurationOrigin>,
+     pub configuration: ProjectAnalysisConfiguration,
+     pub mode: AnalysisMode,
+     pub isolation: Option<AnalysisBoundary>,
+@@ -88,3 +93,15 @@ mod scripts_tests;
+ #[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
+ #[path = "project_analysis/dependencies.tests.rs"]
+ mod dependencies_tests;
++
++#[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
++#[path = "project_analysis/policy.tests.rs"]
++mod policy_tests;
++
++#[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
++#[path = "project_analysis/provenance.tests.rs"]
++mod provenance_tests;
++
++#[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
++#[path = "project_analysis/policy_corpus.tests.rs"]
++mod policy_corpus_tests;
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index 179ec0721fd..600615e74bd 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -133,6 +133,8 @@ impl WorkspaceServerWithDb<'_> {
+                 inventory: discovery.inventory,
+             };
+             capture.inventory.reporting_policies = reporting_policies(request, &capture.inventory);
++            super::provenance::capture_origins(request, &mut capture);
++            super::policy::prepare_inventory(request, &mut capture.inventory);
+             let mut required: BTreeSet<_> = capture
+                 .inventory
+                 .files

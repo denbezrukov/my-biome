@@ -1,0 +1,29 @@
+        imports: facts
+            .imports
+            .named_iter()
+            .enumerate()
+            .map(|(ordinal, (specifier, value))| owned::ImportOccurrence {
+                ordinal,
+                specifier: specifier.to_string(),
+                location: location(file, value.range),
+                specifier_location: location(file, value.specifier_range),
+                syntax: syntax(value.syntax),
+                type_only: value.type_only,
+                optional: value.optional,
+                possible: value.possible,
+                bindings: value
+                    .bindings
+                    .iter()
+                    .map(|binding| owned::ImportBinding {
+                        declaration: declaration(capture, &binding.declaration),
+                        imported: binding.imported.clone(),
+                    })
+                    .collect(),
+                type_usage: value.type_usage.as_ref().map(|usage| owned::ImportTypeUse {
+                    kind: use_kind(&usage.kind),
+                    namespace: namespace(usage.namespace),
+                    qualifier: usage.qualifier.clone(),
+                    location: location(file, usage.range),
+                }),
+            })
+            .collect(),

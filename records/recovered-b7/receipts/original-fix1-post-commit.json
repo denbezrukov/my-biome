@@ -1,0 +1,12 @@
+{
+  "fix_round": 1,
+  "commit": "20104d6aeff4c50f6fb5d308270f747b6bffd878",
+  "base": "b0adffecc6ff7d18497f8b487f2f3ef5b0c8ea3f",
+  "manifest_sha256": "19897120804f5fcd5f27396690f121a4355d0e6fb6d5178fe3d58df8e197cf3b",
+  "report_sha256": "e08ff8b67edc26316581b62cbf4ee76582608a631b32d880ca0ff3cb59eb809a",
+  "commit_log_sha256": "b2193505bf129abfd5d9ff363a35c06e6af76e3a3e877600e4f3eebc7ea26572",
+  "committed_files": 5,
+  "committed_blobs_match_manifest": true,
+  "worktree_status": "?? docs/\n",
+  "build_owner_released": true
+}

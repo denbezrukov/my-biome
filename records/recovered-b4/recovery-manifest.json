@@ -1,0 +1,157 @@
+{
+  "kind": "new-recovery-inventory-not-original",
+  "files": [
+    {
+      "path": "RECOVERY.md",
+      "bytes": 5807,
+      "sha256": "09e597ae29f403ec6c2c8f099716aa4980a1b0186bb1e21601345709ee58cad0",
+      "lines": 50
+    },
+    {
+      "path": "evidence/35-review-all-red.log",
+      "bytes": 5321,
+      "sha256": "bdd567561ae6a44ff19abd57d99b65f5050d496f9f6794da8ccad3dd96941927",
+      "lines": 134
+    },
+    {
+      "path": "evidence/38-review-affected-suites.results.excerpt.txt",
+      "bytes": 1229,
+      "sha256": "a0f528df9614528b81e17072f7f375ec0199ec35eb21e9b36a2016a2ebed03e6",
+      "lines": 13
+    },
+    {
+      "path": "evidence/final-commit-verification.tool-output.txt",
+      "bytes": 312,
+      "sha256": "dd7749e6a63da1932f1f2957aea02e2a6912e09da00fd37bab602ba9000a12d8",
+      "lines": 4
+    },
+    {
+      "path": "evidence/final-report-hash.tool-output.txt",
+      "bytes": 131,
+      "sha256": "2457d42aab880b31582b7512d1ec5d7557636ed736ae4145f980b8bd5dee1f42",
+      "lines": 3
+    },
+    {
+      "path": "final/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4533,
+      "sha256": "baf1f8298cf968307c1e290f11187eaaaeb4112912761ff648ba7c3820c08301",
+      "lines": 135
+    },
+    {
+      "path": "final/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 12669,
+      "sha256": "3fcbab0250bfe9936b0e411796c290f6193a4aedc4ed155d1f2f4ff016138604",
+      "lines": 340
+    },
+    {
+      "path": "main/.changeset/free-bushes-refuse.md",
+      "bytes": 333,
+      "sha256": "b6196863fb708155b46b63eda659db1a3d587ecb852c71e7376d7f72286557c8",
+      "lines": 5,
+      "original_sha256": "b6196863fb708155b46b63eda659db1a3d587ecb852c71e7376d7f72286557c8",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4191,
+      "sha256": "1ee7b2210a2299b86abf4cc96f60485254dd2bb1f13aaf66815b6b5ff02eab4f",
+      "lines": 124,
+      "original_sha256": "1ee7b2210a2299b86abf4cc96f60485254dd2bb1f13aaf66815b6b5ff02eab4f",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 10367,
+      "sha256": "14d2b31286b71bc77523ef02bc94ebb1f58abdb8764fde12b66daca7d7966197",
+      "lines": 274,
+      "original_sha256": "14d2b31286b71bc77523ef02bc94ebb1f58abdb8764fde12b66daca7d7966197",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/crates/biome_service/src/project_analysis/scripts.rs",
+      "bytes": 12726,
+      "sha256": "6abb251427a63494509815631fd954d738ced2e0db4dfc5ea4c664736d831d96",
+      "lines": 341,
+      "original_sha256": "6abb251427a63494509815631fd954d738ced2e0db4dfc5ea4c664736d831d96",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/xtask/project_analysis/fixtures/scripts/README.md",
+      "bytes": 2628,
+      "sha256": "3c1d47b3c7592156250fdb002fdd86d9f2df22e69e1690c604e89c3452e763d8",
+      "lines": 13,
+      "original_sha256": "3c1d47b3c7592156250fdb002fdd86d9f2df22e69e1690c604e89c3452e763d8",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/xtask/project_analysis/fixtures/scripts/command-comparisons.json",
+      "bytes": 11603,
+      "sha256": "5d8a35ed8f49d6f8687c722cfff400473fd2ae421fb9ae4f7e42852ea81dfc69",
+      "lines": 421,
+      "original_sha256": "5d8a35ed8f49d6f8687c722cfff400473fd2ae421fb9ae4f7e42852ea81dfc69",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "main/xtask/project_analysis/fixtures/scripts/comparison.json",
+      "bytes": 1113,
+      "sha256": "0a88b05a8f80d0620ebbb371cb26a86076408aa63cee5690e13199e02e30fcdb",
+      "lines": 20,
+      "original_sha256": "0a88b05a8f80d0620ebbb371cb26a86076408aa63cee5690e13199e02e30fcdb",
+      "original_sha256_matches": true
+    },
+    {
+      "path": "original-main-frozen-files.sha256",
+      "bytes": 3894,
+      "sha256": "a4fc017eacf6dc2506bb18af411f02bb0d8c10f35724a735707869b807d9b8a2",
+      "lines": 31
+    },
+    {
+      "path": "partial/engine-scripts.main.lines1-240.rs.txt",
+      "bytes": 8381,
+      "sha256": "ebc1bc6145e805ba6b35196d6242e35cb2be3c9b02af162a204f4b04c300274f",
+      "lines": 240
+    },
+    {
+      "path": "partial/engine-scripts.main.lines334-680.rs.txt",
+      "bytes": 12914,
+      "sha256": "4fc8890c5e53eeb44cac978e12a81220d495b35f85de1cdf592522c10fd13587",
+      "lines": 347
+    },
+    {
+      "path": "partial/graph-project.test.main.b4-final49lines.rs.txt",
+      "bytes": 1765,
+      "sha256": "9ca3676fb4afda5c11327f68e78c38cbbfbeffb54a09a98b82cec3a0388a3d8f",
+      "lines": 48
+    },
+    {
+      "path": "partial/service-scripts.tests.main.lines1-125.rs.txt",
+      "bytes": 3765,
+      "sha256": "9f96cd8be9fe02e1453abd7a4ae5e3fca5c8be3fe4ac4ec3aef4de4a36fa8d79",
+      "lines": 125
+    },
+    {
+      "path": "patches/00-main-integration.patch",
+      "bytes": 15324,
+      "sha256": "39de70f556ec034d986d56d78fe098be7bcbb0a4fd3448499c51c7f65f2ac386",
+      "lines": 389
+    },
+    {
+      "path": "patches/01-fix1-engine.patch",
+      "bytes": 3328,
+      "sha256": "0ce26587d69addc7186401f1830d9cbe603f8bb8f722eb692b1ef325edbf4db4",
+      "lines": 81
+    },
+    {
+      "path": "patches/02-final-fix1-tests.patch",
+      "bytes": 6916,
+      "sha256": "203c0560fa53f6aa63bcff5bacc8e4516ea0475531ef1e8429ae65547d7f7ddc",
+      "lines": 181
+    },
+    {
+      "path": "patches/03-final-fix1-collector.derived.patch",
+      "bytes": 2135,
+      "sha256": "28dcf028cc2053b8c33e7c3d70588baf68ddee07dd87cb508dd4cde7b8608719",
+      "lines": 55
+    }
+  ]
+}

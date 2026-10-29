@@ -1,0 +1,20 @@
+#[test]
+fn native_custom_element_registration() {
+    for registration in [
+        "customElements.define('my-card', MyCard);",
+        "window.customElements.define('my-card', MyCard);",
+        "const registry = new CustomElementRegistry(); registry.define('my-card', MyCard);",
+        "const registry = customElements; registry.define('my-card', MyCard);",
+    ] {
+        let source = format!("export class MyCard {{}} export class Control {{}} {registration}");
+        let (_, result) = run(
+            &[("index.ts", "import './lib';"), ("lib.ts", &source)],
+            Default::default(),
+        );
+        assert_eq!(
+            symbols(&result),
+            expected(&[("lib.ts", "Control", IssueKind::Exports)]),
+            "{registration}"
+        );
+    }
+}

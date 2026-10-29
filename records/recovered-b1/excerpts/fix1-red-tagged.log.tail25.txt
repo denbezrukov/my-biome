@@ -1,0 +1,25 @@
+failures:
+
+---- project_analysis::reachability_tests::tagged_dynamic_import_alternatives_remain_unbounded stdout ----
+
+thread 'project_analysis::reachability_tests::tagged_dynamic_import_alternatives_remain_unbounded' (966687) panicked at crates/biome_service/src/project_analysis/reachability.tests.rs:185:5:
+assertion `left == right` failed: import: nonempty and empty tagged templates can load actual.js
+  left: [["actual.js"], ["actual.js", "decoy.js"]]
+ right: [[], []]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- project_analysis::reachability_tests::tagged_require_alternatives_remain_unbounded stdout ----
+
+thread 'project_analysis::reachability_tests::tagged_require_alternatives_remain_unbounded' (966688) panicked at crates/biome_service/src/project_analysis/reachability.tests.rs:185:5:
+assertion `left == right` failed: require: nonempty and empty tagged templates can load actual.js
+  left: [["actual.js"], ["actual.js", "decoy.js"]]
+ right: [[], []]
+
+
+failures:
+    project_analysis::reachability_tests::tagged_dynamic_import_alternatives_remain_unbounded
+    project_analysis::reachability_tests::tagged_require_alternatives_remain_unbounded
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 360 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p biome_service --lib`

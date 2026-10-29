@@ -1,0 +1,385 @@
+/**
+ * Captures and analyzes the open project, including files without open documents.
+ */
+export interface PullProjectDiagnosticsParams {
+	overrides?: PolicyOverrides;
+	projectKey: ProjectKey;
+	request: ProjectAnalysisRequest;
+	selection?: ReportSelection;
+	/**
+	 * Required for nonempty workspace-ID selection; IDs belong to this exact snapshot.
+	 */
+	selectionRevision?: SnapshotRevision;
+}
+/**
+ * Optional caller selections are resolved against configuration per category.
+ */
+export interface PolicyOverrides {
+	configurationHintErrors?: boolean;
+	configurationHints?: boolean;
+	dependencies?: boolean;
+	exclude?: IssueKind[];
+	exports?: boolean;
+	include?: IssueKind[];
+	includeEntryExports?: boolean;
+	tagHintErrors?: boolean;
+	tagHints?: boolean;
+	tags?: string[];
+}
+/**
+ * Effective discovery inputs supplied by a service caller; report selection is separate.
+ */
+export interface ProjectAnalysisRequest {
+	configuration?: ProjectAnalysisConfiguration;
+	configurationOrigins?: Record<string, ConfigurationOrigin>;
+	isolation?: AnalysisBoundary;
+	mode?: AnalysisMode;
+	/**
+	 * Declares virtual inputs without claiming access to the host project inventory.
+	 */
+	virtualScope?: VirtualAnalysisScope;
+}
+/**
+ * Selection applies after analysis and cannot establish capability or completeness.
+ */
+export interface ReportSelection {
+	/**
+	 * Exact changed paths intersect the other report predicates; an empty list selects none.
+	 */
+	changed_paths?: string[];
+	issues: IssueKind[];
+	paths: string[];
+	/**
+	 * Treats an empty issues set as selecting no categories.
+	 */
+	restrict_issues?: boolean;
+	/**
+	 * Treats an empty workspace set as selecting no workspaces.
+	 */
+	restrict_workspaces?: boolean;
+	workspaces: WorkspaceId[];
+}
+/**
+ * Freshness is scoped to a service session and project, including close/reopen epochs.
+ * Digests are lowercase SHA-256 hex strings.
+ */
+export interface SnapshotRevision {
+	config_digest: string;
+	epoch: number;
+	input_digest: string;
+	project_root: string;
+	session_id: string;
+}
+export type IssueKind =
+	| "files"
+	| "dependencies"
+	| "devDependencies"
+	| "optionalPeerDependencies"
+	| "unlisted"
+	| "binaries"
+	| "unresolved"
+	| "exports"
+	| "types"
+	| "nsExports"
+	| "nsTypes"
+	| "duplicates"
+	| "enumMembers"
+	| "namespaceMembers"
+	| "catalog"
+	| "catalogReferences"
+	| "cycles";
+/**
+ * A range is meaningful only for the exact text used by the configuration loader.
+ */
+export interface ConfigurationOrigin {
+	digest: string;
+	path: string;
+	range: TextRange;
+}
+/**
+ * Explicitly excluded consumers make discovery incomplete for their possible targets.
+ */
+export interface AnalysisBoundary {
+	excludedConsumers?: string[];
+}
+export type AnalysisMode = "default" | "production" | "strict";
+/**
+ * Supplied virtual files do not establish completeness of the host project inventory.
+ */
+export interface VirtualAnalysisScope {
+	/**
+	 * Input accepts absolute or actual-project-relative paths. The service adds open overlays,
+	 * filters outside-root paths, and returns normalized, sorted, unique project-relative paths.
+	 */
+	supplied_files: string[];
+}
+export type WorkspaceId = number;
+export interface ProjectAnalysisResult {
+	capabilities: {
+		binaries?: CapabilityStatus;
+		catalog?: CapabilityStatus;
+		catalogReferences?: CapabilityStatus;
+		cycles?: CapabilityStatus;
+		dependencies?: CapabilityStatus;
+		devDependencies?: CapabilityStatus;
+		duplicates?: CapabilityStatus;
+		enumMembers?: CapabilityStatus;
+		exports?: CapabilityStatus;
+		files?: CapabilityStatus;
+		namespaceMembers?: CapabilityStatus;
+		nsExports?: CapabilityStatus;
+		nsTypes?: CapabilityStatus;
+		optionalPeerDependencies?: CapabilityStatus;
+		types?: CapabilityStatus;
+		unlisted?: CapabilityStatus;
+		unresolved?: CapabilityStatus;
+	};
+	catalogs: CatalogAnalysis;
+	context: AnalysisContext;
+	coverage: Coverage;
+	cycles: CycleAnalysis;
+	dependencies?: DependencyAnalysis;
+	evidence: EvidenceGraph;
+	exports: ExportAnalysis;
+	gaps: ReachabilityGap[];
+	hints: AnalysisHint[];
+	issues: ProjectIssue[];
+	members: MemberAnalysis;
+	membership: AnalysisMembership;
+	policy?: PolicyCauses;
+	resolution: ResolutionAnalysis;
+	revision: SnapshotRevision;
+	sources: Record<string, SourceRecord>;
+	workspaces: Record<string, WorkspaceRecord>;
+}
+export type CapabilityStatus = "supported" | "untested" | "unsupported";
+export interface CatalogAnalysis {
+	/**
+	 * All definitions retain provider order; findings use the first location for each pair.
+	 */
+	entries: CatalogEntry[];
+	evidence: EvidenceGraph;
+	gaps: CoverageGap[];
+	issues: ProjectIssue[];
+	references: CatalogUse[];
+	selections: CatalogSelection[];
+}
+export interface AnalysisContext {
+	mode: AnalysisMode;
+	profile_id: string;
+	scope: WorkspaceId[];
+	semantic_options_digest: string;
+	virtual_scope?: VirtualAnalysisScope;
+}
+export type Coverage =
+	| { status: "complete" }
+	| { gaps: CoverageGap[]; status: "incomplete" }
+	| { gaps: CoverageGap[]; status: "failed" };
+export interface CycleAnalysis {
+	evidence: EvidenceGraph;
+	issues: ProjectIssue[];
+	representatives: CycleRepresentative[];
+}
+export interface DependencyAnalysis {
+	decisions?: RequestDecision[];
+	declarations: DeclarationUsage[];
+	evidence: EvidenceGraph;
+	gaps: CoverageGap[];
+	issues: ProjectIssue[];
+	uses: ProjectAnalysisDependencyUse[];
+}
+export interface EvidenceGraph {
+	nodes: Record<string, Evidence>;
+}
+export interface ExportAnalysis {
+	/**
+	 * Definite use or public protection, excluding possible consumption.
+	 */
+	consumed: DeclarationId[];
+	evidence: EvidenceGraph;
+	gaps: CoverageGap[];
+	issues: ProjectIssue[];
+	member_uses: MemberUse[];
+	/**
+	 * Determinate whole-namespace references use the independently enabled namespace categories.
+	 */
+	namespace_only: ExportSlotId[];
+	protected_slots: ExportSlotId[];
+	uncertainty: ExportUncertainty[];
+	used_slots: ExportSlotId[];
+}
+/**
+ * Consumers identify producers, including imports whose metadata gap is located in a manifest.
+ * An empty consumer set denotes acquisition uncertainty without an attributable source.
+ */
+export interface ReachabilityGap {
+	active: boolean;
+	consumers: FileId[];
+	gap: CoverageGap;
+	id: GapId;
+	impact: GapImpact;
+	script_producer?: ScriptProducer;
+}
+export interface AnalysisHint {
+	cause: string;
+	kind: HintKind;
+	location?: ProjectAnalysisLocation;
+	message: string;
+	related_evidence: EvidenceId[];
+	severity: Severity;
+	workspace: WorkspaceId;
+}
+export interface ProjectIssue {
+	eligible_fixes: ProjectAnalysisFixKind[];
+	identity: string;
+	kind: IssueKind;
+	location: ProjectAnalysisLocation;
+	related_evidence: EvidenceId[];
+	severity: Severity;
+	symbol?: string;
+	workspace: WorkspaceId;
+}
+export interface MemberAnalysis {
+	evidence: EvidenceGraph;
+	gaps: CoverageGap[];
+	issues: ProjectIssue[];
+	/**
+	 * Parents with unused members that lack independent tag protection.
+	 */
+	tag_retentions?: DeclarationId[];
+	uncertainty: MemberUncertainty[];
+	used: DeclarationId[];
+}
+/**
+ * Indexed candidates are not traversal seeds. Only visited files belong to `files`.
+ */
+export interface AnalysisMembership {
+	entry_roots: Root[];
+	files: FileMembership[];
+	program_roots: Root[];
+	reporting_candidates: FileId[];
+	script_producers?: ProducerActivation[];
+	script_targets?: Root[];
+	/**
+	 * Visited node order follows roots and occurrences, including type and script traversal.
+	 */
+	traversal_order?: FileId[];
+	/**
+	 * Seeds retain semantic insertion order across entry, program and script producers.
+	 */
+	traversal_roots?: FileId[];
+}
+export interface PolicyCauses {
+	ignores: ReportIgnore[];
+	suppressions: ReportSuppression[];
+	tag_mappings: TagInputMapping[];
+	tag_suppressions?: TagSuppression[];
+	used_ignores?: number[];
+}
+export interface ResolutionAnalysis {
+	evidence: EvidenceGraph;
+	issues: ProjectIssue[];
+	/**
+	 * Repeated raw specifiers report once per file while retaining every failed occurrence.
+	 */
+	requests: FailedRequest[];
+}
+/**
+ * Text and paths belong to the snapshot; consumers must not reread the current disk.
+ */
+export interface SourceRecord {
+	canonical_uri: string;
+	content: SourceContent;
+	logical_path: string;
+}
+export interface WorkspaceRecord {
+	catalogs?: CatalogProvider[];
+	/**
+	 * Serialized effective workspace settings preserve alias insertion order.
+	 */
+	configuration_json?: string;
+	declaration_locations: ProjectAnalysisLocation[];
+	dependency_uses?: ManifestDependencyUse[];
+	manifest: FileId;
+	metadata?: [string, MetadataValueRecord][];
+	metadata_diagnostics: MetadataDiagnostic[];
+	name?: string;
+	path: string;
+	workspace: WorkspaceId;
+}
+export interface CatalogEntry {
+	catalog: string;
+	container: ProjectAnalysisLocation;
+	location: ProjectAnalysisLocation;
+	package: string;
+	uncertain: boolean;
+	used: boolean;
+}
+export interface CoverageGap {
+	domain: TargetDomain;
+	location?: ProjectAnalysisLocation;
+	producer: string;
+	reason: GapReason;
+}
+export interface CatalogUse {
+	catalog: string;
+	definite: boolean;
+	location: ProjectAnalysisLocation;
+	package: string;
+	producer: CatalogProducer;
+	workspace: WorkspaceId;
+}
+/**
+ * Selection records preserve empty and invalid winning fields as distinct from absence.
+ */
+export interface CatalogSelection {
+	container: ProjectAnalysisLocation;
+	field: string;
+	location: ProjectAnalysisLocation;
+	valid: boolean;
+}
+export interface CycleRepresentative {
+	outgoing: ProjectAnalysisLocation[];
+	/**
+	 * Ordered members omit the repeated closing vertex.
+	 */
+	path: FileId[];
+}
+/**
+ * Category decisions precede severity and path filtering; a hidden unlisted issue remains handled.
+ */
+export interface RequestDecision {
+	category: RequestCategory;
+	location: ProjectAnalysisLocation;
+	specifier: string;
+}
+export interface DeclarationUsage {
+	affecting_gaps: GapId[];
+	declaration: DependencyDeclaration;
+	retained: EvidenceId[];
+	used: EvidenceId[];
+}
+export interface ProjectAnalysisDependencyUse {
+	binary_providers: BinaryProvider[];
+	definite: boolean;
+	location: ProjectAnalysisLocation;
+	optional: boolean;
+	package: string;
+	producer: DependencyProducer;
+	reason?: DependencyReason;
+	resolutions: ScriptResolution[];
+	specifier: string;
+	type_only: boolean;
+	workspace: WorkspaceId;
+}
+export interface Evidence {
+	explanation: string;
+	location?: ProjectAnalysisLocation;
+	producer: string;
+	related: EvidenceId[];
+	workspace: WorkspaceId;
+}
+export interface DeclarationId {
+	location: ProjectAnalysisLocation;
+	namespace: SymbolNamespace;
+}

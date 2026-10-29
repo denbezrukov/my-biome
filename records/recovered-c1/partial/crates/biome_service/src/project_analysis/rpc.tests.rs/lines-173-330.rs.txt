@@ -1,0 +1,158 @@
+fn project_selection_rejects_stale_workspace_ids() {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"workspaces":["packages/*"]}"#,
+    );
+    fs.insert("/project/packages/b/package.json".into(), "{}");
+    fs.insert("/project/packages/b/orphan.ts".into(), "export {};");
+    let shared = MemoryFileSystem::from_files(fs.files.0.clone());
+    let (service, key) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let full = service.pull_project_diagnostics(params(key)).unwrap();
+    let old_id = full
+        .workspaces
+        .values()
+        .find(|workspace| workspace.path == "packages/b")
+        .unwrap()
+        .workspace;
+    let mut selected = params(key);
+    selected.selection.workspaces.insert(old_id);
+    assert!(service.pull_project_diagnostics(selected.clone()).is_err());
+    selected.selection_revision = Some(full.revision.clone());
+    let matching = service.pull_project_diagnostics(selected.clone()).unwrap();
+    assert!(!matching.issues.is_empty());
+    assert!(
+        matching
+            .issues
+            .iter()
+            .all(|issue| issue.workspace == old_id)
+    );
+    shared.remove(camino::Utf8Path::new("/project/packages/b/package.json"));
+    shared.remove(camino::Utf8Path::new("/project/packages/b/orphan.ts"));
+    shared.insert("/project/packages/a/package.json".into(), "{}");
+    shared.insert("/project/packages/a/orphan.ts".into(), "export {};");
+    assert!(service.pull_project_diagnostics(selected).is_err());
+    let fresh = service.pull_project_diagnostics(params(key)).unwrap();
+    assert_eq!(fresh.workspaces[&old_id].path, "packages/a");
+    assert_ne!(fresh.revision, full.revision);
+}
+
+#[test]
+fn project_selection_retains_other_consumers() {
+    let fs = MemoryFileSystem::default();
+    for (path, text) in [
+        ("package.json", r#"{"workspaces":["packages/*"]}"#),
+        ("packages/a/package.json", r#"{"name":"a","private":true}"#),
+        ("packages/a/index.ts", "import(name);"),
+        ("packages/b/package.json", r#"{"name":"b","private":true}"#),
+        ("packages/b/index.ts", "export const candidate = 1;"),
+        ("packages/b/orphan.ts", "export const orphan = 1;"),
+    ] {
+        fs.insert(format!("/project/{path}").into(), text);
+    }
+    let (service, key) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let full = service.pull_project_diagnostics(params(key)).unwrap();
+    assert!(!matches!(
+        full.coverage,
+        biome_project_analysis::coverage::Coverage::Complete
+    ));
+    let mut selected = params(key);
+    selected.selection_revision = Some(full.revision.clone());
+    selected.selection.workspaces.insert(
+        full.workspaces
+            .values()
+            .find(|workspace| workspace.path == "packages/b")
+            .unwrap()
+            .workspace,
+    );
+    let selected = service.pull_project_diagnostics(selected).unwrap();
+    assert_eq!(selected.coverage, full.coverage);
+    assert_eq!(selected.evidence, full.evidence);
+    assert_eq!(selected.sources, full.sources);
+    assert_eq!(selected.context, full.context);
+    assert_eq!(selected.exports, full.exports);
+    assert!(
+        !selected
+            .issues
+            .iter()
+            .any(|issue| issue.kind == IssueKind::Files)
+    );
+}
+
+struct JsonTransport<'a>(&'a crate::LocalWorkspace);
+impl crate::workspace::WorkspaceTransport for JsonTransport<'_> {
+    fn request<P: serde::Serialize, R: serde::de::DeserializeOwned>(
+        &self,
+        request: crate::workspace::TransportRequest<P>,
+    ) -> Result<R, crate::TransportError> {
+        let params = serde_json::to_value(request.params).unwrap();
+        let response = match request.method {
+            "initialize" => serde_json::json!({}),
+            "biome/pull_project_diagnostics" => serde_json::to_value(
+                self.0
+                    .pull_project_diagnostics(serde_json::from_value(params).unwrap())
+                    .unwrap(),
+            )
+            .unwrap(),
+            "biome/pull_project_analysis_states" => serde_json::to_value(
+                self.0
+                    .pull_project_analysis_states(serde_json::from_value(params).unwrap())
+                    .unwrap(),
+            )
+            .unwrap(),
+            method => panic!("unexpected method {method}"),
+        };
+        Ok(serde_json::from_value(response).unwrap())
+    }
+}
+
+#[test]
+fn project_diagnostics_local_equals_rpc() {
+    use crate::workspace::{
+        ProjectAnalysisStatus, PullProjectAnalysisStatesParams, WorkspaceClient,
+    };
+    use biome_project_analysis::normalize::normalize_result;
+    let fixture = || {
+        let fs = MemoryFileSystem::default();
+        fs.insert(
+            "/project/package.json".into(),
+            r#"{"private":true,"dependencies":{"unused":"1"}}"#,
+        );
+        fs.insert("/project/orphan.ts".into(), "export {};");
+        crate::test_utils::setup_workspace_and_open_project(fs, "/project")
+    };
+    let (local, key) = fixture();
+    let client =
+        WorkspaceClient::new(JsonTransport(&local), Box::<MemoryFileSystem>::default()).unwrap();
+    let local_result = local.pull_project_diagnostics(params(key)).unwrap();
+    let rpc_result = client.pull_project_diagnostics(params(key)).unwrap();
+    assert_eq!(local_result, rpc_result);
+    let (independent, other_key) = fixture();
+    let other = WorkspaceClient::new(
+        JsonTransport(&independent),
+        Box::<MemoryFileSystem>::default(),
+    )
+    .unwrap();
+    let rpc_result = other.pull_project_diagnostics(params(other_key)).unwrap();
+    assert_eq!(
+        normalize_result(&local_result),
+        normalize_result(&rpc_result)
+    );
+    assert_ne!(local_result.revision, rpc_result.revision);
+    for (client, key, revision) in [
+        (client, key, local_result.revision),
+        (other, other_key, rpc_result.revision),
+    ] {
+        let states = client
+            .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+                project_keys: vec![key],
+            })
+            .unwrap();
+        assert_eq!(
+            states[0].status,
+            ProjectAnalysisStatus::Completed { revision }
+        );
+    }
+}
+
+#[test]

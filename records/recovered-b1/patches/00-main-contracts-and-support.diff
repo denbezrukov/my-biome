@@ -1,0 +1,105 @@
+diff --git a/crates/biome_project_analysis/tests/contracts.rs b/crates/biome_project_analysis/tests/contracts.rs
+index 56956f7be22..c5060440ad4 100644
+--- a/crates/biome_project_analysis/tests/contracts.rs
++++ b/crates/biome_project_analysis/tests/contracts.rs
+@@ -72,10 +72,12 @@ fn default_and_production_issue_selection_are_explicit() {
+ }
+ 
+ #[test]
+-fn owned_fixture_loading_does_not_pretend_to_run_an_engine() {
++fn owned_fixture_loading_runs_the_partial_engine() {
+     let loaded = support::run_case("empty");
+-    assert_eq!(loaded["stage"], "model-only");
+-    assert!(loaded.get("issues").is_none());
++    assert_eq!(loaded["coverage"], "complete");
++    assert_eq!(loaded["issues"], json!([]));
++    assert_eq!(loaded["capabilities"]["files"], "supported");
++    assert_eq!(loaded["capabilities"]["exports"], "unsupported");
+     assert_eq!(support::expected_case("empty")["status"], "untested");
+ }
+ 
+@@ -87,8 +89,7 @@ fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract()
+         model::{AnalysisSnapshot, FileId, SourceContent, SourceRecord, WorkspaceId},
+         normalize::normalize_snapshot,
+     };
+-    let mut first: AnalysisSnapshot =
+-        serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
++    let mut first: AnalysisSnapshot = support::load_case("empty");
+     first.sources.insert(
+         FileId(2),
+         SourceRecord {
+@@ -119,6 +120,7 @@ fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract()
+         dependency_uses: vec![],
+         configuration_json: String::new(),
+     });
++    first.inventory.analysis_scope = Some(vec![WorkspaceId(4)]);
+     first.coverage = Coverage::Incomplete(vec![CoverageGap {
+         producer: "dynamic import".into(),
+         domain: TargetDomain::Bounded {
+@@ -133,6 +135,7 @@ fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract()
+     second.revision.session_id = "different session".into();
+     second.revision.epoch += 1;
+     second.sources = [(FileId(7), first.sources[&FileId(2)].clone())].into();
++    second.inventory.analysis_scope = Some(vec![WorkspaceId(9)]);
+     second.inventory.files[0].file = FileId(7);
+     second.inventory.files[0].workspace = WorkspaceId(9);
+     second.inventory.workspaces[0].workspace = WorkspaceId(9);
+@@ -167,8 +170,7 @@ fn result_normalization_keeps_source_ranges_and_related_evidence() {
+         coverage::Coverage, model::*, normalize::normalize_result, result::*,
+     };
+     use biome_text_size::TextRange;
+-    let snapshot: AnalysisSnapshot =
+-        serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
++    let snapshot: AnalysisSnapshot = support::load_case("empty");
+     let location = Location {
+         file: FileId(1),
+         range: TextRange::new(1.into(), 5.into()),
+@@ -221,6 +223,8 @@ fn result_normalization_keeps_source_ranges_and_related_evidence() {
+             eligible_fixes: vec![],
+         }],
+         hints: vec![],
++        membership: Default::default(),
++        gaps: vec![],
+         evidence: EvidenceGraph {
+             nodes: [(
+                 evidence_id.clone(),
+@@ -326,8 +330,7 @@ fn normalization_preserves_raw_metadata_and_configuration_keys() {
+         model::{AnalysisSnapshot, FileId, SourceContent, SourceRecord},
+         normalize::normalize_snapshot,
+     };
+-    let mut snapshot: AnalysisSnapshot =
+-        serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
++    let mut snapshot: AnalysisSnapshot = support::load_case("empty");
+     let raw = json!({"file":7,"workspaces":{"packages/*":{"entry":[]}},"sources":{"literal":1}});
+     snapshot.inventory.request_json = raw.to_string();
+     snapshot.sources.insert(
+diff --git a/crates/biome_project_analysis/tests/support/mod.rs b/crates/biome_project_analysis/tests/support/mod.rs
+index d4571cc015e..9add9dba3ef 100644
+--- a/crates/biome_project_analysis/tests/support/mod.rs
++++ b/crates/biome_project_analysis/tests/support/mod.rs
+@@ -2,12 +2,12 @@ use biome_project_analysis::model::AnalysisSnapshot;
+ use serde_json::{Value, json};
+ use std::{fs, path::Path};
+ 
+-pub fn run_case(name: &str) -> Value {
++pub fn load_case(name: &str) -> AnalysisSnapshot {
+     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+         .join("tests/fixtures")
+         .join(format!("{name}.json"));
+     let snapshot: AnalysisSnapshot = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+-    json!({ "stage": "model-only", "snapshot": snapshot })
++    snapshot
+ }
+ 
+ pub fn expected_case(name: &str) -> Value {
+@@ -16,3 +16,10 @@ pub fn expected_case(name: &str) -> Value {
+         .join(format!("{name}.expected.json"));
+     serde_json::from_slice(&fs::read(path).unwrap()).unwrap()
+ }
++
++pub fn run_case(name: &str) -> Value {
++    let result = biome_project_analysis::analyze(&load_case(name), &Default::default());
++    let normalized = biome_project_analysis::normalize::normalize_result(&result);
++    let issues: Vec<_> = result.issues.iter().map(|issue|json!({"kind":issue.kind,"path":result.sources[&issue.location.file].logical_path,"symbol":issue.symbol,"severity":issue.severity,"location":issue.location.range})).collect();
++    json!({"coverage":normalized["coverage"]["status"], "issues":issues,"gaps":normalized["gaps"],"capabilities":normalized["capabilities"],"evidence":normalized["evidence"]})
++}

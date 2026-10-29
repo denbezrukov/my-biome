@@ -1,0 +1,92 @@
+diff --git a/crates/biome_resolver/src/lib.rs b/crates/biome_resolver/src/lib.rs
+index fa5ad8610ef..aa02ee759c6 100644
+--- a/crates/biome_resolver/src/lib.rs
++++ b/crates/biome_resolver/src/lib.rs
+@@ -354,20 +354,33 @@ fn resolve_module(
+ ) -> Result<Resolution, ResolveError> {
+     match &options.package_json {
+         DiscoverableManifest::Auto => match find_package_manifest(fs, base_dir, options) {
+-            Ok((package_path, manifest)) => {
+-                resolve_module_with_package_json(specifier, &package_path, &manifest, fs, options)
+-            }
++            Ok((package_path, manifest)) => resolve_module_with_package_json(
++                specifier,
++                base_dir,
++                &package_path,
++                &manifest,
++                fs,
++                options,
++            ),
+             Err(error) => {
+                 record_event(options, ResolutionEvent::Failure(error));
+-                resolve_dependency(specifier, base_dir, fs, options).map(Resolution::other)
++                resolve_dependency(specifier, base_dir, base_dir, fs, options)
++                    .map(Resolution::other)
+             }
+         },
+         DiscoverableManifest::Explicit {
+             package_path,
+             manifest,
+-        } => resolve_module_with_package_json(specifier, package_path, manifest, fs, options),
++        } => resolve_module_with_package_json(
++            specifier,
++            base_dir,
++            package_path,
++            manifest,
++            fs,
++            options,
++        ),
+         DiscoverableManifest::Off => {
+-            resolve_dependency(specifier, base_dir, fs, options).map(Resolution::other)
++            resolve_dependency(specifier, base_dir, base_dir, fs, options).map(Resolution::other)
+         }
+     }
+ }
+@@ -378,6 +391,7 @@ fn resolve_module(
+ /// self-lookups (using the package's own `exports` for resolving internally).
+ fn resolve_module_with_package_json(
+     specifier: &str,
++    base_dir: &Utf8Path,
+     package_path: &Utf8Path,
+     package_json: &PackageJson,
+     fs: &dyn ResolverFsProxy,
+@@ -479,7 +493,7 @@ fn resolve_module_with_package_json(
+         }
+     }
+ 
+-    resolve_dependency(specifier, package_path, fs, options).map(Resolution::other)
++    resolve_dependency(specifier, base_dir, package_path, fs, options).map(Resolution::other)
+ }
+ 
+ /// Resolves the given alias `specifier`.
+@@ -811,7 +825,7 @@ fn resolve_target_string(
+         let options = options.without_extensions_or_manifests();
+         resolve_relative_path(target, package_path, fs, &options)
+     } else {
+-        resolve_dependency(target, package_path, fs, options)
++        resolve_dependency(target, package_path, package_path, fs, options)
+     }
+ }
+ 
+@@ -874,17 +888,19 @@ fn resolve_target_value(
+ /// Resolves a dependency `specifier` by searching for `node_modules/`
+ /// directories from `base_dir` upwards.
+ ///
+-/// If the `resolve_types` option is set, `type_roots` are searched as well.
++/// If the `resolve_types` option is set, `type_roots` are searched relative to
++/// `type_roots_base`, preserving their manifest anchor independently of the consumer.
+ fn resolve_dependency(
+     specifier: &str,
+     base_dir: &Utf8Path,
++    type_roots_base: &Utf8Path,
+     fs: &dyn ResolverFsProxy,
+     options: &ResolveOptions,
+ ) -> Result<Utf8PathBuf, ResolveError> {
+     let (package_name, subpath) = parse_package_specifier(specifier)?;
+ 
+     for type_root in options.type_roots.explicit_roots() {
+-        let package_path = join_package_name(&base_dir.join(type_root), package_name);
++        let package_path = join_package_name(&type_roots_base.join(type_root), package_name);
+         match resolve_package_path(&package_path, subpath, fs, options) {
+             Ok(path) => return Ok(path),
+             Err(ResolveError::NotFound) => { /* continue */ }

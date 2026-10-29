@@ -1,0 +1,276 @@
+diff --git a/crates/biome_project_analysis/src/dependencies.rs b/crates/biome_project_analysis/src/dependencies.rs
+index dca4f4809b0..c86322efc16 100644
+--- a/crates/biome_project_analysis/src/dependencies.rs
++++ b/crates/biome_project_analysis/src/dependencies.rs
+@@ -1,7 +1,7 @@
+ //! Declaration ownership is independent of installation identity and report selection.
+ 
+ use crate::{
+-    coverage::{CoverageGap, TargetDomain},
++    coverage::{CoverageGap, GapReason, TargetDomain},
+     exports::ExportAnalysis,
+     facts::{ResolutionEvent, ResolutionOutcome, ResolutionPurpose},
+     inventory::{DependencyDeclaration, DependencyKind},
+@@ -73,6 +73,22 @@ pub fn analyze_dependencies(
+         gaps: snapshot.inventory.public_gaps.clone(),
+         ..Default::default()
+     };
++    let mut providers = std::collections::BTreeMap::new();
++    let mut owner_providers = Vec::new();
++    for provider in &snapshot.inventory.package_providers {
++        let key = (
++            provider.workspace,
++            consumer_key(provider.consumer),
++            provider.requested_package.as_str(),
++        );
++        providers
++            .entry(key)
++            .or_insert_with(Vec::new)
++            .extend(&provider.resolutions);
++        if provider.consumer.is_none() {
++            owner_providers.push(provider);
++        }
++    }
+     for declaration in &snapshot.inventory.declarations {
+         analysis.declarations.push(DeclarationUsage {
+             declaration: declaration.clone(),
+@@ -244,7 +260,7 @@ pub fn analyze_dependencies(
+     }
+     let initial = analysis.uses.clone();
+     for usage in &initial {
+-        credit(snapshot, options, &mut analysis, usage);
++        credit(snapshot, options, &mut analysis, usage, &owner_providers);
+     }
+     let mut pending = initial;
+     let mut expanded = std::collections::BTreeSet::new();
+@@ -252,20 +268,7 @@ pub fn analyze_dependencies(
+         if usage.producer == DependencyProducer::Manifest {
+             continue;
+         }
+-        let runtime: Vec<_> = usage
+-            .resolutions
+-            .iter()
+-            .filter(|r| r.context.purpose == ResolutionPurpose::Runtime)
+-            .cloned()
+-            .collect();
+-        let provider = installed_package(
+-            snapshot,
+-            if !usage.package.starts_with("@types/") && !runtime.is_empty() {
+-                &runtime
+-            } else {
+-                &usage.resolutions
+-            },
+-        );
++        let provider = installed_package(snapshot, &usage.package, &usage.resolutions);
+         if !expanded.insert((
+             usage.workspace,
+             usage.location.file,
+@@ -277,27 +280,21 @@ pub fn analyze_dependencies(
+         )) {
+             continue;
+         }
+-        let bundled = provider.is_some_and(|p| p.has_types);
+-        let peers = provider.map(|p| p.peers.clone()).unwrap_or_default();
+-        let mut derived: Vec<_> = peers
+-            .into_iter()
+-            .map(|p| {
+-                (
+-                    p,
+-                    DependencyReason::PeerHost {
+-                        package: usage.package.clone(),
+-                    },
+-                )
+-            })
+-            .collect();
+-        if !bundled && !usage.package.starts_with("@types/") {
+-            derived.push((
+-                type_companion(&usage.package),
+-                DependencyReason::TypeCompanion {
+-                    package: usage.package.clone(),
+-                },
+-            ));
++        if provider_uncertain(provider, &usage.resolutions) {
++            if usage.reason != DependencyReason::Direct {
++                analysis.gaps.push(CoverageGap {
++                    producer: "dependency provider".into(),
++                    domain: TargetDomain::Unbounded,
++                    reason: GapReason::UnavailableInput(format!(
++                        "Cannot determine derived requirements for {}",
++                        usage.package
++                    )),
++                    location: Some(usage.location),
++                });
++            }
++            continue;
+         }
++        let derived = derived_dependencies(&usage.package, provider);
+         for (package, reason) in derived {
+             if !snapshot
+                 .inventory
+@@ -312,16 +309,10 @@ pub fn analyze_dependencies(
+                 DependencyProducer::Import { .. } | DependencyProducer::PublicOutput { .. }
+             )
+             .then_some(usage.location);
+-            let resolutions = snapshot
+-                .inventory
+-                .package_providers
+-                .iter()
+-                .filter(|p| {
+-                    p.workspace == usage.workspace
+-                        && p.requested_package == package
+-                        && p.consumer == consumer
+-                })
+-                .flat_map(|p| &p.resolutions)
++            let resolutions = providers
++                .get(&(usage.workspace, consumer_key(consumer), package.as_str()))
++                .into_iter()
++                .flatten()
+                 .filter(|r| {
+                     consumer.is_none()
+                         || usage
+@@ -329,6 +320,7 @@ pub fn analyze_dependencies(
+                             .iter()
+                             .any(|origin| origin.context == r.context)
+                 })
++                .copied()
+                 .cloned()
+                 .collect();
+             let derived = DependencyUse {
+@@ -339,7 +331,7 @@ pub fn analyze_dependencies(
+                 resolutions,
+                 ..usage.clone()
+             };
+-            credit(snapshot, options, &mut analysis, &derived);
++            credit(snapshot, options, &mut analysis, &derived, &owner_providers);
+             analysis.uses.push(derived.clone());
+             pending.push(derived);
+         }
+@@ -501,6 +493,7 @@ fn credit(
+     options: &AnalysisOptions,
+     analysis: &mut DependencyAnalysis,
+     usage: &DependencyUse,
++    owner_providers: &[&PackageProvider],
+ ) {
+     let reason = match usage.producer {
+         DependencyProducer::Import { .. } => "import",
+@@ -670,12 +663,12 @@ fn credit(
+                 .resolutions
+                 .iter()
+                 .any(|r| matches!(r.outcome, ResolutionOutcome::Resolved { .. }))
+-            && snapshot.inventory.package_providers.iter().any(|p| {
+-                p.consumer.is_none()
+-                    && ancestor(p.workspace)
+-                    && installed_package(snapshot, &p.resolutions).is_some_and(|metadata| {
+-                        metadata.metadata_known && metadata.peers.contains(&usage.package)
+-                    })
++            && owner_providers.iter().any(|p| {
++                ancestor(p.workspace)
++                    && installed_package(snapshot, &p.requested_package, &p.resolutions)
++                        .is_some_and(|metadata| {
++                            metadata.metadata_known && metadata.peers.contains(&usage.package)
++                        })
+             });
+         if !self_import && !workspace_import && !companion && !engine && !host {
+             issue(
+@@ -788,25 +781,87 @@ pub struct PackageProvider {
+     pub requested_package: String,
+     pub resolutions: Vec<ScriptResolution>,
+ }
++/// Selects provider metadata evidence with runtime priority for non-DT requests.
++pub fn provider_manifests(package: &str, resolutions: &[ScriptResolution]) -> Vec<FileId> {
++    let runtime = !package.starts_with("@types/")
++        && resolutions
++            .iter()
++            .any(|r| r.context.purpose == ResolutionPurpose::Runtime);
++    resolutions
++        .iter()
++        .filter(|r| !runtime || r.context.purpose == ResolutionPurpose::Runtime)
++        .flat_map(|r| &r.trace)
++        .filter_map(|event| match event {
++            ResolutionEvent::Manifest { file, .. } => Some(*file),
++            _ => None,
++        })
++        .collect()
++}
++
++/// Unknown provider metadata cannot establish an exhaustive peer or companion set.
++pub fn provider_uncertain(
++    provider: Option<&InstalledPackage>,
++    resolutions: &[ScriptResolution],
++) -> bool {
++    provider.is_some_and(|p| !p.metadata_known)
++        || resolutions
++            .iter()
++            .any(|r| matches!(r.outcome, ResolutionOutcome::Unknown { .. }))
++}
++
++/// Returns derived package relationships shared by acquisition and attribution.
++pub fn derived_dependencies(
++    package: &str,
++    provider: Option<&InstalledPackage>,
++) -> Vec<(String, DependencyReason)> {
++    let mut derived: Vec<_> = provider
++        .into_iter()
++        .flat_map(|p| &p.peers)
++        .map(|peer| {
++            (
++                peer.clone(),
++                DependencyReason::PeerHost {
++                    package: package.into(),
++                },
++            )
++        })
++        .collect();
++    if !package.starts_with("@types/") && !provider.is_some_and(|p| p.has_types) {
++        derived.push((
++            type_companion(package),
++            DependencyReason::TypeCompanion {
++                package: package.into(),
++            },
++        ));
++    }
++    derived
++}
++
+ fn installed_package<'a>(
+     snapshot: &'a AnalysisSnapshot,
++    package: &str,
+     resolutions: &[ScriptResolution],
+ ) -> Option<&'a InstalledPackage> {
+-    resolutions
+-        .iter()
+-        .flat_map(|r| &r.trace)
+-        .filter_map(|event| {
+-            if let ResolutionEvent::Manifest { file, .. } = event {
+-                snapshot
+-                    .inventory
+-                    .installed_packages
+-                    .iter()
+-                    .find(|p| p.manifest == *file)
+-            } else {
+-                None
+-            }
++    provider_manifests(package, resolutions)
++        .into_iter()
++        .rev()
++        .find_map(|file| {
++            snapshot
++                .inventory
++                .installed_packages
++                .iter()
++                .find(|p| p.manifest == file)
+         })
+-        .next_back()
++}
++
++fn consumer_key(location: Option<Location>) -> Option<(FileId, u32, u32)> {
++    location.map(|location| {
++        (
++            location.file,
++            u32::from(location.range.start()),
++            u32::from(location.range.end()),
++        )
++    })
+ }
+ 
+ fn dependency_gap_id(snapshot: &AnalysisSnapshot, gap: &CoverageGap) -> GapId {

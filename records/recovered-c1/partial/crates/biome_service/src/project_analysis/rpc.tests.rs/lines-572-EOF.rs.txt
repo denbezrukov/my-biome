@@ -1,0 +1,131 @@
+fn project_report_cache_keys_complete_options_and_projects_selection_afterward() {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"dependencies":{"unused":"1"}}"#,
+    );
+    fs.insert("/project/index.ts".into(), "import './lib';");
+    fs.insert("/project/lib.ts".into(), "export const value = 1;");
+    let (local, key) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let runs = || {
+        local
+            .as_workspace()
+            .db_state
+            .analysis
+            .analysis_runs
+            .load(std::sync::atomic::Ordering::Relaxed)
+    };
+    let full = local.pull_project_diagnostics(params(key)).unwrap();
+    assert!(
+        full.issues
+            .iter()
+            .any(|issue| issue.kind == IssueKind::Exports)
+    );
+    assert_eq!(runs(), 1);
+    let mut empty = params(key);
+    empty.selection.restrict_workspaces = true;
+    assert!(
+        local
+            .pull_project_diagnostics(empty)
+            .unwrap()
+            .issues
+            .is_empty()
+    );
+    assert_eq!(runs(), 1);
+    let mut overridden = params(key);
+    overridden.overrides.exclude.push(IssueKind::Exports);
+    let report = local.pull_project_diagnostics(overridden.clone()).unwrap();
+    assert!(
+        !report
+            .issues
+            .iter()
+            .any(|issue| issue.kind == IssueKind::Exports)
+    );
+    assert_eq!(report.revision, full.revision);
+    assert_ne!(
+        report.context.semantic_options_digest,
+        full.context.semantic_options_digest
+    );
+    assert_eq!(runs(), 2);
+    assert_eq!(local.pull_project_diagnostics(params(key)).unwrap(), full);
+    assert_eq!(local.pull_project_diagnostics(overridden).unwrap(), report);
+    assert_eq!(runs(), 2);
+}
+
+#[test]
+fn project_entropy_failure_never_mints_a_revision() {
+    use crate::workspace::{
+        NoopQueryProvider, OpenProjectParams, ProjectAnalysisStatus,
+        PullProjectAnalysisStatesParams, ServiceNotification, WorkspaceServer,
+    };
+    use biome_project_analysis::coverage::{Coverage, GapReason};
+    use std::sync::Arc;
+    let fs = Arc::new(MemoryFileSystem::default());
+    fs.insert("/project/package.json".into(), "{}");
+    let mut coordinator = super::coordinator::ProjectAnalysisCoordinator::default();
+    coordinator.session_id =
+        super::coordinator::session_id_from_entropy(|_| Err(getrandom::Error::UNSUPPORTED));
+    assert!(coordinator.session_id.is_none());
+    assert_eq!(
+        super::coordinator::session_id_from_entropy(|bytes| {
+            bytes.fill(7);
+            Ok(())
+        }),
+        Some("07070707070707070707070707070707".into())
+    );
+    let mut db = crate::db::DbState::new(fs.clone());
+    db.analysis = Arc::new(coordinator);
+    let (watcher, _receiver) = crossbeam::channel::unbounded();
+    let (notifications, _) = tokio::sync::watch::channel(ServiceNotification::IndexUpdated);
+    let server = WorkspaceServer::new(
+        fs,
+        watcher,
+        notifications,
+        Arc::new(NoopQueryProvider {}),
+        None,
+    );
+    let workspace = server.with_db_state(&db);
+    let key = workspace
+        .open_project(OpenProjectParams {
+            path: biome_fs::BiomePath::new("/project"),
+            open_uninitialized: true,
+        })
+        .unwrap()
+        .project_key;
+    workspace
+        .open_file(
+            serde_json::from_value(serde_json::json!({
+                "projectKey":key,"path":"/project/index.ts",
+                "content":{"type":"fromClient","content":"export {};","version":0}
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+    assert!(workspace.pull_project_diagnostics(params(key)).is_err());
+    assert!(
+        workspace
+            .build_project_snapshot(key, &Default::default())
+            .is_err()
+    );
+    let state = workspace
+        .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+            project_keys: vec![key],
+        })
+        .unwrap()
+        .remove(0);
+    let ProjectAnalysisStatus::Failed {
+        coverage: Coverage::Failed(gaps),
+    } = state.status
+    else {
+        panic!("Unavailable entropy must retain failed coverage");
+    };
+    assert!(gaps.iter().any(|gap| matches!(&gap.reason,
+        GapReason::UnavailableInput(reason) if reason == "Session entropy is unavailable"
+    )));
+    assert_eq!(
+        db.analysis
+            .analysis_runs
+            .load(std::sync::atomic::Ordering::Relaxed),
+        0
+    );
+}

@@ -1,0 +1,240 @@
+//! Static command evidence retains its producer independently of the evidence location.
+
+use crate::{
+    coverage::CoverageGap,
+    facts::{ResolutionContext, ResolutionEvent, ResolutionOutcome},
+    inventory::Inventory,
+    model::{FileId, Location, ModuleFacts, WorkspaceId},
+    options::AnalysisMode,
+};
+use camino::Utf8PathBuf;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "kind")]
+pub enum ScriptProducer {
+    Manifest {
+        workspace: WorkspaceId,
+        script: String,
+    },
+    Source {
+        file: FileId,
+    },
+}
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+/// Extraction records are not live uses until their typed producer is activated.
+/// Only selected manifest producers can seed reachability without a source edge.
+pub struct ScriptUsage {
+    pub targets: Vec<ScriptTarget>,
+    pub packages: Vec<ScriptPackage>,
+    pub binaries: Vec<BinaryUse>,
+    pub catalogs: Vec<CatalogReference>,
+    pub gaps: Vec<ScriptGap>,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ScriptTarget {
+    pub producer: ScriptProducer,
+    pub workspace: WorkspaceId,
+    pub location: Location,
+    pub mode: AnalysisMode,
+    pub cwd: Utf8PathBuf,
+    pub specifier: String,
+    pub resolutions: Vec<ScriptResolution>,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ScriptResolution {
+    pub context: ResolutionContext,
+    pub outcome: ResolutionOutcome,
+    pub trace: Vec<ResolutionEvent>,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ScriptPackage {
+    pub kind: PackageUseKind,
+    pub producer: ScriptProducer,
+    pub workspace: WorkspaceId,
+    pub location: Location,
+    pub mode: AnalysisMode,
+    pub package_name: String,
+    pub specifier: String,
+    pub optional: bool,
+}
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum PackageUseKind {
+    Preload,
+    Binary,
+    OnDemand,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct CatalogReference {
+    pub package_name: String,
+    pub catalog_name: Option<String>,
+    pub protocol: String,
+    pub producer: ScriptProducer,
+    pub location: Location,
+    pub mode: AnalysisMode,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct BinaryUse {
+    pub optional: bool,
+    pub producer: ScriptProducer,
+    pub workspace: WorkspaceId,
+    pub location: Location,
+    pub mode: AnalysisMode,
+    pub binary: String,
+    pub providers: Vec<BinaryProvider>,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+/// Captured installation identity, including declared aliases and unsuccessful lookup paths.
+/// `available` denotes a valid bin declaration; it does not assert executable availability.
+pub struct BinaryProvider {
+    #[serde(default)]
+    pub requested_package: Option<String>,
+    #[serde(default)]
+    pub owner: Option<WorkspaceId>,
+    #[serde(default)]
+    pub metadata_known: bool,
+    pub workspace: WorkspaceId,
+    pub binary: String,
+    pub package_name: Option<String>,
+    pub manifest: Option<FileId>,
+    pub path: Utf8PathBuf,
+    pub available: bool,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ScriptGap {
+    pub producer: ScriptProducer,
+    pub mode: AnalysisMode,
+    pub gap: CoverageGap,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+/// Trusted Node calls retain shell text separately from literal argv and unresolved values.
+pub struct SourceCommand {
+    pub location: Location,
+    pub method: String,
+    pub command: Option<String>,
+    pub args: Option<Vec<String>>,
+    pub cwd: Option<String>,
+    pub unsupported: bool,
+}
+
+/// Extracts bounded static commands without I/O, environment lookup or shell evaluation.
+pub fn extract_script_uses(
+    inventory: &Inventory,
+    modules: &BTreeMap<FileId, ModuleFacts>,
+    mode: AnalysisMode,
+) -> ScriptUsage {
+    let mut state = Extraction {
+        inventory,
+        mode,
+        usage: ScriptUsage::default(),
+        visited: Default::default(),
+        budget: 4096,
+    };
+    for workspace in &inventory.workspaces {
+        if let Some((_, scripts)) = workspace
+            .metadata
+            .iter()
+            .find(|(name, _)| name == "scripts")
+        {
+            for (name, value) in &scripts.members {
+                if mode != AnalysisMode::Default && name != "start" {
+                    continue;
+                }
+                state.script(
+                    Context {
+                        producer: ScriptProducer::Manifest {
+                            workspace: workspace.workspace,
+                            script: name.clone(),
+                        },
+                        workspace: workspace.workspace,
+                        location: value.location,
+                        cwd: workspace.path.clone(),
+                    },
+                    name,
+                    &[],
+                    0,
+                );
+            }
+        }
+    }
+    for (file, module) in modules {
+        let Some(workspace) = inventory
+            .files
+            .iter()
+            .find(|r| r.file == *file)
+            .and_then(|r| {
+                inventory
+                    .workspaces
+                    .iter()
+                    .find(|w| w.workspace == r.workspace)
+            })
+        else {
+            continue;
+        };
+        for command in &module.commands {
+            let mut context = Context {
+                producer: ScriptProducer::Source { file: *file },
+                workspace: workspace.workspace,
+                location: command.location,
+                cwd: workspace.path.clone(),
+            };
+            if let Some(cwd) = &command.cwd {
+                context.cwd = normalize_path(&context.cwd.join(cwd));
+            }
+            if command.method == "Bun" {
+                state.gap(&context, "Bun command adapter is unsupported");
+                continue;
+            }
+            if command.unsupported || command.command.is_none() || command.args.is_none() {
+                state.gap(
+                    &context,
+                    "Unsupported Node command, argv, cwd or shell option",
+                );
+                continue;
+            }
+            let value = command.command.as_ref().unwrap();
+            match command.method.as_str() {
+                "exec" | "execSync" => state.shell(context, value, &[], 0),
+                "fork" | "worker" => state.target(&context, relative(value)),
+                _ => {
+                    let mut args = vec![value.clone()];
+                    args.extend(command.args.clone().unwrap());
+                    state.command(&mut context, &args, 0);
+                }
+            }
+        }
+        if let Some(facts) = &module.collected {
+            for import in facts
+                .imports
+                .iter()
+                .filter(|i| matches!(i.specifier.as_str(), "execa" | "zx" | "zx/globals"))
+            {
+                state.gap(
+                    &Context {
+                        producer: ScriptProducer::Source { file: *file },
+                        workspace: workspace.workspace,
+                        location: import.location,
+                        cwd: workspace.path.clone(),
+                    },
+                    "Imported command library requires a tool adapter",
+                );
+            }
+            for import in facts.imports.iter().filter(|i| {
+                matches!(
+                    i.syntax,
+                    crate::facts::ImportSyntax::NodeEntry | crate::facts::ImportSyntax::Worker
+                )
+            }) {
+                state.usage.targets.push(ScriptTarget {
+                    producer: ScriptProducer::Source { file: *file },
+                    workspace: workspace.workspace,
+                    location: import.location,
+                    mode,
+                    cwd: workspace.path.clone(),
+                    specifier: import.specifier.clone(),
+                    resolutions: facts
+                        .resolutions
+                        .iter()
+                        .filter(|r| r.occurrence == import.ordinal)
+                        .map(|r| ScriptResolution {

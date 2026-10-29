@@ -1,0 +1,23 @@
+# C1 retained-text recovery
+
+Recovery-only export from the surviving conversation of `/root/project_c1_implement` on 2026-10-29. Nothing was read from or written to `/workspace/my-biome`; no original commands, builds, tests, code generation, implementation reruns or child agents were invoked. The only validation performed was recovery-file hashing and retained diff/range structural checks.
+
+Original stage: final C1 implementation on `feat/native-project-analysis`, base `20104d6aeff4c50f6fb5d308270f747b6bffd878`, committed as `6c48ad8332ff1e3c6e4e4cf2936a6fff969233cc` with message `feat(project): expose completed project diagnostics through workspace RPC`. The retained reads/diff were taken after the final wasm32-only rooted-path fix. Later original validation confirmed all 43 task-source hashes unchanged before committing. No earlier failed implementation stage is substituted for final source.
+
+## Export contents and order
+
+1. `complete/`: full retained source reads, at their original relative paths. Six are C1 changed/new files: service `coordinator.rs`, `transport.rs`, `paths.rs`; LSP `server_project_analysis.tests.rs`; WASM `src/lib.rs`; `.changeset/slow-ends-grow.md`. `crates/biome_wasm/Cargo.toml` is an additional complete retained read of an unchanged file, not a C1 modification.
+2. `patches/001-retained-final-service-engine.diff`: exact retained final `git diff` output against the original C1 base, covering seven files: engine `lib.rs`, `model.rs`, `options.rs`; service `project_analysis/provenance.rs`, `project_analysis/snapshot.rs`, `workspace.rs`, `workspace/server.rs`. These are complete retained C1 diffs for those selected files, **not full source files**. Their old/new abbreviated Git blob IDs and hunk order are preserved. They require the exact base files recovered elsewhere. They have not been applied to a replacement repository.
+3. `partial/crates/biome_service/src/project_analysis/rpc.tests.rs/`: exact retained read ranges 1–120, 173–330, 375–471, 572–702 (EOF). The first three filenames preserve requested original ranges; the last read requested 572–710 and reached EOF at 702. These total 506 retained lines. Missing ranges are 121–172, 331–374 and 472–571. The symbol-location evidence preserves a few individual lines inside gaps, but no missing bodies were synthesized. Excerpts intentionally may start/end inside a function or omit its test attribute.
+4. `evidence/`: original 43 changed paths, retained test symbol locations, and surviving original commit/manifest/hash output. These are historical evidence, not newly executed project verification.
+5. `manifest.json`: fresh recovery hashes for every exported file except itself. These hashes identify the exported transcripts; they are not the unavailable original source-file SHA256 manifest.
+
+Full source export precedes patches and partial excerpts in recovery order. All represent the same final C1 stage, so no chronological overwrite between different source stages is intended. A transcription slip in coordinator `record_watch_gap` was corrected immediately against the retained full read before hashing; exported text preserves the original `let generation = state.generation;` and subsequent `generation,` field.
+
+## Missing material
+
+This is a partial source recovery, not a recovered C1 commit or buildable branch. `manifest.json` lists recovery coverage for all 43 original C1 paths. In particular, the full service request definition/translation (`project_analysis.rs`, `project_analysis/policy.rs`), full snapshot/base service code, engine result model and most schema additions, Cargo modifications, typed client/method-table/registry production additions, generated backend bindings and JavaScript runtime tests are not present as exact source in surviving context. The full coordinator, transport and WASM implementation retain their call sites, but those are not a substitute for missing definitions.
+
+No configuration source file was part of C1's changed-path list; the older B7 configuration/request translation must be recovered from its own stage. No guess based on narrative summaries was emitted as source. Generated bindings may eventually be regenerated only after all exact Rust source and schema changes are recovered; this export does not perform that work.
+
+The original 203-file manifest hash survives as `e2f53d980a616c31fc1a047581936e5fde70bd27962dc6595843d73a81276726`; the original report hash survives as `f2c29a4a28a661d8954211e50723b6f50e7ae1c25342cb3a059b69aeacf216f0`. Their contents and original individual file SHA256 values did not survive in this context. No equality with those lost files is claimed merely because the new recovery manifest hashes successfully.

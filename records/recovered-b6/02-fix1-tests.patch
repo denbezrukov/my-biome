@@ -1,0 +1,269 @@
+diff --git a/crates/biome_service/src/project_analysis/b6.tests.rs b/crates/biome_service/src/project_analysis/b6.tests.rs
+index f77299baa9e..172739837d1 100644
+--- a/crates/biome_service/src/project_analysis/b6.tests.rs
++++ b/crates/biome_service/src/project_analysis/b6.tests.rs
+@@ -750,3 +750,264 @@ fn b6_invalid_source_catalog_uncertainty_is_membership_gated() {
+         );
+     }
+ }
++
++fn assert_catalog_consumer_manifest_uncertainty(broken: Vec<u8>) {
++    let fs = Arc::new(biome_fs::MemoryFileSystem::default());
++    fs.insert("/project/package.json".into(), r#"{"private":true,"workspaces":["packages/*"],"catalog":{"keep":"1","unused":"2"},"dependencies":{"missing":"catalog:"}}"#);
++    fs.insert("/project/packages/app/package.json".into(), broken.clone());
++    fs.insert("/project/unrelated/package.json".into(), broken);
++    let (warm, project) =
++        crate::test_utils::setup_workspace_and_open_project(fs.clone(), "/project");
++    let request = ProjectAnalysisRequest {
++        configuration: serde_json::from_value(json!({"entry":[],"project":[]})).unwrap(),
++        ..Default::default()
++    };
++    for step in 0..3 {
++        if step == 1 {
++            fs.insert(
++                "/project/packages/app/package.json".into(),
++                r#"{"private":true,"dependencies":{"keep":"catalog:"}}"#,
++            );
++        }
++        if step == 2 {
++            fs.insert(
++                "/project/packages/app/package.json".into(),
++                r#"{"private":true}"#,
++            );
++        }
++        let snapshot = warm.build_project_snapshot(project, &request).unwrap();
++        let result = analyze(&snapshot, &AnalysisOptions::default());
++        assert!(result.membership.files.is_empty());
++        let unused: BTreeSet<_> = result
++            .issues
++            .iter()
++            .filter(|i| i.kind == IssueKind::Catalog)
++            .map(|i| i.symbol.as_deref().unwrap())
++            .collect();
++        let expected: BTreeSet<_> = match step {
++            0 => [].into(),
++            1 => ["default.unused"].into(),
++            _ => ["default.keep", "default.unused"].into(),
++        };
++        assert_eq!(unused, expected, "consumer recovery step {step}");
++        let missing: Vec<_> = result
++            .issues
++            .iter()
++            .filter(|i| i.kind == IssueKind::CatalogReferences)
++            .collect();
++        assert_eq!(missing.len(), 1);
++        assert_eq!(missing[0].symbol.as_deref(), Some("default.missing"));
++        let gaps: Vec<_> = result
++            .catalogs
++            .gaps
++            .iter()
++            .filter(|g| g.producer == "catalog consumer metadata")
++            .collect();
++        assert_eq!(gaps.len(), usize::from(step == 0));
++        if let Some(gap) = gaps.first() {
++            assert_eq!(
++                result.sources[&gap.location.unwrap().file]
++                    .logical_path
++                    .as_str(),
++                "packages/app/package.json"
++            );
++            assert!(matches!(
++                gap.domain,
++                biome_project_analysis::coverage::TargetDomain::Unbounded
++            ));
++        }
++        assert!(
++            !result.coverage.gaps().is_empty(),
++            "unrelated invalid input remains incomplete even after consumer recovery"
++        );
++        let (fresh, fresh_project) =
++            crate::test_utils::setup_workspace_and_open_project(fs.clone(), "/project");
++        let fresh_snapshot = fresh
++            .build_project_snapshot(fresh_project, &request)
++            .unwrap();
++        assert_eq!(
++            biome_project_analysis::normalize::normalize_result(&result),
++            biome_project_analysis::normalize::normalize_result(&analyze(
++                &fresh_snapshot,
++                &AnalysisOptions::default()
++            ))
++        );
++    }
++}
++
++#[test]
++fn b6_review1_invalid_consumer_manifest_retains_catalog_uncertainty() {
++    assert_catalog_consumer_manifest_uncertainty(
++        br#"{"dependencies":{"keep":"catalog:"}"#.to_vec(),
++    );
++}
++
++#[test]
++fn b6_review1_unavailable_consumer_manifest_retains_catalog_uncertainty() {
++    assert_catalog_consumer_manifest_uncertainty(vec![255]);
++}
++
++#[test]
++fn b6_review1_unavailable_yaml_preserves_unknown_selection_and_recovers() {
++    for fallback in [false, true] {
++        let fs = Arc::new(biome_fs::MemoryFileSystem::default());
++        let manifest = if fallback {
++            r#"{"private":true,"dependencies":{"missing":"catalog:"},"catalog":{"fallback":"1"}}"#
++        } else {
++            r#"{"private":true,"dependencies":{"missing":"catalog:"}}"#
++        };
++        fs.insert("/project/package.json".into(), manifest);
++        fs.insert("/project/pnpm-workspace.yaml".into(), vec![255]);
++        let (warm, project) =
++            crate::test_utils::setup_workspace_and_open_project(fs.clone(), "/project");
++        let request = ProjectAnalysisRequest {
++            configuration: serde_json::from_value(json!({"entry":[],"project":[]})).unwrap(),
++            ..Default::default()
++        };
++        for step in 0..3 {
++            if step == 1 {
++                fs.insert(
++                    "/project/pnpm-workspace.yaml".into(),
++                    "catalog: { missing: '1', yaml-unused: '2' }\n",
++                );
++            }
++            if step == 2 {
++                fs.insert("/project/pnpm-workspace.yaml".into(), "packages: []\n");
++            }
++            let snapshot = warm.build_project_snapshot(project, &request).unwrap();
++            let result = analyze(&snapshot, &AnalysisOptions::default());
++            let missing = result
++                .issues
++                .iter()
++                .filter(|i| i.kind == IssueKind::CatalogReferences)
++                .count();
++            assert_eq!(
++                missing,
++                usize::from(step == 2),
++                "fallback={fallback} step={step}"
++            );
++            let unused: Vec<_> = result
++                .issues
++                .iter()
++                .filter(|i| i.kind == IssueKind::Catalog)
++                .collect();
++            assert_eq!(
++                unused.len(),
++                usize::from(step == 1 || step == 2 && fallback)
++            );
++            if step == 0 {
++                assert!(
++                    result.catalogs.entries.is_empty(),
++                    "unknown winning YAML must not select a fallback definition"
++                );
++                assert_eq!(result.catalogs.selections.len(), 2);
++                for selection in &result.catalogs.selections {
++                    assert!(!selection.valid);
++                    assert_eq!(
++                        result.sources[&selection.location.file]
++                            .logical_path
++                            .as_str(),
++                        "pnpm-workspace.yaml"
++                    );
++                    assert_eq!(selection.location.file, selection.container.file);
++                    assert!(matches!(
++                        result.sources[&selection.location.file].content,
++                        SourceContent::Unavailable { .. }
++                    ));
++                }
++                assert!(!result.catalogs.gaps.is_empty());
++            } else {
++                assert!(result.catalogs.selections.iter().all(|s| s.valid));
++                assert!(result.catalogs.gaps.is_empty());
++                if let Some(issue) = unused.first() {
++                    assert_eq!(
++                        result.sources[&issue.location.file].logical_path.as_str(),
++                        if step == 1 {
++                            "pnpm-workspace.yaml"
++                        } else {
++                            "package.json"
++                        }
++                    );
++                }
++            }
++            let (fresh, fresh_project) =
++                crate::test_utils::setup_workspace_and_open_project(fs.clone(), "/project");
++            let fresh_snapshot = fresh
++                .build_project_snapshot(fresh_project, &request)
++                .unwrap();
++            assert_eq!(
++                biome_project_analysis::normalize::normalize_result(&result),
++                biome_project_analysis::normalize::normalize_result(&analyze(
++                    &fresh_snapshot,
++                    &AnalysisOptions::default()
++                ))
++            );
++        }
++    }
++}
++
++#[test]
++fn b6_review1_only_pnpm_provider_overrides_consume_catalogs() {
++    let yaml = "catalog: { keep: '1', root: '1', nested: '1' }\noverrides: { keep: 'catalog:', missing: 'catalog:' }\n";
++    for pnpm in [false, true] {
++        let snapshot = acquire(
++            &[
++                (
++                    "package.json",
++                    r#"{"private":true,"workspaces":["packages/*"],"pnpm":{"overrides":{"root":"catalog:","root-missing":"catalog:"}}}"#,
++                ),
++                (
++                    if pnpm {
++                        "pnpm-workspace.yaml"
++                    } else {
++                        ".yarnrc.yml"
++                    },
++                    yaml,
++                ),
++                (
++                    "packages/app/package.json",
++                    r#"{"private":true,"pnpm":{"overrides":{"nested":"catalog:","nested-missing":"catalog:"}}}"#,
++                ),
++            ],
++            json!({"entry":[],"project":[]}),
++        );
++        let result = analyze(&snapshot, &AnalysisOptions::default());
++        let unused: BTreeSet<_> = result
++            .issues
++            .iter()
++            .filter(|i| i.kind == IssueKind::Catalog)
++            .map(|i| i.symbol.as_deref().unwrap())
++            .collect();
++        assert_eq!(
++            unused,
++            if pnpm {
++                ["default.nested"].into()
++            } else {
++                ["default.keep", "default.nested"].into()
++            }
++        );
++        let missing: BTreeSet<_> = result
++            .issues
++            .iter()
++            .filter(|i| i.kind == IssueKind::CatalogReferences)
++            .map(|i| i.symbol.as_deref().unwrap())
++            .collect();
++        assert_eq!(
++            missing,
++            if pnpm {
++                ["default.missing", "default.root-missing"].into()
++            } else {
++                ["default.root-missing"].into()
++            }
++        );
++        assert!(
++            result
++                .catalogs
++                .references
++                .iter()
++                .all(|r| result.sources[&r.location.file].logical_path.as_str()
++                    != "packages/app/package.json")
++        );
++        assert_eq!(result.catalogs.references.iter().filter(|r| matches!(&r.producer, biome_project_analysis::catalogs::CatalogProducer::Metadata { field } if field == "overrides")).count(), if pnpm { 2 } else { 0 });
++    }
++}

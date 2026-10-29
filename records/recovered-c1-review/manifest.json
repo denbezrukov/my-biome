@@ -1,0 +1,28 @@
+{
+  "kind": "partial_literal_retained_review_output_recovery",
+  "original_base": "20104d6aeff4c50f6fb5d308270f747b6bffd878",
+  "original_head": "6c48ad8332ff1e3c6e4e4cf2936a6fff969233cc",
+  "stage": "final_committed_C1_source_read_during_original_static_review",
+  "original_hash_verification": false,
+  "recovery_hashes": "SHA256SUMS",
+  "files": [
+    {"original_path":"Cargo.lock","status":"partial","recovery_path":"partial/Cargo.lock/lines-1460-1495.toml.txt","original_start_line":1460,"original_end_line":1495,"lines":36},
+    {"original_path":"Cargo.lock","status":"partial","recovery_path":"partial/Cargo.lock/lines-1817-1830.toml.txt","original_start_line":1817,"original_end_line":1830,"lines":14},
+    {"original_path":"Cargo.lock","status":"partial","recovery_path":"partial/Cargo.lock/lines-1972-2068.toml.txt","original_start_line":1972,"original_end_line":2068,"lines":97},
+    {"original_path":"packages/@biomejs/backend-jsonrpc/src/workspace.ts","status":"partial","recovery_path":"partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/lines-13081-13465.ts.txt","original_start_line":13081,"original_end_line":13465,"lines":385},
+    {"original_path":"packages/@biomejs/backend-jsonrpc/src/workspace.ts","status":"partial","recovery_path":"partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/lines-13466-state-end.ts.txt","original_start_line":13466,"original_end_line":13775,"lines":310},
+    {"original_path":"packages/@biomejs/backend-jsonrpc/src/workspace.ts","status":"partial","recovery_path":"partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/Workspace-methods.ts.txt","anchor":"Workspace interface: pullProjectDiagnostics and pullProjectAnalysisStates","lines":6},
+    {"original_path":"packages/@biomejs/backend-jsonrpc/src/workspace.ts","status":"partial","recovery_path":"partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/createWorkspace-methods.ts.txt","anchor":"createWorkspace return object: pullProjectDiagnostics and pullProjectAnalysisStates","lines":6}
+  ],
+  "priority_gaps": [
+    "crates/biome_service/src/project_analysis.rs",
+    "crates/biome_service/src/project_analysis/policy.rs",
+    "crates/biome_project_analysis/src/result.rs",
+    "crates/biome_service/src/workspace/client.rs",
+    "crates/biome_service/src/workspace_types.rs",
+    "crates/biome_lsp/src/server.rs"
+  ],
+  "priority_gap_reason": "Exact Rust source was compacted out of current context before recovery; only summaries remain. No source synthesized from summaries.",
+  "repository_mutated": false,
+  "project_executed": false
+}

@@ -1,0 +1,69 @@
+use super::ProjectAnalysisRequest;
+use biome_fs::MemoryFileSystem;
+use biome_project_analysis::{
+    analyze,
+    model::AnalysisSnapshot,
+    options::AnalysisOptions,
+    result::{IssueKind, ProjectAnalysisResult},
+};
+use serde_json::json;
+use sha2::{Digest, Sha256};
+use std::sync::Arc;
+
+fn run(
+    files: &[(&str, &str)],
+    options: AnalysisOptions,
+) -> (Arc<AnalysisSnapshot>, ProjectAnalysisResult) {
+    run_config(
+        files,
+        json!({"entry":["index.ts!"],"project":["**/*.ts!","**/*.js!"]}),
+        options,
+    )
+}
+fn run_config(
+    files: &[(&str, &str)],
+    config: serde_json::Value,
+    options: AnalysisOptions,
+) -> (Arc<AnalysisSnapshot>, ProjectAnalysisResult) {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"type":"module"}"#,
+    );
+    for (path, text) in files {
+        fs.insert(format!("/project/{path}").into(), *text);
+    }
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let request = ProjectAnalysisRequest {
+        configuration: serde_json::from_value(config).unwrap(),
+        mode: options.mode,
+        ..Default::default()
+    };
+    let snapshot = service.build_project_snapshot(project, &request).unwrap();
+    let result = analyze(&snapshot, &options);
+    (snapshot, result)
+}
+fn symbols(result: &ProjectAnalysisResult) -> Vec<(String, String, IssueKind)> {
+    let mut values: Vec<_> = result
+        .issues
+        .iter()
+        .filter(|i| matches!(i.kind, IssueKind::Exports | IssueKind::Types))
+        .map(|i| {
+            (
+                result.sources[&i.location.file].logical_path.to_string(),
+                i.symbol.clone().unwrap(),
+                i.kind,
+            )
+        })
+        .collect();
+    values.sort();
+    values
+}
+fn expected(items: &[(&str, &str, IssueKind)]) -> Vec<(String, String, IssueKind)> {
+    let mut values: Vec<_> = items
+        .iter()
+        .map(|(p, n, k)| (p.to_string(), n.to_string(), *k))
+        .collect();
+    values.sort();
+    values
+}

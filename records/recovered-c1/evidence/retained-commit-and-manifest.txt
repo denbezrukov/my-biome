@@ -1,0 +1,19 @@
+Retained exact tool outputs, not newly executed verification:
+
+[feat/native-project-analysis 6c48ad8332f] feat(project): expose completed project diagnostics through workspace RPC
+ 43 files changed, 2787 insertions(+), 51 deletions(-)
+ create mode 100644 .changeset/slow-ends-grow.md
+ create mode 100644 crates/biome_lsp/src/server_project_analysis.tests.rs
+ create mode 100644 crates/biome_service/src/project_analysis/rpc.tests.rs
+ create mode 100644 crates/biome_service/src/project_analysis/transport.rs
+ create mode 100644 packages/@biomejs/js-api/tests/project-analysis.test.ts
+
+Commit 6c48ad8332ff1e3c6e4e4cf2936a6fff969233cc
+Manifest 203 files SHA256 e2f53d980a616c31fc1a047581936e5fde70bd27962dc6595843d73a81276726
+Report SHA256 f2c29a4a28a661d8954211e50723b6f50e7ae1c25342cb3a059b69aeacf216f0
+Tracked tree clean; unrelated docs preserved: 7
+
+Original parent/base: 20104d6aeff4c50f6fb5d308270f747b6bffd878
+Original native daemon SHA256: 25eba11807a0e1dc5632668a4d298a075bfccd911bb41a49f9be9834e4fa9c44
+The native daemon had the expressly approved pre-wasm32-only-path-guard source exception.
+Original per-source-file SHA256 values were stored in final-source-inputs.json and task-C1-manifest.json but their contents were never printed into the surviving context. They are unavailable here. Recovery hashes are new hashes of the transcribed retained text, not replacements for those lost original hashes.

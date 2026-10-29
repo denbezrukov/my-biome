@@ -658,6 +658,21 @@
       "sha256": "d0aa75409a7cdaf1b0c4c761df75ad8915fd5af10768521b12e946fe4a8f16dc"
     },
     {
+      "path": "records/recovered-a4-review/a4-project-test.commonjs-and-entries.exact-fragment.rs",
+      "bytes": 955,
+      "sha256": "18798ae332a03a2da21b2c398beea4fd1f0f68f47dfc47a2345358f4cd04a043"
+    },
+    {
+      "path": "records/recovered-a4-review/a4-project_facts.collect_import.exact-fragment.rs",
+      "bytes": 5919,
+      "sha256": "70f3fc8d1435119f5281b13075d7898803b47e79ddc0f728dac4225829a9be94"
+    },
+    {
+      "path": "records/recovered-a4-review/manifest.json",
+      "bytes": 2790,
+      "sha256": "604d568c7cec237944e167a63b6379925b55a03bf23df96c2e1cda7f29213d9c"
+    },
+    {
       "path": "records/recovered-a4/SHA256SUMS",
       "bytes": 1760,
       "sha256": "4670c3730e9709186d3056d4b2386993219e353b543c555696675c572c1ce31a"
@@ -896,6 +911,1191 @@
       "path": "records/recovered-a5/snapshot.rs.at-39046be.txt",
       "bytes": 19937,
       "sha256": "a20e6c726507f8841a816bec3ec8d0f1c5678e13114ca9c7fefe7eff7869e381"
+    },
+    {
+      "path": "records/recovered-b1/RECOVERY.md",
+      "bytes": 5525,
+      "sha256": "3db576101507e750331aa8ebda299b0357dc99e84a111fe307a695d6ea5eed82"
+    },
+    {
+      "path": "records/recovered-b1/excerpts/fix1-red-tagged.log.tail25.txt",
+      "bytes": 1359,
+      "sha256": "8caed757d89154ffddee63c57cb379d3f4bc111c563bdf7b5da227c675bc2378"
+    },
+    {
+      "path": "records/recovered-b1/excerpts/main-project_facts-literal-helpers.rs.txt",
+      "bytes": 601,
+      "sha256": "075b5e92dd39d96eaf0db5298fe8e931ca3b37e32d596266b226094e5dfbf2f2"
+    },
+    {
+      "path": "records/recovered-b1/intermediate/pre-final-scope-order/crates/biome_project_analysis/tests/reachability.rs",
+      "bytes": 11190,
+      "sha256": "f6995396db012095dff7371f55572ff3d21c8fc19369393144922cdba2b21f3a"
+    },
+    {
+      "path": "records/recovered-b1/main/.changeset/witty-things-attend.md",
+      "bytes": 347,
+      "sha256": "46bd41d407e6ebc3b5acd7f6ccbbfd2b524d71105f1d9a4e346b7aa52d6422ae"
+    },
+    {
+      "path": "records/recovered-b1/main/crates/biome_project_analysis/Cargo.toml",
+      "bytes": 518,
+      "sha256": "f165057065c84f22cb05701464a2147664bc07210220594418cf206aaaff7187"
+    },
+    {
+      "path": "records/recovered-b1/main/crates/biome_project_analysis/src/reachability.rs",
+      "bytes": 23188,
+      "sha256": "32cfe52e3ac3a4349b41777ec6269435d12f9e154d2d93a100cfe7fe8c5393a2"
+    },
+    {
+      "path": "records/recovered-b1/main/crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "bytes": 123,
+      "sha256": "1e9784ad4abc8a659823632f607292259db75f1b20fdf02619717d983b959228"
+    },
+    {
+      "path": "records/recovered-b1/main/crates/biome_project_analysis/tests/fixtures/unreachable_chain_and_cycle.expected.json",
+      "bytes": 63,
+      "sha256": "3ca9680198fa57519cddd6775373f303215567afadae672b02024d2fcf130156"
+    },
+    {
+      "path": "records/recovered-b1/main/crates/biome_service/src/project_analysis/reachability.tests.rs",
+      "bytes": 26447,
+      "sha256": "f74c43e4f6d33ab85723fa4711f53fb410549a70b234e469eaefe85542b7b50e"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-analyze.diff",
+      "bytes": 5909,
+      "sha256": "9e4528dba847137c2a7e13c8bec75de0952c6f89a9fdbb92e5d143f0d52870cc"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-collector-partial.diff",
+      "bytes": 3281,
+      "sha256": "decc84220ba0ffc8c22b50952651fb5f6c51d1892e59f73cb0a86cd60fb190c1"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-conformance-description.diff",
+      "bytes": 2431,
+      "sha256": "2b2baf22857166a1fafdea5235047908d6ce7bb25bacdce311a39455b4ec2c96"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-contracts-and-support.diff",
+      "bytes": 5416,
+      "sha256": "b11578995b1dcd0be541a206a8ea4381129627251dd26eb7694f6b659a763284"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-engine-coverage.diff",
+      "bytes": 562,
+      "sha256": "7ae9485bcec55804d328d6ff6a5fca5d3960ad6fc7b7ee130f65211a5654daa3"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-engine-interfaces.diff",
+      "bytes": 3762,
+      "sha256": "95466597633a85422529eac713fc929de3a656025926f76ad6a0b8b40d306fd0"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-lock.diff",
+      "bytes": 329,
+      "sha256": "8c5a1c06bce6409667de07560563f6003e5959cec0a06efdea4020ac5fea8d1d"
+    },
+    {
+      "path": "records/recovered-b1/patches/00-main-service.diff",
+      "bytes": 6379,
+      "sha256": "e9eba68590163d9e287eea28cc2d89ded16dd63b777ca5935ccd657cf08aac64"
+    },
+    {
+      "path": "records/recovered-b1/patches/01-main-final-scope-order.apply_patch.txt",
+      "bytes": 623,
+      "sha256": "b6c7aa5d866c9bd64d399e02539840d8fd4b12c4fe26ce527161d0fcc0736206"
+    },
+    {
+      "path": "records/recovered-b1/patches/02-fix1-tests.apply_patch.txt",
+      "bytes": 2293,
+      "sha256": "d7d2da1065893bb4fe427cd10cdd873c9f6af5e68cfec1b1c908efb29a58ae5f"
+    },
+    {
+      "path": "records/recovered-b1/patches/03-fix1-production.apply_patch.txt",
+      "bytes": 895,
+      "sha256": "ab35c59eb883aea43000f5c78fe6b49115922d32d82edfeee311ca8faa260609"
+    },
+    {
+      "path": "records/recovered-b1/patches/03-fix1-production.diff",
+      "bytes": 1628,
+      "sha256": "9a305e1d0d50193662912db7a075c98828372377152c684fe70fb24e0a721e56"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/.changeset/many-ties-decide.md",
+      "bytes": 392,
+      "sha256": "4aa52b25783d75686da390f504f2f4906a13564b558bf9a644de040cf445bf3c"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/SHA256SUMS",
+      "bytes": 805,
+      "sha256": "81dd978ca1be2c064e3004fabd86d53dcd026f86fc96a55192c1d8bf04550e7f"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_module_graph/src/project_facts.rs",
+      "bytes": 91999,
+      "sha256": "f1bdb64cf6088f9bea643027e837ed8d9c3218b1645a144872c6d6c5be8346b5"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 35497,
+      "sha256": "ad3ea879269c795a73045d7b477cd30b0dd0971ee4bd0a39700fbd592533a03f"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_project_analysis/src/facts.rs",
+      "bytes": 7633,
+      "sha256": "507045c91dee81f232659a925d8a9b2213c4d0bdeb4334d2913ac73932f21dcd"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_service/src/project_analysis/exports.tests.rs",
+      "bytes": 54424,
+      "sha256": "48644e56f4a46e83b467219482ab0278404306f8178bea0e68b7377bc09014e4"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "bytes": 6376,
+      "sha256": "e879a1b6b5248647f34b72e45d0f313f4db8d15b6b917e15522f746900bccaf4"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_service/src/project_analysis/owned_facts.rs",
+      "bytes": 24173,
+      "sha256": "4ed38d88cb0c98d49bf1c76aa695201adf2732ebfa58513f185fc53cf4864297"
+    },
+    {
+      "path": "records/recovered-b2-fix1-review/manifest.json",
+      "bytes": 2609,
+      "sha256": "7279c6cc93251f24a18c5a5094fbff432f611f397f90882ff964a271302ba213"
+    },
+    {
+      "path": "records/recovered-b2/RECOVERY.md",
+      "bytes": 6720,
+      "sha256": "64decf2a9190350a4ed4653717932fb77c4a0cb16f722691ebc7743524e4b358"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_module_graph/src/project_facts.rs.lines-1-220.fragment",
+      "bytes": 5583,
+      "sha256": "5445314b2a3020587b2f5c0938555de91b9ff8596baa142b8e96038caaf32ce4"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_module_graph/src/project_facts.rs.registration_identity.fragment",
+      "bytes": 1795,
+      "sha256": "d425b3a2e5cdaacbbabac674fdda5bb67059d3af0a12eb398c4f3157658e2817"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_project_analysis/src/exports.rs.lines-135-310.fragment",
+      "bytes": 7846,
+      "sha256": "b5dbec1969e1b5be5fdc15d5bbdd64bdd2c846f04e1a901683e03380ba65f725"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_project_analysis/src/exports.rs.lines-808-875.fragment",
+      "bytes": 2645,
+      "sha256": "3f0a30fe337c0eaa1280c5c108fd164aa5a2d897a97196bf979275fc6d5a8cae"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_project_analysis/src/exports.rs.output-through-evidence-prefix.fragment",
+      "bytes": 6946,
+      "sha256": "08c480217046538e1f05e951f929ad5090014b6306197dd62291e6dd619a232b"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_project_analysis/src/exports.rs.select.fragment",
+      "bytes": 907,
+      "sha256": "5a10ec531d9707f22543c162f47da7920d855bd5634f9386df752b55e412809d"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_project_analysis/src/facts.rs.ImportOccurrence.fragment",
+      "bytes": 418,
+      "sha256": "fa689718b22e3e6eaa89881ef84128afdff99c8bbee19ad9d0554ae4a78b19ce"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_service/src/project_analysis/exports.tests.rs.namespace-and-registry.fragment",
+      "bytes": 6125,
+      "sha256": "fb504822c6443e7bd5970e233bbe29a481f0a1be3457bb41c89b66f1edd459fd"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_service/src/project_analysis/exports.tests.rs.native-registration.fragment",
+      "bytes": 778,
+      "sha256": "9859d8192b29f173965c9ba6d4a7601ce31e45d9f5932d60cc5f230ac353846f"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_service/src/project_analysis/exports.tests.rs.prefix-through-expected.fragment",
+      "bytes": 2096,
+      "sha256": "57e0632048ff49cfe259be861a18516d71ac3c52a345387d41cdb59cbee3fcfd"
+    },
+    {
+      "path": "records/recovered-b2/excerpts/d1722ea7/crates/biome_service/src/project_analysis/owned_facts.rs.imports-projection.fragment",
+      "bytes": 1264,
+      "sha256": "99e777884b0849af86d759b9125adb6d4760c554243cfb86bd0696502713df09"
+    },
+    {
+      "path": "records/recovered-b2/historical/d1722ea7/report-hashes.fragment.md",
+      "bytes": 1667,
+      "sha256": "cdd32b2c820e767f1970f7a2b202de706225abbb430fb307521ae3805f0c7beb"
+    },
+    {
+      "path": "records/recovered-b2/stages/d1722ea7/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "bytes": 5085,
+      "sha256": "c166f3d3be3692923ed9ce7205dc40a86fb7c6636b6c830ce57cf0a5782e36df"
+    },
+    {
+      "path": "records/recovered-b2/stages/fix1-final/crates/biome_service/src/project_analysis/exports.tests.rs.fragment",
+      "bytes": 1268,
+      "sha256": "20e1fcf84f9520a2fe8534ee8a491e31dcaf140826cee37169b0eed459900751"
+    },
+    {
+      "path": "records/recovered-b2/stages/fix1-final/fixture-readme.diff",
+      "bytes": 2760,
+      "sha256": "6856e1572532040f8e6c15719f5590e296d3ad0c0dca09457191ab74d4be475d"
+    },
+    {
+      "path": "records/recovered-b2/stages/fix1-final/import-terminal-edit.py.txt",
+      "bytes": 240,
+      "sha256": "1d24c503c3d60b3d3c115c708fa4466c610f325e7fd77f594fcccad3e0375e98"
+    },
+    {
+      "path": "records/recovered-b2/stages/fix1-pre-import-ruling/exports-tests.diff",
+      "bytes": 8265,
+      "sha256": "8e82e712136b0c19a972cb37ad10f8594763687af3872312c924be01f46c8c55"
+    },
+    {
+      "path": "records/recovered-b2/stages/fix1-pre-import-ruling/production.diff",
+      "bytes": 9782,
+      "sha256": "71c3245e06ef9b0031473008cd6f3a903abcde54f4ff8700d6167fe0849a024e"
+    },
+    {
+      "path": "records/recovered-b3/README.md",
+      "bytes": 3783,
+      "sha256": "f706bdd53571dec976e98b2b886d726d3d03a5d0aea2347c52a77f37c9eb7c6c"
+    },
+    {
+      "path": "records/recovered-b3/RECOVERY-MANIFEST.json",
+      "bytes": 17452,
+      "sha256": "a3b57f42acf64c5cfbf68077a24ad0ee4055cedc4e611dc5a98110c68fddc4c6"
+    },
+    {
+      "path": "records/recovered-b3/artifacts/.superpowers/sdd/native-project-analysis-2026-10-26/b3-logs/verify-corpus.py",
+      "bytes": 2389,
+      "sha256": "59430ab78098777b2dd9b4e044fa51ae41872a82a324c0ce504bfef0584ee68a"
+    },
+    {
+      "path": "records/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.incomplete-membership-function-prefix",
+      "bytes": 1444,
+      "sha256": "4a7c74a8e2d3aaadb8059c41904df433193b620802ead154280e489c56b36bf4"
+    },
+    {
+      "path": "records/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.incomplete-warm-function-suffix",
+      "bytes": 1177,
+      "sha256": "f633ffb9472446fc7e3798237ea7c9404701d6cec130b7abc26c4e1e4453f781"
+    },
+    {
+      "path": "records/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.prefix-through-retained_b3_oracle_cases",
+      "bytes": 12080,
+      "sha256": "01989c3e3909c81941eb6b0201e59342b2633d0a37ffc46601471421dda20e14"
+    },
+    {
+      "path": "records/recovered-b3/fragments/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/members.tests.rs.suffix-from-forwarding-policy-through-EOF",
+      "bytes": 3981,
+      "sha256": "d8e26de7d6ed24bed3a3f1dd17134760caac926627dff073cdce0e3fb236917b"
+    },
+    {
+      "path": "records/recovered-b3/fragments/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/exports.rs.member-helper-region",
+      "bytes": 879,
+      "sha256": "eee186ac258b447e905a64c35c3d738f141102e05f8bfdf799879c9d308e4b0a"
+    },
+    {
+      "path": "records/recovered-b3/fragments/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_service/src/project_analysis/members.tests.rs.fix1-appended-lines-684-826",
+      "bytes": 4984,
+      "sha256": "217ae37f6d862fb274d600d1c3add008e7cd0259aae770656f02c21430877281"
+    },
+    {
+      "path": "records/recovered-b3/metadata/original-fix1-frozen-files.sha256",
+      "bytes": 462,
+      "sha256": "0ee59f43f60dfd221fba265743df0e7e6ec8c720dd247cbe9f294a06555c0b87"
+    },
+    {
+      "path": "records/recovered-b3/metadata/original-main-frozen-files.sha256",
+      "bytes": 2697,
+      "sha256": "5961b1c31e140540d540b9650662fc1f5db5379cb8bf55058eecc10dcfcaf1e6"
+    },
+    {
+      "path": "records/recovered-b3/patches/01-main-990a42e7-to-07d3c3e7-retained-five-file-diff.patch",
+      "bytes": 24134,
+      "sha256": "8387029a7cb230aabeb000470ce6c5931002b40d877cb15716323e3c45f03e08"
+    },
+    {
+      "path": "records/recovered-b3/patches/02-fix1-F1-imported-aliases-before-format.apply_patch",
+      "bytes": 2578,
+      "sha256": "fc335e79b9356011c7e6809e360e07adac3616aa35777735a7751b5d39f8d56e"
+    },
+    {
+      "path": "records/recovered-b3/patches/03-fix1-F2-tag-uncertainty.apply_patch",
+      "bytes": 710,
+      "sha256": "676b7855fd0a5d897cc2d6dbc6dd3a44c05e19e0ed764e3048c07f753b19ff25"
+    },
+    {
+      "path": "records/recovered-b3/patches/04-fix1-F3-decoded-member-paths.apply_patch",
+      "bytes": 557,
+      "sha256": "7030e6d7a734a67ee57fc37655cc048c4d20bec1fd18ba257e8f50cf27d549e2"
+    },
+    {
+      "path": "records/recovered-b3/patches/05-fix1-final-direct-binding-guard-after-first-format.apply_patch",
+      "bytes": 479,
+      "sha256": "ff35e4851856ca68405d172a00e72314d2f118b358a5dbb598a96f51539804fe"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/.changeset/eight-otters-try.md",
+      "bytes": 311,
+      "sha256": "f571160b65f483e62eee58ee6cb5a7b83e7a22c8e3b9add648d897f2d5fd4b75"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_module_graph/src/project_members.rs",
+      "bytes": 10792,
+      "sha256": "6c1efc25de11475687ad3bc09b1fe491a0e63c59cb5b10a4e35474c3957fbad8"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/src/facts.rs",
+      "bytes": 8502,
+      "sha256": "4840a0678d1a9a6c66870c14e0aed7b35423e5c35644a275f2483dc282cdef65"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/src/members.rs",
+      "bytes": 17830,
+      "sha256": "14066171fff24c1e1005ab672a28a35da24968e615e24d17eeb3b27a1478852b"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_project_analysis/tests/members.rs",
+      "bytes": 6497,
+      "sha256": "bd3886ce9834424636d03a4fbfa1e7f7bf1ebd5185478ceb9e748e6d486ffd62"
+    },
+    {
+      "path": "records/recovered-b3/stages/07d3c3e786f0e59434a7ee0f2e406b8e96592353/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "bytes": 8896,
+      "sha256": "03494d80097e30f965195e163ea110b2c19cb21f047fbd68fbcb08dc9a50c543"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/.changeset/eight-otters-try.md",
+      "bytes": 311,
+      "sha256": "f571160b65f483e62eee58ee6cb5a7b83e7a22c8e3b9add648d897f2d5fd4b75"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_module_graph/src/project_members.rs",
+      "bytes": 10977,
+      "sha256": "c45d43634bfa553e25722a3b7ef3de2d72c8bacfae8395ce760a89d4cfb99892"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/facts.rs",
+      "bytes": 8502,
+      "sha256": "4840a0678d1a9a6c66870c14e0aed7b35423e5c35644a275f2483dc282cdef65"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/src/members.rs",
+      "bytes": 17888,
+      "sha256": "dadea064cc2d7615a40b708807a42eb34ebe6941322d2ebdf901d44e831ba89c"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_project_analysis/tests/members.rs",
+      "bytes": 6497,
+      "sha256": "bd3886ce9834424636d03a4fbfa1e7f7bf1ebd5185478ceb9e748e6d486ffd62"
+    },
+    {
+      "path": "records/recovered-b3/stages/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "bytes": 8896,
+      "sha256": "03494d80097e30f965195e163ea110b2c19cb21f047fbd68fbcb08dc9a50c543"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/README.md",
+      "bytes": 2828,
+      "sha256": "2249cc104f50f2d6d61eed73ab68104781eb60a1aab25b03bbeeb4b4914c02c8"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/SHA256SUMS",
+      "bytes": 663,
+      "sha256": "650787ec468d10e17c0a03185d929927eeef44a87aa8af43a55a022d010d56fb"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/final/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4533,
+      "sha256": "baf1f8298cf968307c1e290f11187eaaaeb4112912761ff648ba7c3820c08301"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/final/crates/biome_project_analysis/src/scripts.rs",
+      "bytes": 37197,
+      "sha256": "6b58c0975cd6b6b15b0a0e02ad84e96c61c733bdddda474ef9f3e3189de8de98"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/final/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 12669,
+      "sha256": "3fcbab0250bfe9936b0e411796c290f6193a4aedc4ed155d1f2f4ff016138604"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/final/crates/biome_service/src/project_analysis/scripts.tests.rs",
+      "bytes": 30330,
+      "sha256": "0b6cd5b9926ad2d03c933665cc032dfee0bea67e96e92590cda4375b1d449edb"
+    },
+    {
+      "path": "records/recovered-b4-fix1-review/task-B4-fix1-review-package.txt",
+      "bytes": 17817,
+      "sha256": "260cc47373c307213957e88634a77a389f3f810ffde167b23f50ddea3fbc3283"
+    },
+    {
+      "path": "records/recovered-b4/RECOVERY.md",
+      "bytes": 5807,
+      "sha256": "09e597ae29f403ec6c2c8f099716aa4980a1b0186bb1e21601345709ee58cad0"
+    },
+    {
+      "path": "records/recovered-b4/evidence/35-review-all-red.log",
+      "bytes": 5321,
+      "sha256": "bdd567561ae6a44ff19abd57d99b65f5050d496f9f6794da8ccad3dd96941927"
+    },
+    {
+      "path": "records/recovered-b4/evidence/38-review-affected-suites.results.excerpt.txt",
+      "bytes": 1229,
+      "sha256": "a0f528df9614528b81e17072f7f375ec0199ec35eb21e9b36a2016a2ebed03e6"
+    },
+    {
+      "path": "records/recovered-b4/evidence/final-commit-verification.tool-output.txt",
+      "bytes": 312,
+      "sha256": "dd7749e6a63da1932f1f2957aea02e2a6912e09da00fd37bab602ba9000a12d8"
+    },
+    {
+      "path": "records/recovered-b4/evidence/final-report-hash.tool-output.txt",
+      "bytes": 131,
+      "sha256": "2457d42aab880b31582b7512d1ec5d7557636ed736ae4145f980b8bd5dee1f42"
+    },
+    {
+      "path": "records/recovered-b4/final/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4533,
+      "sha256": "baf1f8298cf968307c1e290f11187eaaaeb4112912761ff648ba7c3820c08301"
+    },
+    {
+      "path": "records/recovered-b4/final/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 12669,
+      "sha256": "3fcbab0250bfe9936b0e411796c290f6193a4aedc4ed155d1f2f4ff016138604"
+    },
+    {
+      "path": "records/recovered-b4/main/.changeset/free-bushes-refuse.md",
+      "bytes": 333,
+      "sha256": "b6196863fb708155b46b63eda659db1a3d587ecb852c71e7376d7f72286557c8"
+    },
+    {
+      "path": "records/recovered-b4/main/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4191,
+      "sha256": "1ee7b2210a2299b86abf4cc96f60485254dd2bb1f13aaf66815b6b5ff02eab4f"
+    },
+    {
+      "path": "records/recovered-b4/main/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 10367,
+      "sha256": "14d2b31286b71bc77523ef02bc94ebb1f58abdb8764fde12b66daca7d7966197"
+    },
+    {
+      "path": "records/recovered-b4/main/crates/biome_service/src/project_analysis/scripts.rs",
+      "bytes": 12726,
+      "sha256": "6abb251427a63494509815631fd954d738ced2e0db4dfc5ea4c664736d831d96"
+    },
+    {
+      "path": "records/recovered-b4/main/xtask/project_analysis/fixtures/scripts/README.md",
+      "bytes": 2628,
+      "sha256": "3c1d47b3c7592156250fdb002fdd86d9f2df22e69e1690c604e89c3452e763d8"
+    },
+    {
+      "path": "records/recovered-b4/main/xtask/project_analysis/fixtures/scripts/command-comparisons.json",
+      "bytes": 11603,
+      "sha256": "5d8a35ed8f49d6f8687c722cfff400473fd2ae421fb9ae4f7e42852ea81dfc69"
+    },
+    {
+      "path": "records/recovered-b4/main/xtask/project_analysis/fixtures/scripts/comparison.json",
+      "bytes": 1113,
+      "sha256": "0a88b05a8f80d0620ebbb371cb26a86076408aa63cee5690e13199e02e30fcdb"
+    },
+    {
+      "path": "records/recovered-b4/original-main-frozen-files.sha256",
+      "bytes": 3894,
+      "sha256": "a4fc017eacf6dc2506bb18af411f02bb0d8c10f35724a735707869b807d9b8a2"
+    },
+    {
+      "path": "records/recovered-b4/partial/engine-scripts.main.lines1-240.rs.txt",
+      "bytes": 8381,
+      "sha256": "ebc1bc6145e805ba6b35196d6242e35cb2be3c9b02af162a204f4b04c300274f"
+    },
+    {
+      "path": "records/recovered-b4/partial/engine-scripts.main.lines334-680.rs.txt",
+      "bytes": 12914,
+      "sha256": "4fc8890c5e53eeb44cac978e12a81220d495b35f85de1cdf592522c10fd13587"
+    },
+    {
+      "path": "records/recovered-b4/partial/graph-project.test.main.b4-final49lines.rs.txt",
+      "bytes": 1765,
+      "sha256": "9ca3676fb4afda5c11327f68e78c38cbbfbeffb54a09a98b82cec3a0388a3d8f"
+    },
+    {
+      "path": "records/recovered-b4/partial/service-scripts.tests.main.lines1-125.rs.txt",
+      "bytes": 3765,
+      "sha256": "9f96cd8be9fe02e1453abd7a4ae5e3fca5c8be3fe4ac4ec3aef4de4a36fa8d79"
+    },
+    {
+      "path": "records/recovered-b4/patches/00-main-integration.patch",
+      "bytes": 15324,
+      "sha256": "39de70f556ec034d986d56d78fe098be7bcbb0a4fd3448499c51c7f65f2ac386"
+    },
+    {
+      "path": "records/recovered-b4/patches/01-fix1-engine.patch",
+      "bytes": 3328,
+      "sha256": "0ce26587d69addc7186401f1830d9cbe603f8bb8f722eb692b1ef325edbf4db4"
+    },
+    {
+      "path": "records/recovered-b4/patches/02-final-fix1-tests.patch",
+      "bytes": 6916,
+      "sha256": "203c0560fa53f6aa63bcff5bacc8e4516ea0475531ef1e8429ae65547d7f7ddc"
+    },
+    {
+      "path": "records/recovered-b4/patches/03-final-fix1-collector.derived.patch",
+      "bytes": 2135,
+      "sha256": "28dcf028cc2053b8c33e7c3d70588baf68ddee07dd87cb508dd4cde7b8608719"
+    },
+    {
+      "path": "records/recovered-b4/recovery-manifest.json",
+      "bytes": 5593,
+      "sha256": "c6e3d2aaf67766eaf2bdbc40acdf77db20d3c45f4d26a62f3dd67aeb1704fe03"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/.changeset/common-files-fry.md",
+      "bytes": 517,
+      "sha256": "fe02452a577bf5904bc06c669f24085a5eb8cee559d9200d810cdbbf807c8849"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/README.md",
+      "bytes": 741,
+      "sha256": "ce2491510431319210b3fff66e85fcc0c7a4b907c954c2c933ba541d223277d5"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/SHA256SUMS",
+      "bytes": 1844,
+      "sha256": "1916c08b9b178699d4ad5cbae4c9a5b596c51db33d21d56edbc180c252ee675e"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_project_analysis/src/dependencies.rs",
+      "bytes": 29308,
+      "sha256": "48c66f07425dcf7a06bc2f592f10a4569d8a3cd9619d941ea04ff195a37aaae4"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_project_analysis/src/normalize.rs",
+      "bytes": 6280,
+      "sha256": "1391a9cdc20a8b03f148dbdae3787979a510cc4d238fa813dd3008a43ca2e0fe"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_resolver/tests/consumer_context.rs",
+      "bytes": 3944,
+      "sha256": "4775b3501a3d741dcc536525818facd7a320676c3690f06f8db23bab333986ae"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_service/src/project_analysis/dependencies.rs",
+      "bytes": 28175,
+      "sha256": "28aff1502da92473384ec689fa0fccc8ef750927a5f666454ed56e939a56ca98"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "bytes": 54814,
+      "sha256": "58e010eb78e07842b99dd7f6228a6b29e5c7527315bead6e6caf1e2a6852883a"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_service/src/project_analysis/scripts.rs",
+      "bytes": 12737,
+      "sha256": "479ce6f34379ffe309585bfccc037710b37812e4dc3d918442028559c441e268"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/crates/biome_service/src/project_analysis/snapshot.rs",
+      "bytes": 23791,
+      "sha256": "5209d7960e2702c952b54e1c43f2ee1adce7486ee8b4f8d000b5ca9101fca4e6"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/manifest.json",
+      "bytes": 8964,
+      "sha256": "c7180ef5a73694ddf74423591e03f786d7ee4df477f393e9d8a94f88e516f22c"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/resolver-lib.fix1.diff",
+      "bytes": 3873,
+      "sha256": "ae1de6d3fc9bbd31cd873f9e699c2f2c0fed3613de310d58fec26439ba6f0be4"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-dependencies.tests.rs.lines-1-570.partial",
+      "bytes": 20789,
+      "sha256": "163f718c7823ea0c5304a5f84fd8a2beb46e92288bc5c0fbfd81440d6dfc35ff"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-dependencies.tests.rs.lines-1161-1511.partial",
+      "bytes": 13767,
+      "sha256": "4e560fb90d1ae700b9a1edb83308b6273eaf4074689dd4beae9aea3fd1262c20"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-dependencies.tests.rs.lines-571-1160.partial",
+      "bytes": 20258,
+      "sha256": "f908d835bc50e1114fdde3536bf8a2458758835eb5ad4b70197bee27ff828e27"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-inventory.rs.lines-38-135.partial",
+      "bytes": 3318,
+      "sha256": "4d1e9fa27a8b8979e31668dadb94323e8e7800a522b2ab20b23a0205cae80902"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-owned_facts.rs.lines-228-343.partial",
+      "bytes": 5383,
+      "sha256": "f51b7aa012b58804d120c8a2bdf5df94c625d65e542520f7e716090d46243898"
+    },
+    {
+      "path": "records/recovered-b5-fix1-review/partials/service-owned_facts.rs.lines-27-43.partial",
+      "bytes": 687,
+      "sha256": "0ce8454fac90fab340e812d57958eca5ad552a8ccf89673dde323a8d616dec48"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/README.md",
+      "bytes": 3396,
+      "sha256": "420c6d51f809b5c4d1b5ce14277874e27b407163afea5700db29a368bcb3e0e4"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/SHA256SUMS",
+      "bytes": 952,
+      "sha256": "fd67eab8bff285a4165aebc94e6e0d4ea2e01a418249bb57c8443fc4c015e3f4"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/dependencies.tests.append.rs",
+      "bytes": 7743,
+      "sha256": "31d8cd706173b0ccdc3ae982442fe3cc3e38cfe2bb9529ddc295bc61700100d0"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/engine-dependencies.diff",
+      "bytes": 10348,
+      "sha256": "91ef5b88ab90492bf3e44ef641d1689f15484e93be4664adc394121e2cacacd5"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/final-74f3d041/crates/biome_project_analysis/src/dependencies.rs",
+      "bytes": 31271,
+      "sha256": "5fdb940e90065292d91d674b875b5368e86c43a9f0ea2770ce6f224abc3a26a5"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/final-74f3d041/crates/biome_service/src/project_analysis/dependencies.rs",
+      "bytes": 32480,
+      "sha256": "54f16fde6054fcefc4d476f0ff99729e20e92be5993f93e6d8d9f3dc9c96d7e4"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/final-74f3d041/crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "bytes": 62557,
+      "sha256": "e7fd3e2557d72e6a67c8823aede3847f53699bd2416da816201a9d330c4c5931"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/reconstruct_recovery.py",
+      "bytes": 3027,
+      "sha256": "7e259731c6f9715145add4e8d0c7242b6ffc5ac502bbb66b7f59f415a9123055"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/reconstructed-sources.json",
+      "bytes": 959,
+      "sha256": "f84422cde5c0ac3f964ea2fa0b161b87db121e729e032eb1be025b3489c7d68c"
+    },
+    {
+      "path": "records/recovered-b5-fix2-review/service-dependencies.diff",
+      "bytes": 14870,
+      "sha256": "a28de670129988d3ff2d9ec5f1de5205aee7c896e07797148db9bec7f40d012e"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/README.md",
+      "bytes": 1594,
+      "sha256": "cf3f83d0ad48a2dc069ac6d2225d425ea9219ce941283b8270c89412e46e5205"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/SHA256SUMS",
+      "bytes": 1144,
+      "sha256": "ef493499af5ad8c65415bda23dbf0d66205f388f9d05c9ae28850623c507d543"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/full/crates/biome_project_analysis/src/catalogs.rs",
+      "bytes": 12984,
+      "sha256": "f2e72b6b60622819e611e37e8f9008a0bee8f2f0343af15b1289ae6d77917a3e"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/full/crates/biome_project_analysis/src/inventory.rs",
+      "bytes": 5672,
+      "sha256": "65194e35b23d918496b8e953c95e866ff980fb583ff06102d5a8dd9d6a985f2b"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/full/crates/biome_project_analysis/src/lib.rs",
+      "bytes": 7915,
+      "sha256": "80541167fd0c29e7ebd9b7f9bdf515c2f41ca50b7ed27080246e18e749835559"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/full/crates/biome_project_analysis/src/normalize.rs",
+      "bytes": 6251,
+      "sha256": "5769a65f971a1dc7109555fda0ab17fca8a9f9004c8d75e48edcbba1e70dc748"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/full/crates/biome_service/src/project_analysis/b6.tests.rs",
+      "bytes": 37813,
+      "sha256": "371094017bd08561c7a1e93023ccc229933f31e4bb76aa13e75a3ee0464eee77"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.lines-1-871",
+      "bytes": 31622,
+      "sha256": "827830a5c7722225fc3ce7d7473c586b16f559bd964d46bdd1dca8bcc9c9205f"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.tail-from-ignore_dependencies",
+      "bytes": 23162,
+      "sha256": "62dc9b5aad20dc5f0fea4a6bfd0c22b48ae63466b43c6cc7db2afd702378b4e7"
+    },
+    {
+      "path": "records/recovered-b6-fix1-review/manifest.json",
+      "bytes": 3692,
+      "sha256": "0e250a48b824374f128ec7d2c33a68c3c29a83f25653807951efd28a35c0457b"
+    },
+    {
+      "path": "records/recovered-b6/01-fix1-production.patch",
+      "bytes": 9119,
+      "sha256": "7ca93aabe10e878defbecab8da13a61b451b29d2e8912594d3652031760f54aa"
+    },
+    {
+      "path": "records/recovered-b6/02-fix1-tests.patch",
+      "bytes": 10968,
+      "sha256": "8d08c7ee675d4d025a4d8a724fbc889ce6790f9d5bb5fe09adde22b1a2402097"
+    },
+    {
+      "path": "records/recovered-b6/03-fix1-report-excerpt.md",
+      "bytes": 5578,
+      "sha256": "d71cd97eedd1154cc7764be66cae46fe32f58f928b4b44e89beb0816595295df"
+    },
+    {
+      "path": "records/recovered-b6/04-historical-tool-output.txt",
+      "bytes": 3518,
+      "sha256": "6bb1bbc4af99958a0f0b8c77c7f72bd8002624f95158be17f2180d798455c9b2"
+    },
+    {
+      "path": "records/recovered-b6/05-final-report-body-excerpt.md",
+      "bytes": 3306,
+      "sha256": "6fe6d43443ebaf8284cdc240b7e2087396b3ee1ec6372e3540e91504d144eb89"
+    },
+    {
+      "path": "records/recovered-b6/README.md",
+      "bytes": 2110,
+      "sha256": "1b9113cb3eec1928cd12c32afe147fc17cb5c7992fef2c167c2f60b9d77aac88"
+    },
+    {
+      "path": "records/recovered-b6/recovery-manifest.json",
+      "bytes": 1728,
+      "sha256": "9af067cb818f9eb8d23dae9796187d08804a2d25f1e6639e45bf8c03b13fed00"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/.changeset/breezy-carpets-brake.md",
+      "bytes": 304,
+      "sha256": "34bd8ef0c4cbb7276be7a388d6f0c6dd2bfa69f41d9d6f45237dc592dae89a29"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 41459,
+      "sha256": "30a00ebfc23e2d8408b894ccaa71ad269b23a06b403f819325ef22561a6a2c15"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/src/members.rs",
+      "bytes": 18878,
+      "sha256": "f2079a28a205dd66300dd773c570b79bf03c1b27320303478f6679cd05a5d0b4"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/src/options.rs",
+      "bytes": 6619,
+      "sha256": "f89af9b4a7ce860395bb53efbeb0fc4e31b118fc18e99b55164a1d826e7cb2bb"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/src/policy.rs",
+      "bytes": 25506,
+      "sha256": "15e827f8ca0410ee01a2059bcc4c9f2ee8c6c8c719cb5f544ddaab6468b1b935"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/src/resolution.rs",
+      "bytes": 5854,
+      "sha256": "2a8e53c2d1b9749cdec1a19a93ce97dfab722e9efb2b7ab95820b11193d8867d"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/tests/policy.rs",
+      "bytes": 9695,
+      "sha256": "bacd546d7a3f447b2b95e6ac461238088ba95197a9dcb0b5b2e75f41a8ce5ef9"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 1263,
+      "sha256": "d8fd7f3d4c9928ec5fe6c79323039134ad06c71b4e2e4995d7324a903f537817"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/xtask/project_analysis/policy/comparison-index.json",
+      "bytes": 12791,
+      "sha256": "cc634fa476876d0fab91abb46fefb41761045dc9dec62cd506cd0232bfd3a037"
+    },
+    {
+      "path": "records/recovered-b7/20104d6/xtask/project_analysis/policy/native-expectations.json",
+      "bytes": 3928,
+      "sha256": "ec6090f2f102d9f6d8f4bb072f8f826e0d6c4a2707719171f3ded7ecdadd4b07"
+    },
+    {
+      "path": "records/recovered-b7/README.md",
+      "bytes": 7570,
+      "sha256": "e897c754c8c117b3618663ed5aeceaef18c032ad8fe192d6a56514cf624ed105"
+    },
+    {
+      "path": "records/recovered-b7/RECOVERY-MANIFEST.json",
+      "bytes": 9376,
+      "sha256": "144a861322eac99ff59459c0b48bcaaf7de9fb5c4500c3eb0b31e21063277ca8"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/.changeset/breezy-carpets-brake.md",
+      "bytes": 304,
+      "sha256": "34bd8ef0c4cbb7276be7a388d6f0c6dd2bfa69f41d9d6f45237dc592dae89a29"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 41352,
+      "sha256": "92c09e84fb676bbf9adaab8c320ba81c6e66cdc5582d8663236c0ba4a331e0e9"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/src/members.rs",
+      "bytes": 18238,
+      "sha256": "8b4fbb2ce0f32d7f834e9b7795cb633102316656cbde4a961f4aeea6ca53cd56"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/src/options.rs",
+      "bytes": 6277,
+      "sha256": "35f6430373785ef37888481dd51ecfb5320800a65ee7b6c4daf0dc16fb74e5f7"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/src/policy.rs",
+      "bytes": 25499,
+      "sha256": "0a2b650045545b1347b266b40db1019309b7f4e6dc3391738bd51d8d9460c782"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/src/resolution.rs",
+      "bytes": 5854,
+      "sha256": "2a8e53c2d1b9749cdec1a19a93ce97dfab722e9efb2b7ab95820b11193d8867d"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/tests/policy.rs",
+      "bytes": 9695,
+      "sha256": "bacd546d7a3f447b2b95e6ac461238088ba95197a9dcb0b5b2e75f41a8ce5ef9"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 1263,
+      "sha256": "d8fd7f3d4c9928ec5fe6c79323039134ad06c71b4e2e4995d7324a903f537817"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/xtask/project_analysis/policy/comparison-index.json",
+      "bytes": 12791,
+      "sha256": "cc634fa476876d0fab91abb46fefb41761045dc9dec62cd506cd0232bfd3a037"
+    },
+    {
+      "path": "records/recovered-b7/b0adffe/xtask/project_analysis/policy/native-expectations.json",
+      "bytes": 3928,
+      "sha256": "ec6090f2f102d9f6d8f4bb072f8f826e0d6c4a2707719171f3ded7ecdadd4b07"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.all17-leading-cases.rs",
+      "bytes": 1370,
+      "sha256": "e266bfeb5e51f333f12f10379c837860510b90da39f73ad0d1e69b47c1e0662c"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.all17-lines-200-347.rs",
+      "bytes": 5104,
+      "sha256": "34bbf6b9603c42e4a58c9d871aa9c185ac0fbecdd21fece46e108f4b416e945d"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.all17-types-case.rs",
+      "bytes": 467,
+      "sha256": "9dd22b14a70f8a685b3f7be73a471bdf5604586c3fa03fbb6243d9d36d0e664e"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.b0adffe-prefix.rs",
+      "bytes": 3212,
+      "sha256": "26f3863769bd64baf3fc50937a1038fe8bed007d1bfb40b45f9f59b009f9fb7b"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.b0adffe-tail.rs",
+      "bytes": 10142,
+      "sha256": "33e3d3a2279fc39442199da0c9e5f20546816a4c094e50a3519f517f21a6e04d"
+    },
+    {
+      "path": "records/recovered-b7/excerpts/service-policy.tests.rs.final-added-lines-700-954.rs",
+      "bytes": 9698,
+      "sha256": "8b00efb6af9712210a23c07c117b581d304e8a009dfa0425919fc74bf914ab00"
+    },
+    {
+      "path": "records/recovered-b7/patches/b0adffe-to-20104d6-engine.diff",
+      "bytes": 6376,
+      "sha256": "a747856932e027773d92c41f33f22599ceb840387265a10061d4e5fb883ae8b7"
+    },
+    {
+      "path": "records/recovered-b7/patches/b0adffe-to-20104d6-service-test-append.diff",
+      "bytes": 10268,
+      "sha256": "a0d8166a8b6e61381b142b721a9517aef46fa64cbdc2ed328f4a7302dae0e04f"
+    },
+    {
+      "path": "records/recovered-b7/patches/e2dcace-to-b0adffe-observed-integration.diff",
+      "bytes": 7567,
+      "sha256": "98cc2125f09f2274b8bb316a29d7c6ac897e9cfd44cd1aad52d49661d81d0824"
+    },
+    {
+      "path": "records/recovered-b7/receipts/fix1-02-tags-green.log",
+      "bytes": 948,
+      "sha256": "7bd0ea1c37301ac5ed523c2f9e32cc4ab756d56f8a7151ddb166b566f45f28b0"
+    },
+    {
+      "path": "records/recovered-b7/receipts/fix1-07-final-lint.log",
+      "bytes": 276,
+      "sha256": "f64142b45d27fafb1473e7909c81a150221f08242acd931be639d0c11a4e1583"
+    },
+    {
+      "path": "records/recovered-b7/receipts/fix1-final-result-tool-output.txt",
+      "bytes": 1357,
+      "sha256": "875b3ef8331d8be456cd9e3f389f394f70c1ab30adc623fb2f94575f20372db9"
+    },
+    {
+      "path": "records/recovered-b7/receipts/original-b7-post-commit.json",
+      "bytes": 514,
+      "sha256": "24b50130e20a06d7ed96f27d27c378a584256db525b0771aa77e2ac971eb2519"
+    },
+    {
+      "path": "records/recovered-b7/receipts/original-fix1-post-commit.json",
+      "bytes": 531,
+      "sha256": "f9eb3e861b31f2c805375ee9831f5b6e2c7f49424c78a10790c994069ef3e3af"
+    },
+    {
+      "path": "records/recovered-b7/replay-observed-fix.py",
+      "bytes": 4158,
+      "sha256": "d101e15910a126b0607f4c8655114cb63611d46d05563ce9dad715eb25ea53f0"
+    },
+    {
+      "path": "records/recovered-c1-review/README.md",
+      "bytes": 2304,
+      "sha256": "652a51f280f9db1e53afc812054e68f8e2897cc7aa08fa2b3baa6ea60440f1d7"
+    },
+    {
+      "path": "records/recovered-c1-review/SHA256SUMS",
+      "bytes": 1016,
+      "sha256": "5fca6101ef349edf1d90345ee238437c7cb0b4995a27ca89ca58b7e35b55def7"
+    },
+    {
+      "path": "records/recovered-c1-review/manifest.json",
+      "bytes": 2575,
+      "sha256": "6dbfca764b13bf6a3548cdab2e7980e4ab85c7a57a5967742dc5dc3de79454b9"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/Cargo.lock/lines-1460-1495.toml.txt",
+      "bytes": 572,
+      "sha256": "a9736acb20425101c231bd077f586287860b0efc687d8ef846e538f84fcdce95"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/Cargo.lock/lines-1817-1830.toml.txt",
+      "bytes": 206,
+      "sha256": "542b8afc37324784ba2ba3210499e660757ffd06d979548bbed575a3b9a00835"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/Cargo.lock/lines-1972-2068.toml.txt",
+      "bytes": 1846,
+      "sha256": "2e4fcc2a92df8cd803236a344190fe5bdbae09194f1e1df0705e1f020b64434d"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/Workspace-methods.ts.txt",
+      "bytes": 216,
+      "sha256": "ee9aa43828470af089b93756980915f5213ce14645f51f948ed4f33101e25788"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/createWorkspace-methods.ts.txt",
+      "bytes": 229,
+      "sha256": "972ca57736fe7fea5f33a1c348f07f4cb9f5dc6f1b0b7f2966b4b1cfd18ddc4b"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/lines-13081-13465.ts.txt",
+      "bytes": 10412,
+      "sha256": "7e03e37c26951f202c9a7332f85b100c925697aa8ef5d93366fc00ccbc319ea1"
+    },
+    {
+      "path": "records/recovered-c1-review/partial/packages/@biomejs/backend-jsonrpc/src/workspace.ts/lines-13466-state-end.ts.txt",
+      "bytes": 8046,
+      "sha256": "4ccca57435a5fdeb656514d555e73d9a771a16bd5f935d0dbe51c73f43ebf96c"
+    },
+    {
+      "path": "records/recovered-c1/README.md",
+      "bytes": 4736,
+      "sha256": "21e8c69ae5275055cf4b0525d213ecc19f99475013c2bb76a10c0f0ec43ea862"
+    },
+    {
+      "path": "records/recovered-c1/complete/.changeset/slow-ends-grow.md",
+      "bytes": 314,
+      "sha256": "91a5e4893cd00b24dc3e9bb7b1f75d087aedd2eb06faaf5c543d2601f0bba553"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_lsp/src/server_project_analysis.tests.rs",
+      "bytes": 5243,
+      "sha256": "eca30adff140e20a85e1d51b69f8b9fbf2a0f8749b789aa194d78ac59e5ba000"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_service/src/project_analysis/coordinator.rs",
+      "bytes": 21312,
+      "sha256": "fb3cf0598b3e4dc645ca039e017e058bbfa4d6d05cf7d0483fb59ab99c70f4a3"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_service/src/project_analysis/paths.rs",
+      "bytes": 5841,
+      "sha256": "7cc5b472c9f7724c6bf4bc0ab6a129b2c89b0fea2c53412b913766ddeed51c8d"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_service/src/project_analysis/transport.rs",
+      "bytes": 5426,
+      "sha256": "c7ff275202b0214496765766d3bc826cc42f3c454f3153d41219aa52c3433d99"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_wasm/Cargo.toml",
+      "bytes": 2401,
+      "sha256": "f6424f51eeada856b9c5db8be28268bff936b930ca90297bab757ef2a33391e4"
+    },
+    {
+      "path": "records/recovered-c1/complete/crates/biome_wasm/src/lib.rs",
+      "bytes": 15796,
+      "sha256": "b03f8835a50147d406cba8d0e7f073b0bd7d878c00c6ac9f2f81260119a3096a"
+    },
+    {
+      "path": "records/recovered-c1/evidence/original-changed-paths.txt",
+      "bytes": 1969,
+      "sha256": "920750bd71501cf6a5e76c2c4a4a8fe445018edb5c5ade5000b0d6a634cf56aa"
+    },
+    {
+      "path": "records/recovered-c1/evidence/retained-commit-and-manifest.txt",
+      "bytes": 1413,
+      "sha256": "81ad6d8203315701010bd4c5b82fe62f995312ea83d15cdfc0ab38f3e027898c"
+    },
+    {
+      "path": "records/recovered-c1/evidence/retained-rpc-symbol-locations.txt",
+      "bytes": 1044,
+      "sha256": "abd4bdad3d99fc7b8e91dec7f18f5797350352b87f78dec5cc665f533e4f91be"
+    },
+    {
+      "path": "records/recovered-c1/manifest.json",
+      "bytes": 11080,
+      "sha256": "eb91f3191624238d33f5ca6336c109969e12b763f1c821c2cade00493e69d6d1"
+    },
+    {
+      "path": "records/recovered-c1/partial/crates/biome_service/src/project_analysis/rpc.tests.rs/lines-001-120.rs.txt",
+      "bytes": 4728,
+      "sha256": "e68496c1ee8a6aeef0d98c31bd9e1054c09fe655827849f84e6c311a44abfb64"
+    },
+    {
+      "path": "records/recovered-c1/partial/crates/biome_service/src/project_analysis/rpc.tests.rs/lines-173-330.rs.txt",
+      "bytes": 6275,
+      "sha256": "215bc229daf100c09dba098ae7a76b81a6b17f2c979ada25def58ccd6257f93f"
+    },
+    {
+      "path": "records/recovered-c1/partial/crates/biome_service/src/project_analysis/rpc.tests.rs/lines-375-471.rs.txt",
+      "bytes": 3545,
+      "sha256": "7ef96318b727206708fc16ef5161b41e710a02255c7bf94afbb2dc1e19872bbb"
+    },
+    {
+      "path": "records/recovered-c1/partial/crates/biome_service/src/project_analysis/rpc.tests.rs/lines-572-EOF.rs.txt",
+      "bytes": 4532,
+      "sha256": "080b40d4c43dd204da00c7516468897b47e249767383db28cfcb2749933e159b"
+    },
+    {
+      "path": "records/recovered-c1/patches/001-retained-final-service-engine.diff",
+      "bytes": 18525,
+      "sha256": "64e136cae8498b6eaaafc8c05c350285e58e4a64c471333345337407cab1645a"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/RECOVERY.md",
+      "bytes": 3480,
+      "sha256": "102be5ccad71ab94cfe37f571ce7b4a66ea3ef98aec0bba43ef990c50df13808"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/collector.rs",
+      "bytes": 1693,
+      "sha256": "40188b6e637db28210f90fde51fe3a25330133960d45101f2d5aa8997727c67c"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/crawler.rs",
+      "bytes": 11117,
+      "sha256": "c57acfb2251e0a51d9e10fd15538f12a25ec2c364eb9c5da282a6ccff12468d6"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/diagnostics.rs",
+      "bytes": 4018,
+      "sha256": "7b82a392cff04d88469e6518c699c28f62a7282c470dc00e3a045ab494529354"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/handler.rs",
+      "bytes": 7072,
+      "sha256": "9f2bf8f752fb6523d8aa99a937bedf9f29f0f72524e9b2da81e0b186b5a80346"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/collectors/default.rs",
+      "bytes": 16240,
+      "sha256": "00c3e602adea6aa095a067987a8f50f23cdc30b7e62971909208e14b0d63f1f6"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/commands/traversal.rs",
+      "bytes": 7470,
+      "sha256": "64051afb1af708cdb8d7590be68d38de3196c433ad7ec3ebb15c0b1fd995a978"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/crawlers/default.rs",
+      "bytes": 1903,
+      "sha256": "962644c5e0dddda74b94314da0b50f5a84ae1a04abbdb3148047fca76e71d9e7"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "bytes": 17686,
+      "sha256": "fed1e82c0530645a14e46d2fe17680edcebbfabf7545eca01af9018475481820"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/handlers/default.rs",
+      "bytes": 134,
+      "sha256": "0238698681f9c25b77cdc734d989856a8dc8f06f704376a8999534a83c535842"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/process_file/check.rs",
+      "bytes": 5488,
+      "sha256": "ee9d4600234c79bf15e629ab216a2874c0fb0b103ce2f73f3bd66d68c2d156d8"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/impls/process_file/lint_and_assist.rs",
+      "bytes": 8394,
+      "sha256": "73d9e9ef2f8331b12d02c698e479d948b8e9261c88305a86db7f3d6b698d80a6"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/process_file.rs",
+      "bytes": 19942,
+      "sha256": "b8f510096ccf7acc1e9ac6ea3094620b9cc13c4b7ef69412d12a4a1bc6972f27"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/src/runner/project_analysis.rs",
+      "bytes": 11565,
+      "sha256": "e2a8284c95512efe5ffb142e2d3c72d71989f0fe8062c3043510b968c3c63e45"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_cli/tests/project_analysis_exit.rs",
+      "bytes": 13949,
+      "sha256": "f84dd49d375b6c5a9077ff4494def28ebdcf313bc417526960f54384a88668b4"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/crates/biome_fs/src/fs/os.rs",
+      "bytes": 16489,
+      "sha256": "af7b1d54e3c213ee681fb0832d4b53c743c75fa19d2c06c63571164a7c457ac7"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/fix1-exact.diff",
+      "bytes": 10285,
+      "sha256": "e5d5c8375cbf38540b4b7f6b0941722f9c36084187b86d4aaf6b39bd2ba87ca9"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/historical-final-source-inputs.json",
+      "bytes": 1964,
+      "sha256": "b60c41c49760d9c5da9d2720800d6d025146cb8cf604fb48bcbf74f27ae42b94"
+    },
+    {
+      "path": "records/recovered-c2-fix1-review/recovery-files.sha256",
+      "bytes": 1903,
+      "sha256": "9d31006e3f3f51baaceeeb49ef95b7f2c9ac9a469620b3de0939acbb35ff3761"
     },
     {
       "path": "records/recovered-c4-review/check_help.lines291-549.snap.fragment",

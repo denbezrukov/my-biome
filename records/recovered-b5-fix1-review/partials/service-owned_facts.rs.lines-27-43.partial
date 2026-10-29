@@ -1,0 +1,17 @@
+pub(super) fn context(value: &graph::ProjectResolutionContext) -> owned::ResolutionContext {
+    owned::ResolutionContext {
+        profile: profile(value.profile),
+        purpose: purpose(value.purpose),
+        syntax: syntax(value.syntax),
+        config_revision: value.config_revision.clone(),
+        mapping_revision: value.mapping_revision.clone(),
+        additional_conditions: value.additional_conditions.clone(),
+        source_mappings: value.source_mappings.iter().map(mapping).collect(),
+    }
+}
+fn mapping(value: &biome_resolver::SourceMapping) -> owned::SourceMapping {
+    owned::SourceMapping {
+        from: value.from.clone(),
+        to: value.to.clone(),
+    }
+}

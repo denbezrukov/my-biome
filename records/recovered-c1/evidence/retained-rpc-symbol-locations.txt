@@ -1,0 +1,29 @@
+6:#[test]
+7:fn project_diagnostics_without_open_documents() {
+41:fn params(project_key: crate::projects::ProjectKey) -> PullProjectDiagnosticsParams {
+51:#[test]
+52:fn project_diagnostics_held_mutation_is_bounded() {
+72:#[test]
+73:fn project_diagnostics_superseded() {
+106:#[test]
+107:fn project_states_retain_closed_generations() {
+153:#[test]
+154:fn project_selection_explicit_empty_workspace() {
+172:#[test]
+173:fn project_selection_rejects_stale_workspace_ids() {
+212:#[test]
+213:fn project_selection_retains_other_consumers() {
+281:#[test]
+282:fn project_diagnostics_local_equals_rpc() {
+330:#[test]
+331:fn project_virtual_scope_remains_incomplete() {
+374:#[test]
+375:fn project_result_locations_survive_rpc() {
+472:#[test]
+473:fn project_failed_state_retains_coverage_through_transport() {
+505:#[test]
+506:fn project_virtual_scope_uses_discovered_root_and_overlays() {
+571:#[test]
+572:fn project_report_cache_keys_complete_options_and_projects_selection_afterward() {
+626:#[test]
+627:fn project_entropy_failure_never_mints_a_revision() {

@@ -1,0 +1,226 @@
+diff --git a/crates/biome_project_analysis/src/catalogs.rs b/crates/biome_project_analysis/src/catalogs.rs
+index 753d06f0731..32958a0f64f 100644
+--- a/crates/biome_project_analysis/src/catalogs.rs
++++ b/crates/biome_project_analysis/src/catalogs.rs
+@@ -58,6 +58,7 @@ pub fn analyze_catalogs(
+ ) -> CatalogAnalysis {
+     let mut result = CatalogAnalysis {
+         selections: snapshot.inventory.catalog_selections.clone(),
++        gaps: snapshot.inventory.catalog_consumer_gaps.clone(),
+         ..Default::default()
+     };
+     for member in reachability
+@@ -89,7 +90,7 @@ pub fn analyze_catalogs(
+             });
+         }
+     }
+-    let source_uncertain = !result.gaps.is_empty();
++    let consumer_uncertain = !result.gaps.is_empty();
+     let mut invalid = BTreeSet::new();
+     let mut all_invalid = false;
+     for selection in &snapshot.inventory.catalog_selections {
+@@ -103,7 +104,7 @@ pub fn analyze_catalogs(
+                 producer: "catalog provider".into(),
+                 domain: TargetDomain::Unbounded,
+                 reason: GapReason::UnavailableInput(
+-                    "Selected catalog metadata is malformed or unsupported".into(),
++                    "Selected catalog metadata is unavailable, malformed or unsupported".into(),
+                 ),
+                 location: Some(selection.location),
+             });
+@@ -247,7 +248,7 @@ pub fn analyze_catalogs(
+     let mut reported = BTreeSet::new();
+     for index in 0..result.entries.len() {
+         let entry = &mut result.entries[index];
+-        entry.uncertain |= source_uncertain
++        entry.uncertain |= consumer_uncertain
+             || all_invalid
+             || invalid.contains(&entry.catalog)
+             || matches!(snapshot.coverage, Coverage::Failed(_));
+diff --git a/crates/biome_project_analysis/src/inventory.rs b/crates/biome_project_analysis/src/inventory.rs
+index 00f36c77ad0..3cec5afdddb 100644
+--- a/crates/biome_project_analysis/src/inventory.rs
++++ b/crates/biome_project_analysis/src/inventory.rs
+@@ -10,6 +10,9 @@ use std::collections::BTreeMap;
+ pub struct Inventory {
+     #[serde(default)]
+     pub catalog_selections: Vec<CatalogSelection>,
++    /// Admitted manifest inputs that may hide catalog consumers, independent of source traversal.
++    #[serde(default)]
++    pub catalog_consumer_gaps: Vec<CoverageGap>,
+     #[serde(default)]
+     pub public_gaps: Vec<CoverageGap>,
+     #[serde(default)]
+diff --git a/crates/biome_service/src/project_analysis/inventory.rs b/crates/biome_service/src/project_analysis/inventory.rs
+index 620d540abee..7f7c7a4724f 100644
+--- a/crates/biome_service/src/project_analysis/inventory.rs
++++ b/crates/biome_service/src/project_analysis/inventory.rs
+@@ -266,12 +266,14 @@ pub(super) fn discover_with_context(
+         }
+     }
+     let mut manifests = BTreeMap::new();
++    let mut uncertain_manifests = Vec::new();
+     for path in discovered
+         .iter()
+         .filter(|p| p.file_name() == Some("package.json"))
+     {
+         let file = capture.capture(path);
+         let Some(text) = capture.text(file) else {
++            uncertain_manifests.push((path.parent().unwrap().to_path_buf(), file));
+             continue;
+         };
+         let parsed = biome_json_parser::parse_json(text, Default::default());
+@@ -285,6 +287,9 @@ pub(super) fn discover_with_context(
+         let mut diagnostics = capture.diagnostics(file, &parser_diagnostics);
+         diagnostics.extend(capture.diagnostics(file, &metadata.diagnostics));
+         diagnostics.extend(capture.diagnostics(file, &metadata.catalogs.diagnostics));
++        if !diagnostics.is_empty() {
++            uncertain_manifests.push((path.parent().unwrap().to_path_buf(), file));
++        }
+         if parsed.has_errors() {
+             continue;
+         }
+@@ -296,9 +301,9 @@ pub(super) fn discover_with_context(
+     let pnpm_path = root.join("pnpm-workspace.yaml");
+     let yarn_path = root.join(".yarnrc.yml");
+     let yaml = if fs.path_exists(&pnpm_path) {
+-        Some(load_yaml(&mut capture, &pnpm_path))
++        Some(load_yaml(&mut capture, &pnpm_path, WorkspaceYamlKind::Pnpm))
+     } else if fs.path_exists(&yarn_path) {
+-        Some(load_yaml(&mut capture, &yarn_path))
++        Some(load_yaml(&mut capture, &yarn_path, WorkspaceYamlKind::Yarn))
+     } else {
+         None
+     };
+@@ -308,8 +313,9 @@ pub(super) fn discover_with_context(
+         .map(|value| value.members.get("packages").unwrap_or(value));
+     let membership = if fs.path_exists(&pnpm_path) {
+         yaml.as_ref()
+-            .and_then(|(_, yaml)| {
+-                yaml.fields
++            .and_then(|yaml| {
++                yaml.metadata
++                    .fields
+                     .get("packages")
+                     .filter(|value| !value.value.is_null())
+             })
+@@ -331,6 +337,22 @@ pub(super) fn discover_with_context(
+         .unwrap_or_default();
+     let configured_patterns =
+         capture.patterns(&configured, request.mode, false, "workspace settings");
++    for (path, file) in uncertain_manifests {
++        let relative = relative(&root, &path);
++        if path == root || patterns.matches(&relative) || configured_patterns.matches(&relative) {
++            capture.inventory.catalog_consumer_gaps.push(CoverageGap {
++                producer: "catalog consumer metadata".into(),
++                domain: TargetDomain::Unbounded,
++                reason: GapReason::UnavailableInput(
++                    "Workspace manifest may contain uncaptured catalog references".into(),
++                ),
++                location: Some(Location {
++                    file,
++                    range: TextRange::default(),
++                }),
++            });
++        }
++    }
+     let mut packages = Vec::new();
+     for (path, (file, metadata, diagnostics)) in manifests {
+         let relative = relative(&root, &path);
+@@ -1073,14 +1095,28 @@ fn add_root(
+         exports,
+     });
+ }
+-fn load_yaml(capture: &mut Capture, path: &Utf8Path) -> (FileId, WorkspaceMetadata) {
++#[derive(Eq, PartialEq)]
++enum WorkspaceYamlKind {
++    Pnpm,
++    Yarn,
++}
++struct WorkspaceYaml {
++    file: FileId,
++    metadata: WorkspaceMetadata,
++    kind: WorkspaceYamlKind,
++}
++fn load_yaml(capture: &mut Capture, path: &Utf8Path, kind: WorkspaceYamlKind) -> WorkspaceYaml {
+     let file = capture.capture(path);
+     let metadata = capture
+         .text(file)
+         .map(read_workspace_metadata)
+         .unwrap_or_default();
+     capture.diagnostics(file, &metadata.diagnostics);
+-    (file, metadata)
++    WorkspaceYaml {
++        file,
++        metadata,
++        kind,
++    }
+ }
+ fn owned(value: &MetadataValue, file: FileId) -> MetadataValueRecord {
+     MetadataValueRecord {
+@@ -1207,27 +1243,48 @@ fn retain_catalogs(
+     capture: &mut Capture,
+     index: usize,
+     package: &Package,
+-    yaml: Option<&(FileId, WorkspaceMetadata)>,
++    yaml: Option<&WorkspaceYaml>,
+ ) {
+-    let container = yaml.map_or(package.file, |(file, _)| *file);
+-    if let Some((file, yaml)) = yaml
+-        && let Some(overrides) = yaml.fields.get("overrides")
++    let container = yaml.map_or(package.file, |yaml| yaml.file);
++    if let Some(yaml) = yaml
++        && capture.text(yaml.file).is_none()
++    {
++        for field in ["catalog", "catalogs"] {
++            capture.inventory.catalog_selections.push(CatalogSelection {
++                field: field.into(),
++                location: Location {
++                    file: yaml.file,
++                    range: TextRange::default(),
++                },
++                container: Location {
++                    file: container,
++                    range: TextRange::default(),
++                },
++                valid: false,
++            });
++        }
++        return;
++    }
++    if let Some(yaml) = yaml
++        && yaml.kind == WorkspaceYamlKind::Pnpm
++        && let Some(overrides) = yaml.metadata.fields.get("overrides")
+     {
+         retain_overrides(
+             capture,
+             WorkspaceId(index as u32),
+-            *file,
++            yaml.file,
+             "overrides",
+             overrides,
+         );
+     }
+     for key in ["catalog", "catalogs"] {
+         let provider = yaml
+-            .and_then(|(file, yaml)| {
+-                yaml.fields
++            .and_then(|yaml| {
++                yaml.metadata
++                    .fields
+                     .get(key)
+                     .filter(|v| !v.value.is_null())
+-                    .map(|value| (*file, value))
++                    .map(|value| (yaml.file, value))
+             })
+             .or_else(|| {
+                 package
+@@ -1246,7 +1303,7 @@ fn retain_catalogs(
+                     .filter(|v| !v.value.is_null())
+                     .map(|v| (package.file, v))
+             });
+-        let metadata_valid = yaml.is_none_or(|(_, yaml)| yaml.diagnostics.is_empty())
++        let metadata_valid = yaml.is_none_or(|yaml| yaml.metadata.diagnostics.is_empty())
+             && package.diagnostics.is_empty();
+         if let Some((file, value)) = provider {
+             let valid = metadata_valid

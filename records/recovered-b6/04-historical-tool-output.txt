@@ -1,0 +1,51 @@
+PROVENANCE: Each block below is a literal retained historical tool output excerpt, separated by recovery labels. It is not a newly run validation. Full original logs are unavailable.
+
+=== Original manifest introspection (partial file map was truncated by its command to 700 characters) ===
+[('base', 'str', 40), ('frozen_at', 'str', 32), ('files', 'dict', 31), ('logs', 'dict', 43), ('final_gates', 'dict', 3)]
+{'.changeset/cozy-rings-occur.md': '8d7d78931e346b38b5636cd72ee569f8f5147577f376eccae8b8a8b5590347f8', 'crates/biome_project_analysis/src/catalogs.rs': '48fedf5497ce61854c9542c50ca7956b9806346bcb8fb112ce2cedbe53378bdd', 'crates/biome_project_analysis/src/cycles.rs': '4f30d3e4696d7009a4d662e7e39d40fbfc3f1dd303b6e7e92104a6d374f8968d', 'crates/biome_project_analysis/src/dependencies.rs': 'd534becf61270fd1cff70a6d597fd88b17292b59a00859b2ff687277a264cbf5', 'crates/biome_project_analysis/src/inventory.rs': 'b6cbaf7297213512621ac73324567f2c772509aa9964bef6f76fbb4239014860', 'crates/biome_project_analysis/src/lib.rs': '80541167fd0c29e7ebd9b7f9bdf515c2f41ca50b7ed27080246e18e749835559', 'crates/biome_
+
+=== Original manifest/log recheck ===
+Original manifest: 3ed6f39d0ac5022a451e3f6d90964faa3036efa3d0069d5841df0504eae4e8a9
+All 43 original logs unchanged.
+
+=== Final affected test output selected lines ===
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 53.45s
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 8 tests
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 10 tests
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 7 tests
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 12 tests
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 6 tests
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 5 tests
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 17 tests
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 9 tests
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 17 tests
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 487 tests
+test result: ok. 487 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.32s
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 9 tests
+test result: ok. 0 passed; 0 failed; 9 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== Freeze output ===
+Frozen manifest: .superpowers/sdd/native-project-analysis-2026-10-26/task-B6-fix1-sha256.json
+SHA256: f63c62e74b78c7d53d12bbaeaef901d9314b2d8132dd9c2a153b51f6baa72d3d
+4 fix paths; 31 aggregate paths; 7 fix logs; 43 original logs unchanged; 578 passed / 0 failed / 9 ignored.
+
+=== Commit output ===
+[feat/native-project-analysis e2dcaceab06] fix(project): preserve catalog uncertainty and provider roles
+ 4 files changed, 340 insertions(+), 18 deletions(-)
+
+=== Postcommit output ===
+e2dcaceab06c4870fa5e9c9eeef13e31db8c8aee
+Verified exact 4-path fix / 31-path aggregate ranges and all frozen complete-file/log hashes; tracked clean, 7 unrelated docs preserved.

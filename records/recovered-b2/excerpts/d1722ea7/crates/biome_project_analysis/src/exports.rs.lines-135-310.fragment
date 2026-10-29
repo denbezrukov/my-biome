@@ -1,0 +1,175 @@
+                {
+                    state.consume(
+                        slot,
+                        export.location,
+                        false,
+                        "CommonJS default-name collision in snapshot representation",
+                    );
+                }
+            }
+        }
+        for import in &module.imports {
+            if import.possible || import.syntax == ImportSyntax::Reexport {
+                continue;
+            }
+            for resolution in module
+                .resolutions
+                .iter()
+                .filter(|r| r.occurrence == import.ordinal)
+            {
+                let ResolutionOutcome::Resolved { file: target, .. } = resolution.outcome else {
+                    continue;
+                };
+                if let Some(usage) = &import.type_usage {
+                    if resolution.context.purpose != ResolutionPurpose::Declaration {
+                        continue;
+                    }
+                    if let Some(name) = usage.qualifier.first() {
+                        state.select(
+                            target,
+                            name,
+                            usage.namespace,
+                            &resolution.context,
+                            usage.location,
+                            "inline import type",
+                        );
+                    } else {
+                        state.whole(
+                            target,
+                            &resolution.context,
+                            usage.location,
+                            false,
+                            "inline module type",
+                        );
+                    }
+                }
+                for binding in &import.bindings {
+                    if binding.imported == "*" {
+                        state.namespace_uses(
+                            module,
+                            binding.declaration,
+                            target,
+                            &resolution.context,
+                        );
+                    } else {
+                        let facet = binding.declaration.namespace;
+                        let purpose = if import.type_only || facet == SymbolNamespace::Type {
+                            ResolutionPurpose::Declaration
+                        } else {
+                            ResolutionPurpose::Runtime
+                        };
+                        if resolution.context.purpose == purpose {
+                            state.select(
+                                target,
+                                &binding.imported,
+                                facet,
+                                &resolution.context,
+                                import.location,
+                                "import binding",
+                            );
+                            if let Some(slot) =
+                                surface(snapshot, target, facet, &resolution.context).and_then(
+                                    |surface| {
+                                        surface
+                                            .slots
+                                            .iter()
+                                            .find(|slot| slot.name == binding.imported)
+                                    },
+                                )
+                            {
+                                if let Some(target) = slot.namespace_target {
+                                    state.namespace_uses(
+                                        module,
+                                        binding.declaration,
+                                        target,
+                                        &resolution.context,
+                                    );
+                                } else if let ExportResolution::Found(origin) = slot.resolution {
+                                    for usage in module.uses.iter().filter(|usage| {
+                                        usage.declaration == binding.declaration
+                                            && !usage.write
+                                            && usage.role != UseRole::Export
+                                    }) {
+                                        if let Some(access) = &usage.namespace_access {
+                                            let member = MemberUse {
+                                                declaration: origin,
+                                                location: usage.location,
+                                                kind: usage.kind,
+                                                access: access.clone(),
+                                                target,
+                                            };
+                                            if !state.output.member_uses.contains(&member) {
+                                                state.output.member_uses.push(member);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if import.syntax == ImportSyntax::Require
+                    && resolution.context.purpose == ResolutionPurpose::Runtime
+                {
+                    state.select(
+                        target,
+                        "default",
+                        SymbolNamespace::Value,
+                        &resolution.context,
+                        import.location,
+                        "require default",
+                    );
+                }
+            }
+        }
+        for registration in &module.registrations {
+            if registration.provenance != RegistryProvenance::Unknown
+                && let Some(id) = registration.declaration
+            {
+                state.credit(
+                    id,
+                    registration.location,
+                    "native custom-element registration",
+                );
+            } else if !registration.rejected {
+                let declarations: Vec<_> = registration.declaration.into_iter().collect();
+                state
+                    .uncertain_declarations
+                    .extend(declarations.iter().copied());
+                let reason = "Possible custom-element registration".to_string();
+                state.evidence(
+                    registration.location,
+                    "uncertain registration",
+                    reason.clone(),
+                );
+                state.output.uncertainty.push(ExportUncertainty {
+                    location: registration.location,
+                    slots: Vec::new(),
+                    declarations,
+                    reason: reason.clone(),
+                });
+                state.output.gaps.push(CoverageGap {
+                    producer: "registration consumption".into(),
+                    domain: registration
+                        .declaration
+                        .map_or(TargetDomain::Unbounded, |id| TargetDomain::Bounded {
+                            files: vec![id.location.file],
+                            workspaces: Vec::new(),
+                            packages: Vec::new(),
+                        }),
+                    reason: GapReason::DynamicReference(reason),
+                    location: Some(registration.location),
+                });
+            }
+        }
+        for usage in &module.uses {
+            if usage.write
+                || usage.role == UseRole::Export
+                || usage
+                    .owner
+                    .is_some_and(|owner| owner.location == usage.declaration.location)
+            {
+                continue;
+            }
+            if let Some(declaration) = module
+                .declarations

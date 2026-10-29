@@ -1,0 +1,17 @@
+diff --git a/crates/biome_project_analysis/src/coverage.rs b/crates/biome_project_analysis/src/coverage.rs
+index fe88cfd1356..5053490c066 100644
+--- a/crates/biome_project_analysis/src/coverage.rs
++++ b/crates/biome_project_analysis/src/coverage.rs
+@@ -43,3 +43,12 @@ pub enum GapReason {
+     DynamicReference(String),
+     UnavailableInput(String),
+ }
++
++impl Coverage {
++    pub fn gaps(&self) -> &[CoverageGap] {
++        match self {
++            Self::Complete => &[],
++            Self::Incomplete(gaps) | Self::Failed(gaps) => gaps,
++        }
++    }
++}

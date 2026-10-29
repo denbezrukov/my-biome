@@ -1,0 +1,1 @@
+p='crates/biome_module_graph/src/project_facts.rs';s=open(p).read().replace('JsDeclarationKind::Class | JsDeclarationKind::Function | JsDeclarationKind::Import','JsDeclarationKind::Class | JsDeclarationKind::Function');open(p,'w').write(s)

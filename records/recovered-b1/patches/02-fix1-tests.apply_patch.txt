@@ -1,0 +1,69 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_service/src/project_analysis/reachability.tests.rs
+@@
+     for loader in [
+         "import(flag ? './plugins/a.js' : './plugins/b.js');",
+         "require(flag ? './plugins/a.js' : './plugins/b.js');",
++        "import(flag ? `./plugins/a.js` : `./plugins/b.js`);",
++        "require(flag ? `./plugins/a.js` : `./plugins/b.js`);",
+@@
+ }
+ 
++fn assert_tagged_loader_is_unbounded(loader: &str) {
++    let results: Vec<_> = ["`./decoy.js`", "``"]
++        .into_iter()
++        .map(|template| {
++            let source = format!(
++                "function tag() {{ return './actual.js'; }} {loader}(flag ? tag{template} : './other.js');"
++            );
++            let (snapshot, result) = run(
++                &[
++                    ("index.ts", &source),
++                    ("actual.js", "export {};"),
++                    ("decoy.js", "export {};"),
++                    ("other.js", "export {};"),
++                ],
++                config(),
++                AnalysisMode::Default,
++            );
++            (snapshot, result)
++        })
++        .collect();
++    assert_eq!(
++        results
++            .iter()
++            .map(|(_, result)| issues(result))
++            .collect::<Vec<_>>(),
++        vec![Vec::<&str>::new(), Vec::new()],
++        "{loader}: nonempty and empty tagged templates can load actual.js"
++    );
++    for (snapshot, result) in results {
++        assert!(matches!(result.coverage, Coverage::Incomplete(_)));
++        assert!(result.gaps.iter().any(|gap| gap.active
++            && gap.gap.producer == "module collection"
++            && matches!(
++                gap.gap.domain,
++                biome_project_analysis::coverage::TargetDomain::Unbounded
++            )));
++        assert!(snapshot.modules[&id(&snapshot, "index.ts")]
++            .collected
++            .as_ref()
++            .unwrap()
++            .imports
++            .is_empty());
++    }
++}
++
++#[test]
++fn tagged_dynamic_import_alternatives_remain_unbounded() {
++    assert_tagged_loader_is_unbounded("import");
++}
++
++#[test]
++fn tagged_require_alternatives_remain_unbounded() {
++    assert_tagged_loader_is_unbounded("require");
++}
++
+ #[test]
+ fn sibling_unbounded_loader_and_selection() {
+*** End Patch

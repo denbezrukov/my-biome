@@ -1,0 +1,6 @@
+	pullProjectDiagnostics(
+		params: PullProjectDiagnosticsParams,
+	): Promise<ProjectAnalysisResult>;
+	pullProjectAnalysisStates(
+		params: PullProjectAnalysisStatesParams,
+	): Promise<Array_of_ProjectAnalysisState>;

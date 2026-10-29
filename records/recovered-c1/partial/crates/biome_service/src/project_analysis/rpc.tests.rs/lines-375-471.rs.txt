@@ -1,0 +1,97 @@
+fn project_result_locations_survive_rpc() {
+    use biome_project_analysis::model::SourceContent;
+    let fs = MemoryFileSystem::default();
+    for root in ["/one", "/two"] {
+        fs.insert(
+            format!("{root}/package.json").into(),
+            r#"{"description":"😀","private":true,"dependencies":{"unused":"1"}}"#,
+        );
+        fs.insert(
+            format!("{root}/index.ts").into(),
+            "/* 😀 */ import './lib';",
+        );
+        fs.insert(
+            format!("{root}/lib.ts").into(),
+            "/* 😀 */ export const café = 1;",
+        );
+    }
+    let shared = MemoryFileSystem::from_files(fs.files.0.clone());
+    let (local, first) = crate::test_utils::setup_workspace_and_open_project(fs, "/one");
+    let second = local
+        .open_project(crate::workspace::OpenProjectParams {
+            path: biome_fs::BiomePath::new("/two"),
+            open_uninitialized: true,
+        })
+        .unwrap()
+        .project_key;
+    let client = crate::workspace::WorkspaceClient::new(
+        JsonTransport(&local),
+        Box::<MemoryFileSystem>::default(),
+    )
+    .unwrap();
+    let results = [
+        client.pull_project_diagnostics(params(first)).unwrap(),
+        client.pull_project_diagnostics(params(second)).unwrap(),
+    ];
+    assert!(
+        results[0]
+            .sources
+            .keys()
+            .any(|id| results[1].sources.contains_key(id))
+    );
+    for root in ["/one", "/two"] {
+        for file in ["package.json", "index.ts", "lib.ts"] {
+            shared.insert(format!("{root}/{file}").into(), "changed");
+        }
+    }
+    for (result, root) in results.iter().zip(["/one", "/two"]) {
+        assert!(
+            result
+                .issues
+                .iter()
+                .any(|issue| issue.kind == IssueKind::Exports)
+        );
+        assert!(
+            result
+                .issues
+                .iter()
+                .any(|issue| issue.kind == IssueKind::Dependencies)
+        );
+        let mut related = 0;
+        for issue in &result.issues {
+            let locations = std::iter::once(issue.location).chain(
+                issue.related_evidence.iter().filter_map(|id| {
+                    let location = result.evidence.nodes[id].location;
+                    if location.is_some() {
+                        related += 1;
+                    }
+                    location
+                }),
+            );
+            for location in locations {
+                let source = &result.sources[&location.file];
+                assert!(source.canonical_uri.starts_with(&format!("file://{root}/")));
+                let SourceContent::Available { text, .. } = &source.content else {
+                    panic!("fixture source unavailable")
+                };
+                let start = usize::from(location.range.start());
+                let end = usize::from(location.range.end());
+                assert!(text.is_char_boundary(start) && text.is_char_boundary(end));
+                assert_ne!(text, "changed");
+                if location == issue.location {
+                    assert!(!text[start..end].is_empty());
+                    let prefix = &text[..start];
+                    assert!(prefix.len() > prefix.encode_utf16().count());
+                }
+            }
+        }
+        assert!(related > 0);
+        for workspace in result.workspaces.values() {
+            assert_eq!(
+                result.sources[&workspace.manifest].logical_path,
+                "package.json"
+            );
+        }
+    }
+}
+

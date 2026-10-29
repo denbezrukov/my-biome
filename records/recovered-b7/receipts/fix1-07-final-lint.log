@@ -1,0 +1,8 @@
+$ just l
+available_before=2313682944
+cargo lint
+    Checking biome_wasm v1.9.4 (/workspace/my-biome/crates/biome_wasm)
+    Checking biome_service v0.0.0 (/workspace/my-biome/crates/biome_service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.53s
+
+exit=0

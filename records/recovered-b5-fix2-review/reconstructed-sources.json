@@ -1,0 +1,26 @@
+[
+  {
+    "path": "crates/biome_project_analysis/src/dependencies.rs",
+    "bytes": 31271,
+    "lines": 876,
+    "sha256": "5fdb940e90065292d91d674b875b5368e86c43a9f0ea2770ce6f224abc3a26a5",
+    "git_blob_sha1": "c86322efc1674361abed48d779cb09c2dc87316c",
+    "matches_retained_diff_blob_prefix": "c86322efc16"
+  },
+  {
+    "path": "crates/biome_service/src/project_analysis/dependencies.rs",
+    "bytes": 32480,
+    "lines": 858,
+    "sha256": "54f16fde6054fcefc4d476f0ff99729e20e92be5993f93e6d8d9f3dc9c96d7e4",
+    "git_blob_sha1": "4a4dc37304b671fd7e9672bb678cdb719060e864",
+    "matches_retained_diff_blob_prefix": "4a4dc37304b"
+  },
+  {
+    "path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+    "bytes": 62557,
+    "lines": 1684,
+    "sha256": "e7fd3e2557d72e6a67c8823aede3847f53699bd2416da816201a9d330c4c5931",
+    "git_blob_sha1": "785b377fcff14a0e3d15104d9d216cd61b013fba",
+    "matches_retained_diff_blob_prefix": null
+  }
+]

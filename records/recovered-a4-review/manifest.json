@@ -1,0 +1,39 @@
+{
+  "recovery_kind": "Literal export from retained original reviewer tool output; no reconstructed or invented source",
+  "agent": "/root/project_a4_review",
+  "original_base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "original_head": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+  "later_fix_head": "3c28dae197840dd6adee956e7d884531a073f7cc",
+  "stage": "Original A4 final committed source, before later fix",
+  "completeness": "Two exact fragments covering the gaps named by the recovery controller; these are not complete files or original Git objects",
+  "original_blob_prefixes": {
+    "crates/biome_module_graph/src/project_facts.rs": null,
+    "crates/biome_module_graph/tests/spec_tests/project.test.rs": null
+  },
+  "original_blob_prefix_note": "These two original blob prefixes are not visible in the retained package portions. Fragment Git blob hashes below identify recovered fragments only.",
+  "entries": [
+    {
+      "file": "a4-project_facts.collect_import.exact-fragment.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "original_lines": [357, 499],
+      "completeness": "Complete collect_import method, final post-lint source, including original line 437 and the full final 438-492 region",
+      "provenance": "Retained original review cat of the full project_facts.rs; this method was fully visible before the output's later truncation. Subsequent retained rg -n output independently anchors collect_import at 357 and filter at 437.",
+      "bytes": 5919,
+      "line_count": 143,
+      "sha256": "70f3fc8d1435119f5281b13075d7898803b47e79ddc0f728dac4225829a9be94",
+      "git_blob_sha1": "d584fc9b3588f7735f9b57ed6658dbec8bfbcd8b"
+    },
+    {
+      "file": "a4-project-test.commonjs-and-entries.exact-fragment.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "original_lines": [257, 279],
+      "completeness": "Complete project_facts_commonjs_and_entries test plus blank separator and next test's attribute/signature; covers missing original lines 276-277",
+      "provenance": "Retained untruncated original review cat of all 820 project.test.rs lines. Line-number placement matches controller's retained first 275 lines ending at the final assertion and next excerpt beginning at 278.",
+      "bytes": 955,
+      "line_count": 23,
+      "sha256": "18798ae332a03a2da21b2c398beea4fd1f0f68f47dfc47a2345358f4cd04a043",
+      "git_blob_sha1": "e2db11e9861b668d5cecad841bf6b8b9176a3036"
+    }
+  ],
+  "validation_limit": "Hashes were computed only on newly exported recovery artifacts. No original project commands, tests, builds, repository edits, or subagents were run. No original commit authentication is claimed. Parent must compare overlapping retained bytes before assembly."
+}

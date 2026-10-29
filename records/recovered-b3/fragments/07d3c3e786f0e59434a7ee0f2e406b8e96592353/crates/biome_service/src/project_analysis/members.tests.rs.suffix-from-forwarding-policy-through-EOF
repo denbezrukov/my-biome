@@ -1,0 +1,130 @@
+#[test]
+fn forwarding_and_default_slots_keep_distinct_report_policy() {
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import { handler } from './lib'; handler(); import './mid';",
+            ),
+            (
+                "lib.ts",
+                "function handler() {} export { handler }; export default handler;",
+            ),
+            (
+                "mid.ts",
+                "export * as NS from './origin'; export { Mode } from './origin';",
+            ),
+            ("origin.ts", "export enum Mode { used }"),
+        ],
+        Default::default(),
+    );
+    let actual: Vec<_> = result
+        .issues
+        .iter()
+        .map(|issue| {
+            (
+                result.sources[&issue.location.file].logical_path.as_str(),
+                issue.symbol.as_deref().unwrap(),
+                issue.kind,
+            )
+        })
+        .collect();
+    assert!(actual.contains(&("lib.ts", "default", IssueKind::Exports)));
+    assert!(actual.contains(&("mid.ts", "Mode", IssueKind::Exports)));
+    assert!(
+        !actual
+            .iter()
+            .any(|(path, symbol, _)| *path == "mid.ts" && *symbol == "NS")
+    );
+    assert!(
+        result
+            .issues
+            .iter()
+            .all(|issue| issue.kind != IssueKind::Duplicates)
+    );
+}
+#[test]
+fn source_member_ignore_patterns_preserve_analysis_evidence() {
+    let files = [
+        ("index.ts", "import { N } from './lib'; N.used;"),
+        (
+            "lib.ts",
+            "export namespace N { export const used=1; export const unused=2; }",
+        ),
+    ];
+    let (_, normal) = run(&files, Default::default());
+    assert_eq!(symbols(&normal).len(), 1);
+    let (_, ignored) = run(
+        &files,
+        AnalysisOptions {
+            ignore_members: vec!["unused".into()],
+            ..Default::default()
+        },
+    );
+    assert!(symbols(&ignored).is_empty());
+    assert_eq!(ignored.exports.consumed, normal.exports.consumed);
+}
+#[test]
+fn local_enumeration_protects_only_its_member_parent() {
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import { E, Control } from './lib'; E.used; Control.used;",
+            ),
+            (
+                "lib.ts",
+                "export enum E { used, unused } Object.keys(E); export enum Control { used, unused }",
+            ),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("lib.ts", "Control.unused", IssueKind::EnumMembers)])
+    );
+}
+#[test]
+fn private_nested_namespace_is_not_an_exported_member_path() {
+    let (_, result) = run(
+        &[
+            ("index.ts", "import { N } from './lib'; N.used;"),
+            (
+                "lib.ts",
+                "export namespace N { export const used=1; export const unused=2; namespace Hidden { export const unused=3; } }",
+            ),
+        ],
+        Default::default(),
+    );
+    assert_eq!(
+        symbols(&result),
+        expected(&[("lib.ts", "N.unused", IssueKind::NamespaceMembers)])
+    );
+}
+#[test]
+fn duplicate_forwarding_ambiguity_does_not_merge_declarations() {
+    let (_, result) = run(
+        &[
+            (
+                "index.ts",
+                "import { shared } from './barrel'; import { original, alias } from './control'; shared; original; alias;",
+            ),
+            (
+                "barrel.ts",
+                "export * from './left'; export * from './right';",
+            ),
+            ("left.ts", "export const shared=1;"),
+            ("right.ts", "export const shared=2;"),
+            (
+                "control.ts",
+                "export const original=1; export const alias=original;",
+            ),
+        ],
+        Default::default(),
+    );
+    assert!(!result.exports.uncertainty.is_empty());
+    assert_eq!(
+        symbols(&result),
+        expected(&[("control.ts", "alias/original", IssueKind::Duplicates)])
+    );
+}

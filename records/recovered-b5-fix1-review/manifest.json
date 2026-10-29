@@ -1,0 +1,201 @@
+{
+  "review_base": "22f1bdc682a48857b681969a1dc7316754cc7332",
+  "review_head": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+  "not_final_head": "74f3d04",
+  "files": [
+    {
+      "recovered_path": ".changeset/common-files-fry.md",
+      "original_path": ".changeset/common-files-fry.md",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 7,
+      "bytes": 517,
+      "sha256": "fe02452a577bf5904bc06c669f24085a5eb8cee559d9200d810cdbbf807c8849",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "README.md",
+      "original_path": null,
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "metadata",
+      "original_lines": null,
+      "lines": 9,
+      "bytes": 741,
+      "sha256": "ce2491510431319210b3fff66e85fcc0c7a4b907c954c2c933ba541d223277d5",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_project_analysis/src/dependencies.rs",
+      "original_path": "crates/biome_project_analysis/src/dependencies.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 821,
+      "bytes": 29308,
+      "sha256": "48c66f07425dcf7a06bc2f592f10a4569d8a3cd9619d941ea04ff195a37aaae4",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_project_analysis/src/normalize.rs",
+      "original_path": "crates/biome_project_analysis/src/normalize.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 179,
+      "bytes": 6280,
+      "sha256": "1391a9cdc20a8b03f148dbdae3787979a510cc4d238fa813dd3008a43ca2e0fe",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_resolver/tests/consumer_context.rs",
+      "original_path": "crates/biome_resolver/tests/consumer_context.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 128,
+      "bytes": 3944,
+      "sha256": "4775b3501a3d741dcc536525818facd7a320676c3690f06f8db23bab333986ae",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_service/src/project_analysis/dependencies.rs",
+      "original_path": "crates/biome_service/src/project_analysis/dependencies.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 760,
+      "bytes": 28175,
+      "sha256": "28aff1502da92473384ec689fa0fccc8ef750927a5f666454ed56e939a56ca98",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "original_path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 1511,
+      "bytes": 54814,
+      "sha256": "58e010eb78e07842b99dd7f6228a6b29e5c7527315bead6e6caf1e2a6852883a",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_service/src/project_analysis/scripts.rs",
+      "original_path": "crates/biome_service/src/project_analysis/scripts.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 341,
+      "bytes": 12737,
+      "sha256": "479ce6f34379ffe309585bfccc037710b37812e4dc3d918442028559c441e268",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "crates/biome_service/src/project_analysis/snapshot.rs",
+      "original_path": "crates/biome_service/src/project_analysis/snapshot.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full",
+      "original_lines": null,
+      "lines": 555,
+      "bytes": 23791,
+      "sha256": "5209d7960e2702c952b54e1c43f2ee1adce7486ee8b4f8d000b5ca9101fca4e6",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/resolver-lib.fix1.diff",
+      "original_path": "crates/biome_resolver/src/lib.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "full_diff_partial_source",
+      "original_lines": null,
+      "lines": 92,
+      "bytes": 3873,
+      "sha256": "ae1de6d3fc9bbd31cd873f9e699c2f2c0fed3613de310d58fec26439ba6f0be4",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-dependencies.tests.rs.lines-1-570.partial",
+      "original_path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 1,
+        "last": 570
+      },
+      "lines": 570,
+      "bytes": 20789,
+      "sha256": "163f718c7823ea0c5304a5f84fd8a2beb46e92288bc5c0fbfd81440d6dfc35ff",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-dependencies.tests.rs.lines-1161-1511.partial",
+      "original_path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 1161,
+        "last": 1511
+      },
+      "lines": 351,
+      "bytes": 13767,
+      "sha256": "4e560fb90d1ae700b9a1edb83308b6273eaf4074689dd4beae9aea3fd1262c20",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-dependencies.tests.rs.lines-571-1160.partial",
+      "original_path": "crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 571,
+        "last": 1160
+      },
+      "lines": 590,
+      "bytes": 20258,
+      "sha256": "f908d835bc50e1114fdde3536bf8a2458758835eb5ad4b70197bee27ff828e27",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-inventory.rs.lines-38-135.partial",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 38,
+        "last": 135
+      },
+      "lines": 98,
+      "bytes": 3318,
+      "sha256": "4d1e9fa27a8b8979e31668dadb94323e8e7800a522b2ab20b23a0205cae80902",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-owned_facts.rs.lines-228-343.partial",
+      "original_path": "crates/biome_service/src/project_analysis/owned_facts.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 228,
+        "last": 343
+      },
+      "lines": 116,
+      "bytes": 5383,
+      "sha256": "f51b7aa012b58804d120c8a2bdf5df94c625d65e542520f7e716090d46243898",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    },
+    {
+      "recovered_path": "partials/service-owned_facts.rs.lines-27-43.partial",
+      "original_path": "crates/biome_service/src/project_analysis/owned_facts.rs",
+      "stage": "e758ebf7c4d937283c3c1b4ac8a6fa5d9c9043e4",
+      "completeness": "partial",
+      "original_lines": {
+        "first": 27,
+        "last": 43
+      },
+      "lines": 17,
+      "bytes": 687,
+      "sha256": "0ce8454fac90fab340e812d57958eca5ad552a8ccf89673dde323a8d616dec48",
+      "provenance": "retained original review tool output, transcribed verbatim; no original hash comparison available"
+    }
+  ]
+}

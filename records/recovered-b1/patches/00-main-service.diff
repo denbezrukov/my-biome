@@ -1,0 +1,162 @@
+diff --git a/crates/biome_service/src/project_analysis/inventory.rs b/crates/biome_service/src/project_analysis/inventory.rs
+index 3c79b9ea2ca..77b76546879 100644
+--- a/crates/biome_service/src/project_analysis/inventory.rs
++++ b/crates/biome_service/src/project_analysis/inventory.rs
+@@ -448,6 +448,15 @@ pub(super) fn discover_with_context(
+             None,
+         );
+     }
++    capture.inventory.analysis_scope = Some(
++        capture
++            .inventory
++            .workspaces
++            .iter()
++            .filter(|workspace| !excluded.contains(&workspace.workspace))
++            .map(|workspace| workspace.workspace)
++            .collect(),
++    );
+     let gitignore = gitignores(&mut capture);
+     let source_paths: Vec<_> = capture
+         .paths
+diff --git a/crates/biome_service/src/project_analysis/owned_facts.rs b/crates/biome_service/src/project_analysis/owned_facts.rs
+index d5d57195785..159179ca8e9 100644
+--- a/crates/biome_service/src/project_analysis/owned_facts.rs
++++ b/crates/biome_service/src/project_analysis/owned_facts.rs
+@@ -91,6 +91,7 @@ pub(super) fn convert(
+                 syntax: syntax(value.syntax),
+                 type_only: value.type_only,
+                 optional: value.optional,
++                possible: value.possible,
+                 bindings: value
+                     .bindings
+                     .iter()
+@@ -155,9 +156,10 @@ pub(super) fn convert(
+             .iter()
+             .map(|value| {
+                 let location = location(file, value.range);
++                let domain = unknown_domain(capture, facts, resolutions, value);
+                 capture.inventory.gaps.push(CoverageGap {
+                     producer: "module collection".into(),
+-                    domain: TargetDomain::Unbounded,
++                    domain,
+                     reason: GapReason::DynamicReference(value.reason.clone()),
+                     location: Some(location),
+                 });
+@@ -366,3 +368,49 @@ fn purpose(value: graph::ProjectResolutionPurpose) -> owned::ResolutionPurpose {
+         graph::ProjectResolutionPurpose::Declaration => owned::ResolutionPurpose::Declaration,
+     }
+ }
++
++fn unknown_domain(
++    capture: &mut Capture,
++    facts: &graph::ProjectModuleFacts,
++    resolutions: &[graph::ProjectResolvedOccurrence],
++    unknown: &graph::ProjectUnknownFact,
++) -> TargetDomain {
++    let alternatives: Vec<_> = facts
++        .imports
++        .named_iter()
++        .enumerate()
++        .filter(|(_, (_, import))| import.possible && import.range == unknown.range)
++        .map(|(ordinal, _)| ordinal)
++        .collect();
++    if alternatives.is_empty()
++        || alternatives.iter().any(|ordinal| {
++            !resolutions
++                .iter()
++                .any(|resolution| resolution.occurrence == *ordinal)
++                || resolutions.iter().any(|resolution| {
++                    resolution.occurrence == *ordinal
++                        && matches!(
++                            resolution.resolution,
++                            graph::ProjectResolution::Unknown { .. }
++                        )
++                })
++        })
++    {
++        return TargetDomain::Unbounded;
++    }
++    let files = resolutions
++        .iter()
++        .filter(|resolution| alternatives.contains(&resolution.occurrence))
++        .filter_map(|resolution| match &resolution.resolution {
++            graph::ProjectResolution::Resolved { target, .. } => Some(capture.capture(target)),
++            _ => None,
++        })
++        .collect::<std::collections::BTreeSet<_>>()
++        .into_iter()
++        .collect();
++    TargetDomain::Bounded {
++        files,
++        workspaces: Vec::new(),
++        packages: Vec::new(),
++    }
++}
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index dcafa49c415..77b5e707645 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -132,6 +132,7 @@ impl WorkspaceServerWithDb<'_> {
+                     .collect(),
+                 inventory: discovery.inventory,
+             };
++            capture.inventory.reporting_policies = reporting_policies(request, &capture.inventory);
+             let mut required: BTreeSet<_> = capture
+                 .inventory
+                 .files
+@@ -459,3 +460,43 @@ fn contexts(
+     }
+     result
+ }
++
++fn reporting_policies(
++    request: &ProjectAnalysisRequest,
++    inventory: &biome_project_analysis::inventory::Inventory,
++) -> Vec<biome_project_analysis::inventory::ReportingPolicy> {
++    use biome_project_analysis::inventory::ReportingPolicy;
++    let mut policies = vec![ReportingPolicy {
++        base: ".".into(),
++        workspace: None,
++        ignore: request
++            .configuration
++            .ignore
++            .as_ref()
++            .map(|patterns| patterns.0.clone())
++            .unwrap_or_default(),
++        ignore_files: request
++            .configuration
++            .ignore_files
++            .as_ref()
++            .map(|patterns| patterns.0.clone())
++            .unwrap_or_default(),
++    }];
++    for workspace in &inventory.workspaces {
++        let settings: WorkspaceAnalysisConfiguration =
++            serde_json::from_str(&workspace.configuration_json).unwrap();
++        policies.push(ReportingPolicy {
++            base: workspace.path.clone(),
++            workspace: Some(workspace.workspace),
++            ignore: settings
++                .ignore
++                .map(|patterns| patterns.0)
++                .unwrap_or_default(),
++            ignore_files: settings
++                .ignore_files
++                .map(|patterns| patterns.0)
++                .unwrap_or_default(),
++        });
++    }
++    policies
++}
+diff --git a/crates/biome_service/src/project_analysis.rs b/crates/biome_service/src/project_analysis.rs
+index 224f8e1abf3..f2194754423 100644
+--- a/crates/biome_service/src/project_analysis.rs
++++ b/crates/biome_service/src/project_analysis.rs
+@@ -65,3 +65,7 @@ pub(crate) fn canonical_watch_path(
+ ) -> camino::Utf8PathBuf {
+     paths::canonical(fs, path).unwrap_or_else(|_| biome_fs::normalize_path(path))
+ }
++
++#[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
++#[path = "project_analysis/reachability.tests.rs"]
++mod reachability_tests;

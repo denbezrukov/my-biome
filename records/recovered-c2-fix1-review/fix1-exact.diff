@@ -1,0 +1,240 @@
+diff --git a/crates/biome_cli/src/runner/impls/collectors/default.rs b/crates/biome_cli/src/runner/impls/collectors/default.rs
+index 9d27f43e9c4..8adedf1a805 100644
+--- a/crates/biome_cli/src/runner/impls/collectors/default.rs
++++ b/crates/biome_cli/src/runner/impls/collectors/default.rs
+@@ -7,7 +7,7 @@ use camino::{Utf8Path, Utf8PathBuf};
+ use crossbeam::channel::Receiver;
+ use rustc_hash::FxHashSet;
+ use std::sync::RwLock;
+-use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
++use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+ use std::time::Duration;
+ 
+ pub(crate) struct DefaultCollector {
+@@ -25,6 +25,8 @@ pub(crate) struct DefaultCollector {
+     /// Mutable reference to a boolean flag tracking whether the console thread
+     /// printed any info-level message
+     infos: AtomicU32,
++    /// Runtime failures remain significant even when presentation filters hide their diagnostics.
++    runtime_failure: AtomicBool,
+     /// Whether the console thread should print diagnostics in verbose mode
+     verbose: bool,
+     /// The diagnostic level the console thread should print
+@@ -56,6 +58,7 @@ impl DefaultCollector {
+             errors: AtomicU32::new(0),
+             warnings: AtomicU32::new(0),
+             infos: AtomicU32::new(0),
++            runtime_failure: AtomicBool::new(false),
+             remaining_diagnostics: AtomicU32::new(0),
+             diagnostic_level: Severity::Hint,
+             verbose: false,
+@@ -77,6 +80,17 @@ impl DefaultCollector {
+         diagnostics_to_print.push(diagnostic);
+     }
+ 
++    fn record_runtime_failure(&self, diagnostic: &Error) {
++        if diagnostic.tags().is_internal()
++            || diagnostic.category().is_some_and(|category| {
++                category.name().starts_with("internalError/")
++                    || category.name() == "args/fileNotFound"
++            })
++        {
++            self.runtime_failure.store(true, Ordering::Relaxed);
++        }
++    }
++
+     pub(crate) fn with_verbose(mut self, verbose: bool) -> Self {
+         self.verbose = verbose;
+         self
+@@ -171,6 +185,7 @@ impl Collector for DefaultCollector {
+                 }
+ 
+                 Message::Error(mut err) => {
++                    self.record_runtime_failure(&err);
+                     let location = err.location();
+                     if self.should_skip_diagnostic(err.severity(), err.tags()) {
+                         continue;
+@@ -233,6 +248,7 @@ impl Collector for DefaultCollector {
+                     self.not_printed_diagnostics
+                         .fetch_add(skipped_diagnostics, Ordering::Relaxed);
+                     for diag in diagnostics {
++                        self.record_runtime_failure(&diag);
+                         let severity = diag.severity();
+                         if self.should_skip_diagnostic(severity, diag.tags()) {
+                             // Adjust workspace counts for diagnostics skipped
+@@ -358,6 +374,7 @@ impl Collector for DefaultCollector {
+             errors,
+             warnings,
+             infos,
++            runtime_failure: self.runtime_failure.load(Ordering::Relaxed),
+             suggested_fixes_skipped,
+             diagnostics_not_printed,
+             diagnostics: diagnostics_to_print,
+@@ -377,6 +394,7 @@ pub(crate) struct CollectorSummary {
+     pub errors: u32,
+     pub warnings: u32,
+     pub infos: u32,
++    pub runtime_failure: bool,
+     pub suggested_fixes_skipped: u32,
+     pub diagnostics_not_printed: u32,
+     pub diagnostics: Vec<Error>,
+diff --git a/crates/biome_cli/src/runner/impls/commands/traversal.rs b/crates/biome_cli/src/runner/impls/commands/traversal.rs
+index e24ee28e7d6..05375ef84b9 100644
+--- a/crates/biome_cli/src/runner/impls/commands/traversal.rs
++++ b/crates/biome_cli/src/runner/impls/commands/traversal.rs
+@@ -232,6 +232,7 @@ where
+ 
+ pub(crate) struct TraverseResult {
+     pub(crate) project: Option<ProjectCompletion>,
++    pub(crate) runtime_failure: bool,
+     pub(crate) summary: TraversalSummary,
+     pub(crate) evaluated_paths: Vec<BiomePath>,
+     pub(crate) diagnostics: Vec<Error>,
+diff --git a/crates/biome_cli/src/runner/impls/crawlers/default.rs b/crates/biome_cli/src/runner/impls/crawlers/default.rs
+index f1c3b272fe3..881cb34b30e 100644
+--- a/crates/biome_cli/src/runner/impls/crawlers/default.rs
++++ b/crates/biome_cli/src/runner/impls/crawlers/default.rs
+@@ -29,6 +29,7 @@ where
+             errors,
+             warnings,
+             infos,
++            runtime_failure,
+             suggested_fixes_skipped,
+             diagnostics_not_printed,
+             diagnostics,
+@@ -40,6 +41,7 @@ where
+ 
+         TraverseResult {
+             project: None,
++            runtime_failure,
+             summary: TraversalSummary {
+                 changed,
+                 unchanged,
+diff --git a/crates/biome_cli/src/runner/impls/finalizers/default.rs b/crates/biome_cli/src/runner/impls/finalizers/default.rs
+index 322906efc2c..769ce584ace 100644
+--- a/crates/biome_cli/src/runner/impls/finalizers/default.rs
++++ b/crates/biome_cli/src/runner/impls/finalizers/default.rs
+@@ -60,15 +60,8 @@ impl DefaultFinalizer {
+             evaluated_paths,
+             mut diagnostics,
+             project,
++            runtime_failure,
+         } = result;
+-        let local_runtime_failure = project.is_some()
+-            && diagnostics.iter().any(|diagnostic| {
+-                diagnostic.tags().is_internal()
+-                    || diagnostic.category().is_some_and(|category| {
+-                        category.name().starts_with("internalError/")
+-                            || category.name() == "args/fileNotFound"
+-                    })
+-            });
+         let local_errors = summary.errors;
+         let local_warning_failure = summary.warnings > 0 && cli_options.error_on_warnings;
+         if let Some(completion) = &project {
+@@ -175,7 +168,7 @@ impl DefaultFinalizer {
+         );
+         reporter.write(&mut ConsoleReporterWriter(console), &mut visitor)?;
+ 
+-        if local_runtime_failure {
++        if project.is_some() && runtime_failure {
+             return Err(CliDiagnostic::project_failure(
+                 "Local file processing failed; project analysis cannot certify this command.",
+             ));
+diff --git a/crates/biome_cli/tests/project_analysis_exit.rs b/crates/biome_cli/tests/project_analysis_exit.rs
+index 97bc56e2c0b..da385e54991 100644
+--- a/crates/biome_cli/tests/project_analysis_exit.rs
++++ b/crates/biome_cli/tests/project_analysis_exit.rs
+@@ -293,3 +293,93 @@ fn configuration_hint_controls_do_not_change_coverage() {
+         );
+     }
+ }
++
++fn runtime_failure_with_diagnostic_budget(command: &str, budget: &str) {
++    const ENABLED: &str = r#"{"formatter":{"enabled":false},"assist":{"enabled":false},"linter":{"rules":{"preset":"none"}},"projectAnalysis":{"enabled":true,"entry":[],"project":[]}}"#;
++    let project = Project::new(ENABLED);
++    project.write("clean.js", "");
++    project.write("unsupported.txt", "unsupported language\n");
++    assert!(!project.0.join("missing.js").exists());
++
++    let mut paths = Vec::new();
++    if budget == "1" {
++        // Explicit paths are evaluated in order, before parallel file processing.
++        paths.push("unsupported.txt");
++    }
++    let mut clean_args = vec![command, "--verbose", "--max-diagnostics", budget];
++    clean_args.extend(paths.iter().copied());
++    clean_args.push("clean.js");
++    let clean = project.run(&clean_args);
++    let clean_stderr = String::from_utf8_lossy(&clean.stderr);
++    assert_eq!(clean.status.code(), Some(0), "{clean_stderr}");
++    assert!(clean_stderr.contains("coverage: complete; 0 findings, 0 hints"));
++    if budget == "1" {
++        assert!(
++            clean_stderr.contains("files/missingHandler"),
++            "{clean_stderr}"
++        );
++    }
++
++    paths.push("missing.js");
++    let mut visible_args = vec![command, "--verbose"];
++    visible_args.extend(paths.iter().copied());
++    let visible = project.run(&visible_args);
++    let visible_stderr = String::from_utf8_lossy(&visible.stderr);
++    assert_eq!(visible.status.code(), Some(2), "{visible_stderr}");
++    assert!(
++        visible_stderr.contains("internalError/io"),
++        "{visible_stderr}"
++    );
++    assert!(visible_stderr.contains("missing.js"), "{visible_stderr}");
++
++    let mut capped_args = vec![command, "--verbose", "--max-diagnostics", budget];
++    capped_args.extend(paths.iter().copied());
++    for disabled in [
++        r#"{"formatter":{"enabled":false},"assist":{"enabled":false},"linter":{"rules":{"preset":"none"}}}"#,
++        r#"{"formatter":{"enabled":false},"assist":{"enabled":false},"linter":{"rules":{"preset":"none"}},"projectAnalysis":{"enabled":false,"entry":[],"project":[]}}"#,
++    ] {
++        project.write("biome.json", disabled);
++        let output = project.run(&capped_args);
++        let stderr = String::from_utf8_lossy(&output.stderr);
++        assert_eq!(output.status.code(), Some(1), "{stderr}");
++        assert!(!stderr.contains("Project analysis coverage"), "{stderr}");
++    }
++    project.write("biome.json", ENABLED);
++    for no_exit in [false, true] {
++        let mut args = capped_args.clone();
++        if no_exit {
++            args.push("--no-exit-code");
++        }
++        let output = project.run(&args);
++        let stderr = String::from_utf8_lossy(&output.stderr);
++        assert!(
++            stderr.contains("coverage: complete; 0 findings, 0 hints"),
++            "{stderr}"
++        );
++        assert!(!stderr.contains("internalError/io"), "{stderr}");
++        if budget == "1" {
++            assert!(stderr.contains("files/missingHandler"), "{stderr}");
++        }
++        assert_eq!(output.status.code(), Some(2), "{args:?}: {stderr}");
++    }
++}
++
++#[test]
++fn runtime_failure_with_zero_budget_check() {
++    runtime_failure_with_diagnostic_budget("check", "0");
++}
++
++#[test]
++fn runtime_failure_with_zero_budget_lint() {
++    runtime_failure_with_diagnostic_budget("lint", "0");
++}
++
++#[test]
++fn runtime_failure_with_exhausted_budget_check() {
++    runtime_failure_with_diagnostic_budget("check", "1");
++}
++
++#[test]
++fn runtime_failure_with_exhausted_budget_lint() {
++    runtime_failure_with_diagnostic_budget("lint", "1");
++}

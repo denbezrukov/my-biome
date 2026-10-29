@@ -1,0 +1,310 @@
+/**
+ * The syntactic use remains available for member checks even when whole exports are retained.
+ */
+export interface MemberUse {
+	access: NamespaceAccess;
+	context: ResolutionContext;
+	/**
+	 * Namespace-import binding, or the selected origin of a named import.
+	 */
+	declaration: DeclarationId;
+	kind: UseKind;
+	location: ProjectAnalysisLocation;
+	namespace_import: boolean;
+	path: NamespaceAccess[];
+	target: FileId;
+}
+export interface ExportSlotId {
+	file: FileId;
+	name: string;
+	namespace: SymbolNamespace;
+}
+export interface ExportUncertainty {
+	declarations: DeclarationId[];
+	location: ProjectAnalysisLocation;
+	reason: string;
+	slots: ExportSlotId[];
+}
+export type FileId = number;
+export type GapId = string;
+export type GapImpact =
+	| "FileTargets"
+	| "Symbols"
+	| "FileReporting"
+	| "SourceReporting";
+export type ScriptProducer =
+	| { kind: "Manifest"; script: string; workspace: WorkspaceId }
+	| { file: FileId; kind: "Source" };
+export type HintKind = "configuration" | "tag";
+export interface ProjectAnalysisLocation {
+	file: FileId;
+	range: TextRange;
+}
+/**
+ * A producer-qualified logical path and range, with a role suffix when needed.
+ * Evidence identities are stable across snapshots and must not embed local numeric IDs.
+ */
+export type EvidenceId = string;
+export type ProjectAnalysisFixKind =
+	| "files"
+	| "dependencies"
+	| "exports"
+	| "types"
+	| "catalog";
+/**
+ * A computed access affects members beneath a known prefix without selecting any leaf.
+ */
+export interface MemberUncertainty {
+	location: ProjectAnalysisLocation;
+	parent: DeclarationId;
+	path: string[];
+}
+export interface Root {
+	exports: ExportProtection;
+	file: FileId;
+	location?: ProjectAnalysisLocation;
+	producer: string;
+	role: RootRole;
+	workspace: WorkspaceId;
+}
+export interface FileMembership {
+	affecting_gaps: GapId[];
+	/**
+	 * Full source analysis is independent of reporting suppression.
+	 */
+	analyzed?: boolean;
+	definite: boolean;
+	diagnostic_eligible: boolean;
+	file: FileId;
+	possible: boolean;
+}
+export interface ProducerActivation {
+	activation: Activation;
+	producer: ScriptProducer;
+}
+export interface ReportIgnore {
+	base: string;
+	field: IgnoreField;
+	issues: IssueKind[];
+	origin: PolicyOrigin;
+	pattern: string;
+	workspace?: WorkspaceId;
+}
+export interface ReportSuppression {
+	evidence: EvidenceId;
+	issue: string;
+	policy: number;
+}
+/**
+ * Original compatibility input and its effective native tag name remain distinct.
+ */
+export interface TagInputMapping {
+	effective?: string;
+	excluded: boolean;
+	original: string;
+}
+export interface TagSuppression {
+	evidence: EvidenceId;
+	issue: string;
+	tags: string[];
+}
+export interface FailedRequest {
+	location: ProjectAnalysisLocation;
+	occurrence: number;
+	package_category?: RequestCategory;
+	resolutions: ResolvedOccurrence[];
+	specifier: string;
+}
+export type SourceContent =
+	| { digest: string; status: "available"; text: string }
+	| { fallback: string; reason: string; status: "unavailable" };
+/**
+ * The container used by catalog lookup can differ from the selected value's source.
+ */
+export interface CatalogProvider {
+	container: ProjectAnalysisLocation;
+	name: string;
+	value: MetadataValueRecord;
+}
+export interface ManifestDependencyUse {
+	location?: ProjectAnalysisLocation;
+	package: string;
+	producer: string;
+	specifier: string;
+}
+/**
+ * Ordered metadata and ranges belong to the captured source, including inactive branches.
+ */
+export interface MetadataValueRecord {
+	elements: MetadataValueRecord[];
+	location: ProjectAnalysisLocation;
+	members: [string, MetadataValueRecord][];
+	value?: any;
+}
+export interface MetadataDiagnostic {
+	location: ProjectAnalysisLocation;
+	message: string;
+}
+export type TargetDomain =
+	| {
+			files: FileId[];
+			kind: "bounded";
+			packages: string[];
+			workspaces: WorkspaceId[];
+	  }
+	| { kind: "unbounded" };
+export type GapReason =
+	| { kind: "capability"; reason: string }
+	| { kind: "dynamicReference"; reason: string }
+	| { kind: "unavailableInput"; reason: string };
+export type CatalogProducer =
+	| { Metadata: { field: string } }
+	| { Script: ScriptProducer };
+export type RequestCategory = "Handled" | "Unlisted";
+export interface DependencyDeclaration {
+	field?: string;
+	kind: DependencyKind;
+	location: ProjectAnalysisLocation;
+	package: string;
+	specifier?: string;
+	workspace: WorkspaceId;
+}
+/**
+ * Captured installation identity, including declared aliases and unsuccessful lookup paths.
+ * `available` denotes a valid bin declaration; it does not assert executable availability.
+ */
+export interface BinaryProvider {
+	available: boolean;
+	binary: string;
+	manifest?: FileId;
+	metadata_known?: boolean;
+	owner?: WorkspaceId;
+	package_name?: string;
+	path: string;
+	requested_package?: string;
+	workspace: WorkspaceId;
+}
+export type DependencyProducer =
+	| "Manifest"
+	| { Import: { file: FileId } }
+	| { PublicOutput: { file: FileId } }
+	| { Script: ScriptProducer };
+export type DependencyReason =
+	| "Direct"
+	| { TypeCompanion: { package: string } }
+	| { PeerHost: { package: string } };
+export interface ScriptResolution {
+	context: ResolutionContext;
+	outcome: ResolutionOutcome;
+	trace: ResolutionEvent[];
+}
+export type SymbolNamespace = "value" | "type";
+export type NamespaceAccess =
+	| "Computed"
+	| "Escape"
+	| "Enumerate"
+	| { Known: string };
+export interface ResolutionContext {
+	additional_conditions: string[];
+	config_revision: string;
+	mapping_revision: string;
+	profile: ResolutionProfile;
+	purpose: ResolutionPurpose;
+	source_mappings: ProjectAnalysisSourceMapping[];
+	syntax: ImportSyntax;
+}
+export type UseKind = "Runtime" | "Type" | "TypeQuery" | "RuntimeTypeof";
+export type ExportProtection =
+	| "protected"
+	| "includeWhenRequested"
+	| "unprotected";
+export type RootRole = "default" | "production" | "both";
+export type Activation = "Dead" | "Possible" | "Definite";
+export type IgnoreField =
+	| "ignore"
+	| "ignoreFiles"
+	| "ignoreDependencies"
+	| "ignoreBinaries"
+	| "ignoreUnresolved"
+	| "ignoreMembers"
+	| "ignoreIssues";
+export interface PolicyOrigin {
+	location?: ProjectAnalysisLocation;
+	/**
+	 * Explains an unavailable origin without inventing a source range.
+	 */
+	unavailable?: string;
+}
+export interface ResolvedOccurrence {
+	context: ResolutionContext;
+	occurrence: number;
+	outcome: ResolutionOutcome;
+	trace: ResolutionEvent[];
+}
+export type DependencyKind =
+	| "production"
+	| "development"
+	| "peer"
+	| "optionalPeer"
+	| "optional"
+	| "catalog";
+export type ResolutionOutcome =
+	| { Resolved: { file: FileId; kind: string } }
+	| { Unresolved: { error: string } }
+	| { Builtin: { name: string } }
+	| { Unknown: { reason: string } };
+export type ResolutionEvent =
+	| {
+			Manifest: {
+				diagnostics: ManifestDiagnostic[];
+				file: FileId;
+				known: boolean;
+			};
+	  }
+	| { Package: { name?: string; path: string } }
+	| { Condition: string }
+	| { Target: string }
+	| { Mapping: ProjectAnalysisSourceMapping }
+	| { Failure: string };
+export type ResolutionProfile = "Knip" | "Node";
+export type ResolutionPurpose = "Runtime" | "Declaration" | "PublicOutput";
+export interface ProjectAnalysisSourceMapping {
+	from: string;
+	to: string;
+}
+export type ImportSyntax =
+	| "Import"
+	| "Require"
+	| "DynamicImport"
+	| "ImportType"
+	| "Reexport"
+	| "RequireResolve"
+	| "ImportMetaResolve"
+	| "Url"
+	| "Worker"
+	| "NodeEntry";
+export interface ManifestDiagnostic {
+	location?: ProjectAnalysisLocation;
+	message: string;
+	severity: string;
+}
+/**
+ * Reconciles active and previously published project keys, including closed keys.
+ */
+export interface PullProjectAnalysisStatesParams {
+	projectKeys: ProjectKey[];
+}
+export type Array_of_ProjectAnalysisState = ProjectAnalysisState[];
+/**
+ * Retained project state. Notifications only prompt clients to pull this state again.
+ */
+export interface ProjectAnalysisState {
+	generation: number;
+	projectKey: ProjectKey;
+	status: ProjectAnalysisStatus;
+}
+export type ProjectAnalysisStatus =
+	| { kind: "dirty" }
+	| { kind: "completed"; revision: SnapshotRevision }
+	| { coverage: Coverage; kind: "failed" }
+	| { kind: "closed" };

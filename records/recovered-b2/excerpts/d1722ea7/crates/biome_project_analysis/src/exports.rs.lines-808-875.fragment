@@ -1,0 +1,68 @@
+    fn unknown_namespace(&mut self, file: FileId, context: &ResolutionContext, location: Location) {
+        let mut slots = Vec::new();
+        let mut declarations = Vec::new();
+        let mut complete = true;
+        let mut seen = std::collections::BTreeSet::new();
+        let mut pending = vec![file];
+        while let Some(file) = pending.pop() {
+            if !seen.insert(file) {
+                continue;
+            }
+            for namespace in [SymbolNamespace::Value, SymbolNamespace::Type] {
+                if let Some(surface) = surface(self.snapshot, file, namespace, context) {
+                    complete &= surface.complete;
+                    for slot in &surface.slots {
+                        complete &= !matches!(slot.resolution, ExportResolution::Unknown(_));
+                        self.uncertain.extend(slot.slots.iter().cloned());
+                        slots.extend(slot.slots.iter().cloned());
+                        declarations.extend(slot.candidates.iter().copied());
+                        self.uncertain_declarations
+                            .extend(slot.candidates.iter().copied());
+                        if let Some(target) = slot.namespace_target {
+                            pending.push(target);
+                        }
+                    }
+                } else {
+                    complete = false;
+                }
+            }
+        }
+        let reason = "Namespace members are not individually known".to_string();
+        self.evidence(
+            location,
+            "uncertain namespace use",
+            reachability::path(self.snapshot, file),
+        );
+        let uncertainty = ExportUncertainty {
+            location,
+            slots,
+            declarations,
+            reason: reason.clone(),
+        };
+        if !self.output.uncertainty.contains(&uncertainty) {
+            self.output.uncertainty.push(uncertainty);
+        }
+        let gap = CoverageGap {
+            producer: "export consumption".into(),
+            domain: if complete {
+                TargetDomain::Bounded {
+                    files: seen.into_iter().collect(),
+                    workspaces: Vec::new(),
+                    packages: Vec::new(),
+                }
+            } else {
+                TargetDomain::Unbounded
+            },
+            reason: GapReason::DynamicReference(reason),
+            location: Some(location),
+        };
+        if !self.output.gaps.contains(&gap) {
+            self.output.gaps.push(gap);
+        }
+    }
+}
+fn reporting_uncertain(
+    snapshot: &AnalysisSnapshot,
+    reachability: &Reachability,
+    file: FileId,
+) -> bool {

@@ -1,0 +1,224 @@
+diff --git a/.changeset/many-ties-decide.md b/.changeset/many-ties-decide.md
+index 9ad3a034392..f6ee45bbed7 100644
+--- a/.changeset/many-ties-decide.md
++++ b/.changeset/many-ties-decide.md
+@@ -2,4 +2,4 @@
+ "@biomejs/biome": minor
+ ---
+ 
+-Added unused export and type analysis to the native project analysis library, including aliases, namespace imports, public entry protection, and supported custom element registrations. Uncertain references retain affected exports with incomplete coverage; other unfinished analysis categories remain explicitly unsupported.
++Added unused export and type analysis to the native project analysis library, including aliases, namespace imports, public entry protection, and supported custom element registrations. Used dynamic import results and uncertain registrations retain affected exports with incomplete coverage; other unfinished analysis categories remain explicitly unsupported.
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 48b4fc5403c..a7407daa928 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -125,6 +125,8 @@ pub struct ProjectImportOccurrence {
+     /// A finite alternative contributes a possible target, not a definite dependency.
+     pub possible: bool,
+     pub bindings: Vec<ProjectImportBinding>,
++    /// Whether a dynamic import result may be used beyond loading the module.
++    pub dynamic_result_used: bool,
+     /// Inline type-import selection, separate from local import bindings.
+     pub type_usage: Option<ProjectImportTypeUse>,
+ }
+@@ -475,6 +477,7 @@ impl ProjectModuleFacts {
+                 optional: false,
+                 possible: false,
+                 bindings: Vec::new(),
++                dynamic_result_used: false,
+                 type_usage: Some(ProjectImportTypeUse {
+                     kind,
+                     namespace,
+@@ -522,6 +525,7 @@ impl ProjectModuleFacts {
+                             optional: false,
+                             possible: false,
+                             bindings,
++                            dynamic_result_used: false,
+                             type_usage: None,
+                         },
+                     );
+@@ -580,6 +584,7 @@ impl ProjectModuleFacts {
+                             optional: false,
+                             possible: true,
+                             bindings: Vec::new(),
++                            dynamic_result_used: false,
+                             type_usage: None,
+                         },
+                     );
+@@ -679,6 +684,8 @@ impl ProjectModuleFacts {
+                 optional: false,
+                 possible: false,
+                 bindings,
++                dynamic_result_used: syntax == ProjectImportSyntax::DynamicImport
++                    && !discarded_import_result(import.syntax()),
+                 type_usage: None,
+             },
+         );
+@@ -1086,10 +1093,7 @@ impl ProjectModuleFacts {
+         {
+             self.registrations.push(ProjectRegistration {
+                 range: call.range(),
+-                declaration: second
+-                    .as_ref()
+-                    .and_then(|arg| arg.as_any_js_expression())
+-                    .and_then(|expression| registration_identity(expression, model, path)),
++                declaration: bound_registration_identity(&binding, bind, call, model, path),
+                 provenance: ProjectRegistryProvenance::Unknown,
+                 rejected: false,
+             });
+@@ -1228,6 +1232,7 @@ impl ProjectModuleFacts {
+                     optional: false,
+                     possible: false,
+                     bindings: Vec::new(),
++                    dynamic_result_used: false,
+                     type_usage: None,
+                 },
+             );
+@@ -1260,6 +1265,7 @@ impl ProjectModuleFacts {
+                     optional,
+                     possible: false,
+                     bindings: Vec::new(),
++                    dynamic_result_used: false,
+                     type_usage: None,
+                 },
+             );
+@@ -1885,6 +1891,56 @@ fn shadow_root(expression: &AnyJsExpression, model: &SemanticModel, depth: usize
+         })
+ }
+ 
++fn discarded_import_result(node: &JsSyntaxNode) -> bool {
++    for parent in node.ancestors().skip(1) {
++        match parent.kind() {
++            JsSyntaxKind::JS_PARENTHESIZED_EXPRESSION | JsSyntaxKind::JS_AWAIT_EXPRESSION => {}
++            JsSyntaxKind::JS_EXPRESSION_STATEMENT => return true,
++            _ => return false,
++        }
++    }
++    false
++}
++
++fn registration_initializer(binding: &Binding) -> Option<AnyJsExpression> {
++    let declarator = binding
++        .syntax()
++        .ancestors()
++        .find_map(JsVariableDeclarator::cast)?;
++    if declarator.id().ok()?.range() != binding.range() {
++        return None;
++    }
++    declarator.initializer()?.expression().ok()
++}
++
++fn bound_registration_identity(
++    binding: &Binding,
++    bind: &JsCallExpression,
++    call: &JsCallExpression,
++    model: &SemanticModel,
++    path: &Utf8Path,
++) -> Option<ProjectDeclarationId> {
++    if binding.all_writes().next().is_some() {
++        return None;
++    }
++    registration_initializer(binding)?;
++    let expressions = |call: &JsCallExpression| {
++        call.arguments()
++            .ok()?
++            .args()
++            .into_iter()
++            .map(|argument| argument.ok()?.as_any_js_expression().cloned())
++            .collect::<Option<Vec<_>>>()
++    };
++    let bound = expressions(bind)?;
++    if bound.is_empty() {
++        return None;
++    }
++    let arguments = expressions(call)?;
++    let constructor = bound.into_iter().skip(1).chain(arguments).nth(1)?;
++    registration_identity(&constructor, model, path)
++}
++
+ fn registration_identity(
+     expression: &AnyJsExpression,
+     model: &SemanticModel,
+@@ -1893,20 +1949,30 @@ fn registration_identity(
+     if let Some(reference) = expression.as_js_reference_identifier() {
+         let mut binding = model.binding(&reference)?;
+         let mut seen = std::collections::BTreeSet::new();
+-        while seen.insert(binding.range()) && binding.all_writes().next().is_none() {
+-            let Some(next) = initializer(&binding)
++        loop {
++            if !seen.insert(binding.range()) || binding.all_writes().next().is_some() {
++                return None;
++            }
++            let init = registration_initializer(&binding);
++            if let Some(reference) = init
++                .as_ref()
+                 .and_then(|expression| expression.as_js_reference_identifier())
+-                .and_then(|reference| model.binding(&reference))
+-            else {
+-                break;
+-            };
+-            binding = next;
++            {
++                binding = model.binding(&reference)?;
++                continue;
++            }
++            let constructor = matches!(
++                binding.declaration_kind(),
++                JsDeclarationKind::Class | JsDeclarationKind::Function | JsDeclarationKind::Import
++            ) || init.as_ref().is_some_and(|expression| {
++                matches!(
++                    expression.syntax().kind(),
++                    JsSyntaxKind::JS_CLASS_EXPRESSION | JsSyntaxKind::JS_FUNCTION_EXPRESSION
++                )
++            });
++            return constructor
++                .then(|| identity(path, binding.range(), ProjectSymbolNamespace::Value));
+         }
+-        return Some(identity(
+-            path,
+-            binding.range(),
+-            ProjectSymbolNamespace::Value,
+-        ));
+     }
+     if expression.syntax().kind() != JsSyntaxKind::JS_THIS_EXPRESSION {
+         return None;
+diff --git a/crates/biome_project_analysis/src/exports.rs b/crates/biome_project_analysis/src/exports.rs
+index ea44065fcde..a4cb43eeec4 100644
+--- a/crates/biome_project_analysis/src/exports.rs
++++ b/crates/biome_project_analysis/src/exports.rs
+@@ -154,6 +154,9 @@ pub fn analyze_exports(
+                 let ResolutionOutcome::Resolved { file: target, .. } = resolution.outcome else {
+                     continue;
+                 };
++                if import.dynamic_result_used {
++                    state.unknown_namespace(target, &resolution.context, import.location);
++                }
+                 if let Some(usage) = &import.type_usage {
+                     if resolution.context.purpose != ResolutionPurpose::Declaration {
+                         continue;
+diff --git a/crates/biome_project_analysis/src/facts.rs b/crates/biome_project_analysis/src/facts.rs
+index 98f1e56f0a8..aba6aa0bb09 100644
+--- a/crates/biome_project_analysis/src/facts.rs
++++ b/crates/biome_project_analysis/src/facts.rs
+@@ -137,6 +137,9 @@ pub struct ImportOccurrence {
+     #[serde(default)]
+     pub possible: bool,
+     pub bindings: Vec<ImportBinding>,
++    /// Whether a dynamic import result may be used beyond loading the module.
++    #[serde(default)]
++    pub dynamic_result_used: bool,
+     pub type_usage: Option<ImportTypeUse>,
+ }
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+diff --git a/crates/biome_service/src/project_analysis/owned_facts.rs b/crates/biome_service/src/project_analysis/owned_facts.rs
+index f8c4507bbbd..99a6d742ef5 100644
+--- a/crates/biome_service/src/project_analysis/owned_facts.rs
++++ b/crates/biome_service/src/project_analysis/owned_facts.rs
+@@ -112,6 +112,7 @@ pub(super) fn convert(
+                 type_only: value.type_only,
+                 optional: value.optional,
+                 possible: value.possible,
++                dynamic_result_used: value.dynamic_result_used,
+                 bindings: value
+                     .bindings
+                     .iter()

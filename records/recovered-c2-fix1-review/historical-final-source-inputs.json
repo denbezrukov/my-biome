@@ -1,0 +1,60 @@
+{
+  "base": "fa75dcf42908132624bb16f8e09632e262fb8378",
+  "head": "fa75dcf42908132624bb16f8e09632e262fb8378",
+  "created": "2026-10-27T11:52:04.928593+00:00",
+  "files": [
+    {
+      "path": ".cargo/config.toml",
+      "size": 1933,
+      "sha256": "55e1096e26df831c9aca829c83fe9383d913a402dccc0b8a3c4920ff44769ab7"
+    },
+    {
+      "path": "Cargo.lock",
+      "size": 179732,
+      "sha256": "c8104d0095f9e62bc72cf9aace35b40d6bf052453f3d110228abe301aae8169f"
+    },
+    {
+      "path": "Cargo.toml",
+      "size": 17229,
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e"
+    },
+    {
+      "path": "crates/biome_cli/src/runner/impls/collectors/default.rs",
+      "size": 16240,
+      "sha256": "00c3e602adea6aa095a067987a8f50f23cdc30b7e62971909208e14b0d63f1f6"
+    },
+    {
+      "path": "crates/biome_cli/src/runner/impls/commands/traversal.rs",
+      "size": 7470,
+      "sha256": "64051afb1af708cdb8d7590be68d38de3196c433ad7ec3ebb15c0b1fd995a978"
+    },
+    {
+      "path": "crates/biome_cli/src/runner/impls/crawlers/default.rs",
+      "size": 1903,
+      "sha256": "962644c5e0dddda74b94314da0b50f5a84ae1a04abbdb3148047fca76e71d9e7"
+    },
+    {
+      "path": "crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "size": 17686,
+      "sha256": "fed1e82c0530645a14e46d2fe17680edcebbfabf7545eca01af9018475481820"
+    },
+    {
+      "path": "crates/biome_cli/tests/project_analysis_exit.rs",
+      "size": 13949,
+      "sha256": "f84dd49d375b6c5a9077ff4494def28ebdcf313bc417526960f54384a88668b4"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "size": 234,
+      "sha256": "bd7b06458e86e1606ce6f793b95b4ede16832ad87ce9e7262e42d66b6a54a257"
+    }
+  ],
+  "activation_sha256": "eea6eca3302b0e3055d25fda654e36f4eac332fabb49fc3177ba83ad8b77a3ff",
+  "environment": {
+    "RUSTFLAGS": null,
+    "CARGO_INCREMENTAL": "0",
+    "INSTA_UPDATE": "new",
+    "INSTA_FORCE_PASS": null,
+    "CARGO_TARGET_DIR": null
+  }
+}

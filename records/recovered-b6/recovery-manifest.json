@@ -1,0 +1,55 @@
+{
+  "scope": "Recovery exports only; no build or repository-source access",
+  "source": "Literal retained conversation tool output and exact report-write input",
+  "feature_base": "74f3d041af8d8f8986c087b78d9882a86be6f758",
+  "patch_base": "b07d051a6260282912d5cf0ada1369d2ba1a182f",
+  "patch_result": "e2dcaceab06c4870fa5e9c9eeef13e31db8c8aee",
+  "patch_order": [
+    "01-fix1-production.patch",
+    "02-fix1-tests.patch"
+  ],
+  "missing": [
+    "Original feature source files and patch",
+    "Full pre-fix acquisition/inventory source",
+    "Full hash manifest contents",
+    "Full historical gate logs"
+  ],
+  "patch_syntax_counts": {
+    "01-fix1-production.patch": {
+      "hunks": 13,
+      "additions": 79,
+      "deletions": 18
+    },
+    "02-fix1-tests.patch": {
+      "hunks": 1,
+      "additions": 261,
+      "deletions": 0
+    }
+  },
+  "files": {
+    "01-fix1-production.patch": {
+      "bytes": 9119,
+      "sha256": "7ca93aabe10e878defbecab8da13a61b451b29d2e8912594d3652031760f54aa"
+    },
+    "02-fix1-tests.patch": {
+      "bytes": 10968,
+      "sha256": "8d08c7ee675d4d025a4d8a724fbc889ce6790f9d5bb5fe09adde22b1a2402097"
+    },
+    "03-fix1-report-excerpt.md": {
+      "bytes": 5578,
+      "sha256": "d71cd97eedd1154cc7764be66cae46fe32f58f928b4b44e89beb0816595295df"
+    },
+    "04-historical-tool-output.txt": {
+      "bytes": 3518,
+      "sha256": "6bb1bbc4af99958a0f0b8c77c7f72bd8002624f95158be17f2180d798455c9b2"
+    },
+    "05-final-report-body-excerpt.md": {
+      "bytes": 3306,
+      "sha256": "6fe6d43443ebaf8284cdc240b7e2087396b3ee1ec6372e3540e91504d144eb89"
+    },
+    "README.md": {
+      "bytes": 2110,
+      "sha256": "1b9113cb3eec1928cd12c32afe147fc17cb5c7992fef2c167c2f60b9d77aac88"
+    }
+  }
+}

@@ -1,0 +1,570 @@
+use super::ProjectAnalysisRequest;
+use biome_fs::MemoryFileSystem;
+use biome_project_analysis::{
+    analyze,
+    model::AnalysisSnapshot,
+    options::{AnalysisMode, AnalysisOptions},
+    result::{IssueKind, ProjectAnalysisResult},
+};
+use serde_json::{Value, json};
+use std::sync::Arc;
+
+fn run(
+    files: &[(&str, &str)],
+    config: Value,
+    mode: AnalysisMode,
+) -> (Arc<AnalysisSnapshot>, ProjectAnalysisResult) {
+    let fs = MemoryFileSystem::default();
+    for (path, text) in files {
+        fs.insert(format!("/project/{path}").into(), *text);
+    }
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let request = ProjectAnalysisRequest {
+        configuration: serde_json::from_value(config).unwrap(),
+        mode,
+        ..Default::default()
+    };
+    let snapshot = service.build_project_snapshot(project, &request).unwrap();
+    let result = analyze(
+        &snapshot,
+        &AnalysisOptions {
+            mode,
+            ..Default::default()
+        },
+    );
+    (snapshot, result)
+}
+fn packages(result: &ProjectAnalysisResult) -> Vec<(String, String, String)> {
+    let mut issues: Vec<_> = result
+        .issues
+        .iter()
+        .filter(|i| {
+            matches!(
+                i.kind,
+                IssueKind::Dependencies
+                    | IssueKind::DevDependencies
+                    | IssueKind::OptionalPeerDependencies
+                    | IssueKind::Unlisted
+                    | IssueKind::Binaries
+            )
+        })
+        .map(|i| {
+            (
+                serde_json::to_value(i.kind)
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_owned(),
+                result.sources[&i.location.file].logical_path.to_string(),
+                i.symbol.clone().unwrap(),
+            )
+        })
+        .collect();
+    issues.sort();
+    issues
+}
+fn expected(case: &str, mode: AnalysisMode) -> Vec<(String, String, String)> {
+    let strict = mode == AnalysisMode::Strict;
+    let values: Vec<(&str, &str, &str)> = match case {
+        "owner-both" | "imports-child-only-map" => vec![(
+            "dependencies",
+            "package.json",
+            if case == "owner-both" {
+                "probe-owner"
+            } else {
+                "probe-map"
+            },
+        )],
+        "owner-ancestor-only" if strict => vec![
+            ("dependencies", "package.json", "probe-owner"),
+            ("unlisted", "packages/child/entry.ts", "probe-owner"),
+        ],
+        "ordinary-type-versus-runtime" if strict => vec![
+            ("dependencies", "package.json", "probe-type"),
+            ("unlisted", "entry.ts", "probe-runtime"),
+        ],
+        "private-declaration-tsconfig" | "private-declaration-manifest" if strict => {
+            vec![("dependencies", "package.json", "probe-type")]
+        }
+        "public-declaration-placement" if strict => vec![
+            ("unlisted", "types/public.d.ts", "probe-dev"),
+            ("unlisted", "types/public.d.ts", "@types/probe-untyped"),
+        ],
+        "missing-category-contrast" => vec![
+            ("unlisted", "entry.ts", "probe-installed"),
+            ("unlisted", "entry.ts", "probe-missing"),
+        ],
+        "publication-overrides" => vec![("unlisted", "types/public.d.ts", "probe-public")],
+        "publication-absent-output" => vec![("dependencies", "package.json", "probe-public")],
+        "publication-versioned-and-null-surface" => vec![
+            ("unlisted", "features/visible.d.ts", "probe-visible"),
+            ("unlisted", "versions/old.d.ts", "probe-versioned"),
+        ],
+        _ => vec![],
+    };
+    let mut result: Vec<_> = values
+        .into_iter()
+        .map(|(k, p, n)| (k.into(), p.into(), n.into()))
+        .collect();
+    result.sort();
+    result
+}
+#[test]
+fn dependencies_closed_33_source_corpus() {
+    let corpus: Value = serde_json::from_str(include_str!(
+        "../../../../xtask/project_analysis/dependencies/corpus.json"
+    ))
+    .unwrap();
+    let fixtures: Value = serde_json::from_str(include_str!(
+        "../../../../xtask/project_analysis/dependencies/original-fixtures.json"
+    ))
+    .unwrap();
+    assert_eq!(corpus["cases"].as_array().unwrap().len(), 33);
+    let mut differences = Vec::new();
+    for case in corpus["cases"].as_array().unwrap() {
+        let name = case["case"].as_str().unwrap();
+        let mode: AnalysisMode = serde_json::from_value(case["mode"].clone()).unwrap();
+        let fixture = fixtures
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|f| f["id"] == name)
+            .unwrap();
+        let files: Vec<_> = fixture["files"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|f| {
+                (
+                    f["path"].as_str().unwrap(),
+                    f["content_utf8"].as_str().unwrap(),
+                )
+            })
+            .collect();
+        let mut config: Value =
+            serde_json::from_str(files.iter().find(|(p, _)| *p == "knip.json").unwrap().1).unwrap();
+        config.as_object_mut().unwrap().retain(|key, _| {
+            matches!(
+                key.as_str(),
+                "entry" | "project" | "workspaces" | "useTsconfigFiles"
+            )
+        });
+        if let Some(workspaces) = config.get_mut("workspaces").and_then(Value::as_object_mut) {
+            for workspace in workspaces.values_mut() {
+                workspace.as_object_mut().unwrap().retain(|key, _| {
+                    matches!(key.as_str(), "entry" | "project" | "useTsconfigFiles")
+                });
+            }
+        }
+        let (_, result) = run(&files, config, mode);
+        let native = packages(&result);
+        let native_expected = if name == "publication-absent-output" {
+            Vec::new()
+        } else {
+            expected(name, mode)
+        };
+        if native != native_expected {
+            differences.push(format!(
+                "{name}/{mode:?}: {native:?}; expected {:?}",
+                native_expected
+            ));
+        }
+        if name == "publication-absent-output" {
+            assert!(!result.coverage.gaps().is_empty());
+            assert!(result.dependencies.uses.is_empty());
+        }
+        let mut observed = Vec::new();
+        for file in case["observed_issues"].as_array().unwrap() {
+            for kind in [
+                "dependencies",
+                "devDependencies",
+                "optionalPeerDependencies",
+                "unlisted",
+                "binaries",
+            ] {
+                for issue in file[kind].as_array().into_iter().flatten() {
+                    observed.push((
+                        kind.to_string(),
+                        file["file"].as_str().unwrap().to_string(),
+                        issue["name"].as_str().unwrap().to_string(),
+                    ));
+                }
+            }
+        }
+        observed.sort();
+        assert_eq!(
+            observed,
+            expected(name, mode),
+            "reference projection {name}"
+        );
+        if name == "publication-directory" && result.coverage.gaps().is_empty() {
+            differences.push("directory publication lacks unsupported coverage".into());
+        }
+    }
+    assert!(differences.is_empty(), "{}", differences.join("\n"));
+}
+#[test]
+fn dependencies_public_output_ignores_author_paths() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"name":"public-lib","private":false,"types":"dist/index.d.ts","devDependencies":{"@types/untyped":"*"}}"#,
+            ),
+            (
+                "tsconfig.json",
+                r#"{"compilerOptions":{"paths":{"untyped":["./src/shim.ts"]}}}"#,
+            ),
+            ("dist/index.d.ts", "export type { Shape } from 'untyped';"),
+            ("src/shim.ts", "export interface Shape {}"),
+            (
+                "node_modules/untyped/package.json",
+                r#"{"name":"untyped","main":"index.js"}"#,
+            ),
+            ("node_modules/untyped/index.js", "exports.value=1;"),
+            (
+                "node_modules/@types/untyped/package.json",
+                r#"{"name":"@types/untyped","types":"index.d.ts"}"#,
+            ),
+            (
+                "node_modules/@types/untyped/index.d.ts",
+                "export interface Shape {}",
+            ),
+        ],
+        json!({"entry":[],"project":["**/*.ts!"]}),
+        AnalysisMode::Strict,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![(
+            "unlisted".into(),
+            "dist/index.d.ts".into(),
+            "@types/untyped".into()
+        )]
+    );
+}
+#[test]
+fn dependencies_manifest_import_branches_and_controls() {
+    for mode in [
+        AnalysisMode::Default,
+        AnalysisMode::Production,
+        AnalysisMode::Strict,
+    ] {
+        let (_, result) = run(
+            &[
+                (
+                    "package.json",
+                    r##"{"private":true,"dependencies":{"first":"*","second":"*","unused":"*"},"imports":{"#collection":{"node":"first/get","default":"second/*"},"ignored":"unused","#relative":"./local.ts","#wild":"./parts/*.ts"}}"##,
+                ),
+                ("local.ts", "export {};"),
+                ("parts/a.ts", "export {};"),
+            ],
+            json!({"entry":[],"project":[]}),
+            mode,
+        );
+        assert_eq!(
+            packages(&result),
+            vec![(
+                "dependencies".into(),
+                "package.json".into(),
+                "unused".into()
+            )]
+        );
+        assert_eq!(
+            result
+                .dependencies
+                .uses
+                .iter()
+                .filter(|u| u.producer
+                    == biome_project_analysis::dependencies::DependencyProducer::Manifest)
+                .count(),
+            2
+        );
+    }
+}
+#[test]
+fn dependencies_bundled_types_obsolete_companion_and_required_peers() {
+    let files = [
+        (
+            "package.json",
+            r#"{"private":true,"dependencies":{"host":"*","peer":"*"},"devDependencies":{"@types/host":"*"}}"#,
+        ),
+        ("index.ts", "import 'host';"),
+        (
+            "node_modules/host/package.json",
+            r#"{"name":"host","main":"index.js","types":"index.d.ts","peerDependencies":{"peer":"*"}}"#,
+        ),
+        ("node_modules/host/index.js", "export {};"),
+        ("node_modules/host/index.d.ts", "export interface Shape {}"),
+    ];
+    let (_, result) = run(
+        &files,
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![(
+            "devDependencies".into(),
+            "package.json".into(),
+            "@types/host".into()
+        )]
+    );
+    let mut untyped = files;
+    untyped[2].1 = r#"{"name":"host","main":"index.js","peerDependencies":{"peer":"*"}}"#;
+    let (_, result) = run(
+        &untyped,
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty());
+}
+#[test]
+fn dependencies_npm_nested_installed_alias_identity() {
+    let (snapshot, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"workspaces":["packages/*"],"dependencies":{"alias":"npm:outer@1"}}"#,
+            ),
+            (
+                "packages/child/package.json",
+                r#"{"name":"child","private":true,"dependencies":{"alias":"npm:inner@2"}}"#,
+            ),
+            ("packages/child/index.ts", "import 'alias';"),
+            (
+                "node_modules/alias/package.json",
+                r#"{"name":"outer","main":"index.js"}"#,
+            ),
+            ("node_modules/alias/index.js", "export {};"),
+            (
+                "packages/child/node_modules/alias/package.json",
+                r#"{"name":"inner","main":"index.js"}"#,
+            ),
+            ("packages/child/node_modules/alias/index.js", "export {};"),
+        ],
+        json!({"entry":[],"project":[],"workspaces":{"packages/child":{"entry":["index.ts!"],"project":["*.ts!"]}}}),
+        AnalysisMode::Default,
+    );
+    assert_eq!(
+        packages(&result),
+        vec![("dependencies".into(), "package.json".into(), "alias".into())]
+    );
+    let used = result
+        .dependencies
+        .declarations
+        .iter()
+        .find(|d| !d.used.is_empty())
+        .unwrap();
+    assert_eq!(used.declaration.specifier, "npm:inner@2");
+    assert_eq!(
+        snapshot.sources[&used.declaration.location.file].logical_path,
+        "packages/child/package.json"
+    );
+    let usage = result
+        .dependencies
+        .uses
+        .iter()
+        .find(|u| u.package == "alias")
+        .unwrap();
+    assert_eq!(usage.workspace, used.declaration.workspace);
+    assert!(usage.resolutions.iter().flat_map(|r|&r.trace).any(|event|matches!(event,biome_project_analysis::facts::ResolutionEvent::Package{name:Some(name),..} if name=="inner")));
+}
+#[test]
+fn dependencies_pnp_is_explicit_unsupported() {
+    let (_, result) = run(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"dependencies":{"package":"*"}}"#,
+            ),
+            (".pnp.cjs", "throw new Error('must never execute');"),
+            ("index.ts", "import 'package';"),
+        ],
+        json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+        AnalysisMode::Default,
+    );
+    assert!(
+        result
+            .coverage
+            .gaps()
+            .iter()
+            .any(|g| format!("{:?}", g.reason).contains("Yarn PnP"))
+    );
+}
+#[test]
+fn dependencies_on_demand_binary_is_not_local_unlisted() {
+    let (snapshot, result) = run(
+        &[(
+            "package.json",
+            r#"{"private":true,"scripts":{"start":"npx absent-tool"}}"#,
+        )],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty());
+    assert!(
+        snapshot
+            .inventory
+            .script_usage
+            .binaries
+            .iter()
+            .any(|b| b.binary == "absent-tool" && b.optional)
+    );
+    assert!(
+        !result
+            .dependencies
+            .uses
+            .iter()
+            .any(|u| u.package == "absent-tool")
+    );
+    let (_, result) = run(
+        &[(
+            "package.json",
+            r#"{"private":true,"scripts":{"start":"npx absent-tool@1"}}"#,
+        )],
+        json!({"entry":[],"project":[]}),
+        AnalysisMode::Default,
+    );
+    assert!(packages(&result).is_empty());
+    assert!(
+        result
+            .dependencies
+            .uses
+            .iter()
+            .any(|u| u.package == "absent-tool" && u.optional)
+    );
+}
+#[cfg(unix)]
+#[test]
+fn dependencies_pnpm_and_yarn_node_modules_symlinks() {
+    for topology in ["pnpm", "yarn"] {
+        let mut fixture = biome_fs::TemporaryFs::new("biome-b5-package-topology");
+        fixture.create_file("project/package.json",r#"{"private":true,"workspaces":["packages/*"],"dependencies":{"alias":"npm:actual@1"}}"#);
+        fixture.create_file("project/index.ts", "import 'alias';");
+        let provider = if topology == "pnpm" {
+            "project/node_modules/.pnpm/actual@1/node_modules/actual"
+        } else {
+            "project/packages/actual"
+        };
+        let manifest = fixture.create_file(
+            &format!("{provider}/package.json"),
+            r#"{"name":"actual","private":true,"main":"index.js"}"#,
+        );
+        fixture.create_file(&format!("{provider}/index.js"), "export const value=1;");
+        let root = fixture.working_directory.join("project");
+        std::fs::create_dir_all(root.join("node_modules")).unwrap();
+        std::os::unix::fs::symlink(manifest.parent().unwrap(), root.join("node_modules/alias"))
+            .unwrap();
+        let (service, project) =
+            crate::test_utils::setup_workspace_and_open_project(fixture.create_os(), root.as_str());
+        let request = ProjectAnalysisRequest {
+            configuration: serde_json::from_value(
+                json!({"entry":["index.ts!"],"project":["*.ts!"]}),
+            )
+            .unwrap(),
+            ..Default::default()
+        };
+        let snapshot = service.build_project_snapshot(project, &request).unwrap();
+        let result = analyze(&snapshot, &Default::default());
+        assert!(
+            packages(&result).is_empty(),
+            "{topology}: {:?}",
+            packages(&result)
+        );
+        let usage = result
+            .dependencies
+            .uses
+            .iter()
+            .find(|u| u.package == "alias")
+            .unwrap();
+        assert!(usage.resolutions.iter().flat_map(|r|&r.trace).any(|event|matches!(event,biome_project_analysis::facts::ResolutionEvent::Package{name:Some(name),..} if name=="actual")));
+        let captured = snapshot
+            .sources
+            .iter()
+            .find(|(_, s)| s.canonical_uri == url::Url::from_file_path(&manifest).unwrap().as_str())
+            .unwrap();
+        assert!(usage.resolutions.iter().flat_map(|r|&r.trace).any(|event|matches!(event,biome_project_analysis::facts::ResolutionEvent::Manifest{file,..} if file==captured.0)));
+        let (fresh, project) =
+            crate::test_utils::setup_workspace_and_open_project(fixture.create_os(), root.as_str());
+        let fresh = fresh.build_project_snapshot(project, &request).unwrap();
+        assert_eq!(
+            biome_project_analysis::normalize::normalize_result(&result),
+            biome_project_analysis::normalize::normalize_result(&analyze(
+                &fresh,
+                &Default::default()
+            ))
+        );
+    }
+}
+#[test]
+fn dependencies_public_output_and_provider_edits_warm_equal_fresh() {
+    use biome_project_analysis::normalize::{normalize_result, normalize_snapshot};
+    let fs = MemoryFileSystem::default();
+    for (path, text) in [
+        (
+            "package.json",
+            r#"{"private":false,"types":"dist/index.d.ts","dependencies":{"used":"*","other":"*"}}"#,
+        ),
+        ("dist/index.d.ts", "export type {T} from 'used';"),
+        (
+            "node_modules/used/package.json",
+            r#"{"name":"used","types":"index.d.ts"}"#,
+        ),
+        ("node_modules/used/index.d.ts", "export interface T {}"),
+        (
+            "node_modules/other/package.json",
+            r#"{"name":"other","types":"index.d.ts"}"#,
+        ),
+        ("node_modules/other/index.d.ts", "export interface T {}"),
+    ] {
+        fs.insert(format!("/project/{path}").into(), text);
+    }
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(
+        MemoryFileSystem::from_files(fs.files.0.clone()),
+        "/project",
+    );
+    let request = ProjectAnalysisRequest {
+        configuration: serde_json::from_value(json!({"entry":[],"project":["**/*.ts!"]})).unwrap(),
+        mode: AnalysisMode::Strict,
+        ..Default::default()
+    };
+    let options = AnalysisOptions {
+        mode: AnalysisMode::Strict,
+        ..Default::default()
+    };
+    let first = service.build_project_snapshot(project, &request).unwrap();
+    assert_eq!(
+        packages(&analyze(&first, &options)),
+        vec![("dependencies".into(), "package.json".into(), "other".into())]
+    );
+    for (path, text) in [
+        ("dist/index.d.ts", "\n\nexport type {T} from 'other';"),
+        (
+            "node_modules/other/package.json",
+            r#"{"name":"renamed","types":"index.d.ts"}"#,
+        ),
+    ] {
+        fs.insert(format!("/project/{path}").into(), text);
+        let warm = service.build_project_snapshot(project, &request).unwrap();
+        let (fresh, project) = crate::test_utils::setup_workspace_and_open_project(
+            MemoryFileSystem::from_files(fs.files.0.clone()),
+            "/project",
+        );
+        let fresh = fresh.build_project_snapshot(project, &request).unwrap();
+        assert_eq!(normalize_snapshot(&warm), normalize_snapshot(&fresh));
+        let result = analyze(&warm, &options);
+        assert_eq!(
+            normalize_result(&result),
+            normalize_result(&analyze(&fresh, &options))
+        );
+        assert_eq!(
+            packages(&result),
+            vec![("dependencies".into(), "package.json".into(), "used".into())]
+        );
+        let usage=result.dependencies.uses.iter().find(|u|u.package=="other" && matches!(u.producer,biome_project_analysis::dependencies::DependencyProducer::PublicOutput{..})).unwrap();
+        assert_eq!(u32::from(usage.location.range.start()), 23);
+        assert_ne!(first.revision.input_digest, warm.revision.input_digest);
+    }
+}
+#[test]

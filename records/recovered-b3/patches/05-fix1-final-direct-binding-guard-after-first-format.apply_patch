@@ -1,0 +1,11 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_project_analysis/src/exports.rs
+@@
+         context: &ResolutionContext,
+     ) {
+         let has_selection = module.uses.iter().any(|usage| {
+-            member_use_of(module, usage, binding)
++            (usage.declaration.location == binding.location
++                || member_use_of(module, usage, binding))
+                 && matches!(member_access(usage), Some(NamespaceAccess::Known(_)))
+*** End Patch

@@ -1,0 +1,98 @@
+impl Capture<'_> {
+    pub(super) fn gap(
+        &mut self,
+        producer: &str,
+        message: impl Into<String>,
+        location: Option<Location>,
+    ) {
+        self.inventory.gaps.push(CoverageGap {
+            producer: producer.into(),
+            domain: TargetDomain::Unbounded,
+            reason: GapReason::UnavailableInput(message.into()),
+            location,
+        });
+    }
+    pub(super) fn capture(&mut self, path: &Utf8Path) -> FileId {
+        let canonical = paths::canonical(self.fs, path).unwrap_or_else(|error| {
+            self.gap("path identity", error, None);
+            path.to_path_buf()
+        });
+        if let Some(file) = self.paths.get(&canonical) {
+            return *file;
+        }
+        let file = FileId(self.paths.len() as u32);
+        self.paths.insert(canonical.clone(), file);
+        let logical_path = canonical
+            .strip_prefix(&self.root)
+            .unwrap_or(&canonical)
+            .to_path_buf();
+        let content = match self.fs.read_file_from_path(&canonical) {
+            Ok(text) => SourceContent::Available {
+                digest: format!("{:x}", Sha256::digest(text.as_bytes())),
+                text,
+            },
+            Err(error) => {
+                self.gap(
+                    "source",
+                    error.to_string(),
+                    Some(Location {
+                        file,
+                        range: TextRange::default(),
+                    }),
+                );
+                SourceContent::Unavailable {
+                    reason: error.to_string(),
+                    fallback: logical_path.clone(),
+                }
+            }
+        };
+        let canonical_uri = url::Url::from_file_path(canonical.as_std_path())
+            .map_or_else(|_| canonical.to_string(), |url| url.to_string());
+        self.inventory.sources.insert(
+            file,
+            SourceRecord {
+                logical_path,
+                canonical_uri,
+                content,
+            },
+        );
+        file
+    }
+    pub(super) fn text(&self, file: FileId) -> Option<&str> {
+        match &self.inventory.sources[&file].content {
+            SourceContent::Available { text, .. } => Some(text),
+            SourceContent::Unavailable { .. } => None,
+        }
+    }
+    pub(super) fn diagnostics(
+        &mut self,
+        file: FileId,
+        diagnostics: &[biome_diagnostics::serde::Diagnostic],
+    ) -> Vec<MetadataDiagnostic> {
+        diagnostics
+            .iter()
+            .map(|diagnostic| {
+                let location = Location {
+                    file,
+                    range: diagnostic.location().span.unwrap_or_default(),
+                };
+                let message = biome_diagnostics::PrintDescription(diagnostic).to_string();
+                self.gap("metadata", message.clone(), Some(location));
+                MetadataDiagnostic { location, message }
+            })
+            .collect()
+    }
+    pub(super) fn patterns(
+        &mut self,
+        values: &[String],
+        mode: AnalysisMode,
+        marked: bool,
+        producer: &str,
+    ) -> Patterns {
+        let (patterns, errors) = Patterns::new(values, mode, marked);
+        for error in errors {
+            self.gap(producer, error, None);
+        }
+        patterns
+    }
+}

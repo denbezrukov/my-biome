@@ -1,0 +1,693 @@
+            ignore_dependencies: config.ignore_dependencies.clone(),
+            ignore_members: config.ignore_members.clone(),
+            ignore_unresolved: config.ignore_unresolved.clone(),
+            ignore_exports_used_in_file: config.ignore_exports_used_in_file.clone(),
+            ignore_issues: config.ignore_issues.clone(),
+            include_entry_exports: config.include_entry_exports,
+        }
+    } else {
+        WorkspaceAnalysisConfiguration::default()
+    }
+}
+fn string(value: &MetadataValue) -> Option<&str> {
+    value.value.as_string().map(|value| value.as_str())
+}
+fn strings(value: &MetadataValue) -> Vec<String> {
+    value
+        .elements
+        .iter()
+        .filter_map(string)
+        .map(str::to_owned)
+        .collect()
+}
+fn leaves(value: &MetadataValue) -> Vec<(&str, TextRange)> {
+    if let Some(value_string) = string(value) {
+        return vec![(value_string, value.range)];
+    }
+    value
+        .members
+        .values()
+        .chain(value.elements.iter())
+        .flat_map(leaves)
+        .collect()
+}
+fn manifest_entries(metadata: &ProjectMetadata) -> Vec<(String, TextRange)> {
+    let mut entries = Vec::new();
+    for key in ["main", "module", "browser", "bin", "types", "typings"] {
+        if let Some(value) = metadata.fields.get(key) {
+            if key == "bin" {
+                entries.extend(
+                    leaves(value)
+                        .into_iter()
+                        .filter(|(value, _)| !value.is_empty())
+                        .map(|(value, range)| (value.to_string(), range)),
+                );
+            } else if let Some(text) = string(value).filter(|text| !text.is_empty()) {
+                entries.push((text.to_string(), value.range));
+            }
+        }
+    }
+    if let Some(exports) = metadata.fields.get("exports") {
+        entries.extend(
+            leaves(exports)
+                .into_iter()
+                .filter(|(value, _)| *value != "./*" && !value.trim().is_empty())
+                .map(|(value, range)| (value.to_string(), range)),
+        );
+    }
+    if let Some(imports) = &metadata.imports {
+        for (key, value) in &imports.members {
+            if key.starts_with('#') {
+                entries.extend(
+                    leaves(value)
+                        .into_iter()
+                        .filter(|(value, _)| value.starts_with('.') && !value.contains('*'))
+                        .map(|(value, range)| (value.to_string(), range)),
+                );
+            }
+        }
+    }
+    entries
+}
+fn hidden_exports(metadata: &ProjectMetadata, entries: &[(String, TextRange)]) -> Vec<String> {
+    let Some(exports) = metadata.fields.get("exports") else {
+        return Vec::new();
+    };
+    let mut result = Vec::new();
+    for (hidden, value) in &exports.members {
+        if !value.value.is_null() || hidden == "." {
+            continue;
+        }
+        for (key, target) in &exports.members {
+            let Some((prefix, suffix)) = key.split_once('*') else {
+                continue;
+            };
+            let replacement = if let Some((head, tail)) = hidden.split_once('*') {
+                if !head.starts_with(prefix)
+                    || (head.len() <= prefix.len() && hidden.len() <= key.len())
+                {
+                    continue;
+                }
+                if let Some(tail) = tail.strip_suffix(suffix) {
+                    format!("{}*{}", &head[prefix.len()..], tail)
+                } else if suffix.ends_with(tail) {
+                    format!("{}*", &head[prefix.len()..])
+                } else {
+                    continue;
+                }
+            } else {
+                let Some(middle) = hidden
+                    .strip_prefix(prefix)
+                    .and_then(|v| v.strip_suffix(suffix))
+                else {
+                    continue;
+                };
+                middle.to_string()
+            };
+            for (target, _) in leaves(target) {
+                if !target.contains('*') {
+                    continue;
+                }
+                let hidden = target.replace('*', &replacement);
+                let (pattern, _) = Patterns::new(
+                    &[paths::expand_export(&hidden)],
+                    AnalysisMode::Default,
+                    false,
+                );
+                if !entries.iter().any(|(entry, _)| {
+                    !entry.contains('*')
+                        && pattern.matches(Utf8Path::new(entry.trim_start_matches("./")))
+                }) {
+                    result.push(hidden);
+                }
+            }
+        }
+    }
+    result
+}
+fn mapped_patterns(
+    capture: &mut Capture,
+    target: &Utf8Path,
+    package: &Package,
+    config: &ProjectAnalysisConfiguration,
+) -> Vec<String> {
+    let mut pairs = package.config.mappings.clone();
+    if let Some(mappings) = &config.source_mappings {
+        pairs.extend(mappings.iter().map(|mapping| {
+            (
+                paths::join(&package.path, &mapping.output),
+                paths::join(&package.path, &mapping.source),
+            )
+        }));
+    }
+    if pairs.is_empty() {
+        let source = if capture.fs.path_is_dir(&package.path.join("src")) {
+            package.path.join("src")
+        } else {
+            package.path.clone()
+        };
+        pairs.push((source.clone(), source));
+    }
+    pairs.sort();
+    pairs.dedup();
+    let depth = pairs
+        .iter()
+        .filter(|(output, _)| target.starts_with(output))
+        .map(|(output, _)| output.components().count())
+        .max();
+    let matches: Vec<_> = pairs
+        .iter()
+        .filter(|(output, _)| {
+            target.starts_with(output) && Some(output.components().count()) == depth
+        })
+        .collect();
+    if matches.len() > 1 {
+        capture.gap(
+            "source mapping",
+            format!("Ambiguous output directory for {target}"),
+            None,
+        );
+    }
+    if matches.is_empty() {
+        return vec![target.to_string()];
+    }
+    matches
+        .into_iter()
+        .map(|(output, source)| {
+            if output == source {
+                target.to_string()
+            } else {
+                paths::source_pattern(&source.join(target.strip_prefix(output).unwrap()))
+            }
+        })
+        .collect()
+}
+fn add_root(
+    capture: &mut Capture,
+    path: &Utf8Path,
+    workspace: WorkspaceId,
+    producer: &str,
+    location: Option<Location>,
+    role: RootRole,
+    exports: ExportProtection,
+) {
+    let file = capture.capture(path);
+    if let Some(record) = capture
+        .inventory
+        .files
+        .iter_mut()
+        .find(|record| record.file == file)
+    {
+        record.role = FileRole::ReportingCandidate;
+    } else {
+        capture.inventory.files.push(FileRecord {
+            file,
+            workspace,
+            role: FileRole::ReportingCandidate,
+            aliases: vec![relative(&capture.root, path)],
+            program: false,
+        });
+    }
+    capture.inventory.roots.push(Root {
+        file,
+        workspace,
+        producer: producer.into(),
+        location,
+        role,
+        exports,
+    });
+}
+#[derive(Eq, PartialEq)]
+enum WorkspaceYamlKind {
+    Pnpm,
+    Yarn,
+}
+struct WorkspaceYaml {
+    file: FileId,
+    metadata: WorkspaceMetadata,
+    kind: WorkspaceYamlKind,
+}
+fn load_yaml(capture: &mut Capture, path: &Utf8Path, kind: WorkspaceYamlKind) -> WorkspaceYaml {
+    let file = capture.capture(path);
+    let metadata = capture
+        .text(file)
+        .map(read_workspace_metadata)
+        .unwrap_or_default();
+    capture.diagnostics(file, &metadata.diagnostics);
+    WorkspaceYaml {
+        file,
+        metadata,
+        kind,
+    }
+}
+fn owned(value: &MetadataValue, file: FileId) -> MetadataValueRecord {
+    MetadataValueRecord {
+        value: json_value(value),
+        location: Location {
+            file,
+            range: value.range,
+        },
+        members: value
+            .members
+            .iter()
+            .map(|(key, value)| (key.clone(), owned(value, file)))
+            .collect(),
+        elements: value
+            .elements
+            .iter()
+            .map(|value| owned(value, file))
+            .collect(),
+    }
+}
+fn retain_dependencies(capture: &mut Capture, workspace: WorkspaceId, package: &Package) {
+    for (field, kind) in [
+        ("dependencies", DependencyKind::Production),
+        ("devDependencies", DependencyKind::Development),
+        ("peerDependencies", DependencyKind::Peer),
+        ("optionalDependencies", DependencyKind::Optional),
+        ("resolutions", DependencyKind::Catalog),
+    ] {
+        if let Some(values) = package.metadata.fields.get(field) {
+            for (name, value) in &values.members {
+                let optional = package
+                    .metadata
+                    .fields
+                    .get("peerDependenciesMeta")
+                    .and_then(|v| v.members.get(name))
+                    .and_then(|v| v.members.get("optional"))
+                    .is_some_and(|v| v.value.as_bool() == Some(true));
+                let location = Location {
+                    file: package.file,
+                    range: value.range,
+                };
+                capture.inventory.declarations.push(DependencyDeclaration {
+                    package: name.clone(),
+                    workspace,
+                    location,
+                    kind: if kind == DependencyKind::Peer && optional {
+                        DependencyKind::OptionalPeer
+                    } else {
+                        kind
+                    },
+                    specifier: string(value).unwrap_or_default().into(),
+                    field: field.into(),
+                });
+                capture.inventory.workspaces[workspace.0 as usize]
+                    .declaration_locations
+                    .push(location);
+            }
+        }
+    }
+    if let Some(overrides) = package
+        .metadata
+        .fields
+        .get("pnpm")
+        .and_then(|value| value.members.get("overrides"))
+    {
+        retain_overrides(
+            capture,
+            workspace,
+            package.file,
+            "pnpm.overrides",
+            overrides,
+        );
+    }
+    if let Some(imports) = &package.metadata.imports {
+        for (key, value) in &imports.members {
+            if !key.starts_with('#') {
+                continue;
+            }
+            for (specifier, range) in leaves(value) {
+                if specifier.starts_with(['.', '!', '#']) {
+                    continue;
+                }
+                let dependency_package = package_name(specifier);
+                capture.inventory.workspaces[workspace.0 as usize]
+                    .dependency_uses
+                    .push(ManifestDependencyUse {
+                        package: dependency_package,
+                        specifier: specifier.into(),
+                        producer: "manifest imports".into(),
+                        location: Some(Location {
+                            file: package.file,
+                            range,
+                        }),
+                    });
+            }
+        }
+    }
+}
+fn package_name(specifier: &str) -> String {
+    specifier
+        .split('/')
+        .take(if specifier.starts_with('@') { 2 } else { 1 })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+fn is_bare_dependency(package: &Package, specifier: &str) -> bool {
+    !specifier.starts_with('.')
+        && [
+            "dependencies",
+            "devDependencies",
+            "peerDependencies",
+            "optionalDependencies",
+        ]
+        .iter()
+        .any(|field| {
+            package
+                .metadata
+                .fields
+                .get(*field)
+                .is_some_and(|value| value.members.contains_key(&package_name(specifier)))
+        })
+}
+fn retain_catalogs(
+    capture: &mut Capture,
+    index: usize,
+    package: &Package,
+    yaml: Option<&WorkspaceYaml>,
+) {
+    let container = yaml.map_or(package.file, |yaml| yaml.file);
+    if let Some(yaml) = yaml
+        && capture.text(yaml.file).is_none()
+    {
+        for field in ["catalog", "catalogs"] {
+            capture.inventory.catalog_selections.push(CatalogSelection {
+                field: field.into(),
+                location: Location {
+                    file: yaml.file,
+                    range: TextRange::default(),
+                },
+                container: Location {
+                    file: container,
+                    range: TextRange::default(),
+                },
+                valid: false,
+            });
+        }
+        return;
+    }
+    if let Some(yaml) = yaml
+        && yaml.kind == WorkspaceYamlKind::Pnpm
+        && let Some(overrides) = yaml.metadata.fields.get("overrides")
+    {
+        retain_overrides(
+            capture,
+            WorkspaceId(index as u32),
+            yaml.file,
+            "overrides",
+            overrides,
+        );
+    }
+    for key in ["catalog", "catalogs"] {
+        let provider = yaml
+            .and_then(|yaml| {
+                yaml.metadata
+                    .fields
+                    .get(key)
+                    .filter(|v| !v.value.is_null())
+                    .map(|value| (yaml.file, value))
+            })
+            .or_else(|| {
+                package
+                    .metadata
+                    .fields
+                    .get(key)
+                    .filter(|v| !v.value.is_null())
+                    .map(|v| (package.file, v))
+            })
+            .or_else(|| {
+                package
+                    .metadata
+                    .fields
+                    .get("workspaces")
+                    .and_then(|v| v.members.get(key))
+                    .filter(|v| !v.value.is_null())
+                    .map(|v| (package.file, v))
+            });
+        let metadata_valid = yaml.is_none_or(|yaml| yaml.metadata.diagnostics.is_empty())
+            && package.diagnostics.is_empty();
+        if let Some((file, value)) = provider {
+            let valid = metadata_valid
+                && value.value.as_object().is_some()
+                && (key == "catalog"
+                    || value
+                        .members
+                        .values()
+                        .all(|v| v.value.as_object().is_some()));
+            capture.inventory.catalog_selections.push(CatalogSelection {
+                field: key.into(),
+                location: Location {
+                    file,
+                    range: value.range,
+                },
+                container: Location {
+                    file: container,
+                    range: TextRange::default(),
+                },
+                valid,
+            });
+            let catalogs: Vec<_> = if key == "catalog" {
+                vec![("", value)]
+            } else {
+                value
+                    .members
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value))
+                    .collect()
+            };
+            for (name, value) in catalogs {
+                capture.inventory.workspaces[index]
+                    .catalogs
+                    .push(CatalogProvider {
+                        name: name.into(),
+                        container: Location {
+                            file: container,
+                            range: TextRange::default(),
+                        },
+                        value: owned(value, file),
+                    });
+            }
+        } else if !metadata_valid {
+            capture.inventory.catalog_selections.push(CatalogSelection {
+                field: key.into(),
+                location: Location {
+                    file: container,
+                    range: TextRange::default(),
+                },
+                container: Location {
+                    file: container,
+                    range: TextRange::default(),
+                },
+                valid: false,
+            });
+        }
+    }
+}
+fn gitignores(capture: &mut Capture) -> Vec<ignore::gitignore::Gitignore> {
+    let mut result = Vec::new();
+    let files: Vec<_> = capture
+        .paths
+        .iter()
+        .filter(|(path, _)| path.file_name() == Some(".gitignore"))
+        .map(|(path, file)| (path.clone(), *file))
+        .collect();
+    for (path, file) in files {
+        let mut builder = ignore::gitignore::GitignoreBuilder::new(path.parent().unwrap());
+        if let Some(text) = capture.text(file) {
+            let lines: Vec<_> = text.lines().map(str::to_owned).collect();
+            for line in lines {
+                if let Err(error) = builder.add_line(Some(path.as_std_path().to_path_buf()), &line)
+                {
+                    capture.gap(
+                        "gitignore",
+                        error.to_string(),
+                        Some(Location {
+                            file,
+                            range: TextRange::default(),
+                        }),
+                    );
+                }
+            }
+        }
+        match builder.build() {
+            Ok(ignore) => result.push(ignore),
+            Err(error) => capture.gap("gitignore", error.to_string(), None),
+        }
+    }
+    result
+}
+fn ignored(ignores: &[ignore::gitignore::Gitignore], path: &Utf8Path) -> bool {
+    let mut ignored = false;
+    for ignore in ignores {
+        if !path.starts_with(ignore.path()) {
+            continue;
+        }
+        let matched = ignore.matched_path_or_any_parents(path, false);
+        if !matched.is_none() {
+            ignored = matched.is_ignore();
+        }
+    }
+    ignored
+}
+
+/// Resolves report selectors without changing the inventory or its coverage.
+/// Positive selectors form a union, then all negative selectors are subtracted.
+pub fn select_workspaces(
+    root: &Utf8Path,
+    workspaces: &[WorkspaceRecord],
+    selectors: &[String],
+) -> (Vec<WorkspaceId>, Vec<String>) {
+    let mut errors = Vec::new();
+    let has_positive = selectors.iter().any(|selector| !selector.starts_with('!'));
+    let mut positive = Vec::new();
+    let mut negative = Vec::new();
+    for selector in selectors {
+        let negated = selector.starts_with('!');
+        let selector = selector.trim_start_matches('!').replace('\\', "/");
+        let selector_path = Utf8Path::new(&selector);
+        let selector = if selector_path.has_root() {
+            if !selector_path.starts_with(root) {
+                errors.push(format!(
+                    "Workspace selector is outside the project: {selector}"
+                ));
+                continue;
+            }
+            relative(root, selector_path).to_string()
+        } else {
+            selector
+        };
+        match selector.parse::<biome_glob::NormalizedGlob>() {
+            Ok(pattern) => {
+                if negated {
+                    negative.push(pattern)
+                } else {
+                    positive.push(pattern)
+                }
+            }
+            Err(error) => errors.push(format!(
+                "Unsupported workspace selector {selector}: {error}"
+            )),
+        }
+    }
+    let matches = |pattern: &biome_glob::NormalizedGlob, workspace: &WorkspaceRecord| {
+        pattern.is_raw_match(&workspace.path)
+            || workspace
+                .name
+                .as_ref()
+                .is_some_and(|name| pattern.is_raw_match(name))
+    };
+    let selected = workspaces
+        .iter()
+        .filter(|workspace| {
+            (!has_positive || positive.iter().any(|pattern| matches(pattern, workspace)))
+                && !negative.iter().any(|pattern| matches(pattern, workspace))
+        })
+        .map(|workspace| workspace.workspace)
+        .collect();
+    (selected, errors)
+}
+
+fn json_value(value: &MetadataValue) -> serde_json::Value {
+    if let Some(text) = string(value) {
+        serde_json::Value::String(text.into())
+    } else if let Some(value) = value.value.as_bool() {
+        value.into()
+    } else if let Some(value) = value.value.as_number() {
+        serde_json::json!(value)
+    } else if value.value.as_array().is_some() {
+        serde_json::Value::Array(value.elements.iter().map(json_value).collect())
+    } else if value.value.as_object().is_some() {
+        serde_json::Value::Object(
+            value
+                .members
+                .iter()
+                .map(|(key, value)| (key.clone(), json_value(value)))
+                .collect(),
+        )
+    } else {
+        serde_json::Value::Null
+    }
+}
+
+fn retain_overrides(
+    capture: &mut Capture,
+    workspace: WorkspaceId,
+    file: FileId,
+    field: &str,
+    overrides: &MetadataValue,
+) {
+    for (package, value) in &overrides.members {
+        if let Some(specifier) = string(value) {
+            let location = Location {
+                file,
+                range: value.range,
+            };
+            capture.inventory.declarations.push(DependencyDeclaration {
+                package: package.clone(),
+                workspace,
+                location,
+                kind: DependencyKind::Catalog,
+                specifier: specifier.into(),
+                field: field.into(),
+            });
+            capture.inventory.workspaces[workspace.0 as usize]
+                .declaration_locations
+                .push(location);
+        }
+    }
+}
+fn retain_configured_uses(capture: &mut Capture, request: &ProjectAnalysisRequest) {
+    for dependency in request.configuration.dependency_uses.iter().flatten() {
+        let (workspaces, errors) = select_workspaces(
+            &capture.root,
+            &capture.inventory.workspaces,
+            std::slice::from_ref(&dependency.workspace),
+        );
+        for error in errors {
+            capture.gap("dependency use", error, None);
+        }
+        if workspaces.is_empty() {
+            capture.gap(
+                "dependency use",
+                format!("Unknown workspace {}", dependency.workspace),
+                None,
+            );
+        }
+        let location = dependency.location.as_ref().and_then(|location| {
+            location.source.as_ref().map(|source| {
+                let path = paths::join(&capture.root, source);
+                let file = capture.capture(&path);
+                Location {
+                    file,
+                    range: location.range,
+                }
+            })
+        });
+        if location.is_none() {
+            capture.gap(
+                "dependency use location",
+                format!("Source identity unavailable for {}", dependency.package),
+                None,
+            );
+        }
+        for workspace in workspaces {
+            capture.inventory.workspaces[workspace.0 as usize]
+                .dependency_uses
+                .push(ManifestDependencyUse {
+                    package: dependency.package.clone(),
+                    specifier: dependency.package.clone(),
+                    producer: dependency.reason.clone(),
+                    location,
+                });
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "inventory.tests.rs"]
+mod tests;
+
+#[cfg(test)]
+#[path = "b6.tests.rs"]
+mod b6_tests;

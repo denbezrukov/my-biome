@@ -1,0 +1,34 @@
+#[test]
+fn imported_constructor_variable_does_not_prove_registered_class_identity() {
+    use biome_project_analysis::coverage::TargetDomain;
+    for provider in [
+        "export class MyCard {} export class OtherCard {} export const Candidate = flag ? MyCard : OtherCard;",
+        "export class Candidate {} export class Control {}",
+    ] {
+        let files = [
+            ("index.ts", "import './registry';"),
+            (
+                "registry.ts",
+                "import {Candidate} from './lib'; customElements.define('my-card', Candidate);",
+            ),
+            ("lib.ts", provider),
+        ];
+        let (_, result) = run(&files, Default::default());
+        assert!(
+            result
+                .exports
+                .gaps
+                .iter()
+                .any(|gap| gap.domain == TargetDomain::Unbounded),
+            "{:?}",
+            symbols(&result)
+        );
+        assert!(symbols(&result).is_empty());
+        assert!(!result.exports.consumed.is_empty());
+        let mut dead_files = files;
+        dead_files[0] = ("index.ts", "export {};");
+        let (_, dead) = run(&dead_files, Default::default());
+        assert!(dead.exports.gaps.is_empty());
+        assert!(dead.exports.consumed.is_empty());
+    }
+}

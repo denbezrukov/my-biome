@@ -1,0 +1,87 @@
+diff --git a/crates/biome_project_analysis/src/facts.rs b/crates/biome_project_analysis/src/facts.rs
+index 15328f37697..ddf0592eafa 100644
+--- a/crates/biome_project_analysis/src/facts.rs
++++ b/crates/biome_project_analysis/src/facts.rs
+@@ -124,6 +124,8 @@ pub struct ImportOccurrence {
+     pub syntax: ImportSyntax,
+     pub type_only: bool,
+     pub optional: bool,
++    #[serde(default)]
++    pub possible: bool,
+     pub bindings: Vec<ImportBinding>,
+     pub type_usage: Option<ImportTypeUse>,
+ }
+diff --git a/crates/biome_project_analysis/src/inventory.rs b/crates/biome_project_analysis/src/inventory.rs
+index 06e9430124b..8636c307bfc 100644
+--- a/crates/biome_project_analysis/src/inventory.rs
++++ b/crates/biome_project_analysis/src/inventory.rs
+@@ -19,6 +19,11 @@ pub struct Inventory {
+     #[serde(default)]
+     /// Serialized effective inputs preserve alias and workspace insertion order.
+     pub request_json: String,
++    #[serde(default)]
++    pub reporting_policies: Vec<ReportingPolicy>,
++    /// Admitted workspaces, including those without sources. None denotes legacy owned inputs.
++    #[serde(default)]
++    pub analysis_scope: Option<Vec<WorkspaceId>>,
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+@@ -138,3 +143,13 @@ pub struct ManifestDependencyUse {
+     pub producer: String,
+     pub location: Option<Location>,
+ }
++
++/// Paths are relative to `base`; a missing workspace applies across the analysis scope.
++/// File-only suppression does not remove source-diagnostic membership.
++#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
++pub struct ReportingPolicy {
++    pub base: Utf8PathBuf,
++    pub workspace: Option<WorkspaceId>,
++    pub ignore: Vec<String>,
++    pub ignore_files: Vec<String>,
++}
+diff --git a/crates/biome_project_analysis/src/normalize.rs b/crates/biome_project_analysis/src/normalize.rs
+index ddc13510d38..62ee6603636 100644
+--- a/crates/biome_project_analysis/src/normalize.rs
++++ b/crates/biome_project_analysis/src/normalize.rs
+@@ -105,8 +105,10 @@ fn walk(
+             for entry in entries.iter_mut() {
+                 if entry.is_number() {
+                     match key {
+-                        "files" => *entry = mapped(entry, files),
+-                        "workspaces" | "scope" => *entry = mapped(entry, spaces),
++                        "files" | "consumers" | "reporting_candidates" => {
++                            *entry = mapped(entry, files)
++                        }
++                        "workspaces" | "scope" | "analysis_scope" => *entry = mapped(entry, spaces),
+                         _ => {}
+                     }
+                 } else {
+@@ -118,7 +120,13 @@ fn walk(
+                 "files"
+                     | "workspaces"
+                     | "scope"
++                    | "analysis_scope"
+                     | "roots"
++                    | "entry_roots"
++                    | "program_roots"
++                    | "consumers"
++                    | "reporting_candidates"
++                    | "reporting_policies"
+                     | "declarations"
+                     | "edges"
+                     | "exports"
+diff --git a/crates/biome_project_analysis/src/result.rs b/crates/biome_project_analysis/src/result.rs
+index 7cc361f00aa..cc8023ae5c7 100644
+--- a/crates/biome_project_analysis/src/result.rs
++++ b/crates/biome_project_analysis/src/result.rs
+@@ -63,6 +63,8 @@ pub struct ProjectAnalysisResult {
+     pub issues: Vec<ProjectIssue>,
+     pub hints: Vec<AnalysisHint>,
+     pub evidence: EvidenceGraph,
++    pub membership: crate::reachability::AnalysisMembership,
++    pub gaps: Vec<crate::reachability::ReachabilityGap>,
+ }
+ 
+ #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

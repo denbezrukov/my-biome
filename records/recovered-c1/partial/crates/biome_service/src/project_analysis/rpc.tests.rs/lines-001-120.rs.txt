@@ -1,0 +1,120 @@
+use super::ProjectAnalysisRequest;
+use crate::{Workspace, workspace::PullProjectDiagnosticsParams};
+use biome_fs::MemoryFileSystem;
+use biome_project_analysis::result::IssueKind;
+
+#[test]
+fn project_diagnostics_without_open_documents() {
+    let fs = MemoryFileSystem::default();
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"dependencies":{"unused":"1"}}"#,
+    );
+    fs.insert("/project/index.ts".into(), "export {};");
+    fs.insert("/project/orphan.ts".into(), "export {};");
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let result = service
+        .pull_project_diagnostics(PullProjectDiagnosticsParams {
+            project_key: project,
+            request: ProjectAnalysisRequest::default(),
+            selection: Default::default(),
+            selection_revision: None,
+            overrides: Default::default(),
+        })
+        .unwrap();
+    assert!(
+        result
+            .issues
+            .iter()
+            .any(|issue| issue.kind == IssueKind::Files
+                && result.sources[&issue.location.file].logical_path == "orphan.ts")
+    );
+    assert!(
+        result
+            .issues
+            .iter()
+            .any(|issue| issue.kind == IssueKind::Dependencies
+                && result.sources[&issue.location.file].logical_path == "package.json")
+    );
+}
+
+fn params(project_key: crate::projects::ProjectKey) -> PullProjectDiagnosticsParams {
+    PullProjectDiagnosticsParams {
+        project_key,
+        request: Default::default(),
+        selection: Default::default(),
+        selection_revision: None,
+        overrides: Default::default(),
+    }
+}
+
+#[test]
+fn project_diagnostics_held_mutation_is_bounded() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/project/package.json".into(), "{}");
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let workspace = service.as_workspace();
+    let mutation = workspace.db_state.analysis.mutation();
+    let (sender, receiver) = std::sync::mpsc::channel();
+    std::thread::scope(|scope| {
+        scope.spawn(|| {
+            sender
+                .send(service.pull_project_diagnostics(params(project)).is_err())
+                .unwrap()
+        });
+        let terminated = receiver.recv_timeout(std::time::Duration::from_secs(2));
+        drop(mutation);
+        assert!(terminated.unwrap());
+    });
+    assert!(service.pull_project_diagnostics(params(project)).is_ok());
+}
+
+#[test]
+fn project_diagnostics_superseded() {
+    use std::sync::{Arc, Barrier};
+    let fs = Arc::new(MemoryFileSystem::default());
+    fs.insert("/project/package.json".into(), "{}");
+    fs.insert("/project/index.ts".into(), "export const before = 1;");
+    let service = crate::workspace::server(fs.clone(), None);
+    let project = service
+        .open_project(crate::workspace::OpenProjectParams {
+            path: biome_fs::BiomePath::new("/project"),
+            open_uninitialized: true,
+        })
+        .unwrap()
+        .project_key;
+    let fs2 = MemoryFileSystem::from_files(fs.files.0.clone());
+    let (local, key) = crate::test_utils::setup_workspace_and_open_project(fs2, "/project");
+    let barrier = Arc::new(Barrier::new(2));
+    *local.as_workspace().db_state.analysis.after_analysis.lock() = Some(barrier.clone());
+    std::thread::scope(|scope| {
+        let pull = scope.spawn(|| local.pull_project_diagnostics(params(key)).unwrap());
+        barrier.wait();
+        fs.insert("/project/index.ts".into(), "export const after = 2;");
+        barrier.wait();
+        let report = pull.join().unwrap();
+        assert!(report.sources.values().any(|source| matches!(&source.content, biome_project_analysis::model::SourceContent::Available { text, .. } if text.contains("after"))));
+        assert_eq!(
+            biome_project_analysis::normalize::normalize_result(&report),
+            biome_project_analysis::normalize::normalize_result(
+                &service.pull_project_diagnostics(params(project)).unwrap()
+            )
+        );
+    });
+}
+
+#[test]
+fn project_states_retain_closed_generations() {
+    use crate::workspace::{
+        CloseProjectParams, OpenProjectParams, ProjectAnalysisStatus,
+        PullProjectAnalysisStatesParams,
+    };
+    let fs = MemoryFileSystem::default();
+    fs.insert("/project/package.json".into(), "{}");
+    let (service, project) = crate::test_utils::setup_workspace_and_open_project(fs, "/project");
+    let unknown = crate::projects::ProjectKey::new();
+    let pull = |keys| {
+        service
+            .pull_project_analysis_states(PullProjectAnalysisStatesParams { project_keys: keys })
+            .unwrap()
+    };

@@ -1,0 +1,347 @@
+    fn script(&mut self, mut context: Context, name: &str, forwarded: &[String], depth: usize) {
+        if depth > 64 {
+            self.gap(&context, "Script recursion limit");
+            return;
+        }
+        let key = serde_json::to_string(&(
+            &context.producer,
+            context.workspace,
+            name,
+            &context.cwd,
+            forwarded,
+        ))
+        .unwrap();
+        if !self.visited.insert(key) {
+            return;
+        }
+        let script = self
+            .inventory
+            .workspaces
+            .iter()
+            .find(|w| w.workspace == context.workspace)
+            .and_then(|w| w.metadata.iter().find(|(n, _)| n == "scripts"))
+            .and_then(|(_, v)| v.members.iter().find(|(n, _)| n == name))
+            .map(|(_, v)| v.clone());
+        if let Some(value) = script {
+            context.location = value.location;
+            if let Some(body) = value.value.as_str() {
+                self.shell(context, body, forwarded, depth + 1);
+            } else {
+                self.gap(&context, "Non-string script body");
+            }
+        } else {
+            self.gap(&context, "Referenced script is unavailable");
+        }
+    }
+    fn shell(&mut self, mut context: Context, body: &str, forwarded: &[String], depth: usize) {
+        let (mut tokens, invalid) = tokenize(body);
+        tokens.extend(forwarded.iter().map(|s| Token::Word(s.clone(), false)));
+        if invalid {
+            self.gap(&context, "Unsupported shell expansion or syntax");
+        }
+        let mut argv = Vec::new();
+        let mut invalid_command = false;
+        let mut redirect = false;
+        let mut stack = Vec::new();
+        for token in tokens
+            .into_iter()
+            .chain(std::iter::once(Token::Operator(";".into())))
+        {
+            match token {
+                Token::Word(word, unknown) => {
+                    invalid_command |= unknown;
+                    if redirect {
+                        redirect = false;
+                    } else {
+                        argv.push(word);
+                    }
+                }
+                Token::Operator(op) if op.starts_with('>') || op.starts_with('<') => {
+                    redirect = true;
+                }
+                Token::Operator(op) => {
+                    if !argv.is_empty() && !invalid_command {
+                        self.command(&mut context, &argv, depth);
+                    }
+                    argv.clear();
+                    invalid_command = false;
+                    if redirect {
+                        self.gap(&context, "Missing redirection target");
+                        redirect = false;
+                    }
+                    if op == "(" {
+                        stack.push(context.clone());
+                    }
+                    if op == ")" {
+                        if let Some(previous) = stack.pop() {
+                            context = previous;
+                        } else {
+                            self.gap(&context, "Unmatched shell parenthesis");
+                        }
+                    }
+                }
+            }
+        }
+        if !stack.is_empty() {
+            self.gap(&context, "Unmatched shell parenthesis");
+        }
+    }
+    fn command(&mut self, context: &mut Context, argv: &[String], depth: usize) {
+        if self.budget == 0 || depth > 64 {
+            self.gap(context, "Static command limit");
+            return;
+        }
+        self.budget -= 1;
+        let assignments = argv.iter().take_while(|s| is_assignment(s)).count();
+        for assignment in &argv[..assignments] {
+            if let Some(value) = assignment.strip_prefix("NODE_OPTIONS=") {
+                let (tokens, invalid) = tokenize(value);
+                let words: Option<Vec<_>> = tokens
+                    .into_iter()
+                    .map(|token| match token {
+                        Token::Word(word, false) => Some(word),
+                        _ => None,
+                    })
+                    .collect();
+                if let Some(words) = words.filter(|_| !invalid) {
+                    self.node(context, &words, false);
+                } else {
+                    self.gap(context, "Unsupported NODE_OPTIONS expansion");
+                }
+            }
+        }
+        let argv = &argv[assignments..];
+        let Some(binary) = argv.first().map(String::as_str) else {
+            return;
+        };
+        let args = &argv[1..];
+        match binary {
+            "cd" if args.len() == 1 => {
+                context.cwd = normalize_path(&context.cwd.join(&args[0]));
+                if let Some(workspace) = self
+                    .inventory
+                    .workspaces
+                    .iter()
+                    .filter(|w| {
+                        w.path.as_str() == "." || context.cwd.starts_with(normalize_path(&w.path))
+                    })
+                    .max_by_key(|w| w.path.components().count())
+                {
+                    context.workspace = workspace.workspace;
+                }
+            }
+            "node" | "nodejs" => self.node(context, args, true),
+            "npm" | "pnpm" | "yarn" | "npx" | "pnpx" => self.manager(context, binary, args, depth),
+            "env" => self.command(context, args, depth + 1),
+            _ => self.binary(context, binary, args),
+        }
+    }
+    fn node(&mut self, context: &Context, args: &[String], entry_required: bool) {
+        let mut i = 0;
+        while i < args.len() {
+            let arg = &args[i];
+            i += 1;
+            if matches!(arg.as_str(), "-e" | "--eval" | "-p" | "--print")
+                || arg.starts_with("--eval=")
+                || arg.starts_with("--print=")
+                || arg.starts_with("-e")
+                || arg.starts_with("-p")
+            {
+                self.gap(
+                    context,
+                    "Inline JavaScript requires a separate source adapter",
+                );
+                return;
+            }
+            let preload = [
+                "--import",
+                "--require",
+                "-r",
+                "--loader",
+                "--experimental-loader",
+            ]
+            .iter()
+            .find_map(|flag| {
+                if arg == flag {
+                    let value = args.get(i).cloned();
+                    i += 1;
+                    Some(value)
+                } else {
+                    arg.strip_prefix(&format!("{flag}="))
+                        .map(|v| Some(v.into()))
+                }
+            });
+            if let Some(value) = preload {
+                if let Some(value) = value {
+                    if !value.starts_with('.') && !value.starts_with('/') {
+                        self.package(context, &value, false, PackageUseKind::Preload);
+                    }
+                    self.target(context, value);
+                } else {
+                    self.gap(context, "Missing Node preload argument");
+                }
+                continue;
+            }
+            if arg == "--" {
+                if let Some(value) = args.get(i) {
+                    self.target(context, relative(value));
+                }
+                return;
+            }
+            if matches!(
+                arg.as_str(),
+                "--enable-source-maps"
+                    | "--no-warnings"
+                    | "--trace-warnings"
+                    | "--watch"
+                    | "--experimental-strip-types"
+                    | "--inspect"
+                    | "--inspect-brk"
+            ) || arg.starts_with("--inspect=")
+            {
+                continue;
+            }
+            if arg.starts_with('-') {
+                self.gap(context, "Unsupported Node option");
+                return;
+            }
+            self.target(context, relative(arg));
+            return;
+        }
+        if entry_required {
+            self.gap(
+                context,
+                "Node stdin or interactive entry requires a source adapter",
+            );
+        }
+    }
+    fn manager(&mut self, context: &Context, manager: &str, args: &[String], depth: usize) {
+        let mut context = context.clone();
+        let mut i = 0;
+        while let Some(arg) = args.get(i) {
+            if matches!(
+                arg.as_str(),
+                "--prefix" | "--dir" | "--cwd" | "-C" | "--workspace" | "-w" | "--filter"
+            ) {
+                let Some(value) = args.get(i + 1) else {
+                    self.gap(&context, "Missing package manager scope");
+                    return;
+                };
+                if matches!(arg.as_str(), "--workspace" | "-w" | "--filter") {
+                    let Some(ws) = self
+                        .inventory
+                        .workspaces
+                        .iter()
+                        .find(|w| w.name.as_deref() == Some(value) || w.path.as_str() == value)
+                    else {
+                        self.gap(&context, "Unknown workspace selector");
+                        return;
+                    };
+                    context.workspace = ws.workspace;
+                    context.cwd = ws.path.clone();
+                } else {
+                    context.cwd = normalize_path(&context.cwd.join(value));
+                    if let Some(ws) = self
+                        .inventory
+                        .workspaces
+                        .iter()
+                        .find(|w| normalize_path(&w.path) == context.cwd)
+                    {
+                        context.workspace = ws.workspace;
+                    } else {
+                        self.gap(&context, "Cwd has no owned workspace manifest");
+                        return;
+                    }
+                }
+                i += 2;
+            } else {
+                break;
+            }
+        }
+        let args = &args[i..];
+        let Some(first) = args.first() else {
+            self.gap(&context, "Unsupported package manager command");
+            return;
+        };
+        if manager == "yarn" && first == "workspace" {
+            let Some(name) = args.get(1) else {
+                self.gap(&context, "Missing workspace selector");
+                return;
+            };
+            let Some(ws) = self
+                .inventory
+                .workspaces
+                .iter()
+                .find(|w| w.name.as_deref() == Some(name))
+            else {
+                self.gap(&context, "Unknown workspace selector");
+                return;
+            };
+            context.workspace = ws.workspace;
+            context.cwd = ws.path.clone();
+            self.manager(&context, manager, &args[2..], depth);
+            return;
+        }
+        if matches!(manager, "npx" | "pnpx")
+            || first == "dlx"
+            || manager == "npm" && matches!(first.as_str(), "exec" | "x")
+        {
+            let args = if matches!(first.as_str(), "dlx" | "exec" | "x") {
+                &args[1..]
+            } else {
+                args
+            };
+            self.on_demand(&mut context, manager, args, first == "dlx", depth);
+            return;
+        }
+        if first == "exec" {
+            let args = strip_separator(&args[1..]);
+            self.command(&mut context, args, depth);
+            return;
+        }
+        if first == "run"
+            || first == "run-script"
+            || manager == "npm" && matches!(first.as_str(), "rum" | "urn")
+        {
+            if let Some(name) = args.get(1) {
+                self.script(context, name, strip_separator(&args[2..]), depth + 1);
+            } else {
+                self.gap(&context, "Missing script name");
+            }
+        } else if matches!(
+            first.as_str(),
+            "install"
+                | "add"
+                | "remove"
+                | "update"
+                | "publish"
+                | "config"
+                | "pack"
+                | "version"
+                | "list"
+                | "audit"
+        ) {
+            self.gap(
+                &context,
+                "Package manager lifecycle and configuration adapters are unsupported",
+            );
+        } else if manager == "yarn" && first == "node" {
+            self.command(&mut context, args, depth);
+        } else if !first.starts_with('-')
+            && (manager != "npm"
+                || matches!(
+                    first.as_str(),
+                    "start" | "stop" | "restart" | "test" | "t" | "tst"
+                ))
+        {
+            let name = if matches!(first.as_str(), "t" | "tst") {
+                "test"
+            } else {
+                first
+            };
+            self.script(context, name, strip_separator(&args[1..]), depth + 1);
+        } else {
+            self.gap(&context, "Unsupported package manager command or option");
+        }
+    }
+    fn on_demand(

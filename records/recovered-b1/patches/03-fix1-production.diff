@@ -1,0 +1,33 @@
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 428bb35aab8..057cc443b98 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -526,8 +526,8 @@ impl ProjectModuleFacts {
+                 && let Some(choice) = expression.as_js_conditional_expression()
+                 && let Ok(left) = choice.consequent()
+                 && let Ok(right) = choice.alternate()
+-                && let Some(left_value) = literal_string(&left)
+-                && let Some(right_value) = literal_string(&right)
++                && let Some(left_value) = literal_loader_specifier(&left)
++                && let Some(right_value) = literal_loader_specifier(&right)
+             {
+                 for (branch, specifier) in [(left, left_value), (right, right_value)] {
+                     self.imports.push(
+@@ -1537,6 +1537,17 @@ fn literal_member_name(name: &biome_js_syntax::AnyJsObjectMemberName) -> Option<
+     decoded_string(biome_js_syntax::inner_string_text(&token))
+ }
+ 
++/// Tags can return arbitrary module names, even for empty or static template text.
++fn literal_loader_specifier(expression: &AnyJsExpression) -> Option<String> {
++    if expression
++        .as_js_template_expression()
++        .is_some_and(|template| template.tag().is_some())
++    {
++        return None;
++    }
++    literal_string(expression)
++}
++
+ fn literal_string(expression: &AnyJsExpression) -> Option<String> {
+     match expression.as_static_value()? {
+         biome_js_syntax::static_value::StaticValue::String(token) => {
