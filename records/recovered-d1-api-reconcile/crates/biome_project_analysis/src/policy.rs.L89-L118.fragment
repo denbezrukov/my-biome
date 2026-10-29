@@ -1,0 +1,30 @@
+/// Original compatibility input and its effective native tag name remain distinct.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TagInputMapping {
+    pub original: String,
+    pub effective: Option<String>,
+    pub excluded: bool,
+}
+
+pub fn map_knip_tags(values: &[String]) -> Vec<TagInputMapping> {
+    values
+        .iter()
+        .flat_map(|value| value.split(','))
+        .map(|value| {
+            let effective = value.find(|c: char| c.is_ascii_alphabetic()).map(|start| {
+                value[start..]
+                    .chars()
+                    .take_while(char::is_ascii_alphabetic)
+                    .collect()
+            });
+            TagInputMapping {
+                original: value.into(),
+                effective,
+                excluded: value.starts_with('-'),
+            }
+        })
+        .collect()
+}
+
+/// Combines per-key input precedence; explicit severity off remains a separate decision.

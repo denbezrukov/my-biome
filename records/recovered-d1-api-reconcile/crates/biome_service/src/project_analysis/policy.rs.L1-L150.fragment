@@ -1,0 +1,150 @@
+use super::ProjectAnalysisRequest;
+use biome_configuration::project_analysis::{
+    LocalExportUses, ProjectIssueKind, ProjectIssueSeverity, WorkspaceAnalysisConfiguration,
+};
+use biome_diagnostics::Severity;
+use biome_project_analysis::{
+    inventory::Inventory,
+    options::{AnalysisOptions, HintOptions, WorkspacePolicy},
+    policy::{IgnoreField, PolicyOrigin, ReportIgnore, select_issues},
+    result::IssueKind,
+};
+use std::collections::BTreeSet;
+
+/// Optional caller selections are resolved against configuration per category.
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase", default)]
+pub struct PolicyOverrides {
+    pub include: Vec<IssueKind>,
+    pub exclude: Vec<IssueKind>,
+    pub dependencies: bool,
+    pub exports: bool,
+    pub include_entry_exports: bool,
+    pub tags: Option<Vec<String>>,
+    pub configuration_hints: Option<bool>,
+    pub tag_hints: Option<bool>,
+    pub configuration_hint_errors: Option<bool>,
+    pub tag_hint_errors: Option<bool>,
+}
+
+impl ProjectAnalysisRequest {
+    /// Translates captured static configuration into engine policy before semantic analysis.
+    pub fn analysis_options(&self, inventory: &Inventory) -> AnalysisOptions {
+        self.analysis_options_with_overrides(inventory, &PolicyOverrides::default())
+    }
+
+    pub fn analysis_options_with_overrides(
+        &self,
+        inventory: &Inventory,
+        overrides: &PolicyOverrides,
+    ) -> AnalysisOptions {
+        let config = &self.configuration;
+        let mut options = AnalysisOptions {
+            mode: self.mode,
+            include_entry_exports: config
+                .include_entry_exports
+                .unwrap_or(overrides.include_entry_exports),
+            ignore_local_uses: local_uses(config.ignore_exports_used_in_file.as_ref())
+                .unwrap_or_default(),
+            hints: HintOptions {
+                configuration: overrides.configuration_hints.unwrap_or(true),
+                tags: overrides.tag_hints.unwrap_or(true),
+                configuration_errors: overrides
+                    .configuration_hint_errors
+                    .or(config.treat_config_hints_as_errors)
+                    .unwrap_or(false),
+                tag_errors: overrides
+                    .tag_hint_errors
+                    .or(config.treat_tag_hints_as_errors)
+                    .unwrap_or(false),
+            },
+            ..Default::default()
+        };
+        let include: Vec<_> = config
+            .include
+            .iter()
+            .flatten()
+            .copied()
+            .map(issue_kind)
+            .collect();
+        let exclude: Vec<_> = config
+            .exclude
+            .iter()
+            .flatten()
+            .copied()
+            .map(issue_kind)
+            .collect();
+        options.issue_selection = Some(select_issues(
+            self.mode,
+            &include,
+            &exclude,
+            &overrides.include,
+            &overrides.exclude,
+            overrides.dependencies,
+            overrides.exports,
+        ));
+        for (&kind, severity) in config.rules.iter().flatten() {
+            options.issue_severities.insert(
+                issue_kind(kind),
+                match severity {
+                    ProjectIssueSeverity::Error => Some(Severity::Error),
+                    ProjectIssueSeverity::Warn => Some(Severity::Warning),
+                    ProjectIssueSeverity::Off => None,
+                },
+            );
+        }
+        for value in overrides
+            .tags
+            .as_ref()
+            .or_else(|| config.tags.as_ref().map(|tags| &tags.0))
+            .into_iter()
+            .flatten()
+        {
+            for tag in value.split(',') {
+                let excluded = tag.starts_with('-');
+                let tag = tag.trim_start_matches(['+', '-']).trim_start_matches('@');
+                if !tag.is_empty() {
+                    if excluded {
+                        options.excluded_tags.insert(tag.into());
+                    } else {
+                        options.included_tags.insert(tag.into());
+                    }
+                }
+            }
+        }
+        if let Some(cycles) = &config.cycles {
+            options.cycles.dynamic_imports = cycles.dynamic_imports.unwrap_or(false);
+            options.cycles.allowed_paths = cycles
+                .allow
+                .iter()
+                .flatten()
+                .map(|cycle| cycle.iter().map(Into::into).collect())
+                .collect();
+        }
+        let root = serde_json::to_value(config).expect("static configuration");
+        append_ignores(&mut options, inventory, &root, ".", None, "");
+        for workspace in &inventory.workspaces {
+            let settings: WorkspaceAnalysisConfiguration =
+                serde_json::from_str(&workspace.configuration_json).unwrap_or_default();
+            options.workspaces.insert(
+                workspace.workspace,
+                WorkspacePolicy {
+                    include_entry_exports: settings.include_entry_exports,
+                    ignore_local_uses: local_uses(settings.ignore_exports_used_in_file.as_ref()),
+                },
+            );
+            let value = serde_json::to_value(settings).expect("workspace configuration");
+            let key = selected_workspace_key(config, &workspace.path);
+            let pointer = key
+                .map(|key| format!("/workspaces/{}", escape(key)))
+                .unwrap_or_default();
+            append_ignores(
+                &mut options,
+                inventory,
+                &value,
+                workspace.path.as_str(),
+                Some(workspace.workspace),
+                &pointer,
+            );
+        }

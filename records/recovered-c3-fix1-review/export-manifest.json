@@ -1,0 +1,159 @@
+{
+  "recovery_only": true,
+  "historical_manifest": "/workspace/.biome-cloud/native-recovery/recovered-c3/final-precommit-bindings.exact-recovered.json",
+  "historical_manifest_sha256": "8c43a106b69fdc6c0643eddec5a685e8b2a1ff2598915697689ef45dc07d97b0",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3171,
+      "sha256": "44acf4d0a66000667b5f5fd1b3a87114a88a59b5b0a6a9d169d219e609e0b110",
+      "git_blob_sha1": "3dac817dbe266b25a5632362f5d511607c9e6e2c"
+    },
+    {
+      "path": "base-stage-verification.json",
+      "bytes": 1530,
+      "sha256": "4280decb80e394d3591f2811e20a920e28adf9011f1013378b84c9f2ed9f600b",
+      "git_blob_sha1": "ff4a9fe59fae1049a7eb5dc6017777b0f6945562"
+    },
+    {
+      "path": "diffs/540d2e1a7b8bda82c42ade70459dec4975899c88..12bf926317b7032e2ddc46124bf277b8409bf5fd.literal.diff",
+      "bytes": 19422,
+      "sha256": "47d82f3b93c2b3fe8d13d8c2986f5517f2b93228d10e0ba01d7fb11f82e22653",
+      "git_blob_sha1": "991e3f9c687bff69f8dbfbd6aa2c06349b0b8de8"
+    },
+    {
+      "path": "diffs/project_analysis.rs.fix1.literal.diff",
+      "bytes": 2907,
+      "sha256": "ddb293a58197ba9a0341e506fa2993220f7688557a3f86d477228fa8d6413932",
+      "git_blob_sha1": "8e2739cfcb83de8fcefbe29b4b1ad6fa9bacc123"
+    },
+    {
+      "path": "diffs/project_analysis.tests.rs.fix1.literal.diff",
+      "bytes": 10756,
+      "sha256": "6137859a469ffcf6c09c68f7a413f0bb8d7aaa11a121722d962f7ffabd346733",
+      "git_blob_sha1": "20ed391f0c44d5544b3f9783445b2d7a8a3541b5"
+    },
+    {
+      "path": "diffs/session.rs.fix1.literal.diff",
+      "bytes": 5759,
+      "sha256": "04b0d564a284aa47fb049838e7df6b9e7b96f8c376836a8d75628b9e78a0300e",
+      "git_blob_sha1": "8e7ddd56646eacdb6437028b7cdfcde69a81b942"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/documents.rs",
+      "bytes": 734,
+      "sha256": "a9d2ddc8e87ca7adb805c48407d6f3666ad094fea98d88dbde487aa485bacf92",
+      "git_blob_sha1": "800fb47bd4a9d5bbaf2aa60d5f144582400b4e5d",
+      "historical_sha256_match": true,
+      "historical_byte_count_match": true
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/project_analysis.rs",
+      "bytes": 23954,
+      "sha256": "fcad09d0388bd89ad7dc38cda1e563eea6fcbe837d5c4befb0ae356ab2b91067",
+      "git_blob_sha1": "ed5dae04b1b7eb48fa01009814b741118e92c5c8",
+      "historical_sha256_match": true,
+      "historical_byte_count_match": true
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/project_analysis.tests.rs",
+      "bytes": 49265,
+      "sha256": "fbc1ae4cbe562b02164588b6dd048eb28c63dc2b49f4a57fdcebca2029007411",
+      "git_blob_sha1": "20f195f4939b835d6e4b56314486135c9f6cafd3",
+      "historical_sha256_match": true,
+      "historical_byte_count_match": true
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/session.rs",
+      "bytes": 66215,
+      "sha256": "7a3959bcadf9764ec9133f85ea72de08d69bb0822c3dd7142ef1ba9b5e9b157e",
+      "git_blob_sha1": "1942f3cae6a36cc1a6b85a9cbf17a13377cf1af2",
+      "historical_sha256_match": true,
+      "historical_byte_count_match": true
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/handlers/text_document.rs.lines-187-290",
+      "bytes": 3123,
+      "sha256": "17d592aad40a07427831b84d7b0ee86b18512668fed6e47d8aef224b9e64cfef",
+      "git_blob_sha1": "d28716054203cdabdc1195e77caefa23eea8e9c5"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/handlers/text_document.rs.lines-26-161",
+      "bytes": 4729,
+      "sha256": "01f6026bd79b89d6f3b3d0c0b5899c7f5071bc75e7ff5f28a5a333d8969a6b50",
+      "git_blob_sha1": "fe2e49823d021d3bbb2e867560690f20c3b05f61"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/project_analysis.tests.rs.lines-1-411",
+      "bytes": 14078,
+      "sha256": "cdf4a1f182ea1299082c777a04730f4fd323447b9c5bee2f29bbc62876891e51",
+      "git_blob_sha1": "ef083c1c87a3a330add88c499e8a60ddfd75c860"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/project_analysis.tests.rs.lines-1129-1407",
+      "bytes": 10093,
+      "sha256": "1637c879630c9ce886de3091587adef0bec5127fad87e9b48486714640398e41",
+      "git_blob_sha1": "feddec0e7fe1d69452d20d3b8f6bca60f8b0e503"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/project_analysis.tests.rs.lines-412-760",
+      "bytes": 13000,
+      "sha256": "c70c179aa4a7f4079b851194cab93d2bb8d3cbfc441667e3fc8949e8d8157ee6",
+      "git_blob_sha1": "64fdcf603bd303c09c0f2b0d0e635000f672e771"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/project_analysis.tests.rs.lines-761-1128",
+      "bytes": 12094,
+      "sha256": "947a826925078c26d3063c019a4658c7b620c89427afaa7878290bbd9cdb4d92",
+      "git_blob_sha1": "8fefd97813e861e016cbb352b0e5e2a613035163"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/server_test_utils.rs.lines-342-397",
+      "bytes": 1642,
+      "sha256": "fc677a07e79b31896bdaa2a55f7dcdabf7798bfdf5d474889b1e4b583d27766d",
+      "git_blob_sha1": "56fc77b791b9c299035dbd472a415f9cc5ddb38c"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/session.rs.lines-1-471",
+      "bytes": 17574,
+      "sha256": "0dec0091b0fdf1d64c73523315a57141366a5ebfc767f5b6266293a4e1326878",
+      "git_blob_sha1": "d1303545cbb344fb2bbb0d2e84dbdd830d660545"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/session.rs.lines-1272-1712",
+      "bytes": 17134,
+      "sha256": "92415a63193b20e15eaae20bc21e1f5be5db1f3bf5daa363ce80225bd6dff6c7",
+      "git_blob_sha1": "3eefc3474751c6bf9df3dff0d84e72bd7eae7b0c"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/session.rs.lines-472-870",
+      "bytes": 15601,
+      "sha256": "47e521b77f9ca43b4010a0bb20da8e72639dd97a7a9fcf31df9379c0092e8eab",
+      "git_blob_sha1": "807b09f4994ac1589c14c5d19541f4b2b6486d10"
+    },
+    {
+      "path": "stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/partial/crates/biome_lsp/src/session.rs.lines-871-1271",
+      "bytes": 15906,
+      "sha256": "a6c4a94e1496868f5dabd5d9cf4b1de157292afb4f99a16a534ea002e8b18bed",
+      "git_blob_sha1": "8215709da886a4c402d2b3ab8d4d25470e43c005"
+    },
+    {
+      "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/project_analysis.rs",
+      "bytes": 23359,
+      "sha256": "feef736b15e98b499f9e222928504a3bd9c54eb65d653f2ead0ecc2b45806241",
+      "git_blob_sha1": "20c26d85b80c75b2128a2cdd41c2f197165d0e7c"
+    },
+    {
+      "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/project_analysis.tests.rs",
+      "bytes": 39156,
+      "sha256": "903db0f7733ff3985b058fd7fe4b18c70127771b4d3353ca2f6ca46eb0934880",
+      "git_blob_sha1": "0ddf88b701cd87e2211f90b977fe4fe61245d9c7"
+    },
+    {
+      "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/session.rs",
+      "bytes": 66266,
+      "sha256": "9cbe662adaf2253ca1150c1dd5321a53db1740b7e5293f407cc28baa04b84bd8",
+      "git_blob_sha1": "d92838567b9b2d62c8169e6bad18d99084e28e37"
+    }
+  ]
+}

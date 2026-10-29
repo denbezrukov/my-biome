@@ -1,0 +1,56 @@
+    pub(crate) async fn load_configuration_with_settings<V>(&mut self, value: V) -> Result<()>
+    where
+        V: Serialize,
+    {
+        self.notify(
+            "workspace/didChangeConfiguration",
+            DidChangeConfigurationParams {
+                settings: to_value(value)?,
+            },
+        )
+        .await
+    }
+
+    pub(crate) async fn change_document(
+        &mut self,
+        version: i32,
+        content_changes: Vec<TextDocumentContentChangeEvent>,
+    ) -> Result<()> {
+        self.notify(
+            "textDocument/didChange",
+            DidChangeTextDocumentParams {
+                text_document: VersionedTextDocumentIdentifier {
+                    uri: uri!("document.js"),
+                    version,
+                },
+                content_changes,
+            },
+        )
+        .await
+    }
+
+    pub(crate) async fn close_document(&mut self) -> Result<()> {
+        self.notify(
+            "textDocument/didClose",
+            DidCloseTextDocumentParams {
+                text_document: TextDocumentIdentifier {
+                    uri: uri!("document.js"),
+                },
+            },
+        )
+        .await
+    }
+
+    pub(crate) async fn biome_shutdown(&mut self) -> Result<()> {
+        self.request::<_, ()>("biome/shutdown", "_biome_shutdown", ())
+            .await?
+            .context("biome/shutdown returned None")?;
+        Ok(())
+    }
+}
+
+/// Number of notifications buffered by the server-to-client channel before it starts blocking the current task
+pub(crate) const CHANNEL_BUFFER_SIZE: usize = 8;
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum ServerNotification {

@@ -1,0 +1,12 @@
+[
+  {
+    "original_artifact": "/workspace/.biome-cloud/knip-design/c5-current-api-reconciliation.md",
+    "retained_original_sha256": "f6d543b7a675d6d3ff91e0debb7deb1ca0bd61d4abf034cf37178caa41b355a2",
+    "exists": false
+  },
+  {
+    "original_artifact": "/workspace/.biome-cloud/knip-design/c5-current-api-reconciliation.sources.json",
+    "retained_original_sha256": "9a0989be8579fb6c492ffe5fa85bf42d6b963b4b10f149b11bcecc37da810213",
+    "exists": false
+  }
+]

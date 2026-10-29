@@ -1,0 +1,12 @@
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tsconfig: Option<AnalysisStrings>,
+}
+
+/// Workspace settings supported by the pinned static compatibility profile.
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, Deserializable, Merge)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase", default, deny_unknown_fields)]
+pub struct WorkspaceAnalysisConfiguration {
+    /// Entry globs. Explicit values replace the default production entry globs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entry: Option<AnalysisStrings>,

@@ -1,0 +1,36 @@
+pub fn select_report(
+    result: &ProjectAnalysisResult,
+    selection: &ReportSelection,
+) -> ProjectAnalysisResult {
+    let mut selected = result.clone();
+    selected.issues.retain(|issue| {
+        ((!selection.restrict_workspaces && selection.workspaces.is_empty())
+            || selection.workspaces.contains(&issue.workspace))
+            && ((!selection.restrict_issues && selection.issues.is_empty())
+                || selection.issues.contains(&issue.kind))
+            && selection.changed_paths.as_ref().is_none_or(|paths| {
+                result
+                    .sources
+                    .get(&issue.location.file)
+                    .is_some_and(|source| paths.contains(&source.logical_path))
+            })
+            && (selection.paths.is_empty()
+                || result
+                    .sources
+                    .get(&issue.location.file)
+                    .is_some_and(|source| {
+                        selection
+                            .paths
+                            .iter()
+                            .any(|path| source.logical_path.starts_with(path))
+                    }))
+    });
+    selected.hints.retain(|hint| {
+        hint.kind == crate::result::HintKind::Tag
+            || (!selection.restrict_workspaces && selection.workspaces.is_empty())
+            || (selection.workspaces.contains(&hint.workspace)
+                && result
+                    .workspaces
+                    .get(&hint.workspace)
+                    .is_some_and(|workspace| workspace.path != "."))
+    });

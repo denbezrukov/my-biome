@@ -1,0 +1,29 @@
+[
+  {
+    "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/project_analysis.rs",
+    "method": "Mechanical reversal of literal retained fix diff against authenticated final source; every hunk context matched exactly.",
+    "bytes": 23359,
+    "sha256": "feef736b15e98b499f9e222928504a3bd9c54eb65d653f2ead0ecc2b45806241",
+    "git_blob_sha1": "20c26d85b80c75b2128a2cdd41c2f197165d0e7c",
+    "historical_git_blob_prefix": "20c26d85b80",
+    "historical_prefix_matches": true
+  },
+  {
+    "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/project_analysis.tests.rs",
+    "method": "Mechanical reversal of literal retained fix diff against authenticated final source; every hunk context matched exactly.",
+    "bytes": 39156,
+    "sha256": "903db0f7733ff3985b058fd7fe4b18c70127771b4d3353ca2f6ca46eb0934880",
+    "git_blob_sha1": "0ddf88b701cd87e2211f90b977fe4fe61245d9c7",
+    "historical_git_blob_prefix": "0ddf88b701c",
+    "historical_prefix_matches": true
+  },
+  {
+    "path": "stages/540d2e1a7b8bda82c42ade70459dec4975899c88/full/crates/biome_lsp/src/session.rs",
+    "method": "Mechanical reversal of literal retained fix diff against authenticated final source; every hunk context matched exactly.",
+    "bytes": 66266,
+    "sha256": "9cbe662adaf2253ca1150c1dd5321a53db1740b7e5293f407cc28baa04b84bd8",
+    "git_blob_sha1": "d92838567b9b2d62c8169e6bad18d99084e28e37",
+    "historical_git_blob_prefix": "d92838567b9",
+    "historical_prefix_matches": true
+  }
+]

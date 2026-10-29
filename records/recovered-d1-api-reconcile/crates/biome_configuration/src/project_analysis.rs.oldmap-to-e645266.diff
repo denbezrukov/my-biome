@@ -1,0 +1,14 @@
+diff --git a/crates/biome_configuration/src/project_analysis.rs b/crates/biome_configuration/src/project_analysis.rs
+index c93fe148667..270444f785e 100644
+--- a/crates/biome_configuration/src/project_analysis.rs
++++ b/crates/biome_configuration/src/project_analysis.rs
+@@ -103,7 +103,8 @@ impl ProjectPattern {
+ #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+ #[serde(rename_all = "camelCase", default, deny_unknown_fields)]
+ pub struct ProjectAnalysisConfiguration {
+-    /// Enables project analysis inputs. Defaults to false; native analysis integration is pending.
++    /// Enables experimental project analysis after check and lint. Defaults to false.
++    /// Framework and tool plugins are deferred; incomplete coverage cannot certify a clean project.
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub enabled: Option<bool>,
+     /// Optional schema URL for migrated static configuration.

@@ -1,0 +1,279 @@
+async fn review_coalesced_ready_refreshes_local_cycles_when_analysis_disabled() {
+    let mut test = Harness::new().await;
+    test.fs.insert(
+        "/project/biome.json".into(),
+        r#"{"projectAnalysis":{"enabled":false},"linter":{"rules":{"recommended":false,"suspicious":{"noImportCycles":"error"}}}}"#,
+    );
+    let a_text = "import { b } from './b.js'; export function a() { b(); }\n";
+    let b_text = "import { a } from './a.js'; export function b() { a(); }\n";
+    test.fs.insert("/project/a.js".into(), a_text);
+    test.fs.insert("/project/b.js".into(), b_text);
+    test.session.load_workspace_settings(false).await;
+    let project = test
+        .session
+        .project_for_path(camino::Utf8Path::new("/project"))
+        .unwrap();
+    let a = test.open(project, "/project/a.js", a_text);
+    let b = test.open(project, "/project/b.js", b_text);
+    test.session.update_diagnostics(a.clone()).await.unwrap();
+    let initial = test.publication(a.as_str()).await;
+    assert!(initial.diagnostics.iter().any(|diagnostic| diagnostic.code
+        == Some(lsp::NumberOrString::String(
+            "lint/suspicious/noImportCycles".into()
+        ))));
+    let states: Vec<ProjectAnalysisState> = test
+        ._server
+        .request(
+            "biome/pull_project_analysis_states",
+            "other-analysis-consumer",
+            PullProjectAnalysisStatesParams {
+                project_keys: vec![project],
+            },
+        )
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(states[0].project_key, project);
+    crate::handlers::text_document::did_change(
+        &test.session,
+        lsp::DidChangeTextDocumentParams {
+            text_document: lsp::VersionedTextDocumentIdentifier { uri: b, version: 8 },
+            content_changes: vec![lsp::TextDocumentContentChangeEvent {
+                range: None,
+                range_length: None,
+                text: "export function b() {}\n".into(),
+            }],
+        },
+    )
+    .await
+    .unwrap();
+    assert!(matches!(
+        *test.factory.service_tx.borrow(),
+        ServiceNotification::ProjectAnalysisReady { .. }
+    ));
+    eprintln!(
+        "initial cycle diagnostic observed; latest coalesced notification is ProjectAnalysisReady; awaiting the unedited file refresh"
+    );
+    test.subscription.wait().await;
+    let updated = test.publication(a.as_str()).await;
+    assert_eq!(updated.version, Some(7));
+    assert!(
+        updated.diagnostics.is_empty(),
+        "the unedited file must lose its resolved import-cycle diagnostic"
+    );
+}
+
+#[tokio::test]
+async fn review_project_withdrawal_rejects_previous_local_version() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    let document = test.session.document(&uri).unwrap();
+    test.session
+        .publish_local_diagnostics(
+            uri.clone(),
+            &document,
+            test.session.project_diagnostics.next_sequence(),
+            vec![lsp::Diagnostic::new_simple(
+                Default::default(),
+                "previous-local-range".into(),
+            )],
+        )
+        .await;
+    test.publication(uri.as_str()).await;
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    let local = test.session.project_diagnostics.hooks.before_local.pause();
+    crate::handlers::text_document::did_change(
+        &test.session,
+        lsp::DidChangeTextDocumentParams {
+            text_document: lsp::VersionedTextDocumentIdentifier {
+                uri: uri.clone(),
+                version: 8,
+            },
+            content_changes: vec![lsp::TextDocumentContentChangeEvent {
+                range: None,
+                range_length: None,
+                text: "{\"private\":true}".into(),
+            }],
+        },
+    )
+    .await
+    .unwrap();
+    local.wait().await;
+    test.session.reconcile_project_diagnostics(false).await;
+    let withdrawn = test.publication(uri.as_str()).await;
+    local.wait().await;
+    assert_eq!(withdrawn.version, Some(8));
+    assert!(
+        withdrawn.diagnostics.is_empty(),
+        "a project withdrawal must not relabel previous local ranges with the edited version"
+    );
+}
+
+async fn replaced_local_document_identity(reopen: bool) {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    let document = test.session.document(&uri).unwrap();
+    test.session
+        .publish_local_diagnostics(
+            uri.clone(),
+            &document,
+            test.session.project_diagnostics.next_sequence(),
+            vec![lsp::Diagnostic::new_simple(
+                Default::default(),
+                "previous-document-identity".into(),
+            )],
+        )
+        .await;
+    test.publication(uri.as_str()).await;
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    if reopen {
+        test.session
+            .workspace()
+            .close_file(CloseFileParams {
+                project_key: project,
+                path: biome_fs::BiomePath::new("/project/package.json"),
+            })
+            .unwrap();
+        test.session.remove_document(&uri);
+        test.open(project, "/project/package.json", text);
+    } else {
+        test.session
+            .insert_document(uri.clone(), Document::new(project, 7, "{\"private\":true}"));
+        test.session
+            .workspace()
+            .change_file(ChangeFileParams {
+                project_key: project,
+                path: biome_fs::BiomePath::new("/project/package.json"),
+                version: 8,
+                content: "{\"private\":true}".into(),
+                inline_config: None,
+                editor_features: None,
+            })
+            .unwrap();
+    }
+    assert!(!Arc::ptr_eq(
+        &document.text,
+        &test.session.document(&uri).unwrap().text
+    ));
+    test.session.reconcile_project_diagnostics(false).await;
+    let withdrawn = test.publication(uri.as_str()).await;
+    assert_eq!(withdrawn.version, Some(7));
+    assert!(
+        withdrawn.diagnostics.is_empty(),
+        "reused version numbers must not make the previous document's local slot current"
+    );
+}
+
+#[tokio::test]
+async fn review_same_version_replacement_rejects_previous_local_identity() {
+    replaced_local_document_identity(false).await;
+}
+
+#[tokio::test]
+async fn review_reopened_document_rejects_previous_local_identity() {
+    replaced_local_document_identity(true).await;
+}
+
+async fn external_configuration_failure(missing: bool) {
+    let mut test = Harness::new().await;
+    test.fs.insert(
+        "/shared/biome.json".into(),
+        r#"{"projectAnalysis":{"enabled":true,"entry":[],"project":[]}}"#,
+    );
+    test.fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"dependencies":{"unused":"1"}}"#,
+    );
+    test.fs.insert("/project/index.js".into(), "export {};\n");
+    let analysis = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_analysis
+        .pause();
+    let settings = serde_json::json!({"configurationPath":"/shared/biome.json"});
+    test._server
+        .load_configuration_with_settings(settings.clone())
+        .await
+        .unwrap();
+    analysis.wait().await;
+    let project = test
+        .session
+        .project_for_path(camino::Utf8Path::new("/project"))
+        .unwrap();
+    let uri = test.open(project, "/project/index.js", "export {};\n");
+    let other = test.project("/other");
+    let old = test.pull(project);
+    let other_result = test.pull(other);
+    test.session
+        .publish_project_result(project, old.clone())
+        .await;
+    test.publication("file:///project/package.json").await;
+    test.session
+        .publish_project_result(other, other_result.clone())
+        .await;
+    test.publication("file:///other/package.json").await;
+    test.fence().await;
+    while test.notifications.try_recv().is_ok() {}
+    if missing {
+        test.fs.remove(camino::Utf8Path::new("/shared/biome.json"));
+    } else {
+        test.fs.insert("/shared/biome.json".into(), "{");
+    }
+    test._server
+        .load_configuration_with_settings(settings)
+        .await
+        .unwrap();
+    test.session.publish_project_result(project, old).await;
+    test.session
+        .publish_project_result(other, other_result)
+        .await;
+    test.fence().await;
+    let mut primary = Vec::new();
+    let mut unaffected = Vec::new();
+    while let Ok(notification) = test.notifications.try_recv() {
+        if let ServerNotification::PublishDiagnostics(params) = notification {
+            if params.uri.as_str() == "file:///project/package.json" {
+                primary.push(params);
+            } else if params.uri.as_str() == "file:///other/package.json" {
+                unaffected.push(params);
+            }
+        }
+    }
+    analysis.wait().await;
+    assert_eq!(test.session.document(&uri).unwrap().version, 7);
+    assert!(
+        !primary.is_empty(),
+        "failed external configuration must withdraw its project's contribution"
+    );
+    assert!(
+        primary.iter().all(|params| params.diagnostics.is_empty()),
+        "a result accepted under failed external configuration must not remain publishable"
+    );
+    assert!(
+        unaffected
+            .iter()
+            .any(|params| !params.diagnostics.is_empty()),
+        "an unrelated current project must retain its contribution"
+    );
+}
+
+#[tokio::test]
+async fn review_malformed_external_configuration_withdraws_project() {
+    external_configuration_failure(false).await;
+}
+
+#[tokio::test]
+async fn review_missing_external_configuration_withdraws_project() {
+    external_configuration_failure(true).await;
+}

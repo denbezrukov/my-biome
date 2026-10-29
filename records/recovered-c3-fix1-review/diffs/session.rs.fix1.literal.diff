@@ -1,0 +1,136 @@
+diff --git a/crates/biome_lsp/src/session.rs b/crates/biome_lsp/src/session.rs
+index d92838567b9..1942f3cae6a 100644
+--- a/crates/biome_lsp/src/session.rs
++++ b/crates/biome_lsp/src/session.rs
+@@ -350,13 +350,13 @@ impl Session {
+                 let stopped = matches!(notification, ServiceNotification::WatcherStopped);
+                 session.reconcile_project_diagnostics(!stopped).await;
+                 match notification {
+-                    ServiceNotification::IndexUpdated => {
++                    ServiceNotification::IndexUpdated
++                    | ServiceNotification::ProjectAnalysisReady { .. } => {
+                         let session = session.clone();
+                         spawn(async move {
+                             session.update_all_diagnostics().await;
+                         });
+                     }
+-                    ServiceNotification::ProjectAnalysisReady { .. } => {}
+                     ServiceNotification::WatcherStopped => break,
+                 }
+             }
+@@ -442,10 +442,6 @@ impl Session {
+             .expect("Scanning task to complete successfully");
+     }
+ 
+-    pub(crate) fn active_project_keys(&self) -> Vec<ProjectKey> {
+-        self.projects.pin().values().copied().collect()
+-    }
+-
+     pub(crate) fn forget_project(&self, project: ProjectKey) {
+         self.projects.pin().retain(|_, key| *key != project);
+     }
+@@ -1167,6 +1163,46 @@ impl Session {
+         }
+     }
+ 
++    /// Resolves the project root independently of whether its configuration can be loaded.
++    fn project_path_for_configuration(&self, base_path: &ConfigurationPathHint) -> Utf8PathBuf {
++        let workspace = self.workspace();
++        let fs = workspace.fs();
++        match base_path {
++            ConfigurationPathHint::FromLsp(path) | ConfigurationPathHint::FromWorkspace(path) => {
++                path.to_path_buf()
++            }
++            ConfigurationPathHint::FromUser(path) => {
++                let workspace_root = self
++                    .get_workspace_folders()
++                    .unwrap_or_default()
++                    .into_iter()
++                    .filter_map(|folder| {
++                        folder
++                            .uri
++                            .to_file_path()
++                            .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
++                    })
++                    .filter(|root| path.starts_with(root))
++                    .max_by_key(|root| root.as_str().len());
++
++                if let Some(root) = workspace_root {
++                    root
++                } else if fs.path_is_file(path) {
++                    path.parent()
++                        .map_or(fs.working_directory().unwrap_or_default(), |p| {
++                            p.to_path_buf()
++                        })
++                } else {
++                    path.to_path_buf()
++                }
++            }
++            _ => self
++                .base_path()
++                .or_else(|| fs.working_directory())
++                .unwrap_or_default(),
++        }
++    }
++
+     #[tracing::instrument(level = "debug", skip(self))]
+     pub(super) async fn load_biome_configuration_file(
+         self: &Arc<Self>,
+@@ -1221,7 +1257,10 @@ impl Session {
+             operations.insert(path_to_index.clone(), tx.clone());
+         }
+ 
+-        if reload && let Some(project) = self.project_for_path(&path_to_index) {
++        if reload
++            && let Some(project) =
++                self.project_for_path(&self.project_path_for_configuration(&base_path))
++        {
+             self.set_project_analysis_request(project, None);
+             self.reconcile_project_diagnostics(false).await;
+         }
+@@ -1347,44 +1386,7 @@ impl Session {
+             configuration.merge_with(inline_configuration);
+         }
+ 
+-        // If the configuration from the LSP or the workspace, the directory path is used as
+-        // the working directory. Otherwise, the base path of the session is used, then the current
+-        // working directory is used as the last resort.
+-        debug!("Configuration path provided {:?}", &base_path);
+-        let project_path = match &base_path {
+-            ConfigurationPathHint::FromLsp(path) | ConfigurationPathHint::FromWorkspace(path) => {
+-                path.to_path_buf()
+-            }
+-            ConfigurationPathHint::FromUser(path) => {
+-                let workspace_root = self
+-                    .get_workspace_folders()
+-                    .unwrap_or_default()
+-                    .into_iter()
+-                    .filter_map(|folder| {
+-                        folder
+-                            .uri
+-                            .to_file_path()
+-                            .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
+-                    })
+-                    .filter(|root| path.starts_with(root))
+-                    .max_by_key(|root| root.as_str().len());
+-
+-                if let Some(root) = workspace_root {
+-                    root
+-                } else if fs.path_is_file(path) {
+-                    path.parent()
+-                        .map_or(fs.working_directory().unwrap_or_default(), |p| {
+-                            p.to_path_buf()
+-                        })
+-                } else {
+-                    path.to_path_buf()
+-                }
+-            }
+-            _ => self
+-                .base_path()
+-                .or_else(|| fs.working_directory())
+-                .unwrap_or_default(),
+-        };
++        let project_path = self.project_path_for_configuration(&base_path);
+ 
+         let project_key = match self.project_for_path(&project_path) {
+             Some(project_key) => project_key,

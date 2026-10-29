@@ -1,0 +1,5 @@
+pub const DEFAULT_ENTRIES: &[&str] = &[
+    "{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!",
+    "src/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!",
+];
+pub const DEFAULT_PROJECT: &[&str] = &["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!"];

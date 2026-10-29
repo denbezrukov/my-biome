@@ -1,0 +1,17 @@
+/// Declarative project analysis inputs. Native analysis support is tracked separately from schema support.
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, Deserializable, Merge)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase", default, deny_unknown_fields)]
+pub struct ProjectAnalysisConfiguration {
+    /// Enables experimental project analysis after check and lint. Defaults to false.
+    /// Framework and tool plugins are deferred; incomplete coverage cannot certify a clean project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    /// Optional schema URL for migrated static configuration.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "$schema")]
+    pub schema: Option<String>,
+    /// Entry globs. Explicit values replace the default production entry globs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entry: Option<AnalysisStrings>,
+    /// Candidate globs. Explicit values replace the default production project glob.

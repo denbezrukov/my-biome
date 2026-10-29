@@ -1,0 +1,18 @@
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ReportSelection {
+    pub workspaces: BTreeSet<WorkspaceId>,
+    /// Treats an empty workspace set as selecting no workspaces.
+    #[serde(default)]
+    pub restrict_workspaces: bool,
+    #[cfg_attr(feature = "schema", schemars(with = "Vec<String>"))]
+    pub paths: Vec<Utf8PathBuf>,
+    pub issues: BTreeSet<IssueKind>,
+    /// Treats an empty issues set as selecting no categories.
+    #[serde(default)]
+    pub restrict_issues: bool,
+    /// Exact changed paths intersect the other report predicates; an empty list selects none.
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(with = "Option<BTreeSet<String>>"))]
+    pub changed_paths: Option<BTreeSet<Utf8PathBuf>>,
+}

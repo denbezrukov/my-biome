@@ -1,0 +1,74 @@
+diff --git a/crates/biome_lsp/src/project_analysis.rs b/crates/biome_lsp/src/project_analysis.rs
+index 20c26d85b80..ed5dae04b1b 100644
+--- a/crates/biome_lsp/src/project_analysis.rs
++++ b/crates/biome_lsp/src/project_analysis.rs
+@@ -47,6 +47,7 @@ pub(crate) struct ProjectDiagnostics {
+ #[derive(Default)]
+ struct UriDiagnostics {
+     local_sequence: u64,
++    local_document: Option<(i32, Arc<str>)>,
+     local: Vec<Diagnostic>,
+     projects: FxHashMap<ProjectKey, (SnapshotRevision, Vec<Diagnostic>)>,
+ }
+@@ -135,6 +136,19 @@ impl Session {
+ 
+     async fn send_merged(&self, uri: Uri, slots: &mut UriDiagnostics) {
+         self.prune_project_slots(slots);
++        let document = self.document(&uri);
++        if !slots
++            .local_document
++            .as_ref()
++            .is_some_and(|(version, text)| {
++                document.as_ref().is_some_and(|current| {
++                    current.version == *version && Arc::ptr_eq(&current.text, text)
++                })
++            })
++        {
++            slots.local.clear();
++            slots.local_document = None;
++        }
+         let mut diagnostics = slots.local.clone();
+         let mut project_diagnostics: Vec<_> = slots
+             .projects
+@@ -148,7 +162,7 @@ impl Session {
+             .publish_diagnostics(
+                 uri.clone(),
+                 diagnostics,
+-                self.document(&uri).map(|document| document.version),
++                document.map(|document| document.version),
+             )
+             .await;
+     }
+@@ -172,6 +186,7 @@ impl Session {
+             return;
+         }
+         slots.local_sequence = sequence;
++        slots.local_document = Some((document.version, document.text.clone()));
+         slots.local = diagnostics;
+         self.send_merged(uri, &mut slots).await;
+     }
+@@ -180,9 +195,14 @@ impl Session {
+     pub(crate) async fn reconcile_project_diagnostics(self: &Arc<Self>, schedule: bool) {
+         #[cfg(test)]
+         self.project_diagnostics.hooks.before_reconcile.wait().await;
+-        let mut keys: FxHashSet<_> = self.active_project_keys().into_iter().collect();
++        let mut keys: FxHashSet<_> = self
++            .project_diagnostics
++            .requests
++            .lock()
++            .keys()
++            .copied()
++            .collect();
+         keys.extend(self.project_diagnostics.observed.lock().keys().copied());
+-        keys.extend(self.project_diagnostics.requests.lock().keys().copied());
+         keys.extend(self.project_diagnostics.uris.lock().keys().copied());
+         let Ok(states) =
+             self.workspace()
+@@ -398,6 +418,7 @@ impl Session {
+         });
+         slots.local_sequence = self.project_diagnostics.next_sequence();
+         slots.local.clear();
++        slots.local_document = None;
+         let mut completed = Vec::new();
+         if unchanged && closed.is_ok() {
+             #[cfg(test)]

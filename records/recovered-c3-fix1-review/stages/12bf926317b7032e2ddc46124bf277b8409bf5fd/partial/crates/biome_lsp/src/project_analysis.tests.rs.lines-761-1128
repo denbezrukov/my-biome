@@ -1,0 +1,368 @@
+async fn watcher_stopped_supersedes_completion() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication("file:///project/package.json").await;
+    test.open(project, "/project/new.js", "export {};\n");
+    test.factory
+        .service_tx
+        .send_replace(ServiceNotification::WatcherStopped);
+    test.subscription.wait().await;
+    assert!(
+        test.publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+}
+
+#[tokio::test]
+async fn manifest_change_during_unchanged_close_uses_current_revision() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    test.fs.insert("/project/index.js".into(), "export {};\n");
+    let uri = test.open(project, "/project/index.js", "export {};\n");
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication("file:///project/package.json").await;
+    let barrier = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_close_analysis
+        .pause();
+    let session = test.session.clone();
+    let close = tokio::spawn(async move {
+        session.close_document_diagnostics(uri).await.unwrap();
+    });
+    barrier.wait().await;
+    test.fs.insert(
+        "/project/package.json".into(),
+        "{\"private\":true,\"dependencies\":{\"current-dependency\":\"1\"}}",
+    );
+    test.session
+        .workspace()
+        .update_settings(UpdateSettingsParams {
+            project_key: project,
+            configuration: Default::default(),
+            workspace_directory: None,
+            extended_configurations: Default::default(),
+            module_graph_resolution_kind: Default::default(),
+        })
+        .unwrap();
+    barrier.wait().await;
+    close.await.unwrap();
+    let published = test.publication("file:///project/package.json").await;
+    assert!(
+        published
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("current-dependency"))
+    );
+    assert!(
+        !published
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+    let current = test.pull(project);
+    let published_revision: biome_project_analysis::model::SnapshotRevision =
+        serde_json::from_value(published.diagnostics[0].data.as_ref().unwrap()["revision"].clone())
+            .unwrap();
+    let current_revision = current.revision;
+    assert_eq!(published_revision, current_revision);
+}
+
+#[tokio::test]
+async fn project_analysis_does_not_block_formatting() {
+    let test = Harness::new().await;
+    let project = test.project("/project");
+    test.open(project, "/project/index.js", "const value={a:1};\n");
+    let barrier = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_analysis
+        .pause();
+    test.session.reconcile_project_diagnostics(true).await;
+    barrier.wait().await;
+    let session = test.session.clone();
+    let formatting = tokio::task::spawn_blocking(move || {
+        session
+            .workspace_for_request()
+            .format_file(FormatFileParams {
+                project_key: project,
+                path: biome_fs::BiomePath::new("/project/index.js"),
+                inline_config: None,
+            })
+    });
+    let output = tokio::time::timeout(Duration::from_secs(3), formatting)
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert!(output.as_code().contains("a: 1"));
+    barrier.wait().await;
+}
+
+#[tokio::test]
+async fn project_capability_fallback() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    test.fs
+        .insert("/project/index.js".into(), "import(process.env.MODULE);\n");
+    let result = test.pull(project);
+    assert!(!result.coverage.gaps().is_empty());
+    test.session.publish_project_result(project, result).await;
+    let notification = tokio::time::timeout(Duration::from_secs(3), async {
+        while let Some(ServerNotification::PublishDiagnostics(params)) =
+            test.notifications.next().await
+        {
+            if params.diagnostics.iter().any(|diagnostic| {
+                diagnostic.code == Some(lsp::NumberOrString::String("project/coverage".into()))
+            }) {
+                return params;
+            }
+        }
+        panic!("missing coverage publication")
+    })
+    .await
+    .unwrap();
+    assert_eq!(notification.version, None);
+    assert!(
+        notification
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("incomplete"))
+    );
+}
+
+#[tokio::test]
+async fn project_close_keeps_other_contributors_for_shared_uri() {
+    let mut test = Harness::new().await;
+    let a = test.project("/project");
+    let b = test.project("/project/packages/b");
+    test.fs.insert(
+        "/project/package.json".into(),
+        r#"{"private":true,"workspaces":["packages/b"]}"#,
+    );
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(b, "/project/packages/b/package.json", text);
+    let a_result = test.pull(a);
+    let b_result = test.pull(b);
+    assert!(
+        a_result
+            .issues
+            .iter()
+            .any(|issue| a_result.sources[&issue.location.file].canonical_uri == uri.as_str())
+    );
+    test.session.publish_project_result(a, a_result).await;
+    test.publication(uri.as_str()).await;
+    test.session.publish_project_result(b, b_result).await;
+    assert_eq!(test.publication(uri.as_str()).await.diagnostics.len(), 2);
+    let doc = test.session.document(&uri).unwrap();
+    test.session
+        .publish_local_diagnostics(
+            uri.clone(),
+            &doc,
+            test.session.project_diagnostics.next_sequence(),
+            vec![lsp::Diagnostic::new_simple(
+                Default::default(),
+                "local".into(),
+            )],
+        )
+        .await;
+    test.publication(uri.as_str()).await;
+    test.session
+        .workspace()
+        .close_project(CloseProjectParams { project_key: a })
+        .unwrap();
+    test.session.publish_project_result(b, test.pull(b)).await;
+    test.session.reconcile_project_diagnostics(false).await;
+    let published = test.publication(uri.as_str()).await;
+    assert_eq!(published.diagnostics.len(), 2);
+    assert!(
+        published
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message == "local")
+    );
+    assert!(
+        published
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+}
+
+#[tokio::test]
+async fn missing_document_close_withdraws_project_findings() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    test.fs
+        .remove(camino::Utf8Path::new("/project/package.json"));
+    let barrier = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_analysis
+        .pause();
+    test.session
+        .close_document_diagnostics(uri.clone())
+        .await
+        .unwrap();
+    assert!(test.publication(uri.as_str()).await.diagnostics.is_empty());
+    barrier.wait().await;
+    barrier.wait().await;
+}
+
+#[tokio::test]
+async fn local_feature_disabled_clear_keeps_project_findings() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    test.session
+        .workspace()
+        .update_settings(UpdateSettingsParams {
+            project_key: project,
+            workspace_directory: None,
+            configuration: serde_json::from_value(
+                serde_json::json!({"linter":{"enabled":false},"assist":{"enabled":false}}),
+            )
+            .unwrap(),
+            extended_configurations: vec![],
+            module_graph_resolution_kind: Default::default(),
+        })
+        .unwrap();
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    test.session.update_diagnostics(uri.clone()).await.unwrap();
+    let published = test.publication(uri.as_str()).await;
+    assert_eq!(published.version, Some(7));
+    assert!(
+        published
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+}
+
+#[tokio::test]
+async fn project_close_reanalyzes_other_dirty_projects() {
+    let mut test = Harness::new().await;
+    let a = test.project("/a");
+    let b = test.project("/b");
+    let old_b = test.pull(b).revision;
+    test.subscription.wait().await;
+    let mut seen = std::collections::BTreeSet::new();
+    tokio::time::timeout(Duration::from_secs(3), async {
+        while seen.len() < 2 {
+            if let Some(ServerNotification::PublishDiagnostics(params)) =
+                test.notifications.next().await
+                && !params.diagnostics.is_empty()
+            {
+                seen.insert(params.uri.to_string());
+            }
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        seen,
+        std::collections::BTreeSet::from([
+            "file:///a/package.json".to_string(),
+            "file:///b/package.json".to_string()
+        ])
+    );
+    let analysis = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_analysis
+        .pause();
+    test.session
+        .workspace()
+        .close_project(CloseProjectParams { project_key: a })
+        .unwrap();
+    loop {
+        if test
+            .publication("file:///b/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+        {
+            break;
+        }
+    }
+    analysis.wait().await;
+    analysis.wait().await;
+    let published = test.publication("file:///b/package.json").await;
+    assert!(!published.diagnostics.is_empty());
+    let revision: biome_project_analysis::model::SnapshotRevision =
+        serde_json::from_value(published.diagnostics[0].data.as_ref().unwrap()["revision"].clone())
+            .unwrap();
+    assert_ne!(revision, old_b);
+    let states = test
+        .session
+        .workspace()
+        .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+            project_keys: vec![b],
+        })
+        .unwrap();
+    assert_eq!(
+        states[0].status,
+        ProjectAnalysisStatus::Completed { revision }
+    );
+}
+
+#[tokio::test]
+async fn completion_at_observed_dirty_generation() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    test.session.reconcile_project_diagnostics(false).await;
+    let before = test
+        .session
+        .workspace()
+        .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+            project_keys: vec![project],
+        })
+        .unwrap();
+    assert_eq!(before[0].status, ProjectAnalysisStatus::Dirty);
+    let result = test.pull(project);
+    let after = test
+        .session
+        .workspace()
+        .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+            project_keys: vec![project],
+        })
+        .unwrap();
+    assert_eq!(before[0].generation, after[0].generation);
+    assert_eq!(
+        after[0].status,
+        ProjectAnalysisStatus::Completed {
+            revision: result.revision
+        }
+    );
+    test.subscription.wait().await;
+    assert!(
+        !test
+            .publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+}
+
+#[tokio::test]

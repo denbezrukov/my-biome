@@ -1,0 +1,399 @@
+    pub(crate) fn remove_document(&self, url: &Uri) -> Option<ProjectKey> {
+        self.documents.pin().remove(url).map(|doc| doc.project_key)
+    }
+
+    fn diagnostics_entry(&self, url: Uri, version: i32) -> Arc<DiagnosticsEntry> {
+        Arc::clone(
+            self.diagnostics
+                .pin()
+                .get_or_insert_with(url, || Arc::new(DiagnosticsEntry::new(version))),
+        )
+    }
+
+    pub(crate) fn close_diagnostics(&self, url: &Uri) {
+        let entry = self.diagnostics.pin().remove(url).cloned();
+        if let Some(entry) = entry {
+            entry.closed.store(true, Ordering::Release);
+        }
+    }
+
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub(crate) fn schedule_diagnostics(self: &Arc<Self>, url: Uri, version: i32) {
+        let entry = self.diagnostics_entry(url.clone(), version);
+        entry.closed.store(false, Ordering::Release);
+        entry.scheduled_version.store(version, Ordering::Release);
+
+        self.spawn_delayed_diagnostics(url, entry, version);
+    }
+
+    #[tracing::instrument(level = "debug", skip_all)]
+    fn spawn_delayed_diagnostics(
+        self: &Arc<Self>,
+        url: Uri,
+        entry: Arc<DiagnosticsEntry>,
+        version: i32,
+    ) {
+        let session = Arc::clone(self);
+        spawn(async move {
+            sleep(DIAGNOSTICS_DEBOUNCE).await;
+            session.run_debounced_diagnostics(url, entry, version).await;
+        });
+    }
+
+    #[tracing::instrument(level = "debug", skip_all)]
+    async fn run_debounced_diagnostics(
+        self: Arc<Self>,
+        url: Uri,
+        entry: Arc<DiagnosticsEntry>,
+        version: i32,
+    ) {
+        if entry.closed.load(Ordering::Acquire)
+            || entry.scheduled_version.load(Ordering::Acquire) != version
+        {
+            return;
+        }
+
+        // Only one diagnostics update should run for a document at a time.
+        // This tries to change `running` from `false` to `true`. If it works,
+        // this task owns the update. `AcqRel` is used for that successful claim,
+        // so this task sees the latest state, and other tasks see that this task
+        // claimed the update. If it fails, another task already owns the update,
+        // so `Acquire` is enough because we only need to read that state.
+        if entry
+            .running
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .is_err()
+        {
+            entry.rerun_after_current.store(true, Ordering::Release);
+            return;
+        }
+
+        if let Err(err) = self
+            .update_diagnostics_for_version(url.clone(), version, &entry)
+            .await
+        {
+            error!("Failed to update diagnostics: {err}");
+        }
+
+        entry.running.store(false, Ordering::Release);
+
+        // A newer change may have arrived while this update was running. This
+        // resets the flag back to `false` and tells us whether another update
+        // was requested. `AcqRel` makes the reset visible to other tasks and
+        // also lets this task see the latest request before deciding whether to
+        // schedule another diagnostics update.
+        if entry.rerun_after_current.swap(false, Ordering::AcqRel) {
+            let latest_version = entry.scheduled_version.load(Ordering::Acquire);
+            if latest_version != version && !entry.closed.load(Ordering::Acquire) {
+                self.spawn_delayed_diagnostics(url, entry, latest_version);
+            }
+        }
+    }
+
+    pub(crate) fn file_path(&self, url: &Uri) -> Result<BiomePath> {
+        let path_to_file = match url.to_file_path() {
+            None => {
+                // If we can't create a path, it's probably because the file doesn't exist.
+                // It can be a newly created file that it's not on disk
+                Utf8PathBuf::from(url.path().to_string())
+            }
+            Some(path) => Utf8PathBuf::from_path_buf(path.as_ref().to_path_buf())
+                .expect("To to have a UTF-8 path"),
+        };
+
+        Ok(BiomePath::new(path_to_file))
+    }
+
+    /// Computes diagnostics for the file matching the provided url and publishes
+    /// them to the client. Called from [`handlers::text_document`] when a file's
+    /// contents changes.
+    #[tracing::instrument(level = "debug", skip_all, fields(url = display(url.as_str()), diagnostic_count), err)]
+    pub(crate) async fn update_diagnostics(&self, url: Uri) -> Result<(), LspError> {
+        let Some(doc) = self.document(&url) else {
+            return Ok(());
+        };
+        self.update_diagnostics_for_document(url.clone(), doc, None)
+            .await
+    }
+
+    async fn update_diagnostics_for_version(
+        &self,
+        url: Uri,
+        version: i32,
+        entry: &DiagnosticsEntry,
+    ) -> Result<(), LspError> {
+        let Some(doc) = self.document(&url) else {
+            return Ok(());
+        };
+        if doc.version != version || entry.closed.load(Ordering::Acquire) {
+            return Ok(());
+        }
+        self.update_diagnostics_for_document(url.clone(), doc, Some(entry))
+            .await
+    }
+
+    /// Computes diagnostics for the file matching the provided url and publishes
+    /// them to the client. Called from [`handlers::text_document`] when a file's
+    /// contents changes.
+    #[tracing::instrument(level = "debug", skip_all, fields(url = display(url.as_str()), diagnostic_count), err)]
+    async fn update_diagnostics_for_document(
+        &self,
+        url: Uri,
+        doc: Document,
+        entry: Option<&DiagnosticsEntry>,
+    ) -> Result<(), LspError> {
+        let sequence = self.project_diagnostics.next_sequence();
+        let biome_path = self.file_path(&url)?;
+
+        let configuration_status = self.configuration_status(doc.project_key);
+        if !self.notified_broken_configuration(doc.project_key) {
+            if configuration_status.is_editorconfig_error() {
+                self.set_notified_broken_configuration(doc.project_key);
+                self.client
+                    .show_message(MessageType::WARNING, "The .editorconfig file has errors. Biome will report only parsing errors until the file is fixed or its usage is disabled.")
+                    .await
+            } else if configuration_status.is_error() {
+                self.set_notified_broken_configuration(doc.project_key);
+                self.client
+                    .show_message(MessageType::WARNING, "The configuration file has errors. Biome will report only parsing errors until the configuration is fixed.")
+                    .await;
+            } else if configuration_status.is_plugin_error() {
+                self.set_notified_broken_configuration(doc.project_key);
+                self.client.show_message(MessageType::WARNING, "The plugin loading has failed. Biome will report only parsing errors until the file is fixed or its usage is disabled.").await
+            }
+        }
+        let FileFeaturesResult {
+            features_supported: file_features,
+        } = self.workspace().file_features(SupportsFeatureParams {
+            project_key: doc.project_key,
+            features: FeaturesBuilder::new().with_linter().with_assist().build(),
+            path: biome_path.clone(),
+            inline_config: self.inline_config(),
+            skip_ignore_check: false,
+            not_requested_features: FeaturesBuilder::new().with_search().build(),
+        })?;
+
+        if !file_features.supports_lint() && !file_features.supports_assist() {
+            if !self.can_publish_diagnostics(&url, doc.version, entry) {
+                return Ok(());
+            }
+            self.publish_local_diagnostics(url.clone(), &doc, sequence, vec![])
+                .await;
+            return Ok(());
+        }
+        let diagnostics: Vec<Diagnostic> = {
+            let mut categories = RuleCategoriesBuilder::default().with_syntax();
+            if configuration_status.is_loaded() {
+                if file_features.supports_lint() {
+                    categories = categories.with_lint();
+                }
+                if file_features.supports_assist() {
+                    categories = categories.with_assist();
+                }
+            }
+            let result = self.workspace().pull_diagnostics(PullDiagnosticsParams {
+                project_key: doc.project_key,
+                path: biome_path.clone(),
+                categories: categories.build(),
+                only: Vec::new(),
+                skip: Vec::new(),
+                enabled_rules: Vec::new(),
+                include_code_fix: false,
+                inline_config: self.inline_config(),
+                max_diagnostics: None,
+                diagnostic_level: Severity::Information,
+                enforce_assist: false,
+            })?;
+
+            let offset = if file_features.supports_full_html_support() {
+                None
+            } else {
+                let get_start: Option<fn(&str) -> Option<u32>> = match biome_path.extension() {
+                    Some("vue") => Some(VueFileHandler::start),
+                    Some("astro") => Some(AstroFileHandler::start),
+                    Some("svelte") => Some(SvelteFileHandler::start),
+                    _ => None,
+                };
+                get_start.and_then(|f| {
+                    let content = self
+                        .workspace()
+                        .get_file_content(GetFileContentParams {
+                            project_key: doc.project_key,
+                            path: biome_path.clone(),
+                        })
+                        .ok()?;
+                    f(content.as_str())
+                })
+            };
+
+            result
+                .diagnostics
+                .into_iter()
+                .filter_map(|d| {
+                    match utils::diagnostic_to_lsp(
+                        d,
+                        &url,
+                        &doc.line_index,
+                        self.position_encoding(),
+                        offset,
+                    ) {
+                        Ok(diag) => Some(diag),
+                        Err(err) => {
+                            error!("failed to convert diagnostic to LSP: {err:?}");
+                            None
+                        }
+                    }
+                })
+                .collect()
+        };
+
+        if !self.can_publish_diagnostics(&url, doc.version, entry) {
+            return Ok(());
+        }
+
+        self.publish_local_diagnostics(url.clone(), &doc, sequence, diagnostics)
+            .await;
+
+        Ok(())
+    }
+
+    fn is_document_current(&self, url: &Uri, version: i32) -> bool {
+        self.document(url)
+            .is_some_and(|document| document.version == version)
+    }
+
+    fn can_publish_diagnostics(
+        &self,
+        url: &Uri,
+        version: i32,
+        entry: Option<&DiagnosticsEntry>,
+    ) -> bool {
+        !entry.is_some_and(|entry| entry.closed.load(Ordering::Acquire))
+            && self.is_document_current(url, version)
+    }
+
+    /// Updates diagnostics for every [`Document`] in this [`Session`]
+    #[tracing::instrument(level = "debug", skip(self))]
+    pub(crate) async fn update_all_diagnostics(&self) {
+        let mut futures: FuturesUnordered<_> = self
+            .documents
+            .pin()
+            .iter()
+            .map(|(url, doc)| self.update_diagnostics_for_document(url.clone(), doc.clone(), None))
+            .collect();
+
+        while let Some(result) = futures.next().await {
+            if let Err(e) = result {
+                error!("Error while updating diagnostics: {}", e);
+            }
+        }
+    }
+
+    /// True if the client supports dynamic registration of "workspace/didChangeConfiguration" requests
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_did_change_configuration(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.workspace.as_ref())
+            .and_then(|c| c.did_change_configuration)
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register didChangeConfiguration: {result}");
+        result
+    }
+
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_on_type_formatting(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.on_type_formatting)
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register onTypeFormatting: {result}");
+        result
+    }
+
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_formatting(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.formatting)
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register formatting: {result}");
+        result
+    }
+
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_range_formatting(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.range_formatting)
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register rangeFormatting: {result}");
+        result
+    }
+
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_did_change_watched_files(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.workspace.as_ref())
+            .and_then(|c| c.did_change_watched_files)
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register didChangeWatchedFiles: {result}");
+        result
+    }
+
+    pub(crate) fn supports_relative_watched_file_patterns(&self) -> bool {
+        self.initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.workspace.as_ref())
+            .and_then(|c| c.did_change_watched_files)
+            .and_then(|c| c.relative_pattern_support)
+            == Some(true)
+    }
+
+    /// Whether the client supports `codeAction/resolve` for deferred edit computation.
+    /// Whether the client supports `codeAction/resolve` for deferred edit computation.
+    ///
+    /// Per LSP spec, `resolveSupport.properties` lists which specific properties
+    /// the client can resolve. We only defer when `"edit"` is in that list.
+    pub(crate) fn supports_code_action_resolve(&self) -> bool {
+        self.initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.code_action.as_ref())
+            .and_then(|c| c.resolve_support.as_ref())
+            .is_some_and(|support| support.properties.iter().any(|p| p == "edit"))
+    }
+
+    #[instrument(level = "info", skip(self))]
+    pub(crate) fn can_register_code_action(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.code_action.as_ref())
+            .and_then(|c| c.dynamic_registration)
+            == Some(true);
+
+        info!("Can register codeAction: {result}");
+        result
+    }
+

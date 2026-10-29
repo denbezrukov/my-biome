@@ -1,0 +1,10 @@
+{
+  "status": "exact-original-manifest-recovered",
+  "original_stage": "12bf926317b7032e2ddc46124bf277b8409bf5fd",
+  "original_sha256": "8c43a106b69fdc6c0643eddec5a685e8b2a1ff2598915697689ef45dc07d97b0",
+  "source": "recovered-c3/final-precommit-bindings.exact-recovered.json",
+  "verification": "Recovered manifest bytes match retained historical SHA256. Contains historical gates only; none re-executed in recovery.",
+  "files": [
+    "final-precommit-bindings.exact-recovered.json"
+  ]
+}

@@ -1,0 +1,3 @@
+6f1d95ab35b3329715cffaf24f1e31abf450b4153063c8afa5f8ebb612585eb6  crates/biome_cli/src/main.rs
+14e19eac8b2726e574652318c7febda6d77808c11d668a853a9ec7919b309503  crates/biome_console/src/lib.rs
+f2bd06cadba8feffa3ad5ae8cb7f3a3d4907ddaaae531785171a3629a0ae085f  crates/biome_cli/tests/project_analysis_exit.rs

@@ -1,0 +1,156 @@
+{
+  "base": "540d2e1a7b8bda82c42ade70459dec4975899c88",
+  "time": "2026-10-27T14:28:18.418950+00:00",
+  "inputs": {
+    ".cargo/config.toml": {
+      "sha256": "55e1096e26df831c9aca829c83fe9383d913a402dccc0b8a3c4920ff44769ab7",
+      "bytes": 1933
+    },
+    ".changeset/modern-towns-allow.md": {
+      "sha256": "f2cbe5d1d23e54d062feed2d01c6cf327967b418f652f7ff96ff241cca19a586",
+      "bytes": 364
+    },
+    "Cargo.lock": {
+      "sha256": "c8104d0095f9e62bc72cf9aace35b40d6bf052453f3d110228abe301aae8169f",
+      "bytes": 179732
+    },
+    "Cargo.toml": {
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e",
+      "bytes": 17229
+    },
+    "crates/biome_lsp/Cargo.toml": {
+      "sha256": "85e114f81a6adeb68e169d67330e221edea5e832898216bfed6c569091e016dc",
+      "bytes": 2313
+    },
+    "crates/biome_lsp/src/documents.rs": {
+      "sha256": "a9d2ddc8e87ca7adb805c48407d6f3666ad094fea98d88dbde487aa485bacf92",
+      "bytes": 734
+    },
+    "crates/biome_lsp/src/handlers/text_document.rs": {
+      "sha256": "4fc413c9ac98feb1eb344db1414640ddd30d49ba2ab5ea7bf986945fcd01e2c4",
+      "bytes": 9791
+    },
+    "crates/biome_lsp/src/lib.rs": {
+      "sha256": "2ca59d494ae39e4f156f6e90fef5d5e8cd65c2f2f0c499a77e04eee422ac3138",
+      "bytes": 428
+    },
+    "crates/biome_lsp/src/project_analysis.rs": {
+      "sha256": "fcad09d0388bd89ad7dc38cda1e563eea6fcbe837d5c4befb0ae356ab2b91067",
+      "bytes": 23954
+    },
+    "crates/biome_lsp/src/project_analysis.tests.rs": {
+      "sha256": "fbc1ae4cbe562b02164588b6dd048eb28c63dc2b49f4a57fdcebca2029007411",
+      "bytes": 49265
+    },
+    "crates/biome_lsp/src/server.rs": {
+      "sha256": "c521bd0cadaf1264d417aa5c9e34a205853094d9c7f1d007c8f0fb86f65eda69",
+      "bytes": 36020
+    },
+    "crates/biome_lsp/src/session.rs": {
+      "sha256": "7a3959bcadf9764ec9133f85ea72de08d69bb0822c3dd7142ef1ba9b5e9b157e",
+      "bytes": 66215
+    },
+    "crates/biome_service/Cargo.toml": {
+      "sha256": "c352d394bf7dc41f102eb2f65406b522b680ce7c44a1fc19715e011d31318eb1",
+      "bytes": 10281
+    },
+    "rust-toolchain.toml": {
+      "sha256": "bd7b06458e86e1606ce6f793b95b4ede16832ad87ce9e7262e42d66b6a54a257",
+      "bytes": 234
+    }
+  },
+  "gate_manifests": {
+    "format-interest": "0640a083579f8c56b3c500a0224394a1df3a543377e0c24655a03d96f7b5b237",
+    "green-review-interest": "1dce7f375e16de9821158811068455d7565dae60df998428769f60593ebe89ed",
+    "green-settings-order": "949a1b59f4c66dec6ec20abbbdca109a62b3eb65addecc8b8f19edd4a9f01737",
+    "green-wrapped-settings": "d4b83342fc4a8138289e21c1a9cec0ccc79997fa5abc3aaf4a0a9428419e6f78",
+    "lint-final-interest": "174859b13051fab04e9d1e0f0c7f127395451ae3c067237e8d421c3219ec80c9",
+    "full-affected-complete": "4c6c680cce49d6b38e134025d9dac204e5058fd77c1f54d223e193428b02a96a",
+    "cli-current-final": "73e1be01f5dacfc27c9ef794a3e01c5d748b89e975cce06f68885b23b53b08e5",
+    "cli-equivalence-final": "399fae87e8457f4581bde64e1bd346a742408112a50775a70191fad804dca165"
+  },
+  "artifacts": [
+    {
+      "path": "/workspace/my-biome/target/debug/deps/biome_service-54c41bd760d88e4c",
+      "sha256": "4ac3cbe0f81358e19ab026cc54f2a868610e422de971ef51e881de894bc9c3cf",
+      "target": {
+        "kind": [
+          "lib"
+        ],
+        "crate_types": [
+          "lib"
+        ],
+        "name": "biome_service",
+        "src_path": "/workspace/my-biome/crates/biome_service/src/lib.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": true,
+        "test": true
+      },
+      "fresh": true,
+      "features": [
+        "html_embeds",
+        "js_embeds",
+        "js_plugin",
+        "lang_css",
+        "lang_graphql",
+        "lang_grit",
+        "lang_html",
+        "lang_js",
+        "lang_json",
+        "lang_md",
+        "lang_yaml",
+        "md_embeds",
+        "module_graph",
+        "plugins",
+        "stable",
+        "testing",
+        "type_inference"
+      ]
+    },
+    {
+      "path": "/workspace/my-biome/target/debug/deps/biome_lsp-491ba3f56ff5f83d",
+      "sha256": "1418e1bc312c42d61d1048969b5ab98e034f5202eadef526d6c374572172f34b",
+      "target": {
+        "kind": [
+          "lib"
+        ],
+        "crate_types": [
+          "lib"
+        ],
+        "name": "biome_lsp",
+        "src_path": "/workspace/my-biome/crates/biome_lsp/src/lib.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": true,
+        "test": true
+      },
+      "fresh": true,
+      "features": []
+    },
+    {
+      "path": "/workspace/my-biome/target/debug/biome",
+      "sha256": "7f440510733530f39b13c8fc48641abbd6756e81124d94a2a16c9fe2eb927d84",
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "biome",
+        "src_path": "/workspace/my-biome/crates/biome_cli/src/main.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "fresh": false,
+      "features": [
+        "js_plugin"
+      ]
+    }
+  ],
+  "all_final_gate_inputs_match": true,
+  "all_current_artifact_hashes_match": true
+}

@@ -1,0 +1,66 @@
+/// Captures and analyzes the open project, including files without open documents.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct PullProjectDiagnosticsParams {
+    pub project_key: ProjectKey,
+    pub request: ProjectAnalysisRequest,
+    #[serde(default)]
+    pub selection: ReportSelection,
+    /// Required for nonempty workspace-ID selection; IDs belong to this exact snapshot.
+    #[serde(default)]
+    pub selection_revision: Option<SnapshotRevision>,
+    #[serde(default)]
+    pub overrides: PolicyOverrides,
+}
+
+/// Reconciles active and previously published project keys, including closed keys.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct PullProjectAnalysisStatesParams {
+    pub project_keys: Vec<ProjectKey>,
+}
+
+/// Retained project state. Notifications only prompt clients to pull this state again.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectAnalysisState {
+    pub project_key: ProjectKey,
+    pub generation: u64,
+    pub status: ProjectAnalysisStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum ProjectAnalysisStatus {
+    Dirty,
+    Completed { revision: SnapshotRevision },
+    Failed { coverage: Coverage },
+    Closed,
+}
+
+// NOTE: when you add new functions to this trait, you must update:
+// - the macro `delegate_workspace_methods` to include the new function if necessary
+// - the macro `retrying_workspace_methods` to include the new function if necessary
+pub trait Workspace: Send + Sync + RefUnwindSafe {
+    // #region PROJECT-LEVEL METHODS
+
+    /// Returns a self-contained report from one completed snapshot. Concurrent updates
+    /// are retried at most twice before returning an unavailable-database error.
+    fn pull_project_diagnostics(
+        &self,
+        params: PullProjectDiagnosticsParams,
+    ) -> Result<ProjectAnalysisResult, WorkspaceError>;
+
+    /// Registers analysis interest and returns retained state for every requested key.
+    /// Unknown keys are returned individually as closed. Completion includes the full revision.
+    fn pull_project_analysis_states(
+        &self,
+        params: PullProjectAnalysisStatesParams,
+    ) -> Result<Vec<ProjectAnalysisState>, WorkspaceError>;
+
+    /// Opens a project within the workspace.
+    ///

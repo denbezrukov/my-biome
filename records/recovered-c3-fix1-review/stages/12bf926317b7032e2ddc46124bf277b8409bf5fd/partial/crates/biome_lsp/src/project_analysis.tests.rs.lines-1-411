@@ -1,0 +1,411 @@
+use crate::server_test_utils::{Server, ServerFactory, ServerNotification, client_handler};
+use biome_fs::MemoryFileSystem;
+use futures::{StreamExt, channel::mpsc};
+use std::sync::Arc;
+use std::time::Duration;
+use tower_lsp_server::ls_types as lsp;
+
+#[tokio::test]
+async fn project_diagnostics_include_closed_manifest() {
+    let fs = Arc::new(MemoryFileSystem::default());
+    fs.insert(
+        "/project/biome.json".into(),
+        r#"{"projectAnalysis":{"enabled":true,"entry":[],"project":[]}}"#,
+    );
+    fs.insert(
+        "/project/package.json".into(),
+        "{\n  \"private\": true,\n  \"dependencies\": {\"unused\": \"1\"}\n}\n",
+    );
+    let factory = ServerFactory::new_with_fs(fs);
+    let (service, socket) = factory.create().into_inner();
+    let mut server = Server::new(service);
+    let (sender, mut notifications) = mpsc::channel(32);
+    let (stream, sink) = socket.split();
+    let client = tokio::spawn(client_handler(stream, sink, sender));
+    server
+        .initialize_with_root("file:///project".parse().unwrap())
+        .await
+        .unwrap();
+    server.initialized().await.unwrap();
+    let published = tokio::time::timeout(Duration::from_secs(3), async {
+        while let Some(notification) = notifications.next().await {
+            if let ServerNotification::PublishDiagnostics(params) = notification
+                && params.uri.as_str() == "file:///project/package.json"
+                && params
+                    .diagnostics
+                    .iter()
+                    .any(|diagnostic| diagnostic.message.contains("unused"))
+            {
+                return Some(params);
+            }
+        }
+        None
+    })
+    .await
+    .ok()
+    .flatten();
+    assert!(
+        published.is_some(),
+        "project dependency diagnostics must publish without an open document"
+    );
+    let published = published.unwrap();
+    assert_eq!(published.version, None);
+    let issue = published
+        .diagnostics
+        .iter()
+        .find(|diagnostic| diagnostic.message.contains("unused"))
+        .unwrap();
+    assert_eq!(issue.range.start.line, 2);
+    assert_eq!(issue.severity, Some(lsp::DiagnosticSeverity::ERROR));
+    client.abort();
+}
+
+#[derive(Default)]
+pub(crate) struct PublicationHooks {
+    pub(crate) before_local: PublicationBarrier,
+    pub(crate) before_reconcile: PublicationBarrier,
+    pub(crate) before_project: PublicationBarrier,
+    pub(crate) before_analysis: PublicationBarrier,
+    pub(crate) before_close_analysis: PublicationBarrier,
+}
+
+#[derive(Default)]
+pub(crate) struct PublicationBarrier(parking_lot::Mutex<Option<Arc<tokio::sync::Barrier>>>);
+
+impl PublicationBarrier {
+    fn pause(&self) -> Arc<tokio::sync::Barrier> {
+        let barrier = Arc::new(tokio::sync::Barrier::new(2));
+        *self.0.lock() = Some(barrier.clone());
+        barrier
+    }
+
+    pub(crate) async fn wait(&self) {
+        let barrier = self.0.lock().take();
+        if let Some(barrier) = barrier {
+            barrier.wait().await;
+            barrier.wait().await;
+        }
+    }
+}
+
+use crate::{documents::Document, session::Session};
+use biome_project_analysis::{
+    model::{Location, SourceContent},
+    result::{Evidence, EvidenceId, IssueKind, ProjectAnalysisResult},
+};
+use biome_service::{
+    Workspace, project_analysis::ProjectAnalysisRequest, projects::ProjectKey, workspace::*,
+};
+
+struct Harness {
+    fs: Arc<MemoryFileSystem>,
+    factory: ServerFactory,
+    session: Arc<Session>,
+    _server: Server,
+    notifications: mpsc::Receiver<ServerNotification>,
+    client: tokio::task::JoinHandle<anyhow::Result<()>>,
+    subscription: Arc<tokio::sync::Barrier>,
+}
+impl Harness {
+    async fn new() -> Self {
+        let fs = Arc::new(MemoryFileSystem::default());
+        let factory = ServerFactory::new_with_fs(fs.clone());
+        let (service, socket) = factory.create().into_inner();
+        let session = service.inner().session.clone();
+        let subscription = session.project_diagnostics.hooks.before_reconcile.pause();
+        let (sender, notifications) = mpsc::channel(128);
+        let (stream, sink) = socket.split();
+        let client = tokio::spawn(client_handler(stream, sink, sender));
+        let mut server = Server::new(service);
+        server
+            .initialize_with_root("file:///project".parse().unwrap())
+            .await
+            .unwrap();
+        subscription.wait().await;
+        Self {
+            fs,
+            factory,
+            session,
+            _server: server,
+            notifications,
+            client,
+            subscription,
+        }
+    }
+    fn project(&self, root: &str) -> ProjectKey {
+        self.fs.insert(
+            format!("{root}/package.json").into(),
+            "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}",
+        );
+        let project = self
+            .session
+            .workspace()
+            .open_project(OpenProjectParams {
+                path: biome_fs::BiomePath::new(root),
+                open_uninitialized: true,
+            })
+            .unwrap()
+            .project_key;
+        self.session
+            .set_project_analysis_request(project, Some(ProjectAnalysisRequest::default()));
+        project
+    }
+    fn pull(&self, project: ProjectKey) -> ProjectAnalysisResult {
+        self.session
+            .workspace()
+            .pull_project_diagnostics(PullProjectDiagnosticsParams {
+                project_key: project,
+                request: Default::default(),
+                selection: Default::default(),
+                selection_revision: None,
+                overrides: Default::default(),
+            })
+            .unwrap()
+    }
+    fn open(&self, project: ProjectKey, path: &str, text: &str) -> lsp::Uri {
+        self.session
+            .workspace()
+            .open_file(OpenFileParams {
+                project_key: project,
+                path: biome_fs::BiomePath::new(path),
+                content: FileContent::FromClient {
+                    content: text.into(),
+                    version: 7,
+                },
+                document_file_source: None,
+                persist_node_cache: false,
+                inline_config: None,
+                editor_features: None,
+            })
+            .unwrap();
+        let uri: lsp::Uri = format!("file://{path}").parse().unwrap();
+        self.session
+            .insert_document(uri.clone(), Document::new(project, 7, text));
+        uri
+    }
+    async fn publication(&mut self, uri: &str) -> lsp::PublishDiagnosticsParams {
+        tokio::time::timeout(Duration::from_secs(3), async {
+            while let Some(notification) = self.notifications.next().await {
+                if let ServerNotification::PublishDiagnostics(params) = notification
+                    && params.uri.as_str() == uri
+                {
+                    return params;
+                }
+            }
+            panic!("publication channel closed")
+        })
+        .await
+        .expect("expected publication")
+    }
+    async fn fence(&self) {
+        self.session.client.configuration(vec![]).await.unwrap();
+    }
+}
+impl Drop for Harness {
+    fn drop(&mut self) {
+        self.client.abort();
+    }
+}
+
+#[tokio::test]
+async fn project_diagnostics_clear_deleted_and_resolved() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let result = test.pull(project);
+    test.session.publish_project_result(project, result).await;
+    assert!(
+        !test
+            .publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+    test.fs
+        .insert("/project/package.json".into(), "{\"private\":true}");
+    let resolved = test.pull(project);
+    test.session.publish_project_result(project, resolved).await;
+    let cleared_manifest_diagnostics = test
+        .publication("file:///project/package.json")
+        .await
+        .diagnostics;
+    assert!(cleared_manifest_diagnostics.is_empty());
+    test.fs.insert(
+        "/project/package.json".into(),
+        "{\"private\":true,\"dependencies\":{\"unused\":\"1\"}}",
+    );
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    assert!(
+        !test
+            .publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+    test.fs
+        .remove(camino::Utf8Path::new("/project/package.json"));
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    assert!(
+        test.publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+    test.fs.insert(
+        "/project/package.json".into(),
+        "{\"private\":true,\"dependencies\":{\"unused\":\"1\"}}",
+    );
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication("file:///project/package.json").await;
+    test.session.set_project_analysis_request(project, None);
+    test.session.reconcile_project_diagnostics(false).await;
+    assert!(
+        test.publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+    test.session
+        .set_project_analysis_request(project, Some(Default::default()));
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication("file:///project/package.json").await;
+    test.session
+        .workspace()
+        .close_project(CloseProjectParams {
+            project_key: project,
+        })
+        .unwrap();
+    test.session.reconcile_project_diagnostics(false).await;
+    assert!(
+        test.publication("file:///project/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+}
+
+#[tokio::test]
+async fn project_revision_rejects_stale_publish() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    test.fs.insert("/project/index.js".into(), "export {};\n");
+    let uri = test.open(project, "/project/index.js", "export {};\n");
+    let old = test.pull(project);
+    let barrier = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_project
+        .pause();
+    let session = test.session.clone();
+    let stale = tokio::spawn(async move {
+        session.publish_project_result(project, old).await;
+    });
+    barrier.wait().await;
+    test.fs.insert(
+        "/project/package.json".into(),
+        "{\"private\":true,\"dependencies\":{\"new-unused\":\"1\"}}",
+    );
+    let current = test.pull(project);
+    let current_revision = current.revision.clone();
+    test.session.publish_project_result(project, current).await;
+    let published = test.publication("file:///project/package.json").await;
+    let published_revision: biome_project_analysis::model::SnapshotRevision =
+        serde_json::from_value(published.diagnostics[0].data.as_ref().unwrap()["revision"].clone())
+            .unwrap();
+    assert_eq!(published_revision, current_revision);
+    assert_eq!(test.session.document(&uri).unwrap().version, 7);
+    test.fence().await;
+    while test.notifications.try_recv().is_ok() {}
+    barrier.wait().await;
+    stale.await.unwrap();
+    test.fence().await;
+    assert!(test.notifications.try_recv().is_err());
+}
+
+#[tokio::test]
+async fn cross_file_evidence_uses_target_line_index() {
+    let test = Harness::new().await;
+    let project = test.project("/project");
+    test.fs.insert(
+        "/project/related.js".into(),
+        "\n\n\"𐐀\"; export const value = 1;\n",
+    );
+    let mut result = test.pull(project);
+    let file = *result
+        .sources
+        .iter()
+        .find(|(_, source)| source.logical_path.as_str() == "related.js")
+        .unwrap()
+        .0;
+    let id = EvidenceId("related-evidence".into());
+    let issue = result
+        .issues
+        .iter_mut()
+        .find(|issue| issue.kind == IssueKind::Dependencies)
+        .unwrap();
+    issue.related_evidence = vec![id.clone()];
+    result.evidence.nodes.insert(
+        id,
+        Evidence {
+            producer: "test".into(),
+            location: Some(Location {
+                file,
+                range: biome_text_size::TextRange::new(24.into(), 29.into()),
+            }),
+            workspace: issue.workspace,
+            explanation: "Related declaration".into(),
+            related: vec![],
+        },
+    );
+    test.fs
+        .insert("/project/related.js".into(), "different live text");
+    for (encoding, column) in [
+        (biome_lsp_converters::PositionEncoding::Utf8, 22),
+        (
+            biome_lsp_converters::PositionEncoding::Wide(biome_line_index::WideEncoding::Utf16),
+            20,
+        ),
+        (
+            biome_lsp_converters::PositionEncoding::Wide(biome_line_index::WideEncoding::Utf32),
+            19,
+        ),
+    ] {
+        let projected = crate::project_analysis::project_diagnostics(&result, encoding);
+        let diagnostic = projected
+            .values()
+            .flatten()
+            .find(|diagnostic| diagnostic.message.starts_with("dependencies:"))
+            .unwrap();
+        let related = &diagnostic.related_information.as_ref().unwrap()[0];
+        assert_eq!(related.location.uri.as_str(), "file:///project/related.js");
+        assert_eq!(related.location.range.start, lsp::Position::new(2, column));
+    }
+    result.sources.get_mut(&file).unwrap().content = SourceContent::Unavailable {
+        reason: "unreadable".into(),
+        fallback: "related.js".into(),
+    };
+    let projected = crate::project_analysis::project_diagnostics(
+        &result,
+        biome_lsp_converters::PositionEncoding::Utf8,
+    );
+    let diagnostic = projected
+        .values()
+        .flatten()
+        .find(|diagnostic| diagnostic.message.starts_with("dependencies:"))
+        .unwrap();
+    assert_eq!(
+        diagnostic.related_information.as_ref().unwrap()[0]
+            .location
+            .range,
+        lsp::Range::default()
+    );
+}
+

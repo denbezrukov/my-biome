@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "source_recovery_only": true,
+  "reconstructed_implementation": false,
+  "original_last_bound_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+  "original_stage": "C4 fix candidate under independent scoped review; C5 was preparation only",
+  "read_rebuilt_product_source": false,
+  "historical_git_commands_executed": false,
+  "files": [
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/mod.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        234
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "29538a6d5ea7a66929f03cf25cbe0cbdee2e0c8b5c69cc3fe30763b4964543fb",
+      "bytes": 7742,
+      "lines": 234,
+      "authenticated_original_sha256": "29538a6d5ea7a66929f03cf25cbe0cbdee2e0c8b5c69cc3fe30763b4964543fb",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/native.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        13
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "50c179e1da4eb399c83849985d8fef2944794a796de344cb6737b5bc3f55c6d6",
+      "bytes": 435,
+      "lines": 13,
+      "authenticated_original_sha256": "50c179e1da4eb399c83849985d8fef2944794a796de344cb6737b5bc3f55c6d6",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/facts.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        325
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "a75e8b1c39d167e492825c0c1e741b4ae286a3bccde962e3f64c0a961ac47d7b",
+      "bytes": 9201,
+      "lines": 325,
+      "authenticated_original_sha256": null,
+      "matches_authenticated_original": null,
+      "authentication_source": "Literal retained original source and original final comparison history; no independent original byte hash available here"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/inventory.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        199
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "f37f8581f875682c774668fa51744ac7015fc236e2287ed9531aae5b4b1a4535",
+      "bytes": 6647,
+      "lines": 199,
+      "authenticated_original_sha256": null,
+      "matches_authenticated_original": null,
+      "authentication_source": "Literal retained original source and original final comparison history; no independent original byte hash available here"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/lib.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        237
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "513f0f8c64ca3568bccc5854ea6b101effa247e0c21c5c90f399cc83bcb141ca",
+      "bytes": 8994,
+      "lines": 237,
+      "authenticated_original_sha256": "513f0f8c64ca3568bccc5854ea6b101effa247e0c21c5c90f399cc83bcb141ca",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/model.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        168
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "f32c69a510bfb849bca984ac712318c2420fde68cda4c50f6828122ad4229e17",
+      "bytes": 5362,
+      "lines": 168,
+      "authenticated_original_sha256": null,
+      "matches_authenticated_original": null,
+      "authentication_source": "Literal retained original source and original final comparison history; no independent original byte hash available here"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/normalize.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        178
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "5769a65f971a1dc7109555fda0ab17fca8a9f9004c8d75e48edcbba1e70dc748",
+      "bytes": 6251,
+      "lines": 178,
+      "authenticated_original_sha256": null,
+      "matches_authenticated_original": null,
+      "authentication_source": "Literal retained original source and original final comparison history; no independent original byte hash available here"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/options.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        200
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "a328a6f10e281799e94a6b9a857df577cd1a58a1f611ed02a49d31e3f03e00a2",
+      "bytes": 7015,
+      "lines": 200,
+      "authenticated_original_sha256": null,
+      "matches_authenticated_original": null,
+      "authentication_source": "Literal retained original source and original final comparison history; no independent original byte hash available here"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/report_metadata.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        405
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "7ec3527e6c3e94206f7db7b705ad025e3187c45d16ea3b6dbc67c24e4bec7d65",
+      "bytes": 16314,
+      "lines": 405,
+      "authenticated_original_sha256": "7ec3527e6c3e94206f7db7b705ad025e3187c45d16ea3b6dbc67c24e4bec7d65",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/result.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        167
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "0f199a13761e2994ccc177e7e004b3ec98c9c4b97eda5bcf5d509f3acf37c5ef",
+      "bytes": 5430,
+      "lines": 167,
+      "authenticated_original_sha256": "0f199a13761e2994ccc177e7e004b3ec98c9c4b97eda5bcf5d509f3acf37c5ef",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/policy.rs",
+      "coverage": "complete file",
+      "original_line_range": [
+        1,
+        424
+      ],
+      "stage": "Original C4 source as read before/at d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b; original 37-input comparison confirmed unchanged through e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "sha256": "61d1dfddc6a95911ef27966a748689d6b63bf44769ee3c37bb880cebd1406f02",
+      "bytes": 17282,
+      "lines": 424,
+      "authenticated_original_sha256": "61d1dfddc6a95911ef27966a748689d6b63bf44769ee3c37bb880cebd1406f02",
+      "matches_authenticated_original": true,
+      "authentication_source": "Parent-authenticated recovered C4 final commit manifest"
+    }
+  ],
+  "fragment": {
+    "path": "explain.rs.precommit-line25.fragment",
+    "original_path": "crates/biome_cli/src/reporter/project_analysis/explain.rs",
+    "coverage": "original line 25 only",
+    "stage": "Provisional C4 work on HEAD 12bf926317b7032e2ddc46124bf277b8409bf5fd, before d574 formatting/final commit",
+    "sha256": "efb05c32925916192e05115e6e6056accc4325a30b35208078fc76d3f097dbdd",
+    "missing_ranges": [
+      "1-24",
+      "26-EOF"
+    ],
+    "final_original_file_sha256": "911b195eb64e4ab951c6d8594689528cfdaf03e2194d3092ac7f5155b84249ec",
+    "final_original_bytes": 3545,
+    "final_original_hash_does_not_authenticate_precommit_fragment": true
+  },
+  "gaps": {
+    "crates/biome_project_analysis/src/policy.rs": {
+      "reason": "Never read full original implementation in this helper",
+      "original_sha256": "bcb5c6b3aac7ae9e1b5830b8c8082ff671492801cac03402ab2227be2a5dec07",
+      "original_bytes": 27421
+    },
+    "crates/biome_service/src/project_analysis/provenance.rs": {
+      "reason": "Never read full original implementation in this helper"
+    },
+    "crates/biome_service/src/project_analysis/request.rs": {
+      "reason": "No separately inspected request.rs; original request type lived in service project_analysis.rs, recovered by another helper"
+    },
+    "crates/biome_cli/src/reporter/project_analysis/compatibility.rs": {
+      "reason": "Never read full original implementation in this helper",
+      "original_sha256": "776c1ecf30c83e09eb308eb29bfaab06d1b0df897d35d30aa761945f79eb3cd7",
+      "original_bytes": 32635
+    }
+  },
+  "preserved_original_binding": {
+    "path": "original-artifacts/original-final-commit-binding.transcribed.json",
+    "sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b",
+    "receipt": "Parent independently authenticated result.rs and this whole original C4 manifest before this artifact-only read"
+  },
+  "retained_prior_preparation_artifact_hashes": {
+    "c5-current-api-reconciliation.md": "f6d543b7a675d6d3ff91e0debb7deb1ca0bd61d4abf034cf37178caa41b355a2",
+    "c5-current-api-reconciliation.sources.json": "9a0989be8579fb6c492ffe5fa85bf42d6b963b4b10f149b11bcecc37da810213"
+  }
+}

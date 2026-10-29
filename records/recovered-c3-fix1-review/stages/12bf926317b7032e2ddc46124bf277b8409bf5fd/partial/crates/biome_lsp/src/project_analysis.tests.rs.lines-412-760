@@ -1,0 +1,349 @@
+#[tokio::test]
+async fn document_close_preserves_project_findings() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    let document = test.session.document(&uri).unwrap();
+    test.session
+        .publish_local_diagnostics(
+            uri.clone(),
+            &document,
+            test.session.project_diagnostics.next_sequence(),
+            vec![lsp::Diagnostic::new_simple(
+                Default::default(),
+                "local".into(),
+            )],
+        )
+        .await;
+    test.publication(uri.as_str()).await;
+    test.session
+        .close_document_diagnostics(uri.clone())
+        .await
+        .unwrap();
+    let closed = test.publication(uri.as_str()).await;
+    assert_eq!(closed.version, None);
+    assert!(
+        closed
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+    assert!(
+        closed
+            .diagnostics
+            .iter()
+            .all(|diagnostic| diagnostic.message != "local")
+    );
+    let warm = test.pull(project);
+    let fresh = biome_service::workspace::server(test.fs.clone(), None);
+    let key = fresh
+        .open_project(OpenProjectParams {
+            path: biome_fs::BiomePath::new("/project"),
+            open_uninitialized: true,
+        })
+        .unwrap()
+        .project_key;
+    let fresh = fresh
+        .pull_project_diagnostics(PullProjectDiagnosticsParams {
+            project_key: key,
+            request: Default::default(),
+            selection: Default::default(),
+            selection_revision: None,
+            overrides: Default::default(),
+        })
+        .unwrap();
+    assert_eq!(
+        biome_project_analysis::normalize::normalize_result(&warm),
+        biome_project_analysis::normalize::normalize_result(&fresh)
+    );
+}
+
+#[tokio::test]
+async fn document_close_discards_overlay_before_reanalysis() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let uri = test.open(
+        project,
+        "/project/package.json",
+        "{\"private\":true,\"dependencies\":{\"overlay-only\":\"1\"}}",
+    );
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    let barrier = test
+        .session
+        .project_diagnostics
+        .hooks
+        .before_analysis
+        .pause();
+    test.session
+        .close_document_diagnostics(uri.clone())
+        .await
+        .unwrap();
+    assert!(test.publication(uri.as_str()).await.diagnostics.is_empty());
+    barrier.wait().await;
+    let result = test.pull(project);
+    test.session.publish_project_result(project, result).await;
+    let fresh = test.publication(uri.as_str()).await;
+    assert!(
+        fresh
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+    assert!(
+        !fresh
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("overlay-only"))
+    );
+    barrier.wait().await;
+}
+
+#[tokio::test]
+async fn interleaved_local_clear_keeps_project_findings() {
+    let mut test = Harness::new().await;
+    let project = test.project("/project");
+    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
+    let uri = test.open(project, "/project/package.json", text);
+    let document = test.session.document(&uri).unwrap();
+    let barrier = test.session.project_diagnostics.hooks.before_local.pause();
+    let session = test.session.clone();
+    let target = uri.clone();
+    let local = tokio::spawn(async move {
+        session
+            .publish_local_diagnostics(
+                target,
+                &document,
+                session.project_diagnostics.next_sequence(),
+                vec![],
+            )
+            .await;
+    });
+    barrier.wait().await;
+    test.session
+        .publish_project_result(project, test.pull(project))
+        .await;
+    test.publication(uri.as_str()).await;
+    barrier.wait().await;
+    local.await.unwrap();
+    assert!(
+        test.publication(uri.as_str())
+            .await
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.message.contains("unused"))
+    );
+}
+
+#[tokio::test]
+async fn coalesced_multi_project_completion() {
+    let mut test = Harness::new().await;
+    let a = test.project("/a");
+    let b = test.project("/b");
+    let a_result = test.pull(a);
+    let b_result = test.pull(b);
+    test.factory
+        .service_tx
+        .send_replace(ServiceNotification::IndexUpdated);
+    test.subscription.wait().await;
+    let mut seen = std::collections::BTreeSet::new();
+    tokio::time::timeout(Duration::from_secs(3), async {
+        while seen.len() < 2 {
+            if let Some(ServerNotification::PublishDiagnostics(params)) =
+                test.notifications.next().await
+                && !params.diagnostics.is_empty()
+            {
+                seen.insert(params.uri.to_string());
+            }
+        }
+    })
+    .await
+    .unwrap();
+    assert!(seen.contains("file:///a/package.json"));
+    assert!(seen.contains("file:///b/package.json"));
+    let states = test
+        .session
+        .workspace()
+        .pull_project_analysis_states(PullProjectAnalysisStatesParams {
+            project_keys: vec![a, b],
+        })
+        .unwrap();
+    assert!(states.iter().any(|state| state.status
+        == ProjectAnalysisStatus::Completed {
+            revision: a_result.revision.clone()
+        }));
+    assert!(states.iter().any(|state| state.status
+        == ProjectAnalysisStatus::Completed {
+            revision: b_result.revision.clone()
+        }));
+    test.session
+        .workspace()
+        .close_project(CloseProjectParams { project_key: a })
+        .unwrap();
+    assert!(
+        test.publication("file:///a/package.json")
+            .await
+            .diagnostics
+            .is_empty()
+    );
+}
+
+#[test]
+fn project_analysis_configured_mode_and_opt_in() {
+    for (enabled, mode, expected) in [
+        (
+            true,
+            "production",
+            Some(biome_project_analysis::options::AnalysisMode::Production),
+        ),
+        (
+            true,
+            "strict",
+            Some(biome_project_analysis::options::AnalysisMode::Strict),
+        ),
+        (false, "default", None),
+    ] {
+        let source = biome_configuration::ConfigurationSource {
+            root: Some(biome_configuration::ConfigurationSourceEntry {
+                configuration: Some(
+                    serde_json::from_value(
+                        serde_json::json!({"projectAnalysis":{"enabled":enabled,"mode":mode}}),
+                    )
+                    .unwrap(),
+                ),
+                file_path: None,
+                file_source: None,
+            }),
+            ..Default::default()
+        };
+        assert_eq!(
+            crate::project_analysis::configured_request(&source).map(|request| request.mode),
+            expected
+        );
+    }
+}
+
+#[tokio::test]
+#[ignore = "requires a current CLI in BIOME_PROJECT_ANALYSIS_CLI; mandatory separate equivalence gate"]
+async fn overlay_changes_match_cli_snapshot() {
+    let binary = std::env::var_os("BIOME_PROJECT_ANALYSIS_CLI")
+        .expect("set BIOME_PROJECT_ANALYSIS_CLI to the current Cargo-built executable");
+    let root = std::env::temp_dir().join(format!("biome-lsp-project-{}", uuid::Uuid::new_v4()));
+    std::fs::create_dir(&root).unwrap();
+    struct Cleanup(std::path::PathBuf);
+    impl Drop for Cleanup {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+    let _cleanup = Cleanup(root.clone());
+    let mut test = Harness::new().await;
+    let root = camino::Utf8PathBuf::from_path_buf(root).unwrap();
+    let configuration = r#"{"projectAnalysis":{"enabled":true,"mode":"strict","entry":["index.js"],"project":["**/*.js"]}}"#;
+    let manifest = r#"{"name":"fixture","private":true,"dependencies":{"unused":"1"}}"#;
+    let overlay = "console.log('overlay');\n";
+    for (path, text) in [
+        ("biome.json", configuration),
+        ("package.json", manifest),
+        ("index.js", overlay),
+    ] {
+        std::fs::write(root.join(path), text).unwrap();
+        test.fs.insert(root.join(path), text);
+    }
+    test.fs.insert(root.join("index.js"), "import 'unused';\n");
+    let project = test
+        .session
+        .workspace()
+        .open_project(OpenProjectParams {
+            path: root.as_path().into(),
+            open_uninitialized: true,
+        })
+        .unwrap()
+        .project_key;
+    let source = biome_service::configuration::load_configuration(
+        test.fs.as_ref(),
+        biome_configuration::ConfigurationPathHint::FromLsp(root.clone()),
+    )
+    .unwrap();
+    let request = crate::project_analysis::configured_request(&source.source).unwrap();
+    test.session
+        .set_project_analysis_request(project, Some(request.clone()));
+    test.open(project, root.join("index.js").as_str(), overlay);
+    let result = test
+        .session
+        .workspace()
+        .pull_project_diagnostics(PullProjectDiagnosticsParams {
+            project_key: project,
+            request,
+            selection: Default::default(),
+            selection_revision: None,
+            overrides: Default::default(),
+        })
+        .unwrap();
+    assert_eq!(
+        result.context.mode,
+        biome_project_analysis::options::AnalysisMode::Strict
+    );
+    assert!(
+        result
+            .sources
+            .values()
+            .any(|source| source.logical_path.as_str() == "index.js"
+                && matches!(&source.content,SourceContent::Available {text,..} if text==overlay))
+    );
+    let current_revision = result.revision.clone();
+    test.session.publish_project_result(project, result).await;
+    let published = test
+        .publication(&format!("file://{root}/package.json"))
+        .await;
+    let output = std::process::Command::new(binary)
+        .args(["analyze", "--reporter=json", "--colors=off"])
+        .current_dir(&root)
+        .env_remove("BIOME_CONFIG_PATH")
+        .output()
+        .unwrap();
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let cli: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let mut cli_issues: Vec<_> = cli["diagnostics"].as_array().unwrap().iter().filter(|diagnostic| diagnostic["category"]=="project").map(|diagnostic| serde_json::json!({
+        "category":diagnostic["category"], "message":diagnostic["message"], "severity":diagnostic["severity"], "path":diagnostic["location"]["path"],
+        "start":[diagnostic["location"]["start"]["line"].as_u64().unwrap()-1,diagnostic["location"]["start"]["column"].as_u64().unwrap()-1],
+        "end":[diagnostic["location"]["end"]["line"].as_u64().unwrap()-1,diagnostic["location"]["end"]["column"].as_u64().unwrap()-1],
+    })).collect();
+    let mut lsp_issues: Vec<_> = published.diagnostics.iter().filter(|diagnostic| diagnostic.data.is_some()).map(|diagnostic| {
+        let published_revision: biome_project_analysis::model::SnapshotRevision = serde_json::from_value(diagnostic.data.as_ref().unwrap()["revision"].clone()).unwrap();
+        assert_eq!(published_revision,current_revision);
+        let data = diagnostic.data.as_ref().unwrap();
+        let kind = data["kind"].as_str().unwrap();
+        let identity = data["identity"].as_str().unwrap();
+        assert_eq!(diagnostic.code, Some(lsp::NumberOrString::String(format!("project/{kind}"))));
+        assert_eq!(diagnostic.message, format!("{kind}: {identity}"));
+        let severity = match diagnostic.severity.unwrap() {
+            lsp::DiagnosticSeverity::ERROR => "error",
+            lsp::DiagnosticSeverity::WARNING => "warning",
+            lsp::DiagnosticSeverity::INFORMATION => "info",
+            lsp::DiagnosticSeverity::HINT => "hint",
+            other => panic!("unexpected severity {other:?}"),
+        };
+        let path = published.uri.to_file_path().unwrap();
+        let path = path.strip_prefix(root.as_std_path()).unwrap().to_str().unwrap();
+        serde_json::json!({"category":"project","message":diagnostic.message,"severity":severity,"path":path,"start":[diagnostic.range.start.line,diagnostic.range.start.character],"end":[diagnostic.range.end.line,diagnostic.range.end.character]})
+    }).collect();
+    cli_issues.sort_by_key(serde_json::Value::to_string);
+    lsp_issues.sort_by_key(serde_json::Value::to_string);
+    assert!(!cli_issues.is_empty());
+    assert_eq!(lsp_issues, cli_issues);
+}
+
+#[tokio::test]

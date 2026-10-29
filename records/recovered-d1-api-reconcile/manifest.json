@@ -1,0 +1,245 @@
+{
+  "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+  "fragment_count": 13,
+  "not_read_or_not_retained": [
+    "crates/biome_project_analysis/src/report_metadata.rs",
+    "crates/biome_project_analysis/src/provenance.rs",
+    "crates/biome_service/src/project_analysis/request.rs",
+    "crates/biome_cli/src/reporter/project_analysis/mod.rs",
+    "crates/biome_cli/src/reporter/project_analysis/native.rs",
+    "crates/biome_cli/src/reporter/project_analysis/compatibility.rs",
+    "crates/biome_cli/src/reporter/project_analysis/explain.rs"
+  ],
+  "fragments": [
+    {
+      "original_path": "crates/biome_project_analysis/src/lib.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        200,
+        235
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/lib.rs.L200-L235.fragment",
+      "fragment_bytes": 1548,
+      "fragment_sha256": "05ae5f91aa11fa508220b4a38fb4285a0a5dd96307e5dc53668446d96b8844c7",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/result.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        55,
+        101
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/result.rs.L55-L101.fragment",
+      "fragment_bytes": 1989,
+      "fragment_sha256": "120f07e202da00cf0f051c5ceff7e7c5c5320b807ca8162a758635aeb48b0560",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/policy.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        89,
+        118
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/policy.rs.L89-L118.fragment",
+      "fragment_bytes": 1024,
+      "fragment_sha256": "85b0533e8bda3e882f95dfaf6571f21b6fd85301cafd775bb787c6e958821c8c",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/options.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        183,
+        200
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/options.rs.L183-L200.fragment",
+      "fragment_bytes": 837,
+      "fragment_sha256": "1d4b26f1db0f1aaeef6af3ea08af7a410966d59a77c8a6a5d9374f98ca42715d",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis/policy.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        1,
+        150
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_service/src/project_analysis/policy.rs.L1-L150.fragment",
+      "fragment_bytes": 5807,
+      "fragment_sha256": "c4d29e328480862523960c83e5d38c2fdef551bdfdade79c85a983077646d71b",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis/provenance.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        14,
+        102
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_service/src/project_analysis/provenance.rs.L14-L102.fragment",
+      "fragment_bytes": 3556,
+      "fragment_sha256": "db40593dd8c2d585c22c31990fceb4616729ecb2cd2ee58b30b960cd3ab485f2",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        26,
+        74
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_service/src/project_analysis.rs.L26-L74.fragment",
+      "fragment_bytes": 1984,
+      "fragment_sha256": "2817e97ab989ef2a41545327f890d5a81d2bb44ae1d47045cb588ad9fd6e5634",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/normalize.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        1,
+        59
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/normalize.rs.L1-L59.fragment",
+      "fragment_bytes": 1854,
+      "fragment_sha256": "c5546506d2454125bd217bb66215aa7a1d43a25dce0404687d39265eaffe9ce0",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_configuration/src/project_analysis.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        10,
+        14
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_configuration/src/project_analysis.rs.L10-L14.fragment",
+      "fragment_bytes": 242,
+      "fragment_sha256": "3fc8197df4cf236b3092435932acfe5cb1de7f87d990fd72672ea5a7de78e4ae",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction.",
+      "original_git_blob_prefix": "270444f785e"
+    },
+    {
+      "original_path": "crates/biome_configuration/src/project_analysis.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        101,
+        117
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_configuration/src/project_analysis.rs.L101-L117.fragment",
+      "fragment_bytes": 1088,
+      "fragment_sha256": "c841bb4b64dd573a447d695f6fad1b6f4ef2b4f49055516cfbfc1a952c0bdc29",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction.",
+      "original_git_blob_prefix": "270444f785e"
+    },
+    {
+      "original_path": "crates/biome_configuration/src/project_analysis.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        196,
+        207
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_configuration/src/project_analysis.rs.L196-L207.fragment",
+      "fragment_bytes": 618,
+      "fragment_sha256": "1c1f468bbf438faa5bfb4a2a67408c742ccae3a1be9ce58df5316597af4d0490",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction.",
+      "original_git_blob_prefix": "270444f785e"
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/inventory.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        100,
+        127
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_project_analysis/src/inventory.rs.L100-L127.fragment",
+      "fragment_bytes": 741,
+      "fragment_sha256": "9f573f0c1b47d1611d633659ae063486ba1093b4767cf87afa0f700a7a99b367",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    },
+    {
+      "original_path": "crates/biome_service/src/workspace.rs",
+      "baseline_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "stage": "committed baseline e645266; C5 working changes excluded",
+      "original_lines": [
+        1620,
+        1685
+      ],
+      "kind": "literal partial source; not a complete file",
+      "recovery_path": "crates/biome_service/src/workspace.rs.L1620-L1685.fragment",
+      "fragment_bytes": 2690,
+      "fragment_sha256": "d34d96d9b3e25a57490f94e05ecf7ff6c085b50cdd2e8cad4e32acfd932876e2",
+      "full_original_blob_hash": null,
+      "provenance": "Literal git show output retained in D1 reconciliation conversation; no new checkout/source read or reconstruction."
+    }
+  ],
+  "note": "All source fragments are literal retained baseline output; original full blobs unavailable. Hashes identify recovered fragment bytes only. No report_metadata implementation or CLI reporters were read. No guessed reconstruction.",
+  "literal_diffs": [
+    {
+      "original_path": "crates/biome_project_analysis/Cargo.toml",
+      "old_commit": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "new_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "old_blob_prefix": "c1d5a7164ef",
+      "new_blob_prefix": "3c6d7b337f3",
+      "recovery_path": "crates/biome_project_analysis/Cargo.toml.oldmap-to-e645266.diff",
+      "bytes": 843,
+      "sha256": "120cf6c7fae935ca9adfb5a8ed8abf5105cd91a585be0fb7e52f62a5c8f404b2",
+      "provenance": "Exact original git diff excerpt retained in conversation."
+    },
+    {
+      "original_path": "crates/biome_configuration/src/project_analysis.rs",
+      "old_commit": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "new_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+      "old_blob_prefix": "c93fe148667",
+      "new_blob_prefix": "270444f785e",
+      "recovery_path": "crates/biome_configuration/src/project_analysis.rs.oldmap-to-e645266.diff",
+      "bytes": 925,
+      "sha256": "7095c4bbd15da0b4474821c57afe496197a02f2f9f4883f60790827d30f88fbc",
+      "provenance": "Exact original git diff excerpt retained in conversation."
+    }
+  ],
+  "retained_unchanged_full_blob_fingerprints": {
+    "description": "Compared exact baseline bytes to old D1 map, matching SHA-256; full bodies not retained here. Values are original blob-byte SHA-256, not fragment hashes.",
+    "crates/biome_configuration/src/lib.rs": "c1990af407eff75d31aee6c489b7be224f5d8b945de604b7ab991958fff5c4e4",
+    "crates/biome_configuration/tests/project_analysis.rs": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4",
+    "crates/biome_deserialize/src/lib.rs": "861fcb3751916b55f1ece4996326421ef39eeb94c091c881c4b3d91160cc7f72",
+    "crates/biome_deserialize/src/json.rs": "32580af1c982bd22c9c32ac6bd6467ff44f05eb5280f3a6596cdbaad645ad423"
+  }
+}

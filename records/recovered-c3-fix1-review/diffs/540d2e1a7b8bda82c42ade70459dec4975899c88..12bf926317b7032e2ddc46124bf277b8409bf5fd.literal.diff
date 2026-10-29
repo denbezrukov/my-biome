@@ -1,0 +1,499 @@
+diff --git a/crates/biome_lsp/src/project_analysis.rs b/crates/biome_lsp/src/project_analysis.rs
+index 20c26d85b80..ed5dae04b1b 100644
+--- a/crates/biome_lsp/src/project_analysis.rs
++++ b/crates/biome_lsp/src/project_analysis.rs
+@@ -47,6 +47,7 @@ pub(crate) struct ProjectDiagnostics {
+ #[derive(Default)]
+ struct UriDiagnostics {
+     local_sequence: u64,
++    local_document: Option<(i32, Arc<str>)>,
+     local: Vec<Diagnostic>,
+     projects: FxHashMap<ProjectKey, (SnapshotRevision, Vec<Diagnostic>)>,
+ }
+@@ -135,6 +136,19 @@ impl Session {
+ 
+     async fn send_merged(&self, uri: Uri, slots: &mut UriDiagnostics) {
+         self.prune_project_slots(slots);
++        let document = self.document(&uri);
++        if !slots
++            .local_document
++            .as_ref()
++            .is_some_and(|(version, text)| {
++                document.as_ref().is_some_and(|current| {
++                    current.version == *version && Arc::ptr_eq(&current.text, text)
++                })
++            })
++        {
++            slots.local.clear();
++            slots.local_document = None;
++        }
+         let mut diagnostics = slots.local.clone();
+         let mut project_diagnostics: Vec<_> = slots
+             .projects
+@@ -148,7 +162,7 @@ impl Session {
+             .publish_diagnostics(
+                 uri.clone(),
+                 diagnostics,
+-                self.document(&uri).map(|document| document.version),
++                document.map(|document| document.version),
+             )
+             .await;
+     }
+@@ -172,6 +186,7 @@ impl Session {
+             return;
+         }
+         slots.local_sequence = sequence;
++        slots.local_document = Some((document.version, document.text.clone()));
+         slots.local = diagnostics;
+         self.send_merged(uri, &mut slots).await;
+     }
+@@ -180,9 +195,14 @@ impl Session {
+     pub(crate) async fn reconcile_project_diagnostics(self: &Arc<Self>, schedule: bool) {
+         #[cfg(test)]
+         self.project_diagnostics.hooks.before_reconcile.wait().await;
+-        let mut keys: FxHashSet<_> = self.active_project_keys().into_iter().collect();
++        let mut keys: FxHashSet<_> = self
++            .project_diagnostics
++            .requests
++            .lock()
++            .keys()
++            .copied()
++            .collect();
+         keys.extend(self.project_diagnostics.observed.lock().keys().copied());
+-        keys.extend(self.project_diagnostics.requests.lock().keys().copied());
+         keys.extend(self.project_diagnostics.uris.lock().keys().copied());
+         let Ok(states) =
+             self.workspace()
+@@ -398,6 +418,7 @@ impl Session {
+         });
+         slots.local_sequence = self.project_diagnostics.next_sequence();
+         slots.local.clear();
++        slots.local_document = None;
+         let mut completed = Vec::new();
+         if unchanged && closed.is_ok() {
+             #[cfg(test)]
+diff --git a/crates/biome_lsp/src/project_analysis.tests.rs b/crates/biome_lsp/src/project_analysis.tests.rs
+index 0ddf88b701c..20f195f4939 100644
+--- a/crates/biome_lsp/src/project_analysis.tests.rs
++++ b/crates/biome_lsp/src/project_analysis.tests.rs
+@@ -1124,3 +1124,284 @@ async fn completion_at_observed_dirty_generation() {
+             .is_empty()
+     );
+ }
++
++#[tokio::test]
++async fn review_coalesced_ready_refreshes_local_cycles_when_analysis_disabled() {
++    let mut test = Harness::new().await;
++    test.fs.insert(
++        "/project/biome.json".into(),
++        r#"{"projectAnalysis":{"enabled":false},"linter":{"rules":{"recommended":false,"suspicious":{"noImportCycles":"error"}}}}"#,
++    );
++    let a_text = "import { b } from './b.js'; export function a() { b(); }\n";
++    let b_text = "import { a } from './a.js'; export function b() { a(); }\n";
++    test.fs.insert("/project/a.js".into(), a_text);
++    test.fs.insert("/project/b.js".into(), b_text);
++    test.session.load_workspace_settings(false).await;
++    let project = test
++        .session
++        .project_for_path(camino::Utf8Path::new("/project"))
++        .unwrap();
++    let a = test.open(project, "/project/a.js", a_text);
++    let b = test.open(project, "/project/b.js", b_text);
++    test.session.update_diagnostics(a.clone()).await.unwrap();
++    let initial = test.publication(a.as_str()).await;
++    assert!(initial.diagnostics.iter().any(|diagnostic| diagnostic.code
++        == Some(lsp::NumberOrString::String(
++            "lint/suspicious/noImportCycles".into()
++        ))));
++    let states: Vec<ProjectAnalysisState> = test
++        ._server
++        .request(
++            "biome/pull_project_analysis_states",
++            "other-analysis-consumer",
++            PullProjectAnalysisStatesParams {
++                project_keys: vec![project],
++            },
++        )
++        .await
++        .unwrap()
++        .unwrap();
++    assert_eq!(states[0].project_key, project);
++    crate::handlers::text_document::did_change(
++        &test.session,
++        lsp::DidChangeTextDocumentParams {
++            text_document: lsp::VersionedTextDocumentIdentifier { uri: b, version: 8 },
++            content_changes: vec![lsp::TextDocumentContentChangeEvent {
++                range: None,
++                range_length: None,
++                text: "export function b() {}\n".into(),
++            }],
++        },
++    )
++    .await
++    .unwrap();
++    assert!(matches!(
++        *test.factory.service_tx.borrow(),
++        ServiceNotification::ProjectAnalysisReady { .. }
++    ));
++    eprintln!(
++        "initial cycle diagnostic observed; latest coalesced notification is ProjectAnalysisReady; awaiting the unedited file refresh"
++    );
++    test.subscription.wait().await;
++    let updated = test.publication(a.as_str()).await;
++    assert_eq!(updated.version, Some(7));
++    assert!(
++        updated.diagnostics.is_empty(),
++        "the unedited file must lose its resolved import-cycle diagnostic"
++    );
++}
++
++#[tokio::test]
++async fn review_project_withdrawal_rejects_previous_local_version() {
++    let mut test = Harness::new().await;
++    let project = test.project("/project");
++    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
++    let uri = test.open(project, "/project/package.json", text);
++    let document = test.session.document(&uri).unwrap();
++    test.session
++        .publish_local_diagnostics(
++            uri.clone(),
++            &document,
++            test.session.project_diagnostics.next_sequence(),
++            vec![lsp::Diagnostic::new_simple(
++                Default::default(),
++                "previous-local-range".into(),
++            )],
++        )
++        .await;
++    test.publication(uri.as_str()).await;
++    test.session
++        .publish_project_result(project, test.pull(project))
++        .await;
++    test.publication(uri.as_str()).await;
++    let local = test.session.project_diagnostics.hooks.before_local.pause();
++    crate::handlers::text_document::did_change(
++        &test.session,
++        lsp::DidChangeTextDocumentParams {
++            text_document: lsp::VersionedTextDocumentIdentifier {
++                uri: uri.clone(),
++                version: 8,
++            },
++            content_changes: vec![lsp::TextDocumentContentChangeEvent {
++                range: None,
++                range_length: None,
++                text: "{\"private\":true}".into(),
++            }],
++        },
++    )
++    .await
++    .unwrap();
++    local.wait().await;
++    test.session.reconcile_project_diagnostics(false).await;
++    let withdrawn = test.publication(uri.as_str()).await;
++    local.wait().await;
++    assert_eq!(withdrawn.version, Some(8));
++    assert!(
++        withdrawn.diagnostics.is_empty(),
++        "a project withdrawal must not relabel previous local ranges with the edited version"
++    );
++}
++
++async fn replaced_local_document_identity(reopen: bool) {
++    let mut test = Harness::new().await;
++    let project = test.project("/project");
++    let text = "{\n\"private\":true,\n\"dependencies\":{\"unused\":\"1\"}\n}";
++    let uri = test.open(project, "/project/package.json", text);
++    let document = test.session.document(&uri).unwrap();
++    test.session
++        .publish_local_diagnostics(
++            uri.clone(),
++            &document,
++            test.session.project_diagnostics.next_sequence(),
++            vec![lsp::Diagnostic::new_simple(
++                Default::default(),
++                "previous-document-identity".into(),
++            )],
++        )
++        .await;
++    test.publication(uri.as_str()).await;
++    test.session
++        .publish_project_result(project, test.pull(project))
++        .await;
++    test.publication(uri.as_str()).await;
++    if reopen {
++        test.session
++            .workspace()
++            .close_file(CloseFileParams {
++                project_key: project,
++                path: biome_fs::BiomePath::new("/project/package.json"),
++            })
++            .unwrap();
++        test.session.remove_document(&uri);
++        test.open(project, "/project/package.json", text);
++    } else {
++        test.session
++            .insert_document(uri.clone(), Document::new(project, 7, "{\"private\":true}"));
++        test.session
++            .workspace()
++            .change_file(ChangeFileParams {
++                project_key: project,
++                path: biome_fs::BiomePath::new("/project/package.json"),
++                version: 8,
++                content: "{\"private\":true}".into(),
++                inline_config: None,
++                editor_features: None,
++            })
++            .unwrap();
++    }
++    assert!(!Arc::ptr_eq(
++        &document.text,
++        &test.session.document(&uri).unwrap().text
++    ));
++    test.session.reconcile_project_diagnostics(false).await;
++    let withdrawn = test.publication(uri.as_str()).await;
++    assert_eq!(withdrawn.version, Some(7));
++    assert!(
++        withdrawn.diagnostics.is_empty(),
++        "reused version numbers must not make the previous document's local slot current"
++    );
++}
++
++#[tokio::test]
++async fn review_same_version_replacement_rejects_previous_local_identity() {
++    replaced_local_document_identity(false).await;
++}
++
++#[tokio::test]
++async fn review_reopened_document_rejects_previous_local_identity() {
++    replaced_local_document_identity(true).await;
++}
++
++async fn external_configuration_failure(missing: bool) {
++    let mut test = Harness::new().await;
++    test.fs.insert(
++        "/shared/biome.json".into(),
++        r#"{"projectAnalysis":{"enabled":true,"entry":[],"project":[]}}"#,
++    );
++    test.fs.insert(
++        "/project/package.json".into(),
++        r#"{"private":true,"dependencies":{"unused":"1"}}"#,
++    );
++    test.fs.insert("/project/index.js".into(), "export {};\n");
++    let analysis = test
++        .session
++        .project_diagnostics
++        .hooks
++        .before_analysis
++        .pause();
++    let settings = serde_json::json!({"configurationPath":"/shared/biome.json"});
++    test._server
++        .load_configuration_with_settings(settings.clone())
++        .await
++        .unwrap();
++    analysis.wait().await;
++    let project = test
++        .session
++        .project_for_path(camino::Utf8Path::new("/project"))
++        .unwrap();
++    let uri = test.open(project, "/project/index.js", "export {};\n");
++    let other = test.project("/other");
++    let old = test.pull(project);
++    let other_result = test.pull(other);
++    test.session
++        .publish_project_result(project, old.clone())
++        .await;
++    test.publication("file:///project/package.json").await;
++    test.session
++        .publish_project_result(other, other_result.clone())
++        .await;
++    test.publication("file:///other/package.json").await;
++    test.fence().await;
++    while test.notifications.try_recv().is_ok() {}
++    if missing {
++        test.fs.remove(camino::Utf8Path::new("/shared/biome.json"));
++    } else {
++        test.fs.insert("/shared/biome.json".into(), "{");
++    }
++    test._server
++        .load_configuration_with_settings(settings)
++        .await
++        .unwrap();
++    test.session.publish_project_result(project, old).await;
++    test.session
++        .publish_project_result(other, other_result)
++        .await;
++    test.fence().await;
++    let mut primary = Vec::new();
++    let mut unaffected = Vec::new();
++    while let Ok(notification) = test.notifications.try_recv() {
++        if let ServerNotification::PublishDiagnostics(params) = notification {
++            if params.uri.as_str() == "file:///project/package.json" {
++                primary.push(params);
++            } else if params.uri.as_str() == "file:///other/package.json" {
++                unaffected.push(params);
++            }
++        }
++    }
++    analysis.wait().await;
++    assert_eq!(test.session.document(&uri).unwrap().version, 7);
++    assert!(
++        !primary.is_empty(),
++        "failed external configuration must withdraw its project's contribution"
++    );
++    assert!(
++        primary.iter().all(|params| params.diagnostics.is_empty()),
++        "a result accepted under failed external configuration must not remain publishable"
++    );
++    assert!(
++        unaffected
++            .iter()
++            .any(|params| !params.diagnostics.is_empty()),
++        "an unrelated current project must retain its contribution"
++    );
++}
++
++#[tokio::test]
++async fn review_malformed_external_configuration_withdraws_project() {
++    external_configuration_failure(false).await;
++}
++
++#[tokio::test]
++async fn review_missing_external_configuration_withdraws_project() {
++    external_configuration_failure(true).await;
++}
+diff --git a/crates/biome_lsp/src/session.rs b/crates/biome_lsp/src/session.rs
+index d92838567b9..1942f3cae6a 100644
+--- a/crates/biome_lsp/src/session.rs
++++ b/crates/biome_lsp/src/session.rs
+@@ -350,13 +350,13 @@ impl Session {
+                 let stopped = matches!(notification, ServiceNotification::WatcherStopped);
+                 session.reconcile_project_diagnostics(!stopped).await;
+                 match notification {
+-                    ServiceNotification::IndexUpdated => {
++                    ServiceNotification::IndexUpdated
++                    | ServiceNotification::ProjectAnalysisReady { .. } => {
+                         let session = session.clone();
+                         spawn(async move {
+                             session.update_all_diagnostics().await;
+                         });
+                     }
+-                    ServiceNotification::ProjectAnalysisReady { .. } => {}
+                     ServiceNotification::WatcherStopped => break,
+                 }
+             }
+@@ -442,10 +442,6 @@ impl Session {
+             .expect("Scanning task to complete successfully");
+     }
+ 
+-    pub(crate) fn active_project_keys(&self) -> Vec<ProjectKey> {
+-        self.projects.pin().values().copied().collect()
+-    }
+-
+     pub(crate) fn forget_project(&self, project: ProjectKey) {
+         self.projects.pin().retain(|_, key| *key != project);
+     }
+@@ -1167,6 +1163,46 @@ impl Session {
+         }
+     }
+ 
++    /// Resolves the project root independently of whether its configuration can be loaded.
++    fn project_path_for_configuration(&self, base_path: &ConfigurationPathHint) -> Utf8PathBuf {
++        let workspace = self.workspace();
++        let fs = workspace.fs();
++        match base_path {
++            ConfigurationPathHint::FromLsp(path) | ConfigurationPathHint::FromWorkspace(path) => {
++                path.to_path_buf()
++            }
++            ConfigurationPathHint::FromUser(path) => {
++                let workspace_root = self
++                    .get_workspace_folders()
++                    .unwrap_or_default()
++                    .into_iter()
++                    .filter_map(|folder| {
++                        folder
++                            .uri
++                            .to_file_path()
++                            .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
++                    })
++                    .filter(|root| path.starts_with(root))
++                    .max_by_key(|root| root.as_str().len());
++
++                if let Some(root) = workspace_root {
++                    root
++                } else if fs.path_is_file(path) {
++                    path.parent()
++                        .map_or(fs.working_directory().unwrap_or_default(), |p| {
++                            p.to_path_buf()
++                        })
++                } else {
++                    path.to_path_buf()
++                }
++            }
++            _ => self
++                .base_path()
++                .or_else(|| fs.working_directory())
++                .unwrap_or_default(),
++        }
++    }
++
+     #[tracing::instrument(level = "debug", skip(self))]
+     pub(super) async fn load_biome_configuration_file(
+         self: &Arc<Self>,
+@@ -1221,7 +1257,10 @@ impl Session {
+             operations.insert(path_to_index.clone(), tx.clone());
+         }
+ 
+-        if reload && let Some(project) = self.project_for_path(&path_to_index) {
++        if reload
++            && let Some(project) =
++                self.project_for_path(&self.project_path_for_configuration(&base_path))
++        {
+             self.set_project_analysis_request(project, None);
+             self.reconcile_project_diagnostics(false).await;
+         }
+@@ -1347,44 +1386,7 @@ impl Session {
+             configuration.merge_with(inline_configuration);
+         }
+ 
+-        // If the configuration from the LSP or the workspace, the directory path is used as
+-        // the working directory. Otherwise, the base path of the session is used, then the current
+-        // working directory is used as the last resort.
+-        debug!("Configuration path provided {:?}", &base_path);
+-        let project_path = match &base_path {
+-            ConfigurationPathHint::FromLsp(path) | ConfigurationPathHint::FromWorkspace(path) => {
+-                path.to_path_buf()
+-            }
+-            ConfigurationPathHint::FromUser(path) => {
+-                let workspace_root = self
+-                    .get_workspace_folders()
+-                    .unwrap_or_default()
+-                    .into_iter()
+-                    .filter_map(|folder| {
+-                        folder
+-                            .uri
+-                            .to_file_path()
+-                            .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
+-                    })
+-                    .filter(|root| path.starts_with(root))
+-                    .max_by_key(|root| root.as_str().len());
+-
+-                if let Some(root) = workspace_root {
+-                    root
+-                } else if fs.path_is_file(path) {
+-                    path.parent()
+-                        .map_or(fs.working_directory().unwrap_or_default(), |p| {
+-                            p.to_path_buf()
+-                        })
+-                } else {
+-                    path.to_path_buf()
+-                }
+-            }
+-            _ => self
+-                .base_path()
+-                .or_else(|| fs.working_directory())
+-                .unwrap_or_default(),
+-        };
++        let project_path = self.project_path_for_configuration(&base_path);
+ 
+         let project_key = match self.project_for_path(&project_path) {
+             Some(project_key) => project_key,

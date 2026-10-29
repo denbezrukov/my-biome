@@ -1,0 +1,39 @@
+{
+  "recovery_date": "2026-10-29",
+  "agent": "/root/project_b7_fix1_review",
+  "original_repository": "/workspace/my-biome",
+  "review_base": "b0adffecc6ff7d18497f8b487f2f3ef5b0c8ea3f",
+  "review_head": "20104d6aeff4c50f6fb5d308270f747b6bffd878",
+  "files": [
+    {
+      "original_path": "crates/biome_service/src/project_analysis/policy.tests.rs",
+      "version": "20104d6aeff4c50f6fb5d308270f747b6bffd878",
+      "export_path": "20104d6aeff4c50f6fb5d308270f747b6bffd878/crates/biome_service/src/project_analysis/policy.tests.rs",
+      "range": "1-954 (complete file)",
+      "lines": 954,
+      "bytes": 31202,
+      "sha256": "088563eab9e46832d98fe43b3c6a6b5b49a2bc8f7686db0109ad10605b681262",
+      "source": "Literal transcription of the complete, untruncated cat output retained in this agent conversation. HEAD and its parent were independently read and matched the review_head and review_base during the original review.",
+      "original_checksum_available_in_retained_context": false,
+      "base_relationship": "The retained original Git diff records an append-only 255-line change to this file. Lines 1-699 are also the complete base-version contents; lines 700-954 were appended in the fix commit. No base-version export was separately created."
+    }
+  ],
+  "unavailable_literal_source": [
+    "crates/biome_service/src/project_analysis/policy.rs",
+    "crates/biome_service/src/project_analysis/provenance.rs",
+    "crates/biome_service/src/project_analysis/request.rs",
+    "crates/biome_service/src/project_analysis.rs (request definitions/integration)",
+    "crates/biome_service/src/project_analysis/inventory.rs (including requested B6 final lines 872-878 workspace_settings constructor)",
+    "configuration implementation",
+    "generated bindings",
+    "service policy_corpus.tests.rs",
+    "service provenance.tests.rs"
+  ],
+  "not_duplicated_per_parent_instruction": [
+    "crates/biome_project_analysis/src/exports.rs at 20104d6aeff4c50f6fb5d308270f747b6bffd878",
+    "crates/biome_project_analysis/src/members.rs at 20104d6aeff4c50f6fb5d308270f747b6bffd878",
+    "crates/biome_project_analysis/src/options.rs at 20104d6aeff4c50f6fb5d308270f747b6bffd878",
+    "crates/biome_project_analysis/src/policy.rs at 20104d6aeff4c50f6fb5d308270f747b6bffd878"
+  ],
+  "operations": "Wrote only inside the designated recovery directory and checksummed the exported file. No builds, tests, project edits, historical execution commands, exploration of project files or subagents."
+}

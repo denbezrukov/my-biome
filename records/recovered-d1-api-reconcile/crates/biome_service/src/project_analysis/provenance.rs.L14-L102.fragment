@@ -1,0 +1,89 @@
+/// A range is meaningful only for the exact text used by the configuration loader.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ConfigurationOrigin {
+    #[cfg_attr(feature = "schema", schemars(with = "String"))]
+    pub path: Utf8PathBuf,
+    pub digest: String,
+    pub range: TextRange,
+}
+
+impl ProjectAnalysisRequest {
+    /// Retains source identities while resolving the same configuration merge order as the loader.
+    /// The caller supplies the effective mode after resolving configuration and caller overrides;
+    /// this helper does not resolve `configuration.mode`.
+    pub fn from_configuration_source(source: &ConfigurationSource, mode: AnalysisMode) -> Self {
+        use biome_deserialize::Merge;
+        let mut request = Self {
+            configuration: source.resolve().project_analysis.unwrap_or_default(),
+            mode,
+            ..Default::default()
+        };
+        let mut merged = biome_configuration::ProjectAnalysisConfiguration::default();
+        for entry in source
+            .extended_configurations
+            .as_slice()
+            .iter()
+            .map(|extended| &extended.source)
+            .chain(source.root.iter())
+        {
+            let Some(configuration) = entry
+                .configuration
+                .as_ref()
+                .and_then(|configuration| configuration.project_analysis.as_ref())
+            else {
+                continue;
+            };
+            let before = serde_json::to_value(&merged).expect("static configuration");
+            merged.merge_with(configuration.clone());
+            let Some((path, text)) = entry.file_path.as_ref().zip(entry.file_source.as_deref())
+            else {
+                invalidate_origins(
+                    &mut request.configuration_origins,
+                    "",
+                    &serde_json::to_value(configuration).unwrap(),
+                );
+                continue;
+            };
+            let parsed = biome_json_parser::parse_json(
+                text,
+                biome_json_parser::JsonParserOptions::default()
+                    .with_allow_comments()
+                    .with_allow_trailing_commas(),
+            );
+            if parsed.has_errors() {
+                invalidate_origins(
+                    &mut request.configuration_origins,
+                    "",
+                    &serde_json::to_value(configuration).unwrap(),
+                );
+                continue;
+            }
+            let metadata = biome_package::read_project_metadata(&parsed.tree());
+            let Some(value) = metadata.fields.get("projectAnalysis") else {
+                invalidate_origins(
+                    &mut request.configuration_origins,
+                    "",
+                    &serde_json::to_value(configuration).unwrap(),
+                );
+                continue;
+            };
+            let digest = format!("{:x}", Sha256::digest(text.as_bytes()));
+            record_origins(
+                &mut request.configuration_origins,
+                "",
+                value,
+                &before,
+                &serde_json::to_value(configuration).unwrap(),
+                path,
+                &digest,
+            );
+        }
+        let effective = serde_json::to_value(&request.configuration).expect("static configuration");
+        request
+            .configuration_origins
+            .retain(|pointer, _| effective.pointer(pointer).is_some());
+        request
+    }
+}
+

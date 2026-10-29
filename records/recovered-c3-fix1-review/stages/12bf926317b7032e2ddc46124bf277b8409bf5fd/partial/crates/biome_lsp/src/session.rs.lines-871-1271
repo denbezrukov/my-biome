@@ -1,0 +1,401 @@
+    pub(crate) fn can_register_goto_definition(&self) -> bool {
+        let result = self
+            .initialize_params
+            .get()
+            .and_then(|c| c.client_capabilities.text_document.as_ref())
+            .and_then(|c| c.definition.as_ref())
+            .and_then(|c| c.dynamic_registration)
+            == Some(true)
+            && self
+                .extension_settings
+                .read()
+                .editor_features()
+                .contains(EditorFeature::GotoDefinition);
+        info!("Can register gotoDefinition: {result}");
+
+        result
+    }
+
+    /// Get the current workspace folders
+    pub(crate) fn get_workspace_folders(&self) -> Option<Vec<WorkspaceFolder>> {
+        self.workspace_folders.read().clone()
+    }
+
+    pub(crate) fn update_workspace_folders(
+        &self,
+        added: Vec<WorkspaceFolder>,
+        removed: Vec<WorkspaceFolder>,
+    ) {
+        let mut workspace_folders = self.workspace_folders.write();
+
+        if let Some(ref mut folders) = *workspace_folders {
+            if !removed.is_empty() {
+                folders.retain(|folder| !removed.contains(folder));
+            }
+
+            if !added.is_empty() {
+                folders.extend(added);
+            }
+        } else {
+            *workspace_folders = Some(added);
+        }
+    }
+
+    /// Returns the root URI of the workspace as provided by the client
+    pub(crate) fn root_uri(&self) -> Option<Uri> {
+        let initialize_params = self.initialize_params.get()?;
+        initialize_params.root_uri.clone()
+    }
+
+    /// Returns the base path of the workspace on the filesystem if it has one
+    pub(crate) fn base_path(&self) -> Option<Utf8PathBuf> {
+        let initialize_params = self.initialize_params.get()?;
+
+        let root_uri = initialize_params.root_uri.as_ref()?;
+        match root_uri.to_file_path() {
+            Some(base_path) => Some(
+                Utf8PathBuf::from_path_buf(base_path.to_path_buf()).expect("To have a UTF-8 path"),
+            ),
+            None => {
+                error!(
+                    "The Workspace root URI {root_uri:?} could not be parsed as a filesystem path"
+                );
+                None
+            }
+        }
+    }
+
+    /// Returns a reference to the client information for this session
+    pub(crate) fn client_information(&self) -> Option<&ClientInformation> {
+        self.initialize_params.get()?.client_information.as_ref()
+    }
+
+    /// Mark that the initialized() notification has been received
+    pub(crate) fn set_initialized(&self) {
+        self.initialized.store(true, Ordering::Relaxed);
+    }
+
+    /// Returns true if the initialized() notification has been received
+    pub(crate) fn has_initialized(&self) -> bool {
+        self.initialized.load(Ordering::Relaxed)
+    }
+
+    /// Returns the configuration path set by the user in the extension settings
+    pub(crate) fn get_settings_configuration_path(&self) -> Option<Utf8PathBuf> {
+        self.extension_settings.read().configuration_path()
+    }
+
+    /// Resolves the user-provided `configurationPath` setting to an absolute path.
+    ///
+    /// If the path is already absolute, it is returned as-is. If it is relative,
+    /// it is resolved against the appropriate workspace root:
+    ///
+    /// - When `file_path` is provided (e.g. from `did_open`), the workspace folder
+    ///   that contains the file is used as the base for resolution. This ensures
+    ///   that in a multi-root workspace, the relative path is resolved against the
+    ///   correct root rather than an arbitrary one.
+    /// - When `file_path` is `None` (e.g. from `load_workspace_settings`), each
+    ///   workspace folder is tried in order. The closest path to the `file_path` is used.
+    /// - If no workspace folders are registered, the session's `base_path()`
+    ///   (derived from the deprecated `root_uri` initialization parameter) is used
+    ///   as a fallback to keep backwards compatibility.
+    ///
+    /// Returns `None` if no `configurationPath` is set in the extension settings.
+    pub(crate) fn resolve_configuration_path(
+        &self,
+        file_path: Option<&Utf8PathBuf>,
+    ) -> Option<ConfigurationPathHint> {
+        let config_path = self.get_settings_configuration_path()?;
+
+        // Collect workspace folder roots as absolute Utf8PathBufs.
+        let workspace_roots: Vec<Utf8PathBuf> = self
+            .get_workspace_folders()
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|folder| {
+                folder
+                    .uri
+                    .to_file_path()
+                    .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
+            })
+            .collect();
+
+        let hint_for_path = |path: Utf8PathBuf| {
+            Some(if workspace_roots.iter().any(|r| path.starts_with(r)) {
+                ConfigurationPathHint::FromUser(path)
+            } else {
+                ConfigurationPathHint::FromUserExternal(path)
+            })
+        };
+
+        if config_path.is_absolute() {
+            return hint_for_path(config_path);
+        }
+
+        if let Some(file_path) = file_path {
+            // Find the workspace folder that contains this file and resolve
+            // the relative config path against that folder.
+            if let Some(root) = workspace_roots
+                .iter()
+                .filter(|root| file_path.starts_with(*root))
+                .max_by_key(|root| root.as_str().len())
+            {
+                let joined = normalize_path(&root.join(config_path));
+                return hint_for_path(joined);
+            }
+        }
+
+        // No file context, or the file doesn't belong to any known workspace
+        // folder. Without a file to anchor against, we cannot determine which
+        // folder the relative path belongs to, so we fall back to the first
+        // registered workspace folder. This is a best-effort guess; the
+        // correct per-file resolution happens in `did_open` where the file
+        // path is available.
+        if let Some(root) = workspace_roots.first() {
+            let joined = normalize_path(&root.join(&config_path));
+            return hint_for_path(joined);
+        }
+
+        // Fall back to the (deprecated) root_uri base path.
+        if let Some(base) = self.base_path() {
+            let joined = normalize_path(&base.join(&config_path));
+            return hint_for_path(joined);
+        }
+
+        // Nothing to resolve against; return the path unchanged and let the
+        // downstream loader produce a meaningful error.
+        Some(ConfigurationPathHint::FromUserExternal(config_path))
+    }
+
+    /// This function attempts to read the `biome.json` configuration file from
+    /// the root URI and update the workspace settings accordingly
+    #[tracing::instrument(level = "debug", skip(self))]
+    pub(crate) async fn load_workspace_settings(self: &Arc<Self>, reload: bool) {
+        if let Some(config_path) = self.resolve_configuration_path(None) {
+            info!("Detected configuration path in the workspace settings.");
+            let config_file_path = config_path.to_path_buf();
+            let status = self
+                .load_biome_configuration_file(config_path, reload)
+                .await;
+            debug!("Configuration status: {:?}", status);
+            self.record_configuration_status(config_file_path.as_deref(), status);
+        } else if let Some(folders) = self.get_workspace_folders() {
+            info!("Detected workspace folder.");
+            for folder in folders {
+                info!("Attempt to load the configuration file in {:?}", folder.uri);
+                let base_path = folder.uri.to_file_path().map(|p| {
+                    Utf8PathBuf::from_path_buf(p.to_path_buf()).expect("To have a valid UTF-8 path")
+                });
+                match base_path {
+                    Some(base_path) => {
+                        let status = self
+                            .load_biome_configuration_file(
+                                ConfigurationPathHint::FromWorkspace(base_path.clone()),
+                                reload,
+                            )
+                            .await;
+                        debug!("Configuration status: {:?}", status);
+                        self.record_configuration_status(Some(&base_path), status);
+                    }
+                    None => {
+                        error!(
+                            "The Workspace root URI {:?} could not be parsed as a filesystem path",
+                            folder.uri
+                        );
+                    }
+                }
+            }
+        } else {
+            let base_path = match self.base_path() {
+                None => ConfigurationPathHint::default(),
+                Some(path) => ConfigurationPathHint::FromLsp(path),
+            };
+            let config_file_path = base_path.to_path_buf();
+            let status = self.load_biome_configuration_file(base_path, reload).await;
+            self.record_configuration_status(config_file_path.as_deref(), status);
+        }
+    }
+
+    #[instrument(level = "debug", skip(self))]
+    pub(crate) async fn scan_project(
+        self: &Arc<Self>,
+        project_key: ProjectKey,
+        scan_kind: ScanKind,
+        force: bool,
+    ) {
+        let progress_token = ProgressToken::String(Uuid::new_v4().to_string());
+        let is_work_done_progress_supported = self.initialize_params.get().is_some_and(|params| {
+            params
+                .client_capabilities
+                .window
+                .as_ref()
+                .is_some_and(|window| window.work_done_progress == Some(true))
+        });
+
+        // Let the user know the scanning is taking long time using the $/progress notification.
+        let progress = if is_work_done_progress_supported
+            && self
+                .client
+                .send_request::<WorkDoneProgressCreate>(WorkDoneProgressCreateParams {
+                    token: progress_token.clone(),
+                })
+                .await
+                .is_ok()
+        {
+            let progress = self
+                .client
+                .progress(progress_token.clone(), "Biome is scanning the project");
+
+            Some(progress.begin().await)
+        } else {
+            None
+        };
+
+        let session = self.clone();
+
+        spawn_blocking(move || {
+            let result = session.workspace().scan_project(ScanProjectParams {
+                project_key,
+                watch: scan_kind.is_project() || scan_kind.is_type_aware(),
+                force,
+                scan_kind,
+                verbose: false,
+            });
+
+            match result {
+                Ok(result) => {
+                    spawn(async move {
+                        for diagnostic in result.diagnostics {
+                            let message = PrintDescription(&diagnostic).to_string();
+                            session
+                                .client
+                                .log_message(MessageType::ERROR, message)
+                                .await;
+                        }
+                    });
+                }
+                Err(err) => {
+                    let message = PrintDescription(&err).to_string();
+                    spawn(async move {
+                        session
+                            .client
+                            .log_message(MessageType::ERROR, message)
+                            .await;
+                    });
+                }
+            }
+        })
+        .await
+        .unwrap();
+
+        if let Some(progress) = progress {
+            progress.finish().await;
+        }
+    }
+
+    /// Resolves the project root independently of whether its configuration can be loaded.
+    fn project_path_for_configuration(&self, base_path: &ConfigurationPathHint) -> Utf8PathBuf {
+        let workspace = self.workspace();
+        let fs = workspace.fs();
+        match base_path {
+            ConfigurationPathHint::FromLsp(path) | ConfigurationPathHint::FromWorkspace(path) => {
+                path.to_path_buf()
+            }
+            ConfigurationPathHint::FromUser(path) => {
+                let workspace_root = self
+                    .get_workspace_folders()
+                    .unwrap_or_default()
+                    .into_iter()
+                    .filter_map(|folder| {
+                        folder
+                            .uri
+                            .to_file_path()
+                            .and_then(|p| Utf8PathBuf::from_path_buf(p.to_path_buf()).ok())
+                    })
+                    .filter(|root| path.starts_with(root))
+                    .max_by_key(|root| root.as_str().len());
+
+                if let Some(root) = workspace_root {
+                    root
+                } else if fs.path_is_file(path) {
+                    path.parent()
+                        .map_or(fs.working_directory().unwrap_or_default(), |p| {
+                            p.to_path_buf()
+                        })
+                } else {
+                    path.to_path_buf()
+                }
+            }
+            _ => self
+                .base_path()
+                .or_else(|| fs.working_directory())
+                .unwrap_or_default(),
+        }
+    }
+
+    #[tracing::instrument(level = "debug", skip(self))]
+    pub(super) async fn load_biome_configuration_file(
+        self: &Arc<Self>,
+        base_path: ConfigurationPathHint,
+        reload: bool,
+    ) -> ConfigurationStatus {
+        // Check if there's already an ongoing operation for this path
+        let path_to_index = base_path.to_path_buf().unwrap_or_default();
+        let cache_key = ConfigurationCacheKey {
+            base_path: path_to_index.clone(),
+            settings_path: self.get_settings_configuration_path(),
+        };
+        if !reload {
+            let cached = self.configuration_status_by_path.read().await;
+            if let Some(status) = cached.get(&cache_key) {
+                return *status;
+            }
+        }
+        {
+            let operations = self.loading_operations.read().await;
+
+            if let Some(sender) = operations.get(&path_to_index).cloned() {
+                drop(operations); // Release read lock
+
+                // Wait for the ongoing operation to complete
+                let mut receiver = sender.subscribe();
+                match receiver.recv().await {
+                    Ok(status) => {
+                        debug!(
+                            "Reused configuration loading result for path: {:?}",
+                            base_path
+                        );
+                        return status;
+                    }
+                    Err(_) => {
+                        // The sender was dropped or no more messages, continue to load
+                        debug!(
+                            "Configuration loading broadcast ended for path: {:?}",
+                            base_path
+                        );
+                    }
+                }
+            }
+        }
+
+        // Create a broadcast channel for this operation
+        let (tx, _rx) = tokio::sync::broadcast::channel(1);
+
+        // Store the receiver for other tasks to subscribe to
+        {
+            let mut operations = self.loading_operations.write().await;
+            operations.insert(path_to_index.clone(), tx.clone());
+        }
+
+        if reload
+            && let Some(project) =
+                self.project_for_path(&self.project_path_for_configuration(&base_path))
+        {
+            self.set_project_analysis_request(project, None);
+            self.reconcile_project_diagnostics(false).await;
+        }
+
+        // Perform the actual loading
+        let status = self
+            .load_biome_configuration_file_internal(base_path.clone(), reload)
+            .await;

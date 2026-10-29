@@ -1,0 +1,47 @@
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProjectAnalysisResult {
+    /// Missing metadata means the producer did not capture report presentation facts.
+    #[serde(default)]
+    pub report_metadata: Option<crate::report_metadata::ProjectReportMetadata>,
+    #[serde(default)]
+    pub policy: crate::policy::PolicyCauses,
+    pub catalogs: crate::catalogs::CatalogAnalysis,
+    pub cycles: crate::cycles::CycleAnalysis,
+    pub resolution: crate::resolution::ResolutionAnalysis,
+    #[serde(default)]
+    pub dependencies: crate::dependencies::DependencyAnalysis,
+    pub exports: crate::exports::ExportAnalysis,
+    pub members: crate::members::MemberAnalysis,
+    pub revision: SnapshotRevision,
+    pub context: AnalysisContext,
+    #[cfg_attr(feature = "schema", schemars(with = "BTreeMap<String, SourceRecord>"))]
+    pub sources: BTreeMap<FileId, SourceRecord>,
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "BTreeMap<String, WorkspaceRecord>")
+    )]
+    pub workspaces: BTreeMap<WorkspaceId, WorkspaceRecord>,
+    pub coverage: Coverage,
+    pub capabilities: BTreeMap<IssueKind, CapabilityStatus>,
+    pub issues: Vec<ProjectIssue>,
+    pub hints: Vec<AnalysisHint>,
+    pub evidence: EvidenceGraph,
+    pub membership: crate::reachability::AnalysisMembership,
+    pub gaps: Vec<crate::reachability::ReachabilityGap>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AnalysisContext {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub virtual_scope: Option<crate::model::VirtualAnalysisScope>,
+    pub mode: AnalysisMode,
+    pub profile_id: String,
+    pub semantic_options_digest: String,
+    pub scope: Vec<WorkspaceId>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

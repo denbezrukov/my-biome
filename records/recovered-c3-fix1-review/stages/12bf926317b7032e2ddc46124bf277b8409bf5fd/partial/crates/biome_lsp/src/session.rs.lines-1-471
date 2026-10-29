@@ -1,0 +1,471 @@
+use crate::diagnostics::LspError;
+use crate::documents::Document;
+use crate::extension_settings::{CONFIGURATION_SECTION, ExtensionSettings};
+use crate::utils;
+use anyhow::Result;
+use biome_analyze::RuleCategoriesBuilder;
+use biome_configuration::{Configuration, ConfigurationPathHint};
+use biome_console::markup;
+use biome_deserialize::Merge;
+use biome_diagnostics::{PrintDescription, Severity};
+use biome_fs::{BiomePath, normalize_path};
+use biome_line_index::WideEncoding;
+use biome_lsp_converters::{PositionEncoding, negotiated_encoding};
+use biome_service::WorkspaceError;
+use biome_service::configuration::{ProjectScanComputer, load_configuration, load_editorconfig};
+use biome_service::db::DbState;
+use biome_service::diagnostics::ConfigurationOutsideProject;
+use biome_service::file_handlers::astro::AstroFileHandler;
+use biome_service::file_handlers::svelte::SvelteFileHandler;
+use biome_service::file_handlers::vue::VueFileHandler;
+use biome_service::projects::ProjectKey;
+use biome_service::settings::{EditorFeature, ModuleGraphResolutionKind};
+use biome_service::workspace::{
+    FeaturesBuilder, GetFileContentParams, OpenProjectParams, OpenProjectResult,
+    PullDiagnosticsParams, RetryingWorkspace, SupportsFeatureParams,
+};
+use biome_service::workspace::{FileFeaturesResult, ServiceNotification};
+use biome_service::workspace::{RageEntry, RageParams, RageResult, UpdateSettingsParams};
+use biome_service::workspace::{ScanKind, ScanProjectParams};
+use biome_service::{Workspace, WorkspaceServer};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use futures::StreamExt;
+use futures::stream::futures_unordered::FuturesUnordered;
+use papaya::{HashMap, HashSet};
+use parking_lot::RwLock;
+use rustc_hash::{FxBuildHasher, FxHashMap};
+use serde_json::Value;
+use std::sync::Arc;
+use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicBool, AtomicI32};
+use std::time::Duration;
+use tokio::spawn;
+use tokio::sync::Notify;
+use tokio::sync::OnceCell;
+use tokio::sync::RwLock as TokioRwLock;
+use tokio::sync::watch;
+use tokio::task::spawn_blocking;
+use tokio::time::sleep;
+use tower_lsp_server::Client;
+use tower_lsp_server::ls_types::{
+    self as lsp, ClientCapabilities, Diagnostic, MessageType, ProgressToken, Registration,
+    Unregistration, Uri, WorkDoneProgressCreateParams, WorkspaceFolder,
+    request::WorkDoneProgressCreate,
+};
+use tracing::{debug, error, info, instrument, warn};
+use uuid::Uuid;
+
+pub(crate) struct ClientInformation {
+    /// The name of the client
+    pub(crate) name: String,
+
+    /// The version of the client
+    pub(crate) version: Option<String>,
+}
+
+/// Key, uniquely identifying a LSP session.
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
+pub(crate) struct SessionKey(pub u64);
+
+#[derive(Clone, Hash, PartialEq, Eq)]
+struct ConfigurationCacheKey {
+    base_path: Utf8PathBuf,
+    settings_path: Option<Utf8PathBuf>,
+}
+
+const DIAGNOSTICS_DEBOUNCE: Duration = Duration::from_millis(250);
+
+struct DiagnosticsEntry {
+    /// The version of the document that was last scheduled for diagnostics.
+    scheduled_version: AtomicI32,
+    /// Whether diagnostics are currently being computed for this document.
+    running: AtomicBool,
+    /// Whether diagnostics should be recomputed after the current one completes.
+    /// This is used when multiple calls are queued, and we need to re-compute diagnostics for the last version of the document.
+    rerun_after_current: AtomicBool,
+    /// Whether the diagnostics entry has been closed.
+    closed: AtomicBool,
+}
+
+impl DiagnosticsEntry {
+    fn new(version: i32) -> Self {
+        Self {
+            scheduled_version: AtomicI32::new(version),
+            running: AtomicBool::new(false),
+            rerun_after_current: AtomicBool::new(false),
+            closed: AtomicBool::new(false),
+        }
+    }
+}
+
+/// Represents the state of an LSP server session.
+pub(crate) struct Session {
+    /// The unique key identifying this session.
+    pub(crate) key: SessionKey,
+
+    /// The LSP client for this session.
+    pub(crate) client: Client,
+
+    /// The parameters provided by the client in the "initialize" request
+    initialize_params: OnceCell<InitializeParams>,
+
+    /// Tracks workspace folders. They can change during the lifecycle of the server
+    workspace_folders: RwLock<Option<Vec<WorkspaceFolder>>>,
+
+    /// The settings of the Biome extension (under the `biome` namespace)
+    pub(crate) extension_settings: RwLock<ExtensionSettings>,
+
+    pub(crate) workspace: Arc<WorkspaceServer>,
+    db_state: Arc<DbState>,
+
+    /// Configuration status tracked independently per project key.
+    configuration_status: HashMap<ProjectKey, ConfigurationStatus>,
+
+    /// Remembers which projects we have already warned the user about having a
+    /// broken configuration, so we don't show the same warning again every time
+    /// we refresh that project's diagnostics.
+    notified_broken_configuration: HashSet<ProjectKey>,
+
+    /// Tracks whether the initialized() notification has been received
+    initialized: AtomicBool,
+
+    /// Projects opened in this session, mapped from the project's root path to
+    /// the associated project key.
+    projects: HashMap<BiomePath, ProjectKey>,
+
+    /// Documents opened in this session.
+    documents: HashMap<Uri, Document, FxBuildHasher>,
+
+    /// Pending and active diagnostic refreshes for open documents.
+    diagnostics: HashMap<Uri, Arc<DiagnosticsEntry>, FxBuildHasher>,
+
+    pub(crate) cancellation: Arc<Notify>,
+    pub(crate) project_diagnostics: crate::project_analysis::ProjectDiagnostics,
+
+    /// Receiver for service notifications.
+    ///
+    /// If we receive a notification here, diagnostics for open documents are
+    /// all refreshed.
+    service_rx: watch::Receiver<ServiceNotification>,
+
+    /// Lock used to synchronize multiple atomic operations to load the configuration file
+    loading_operations:
+        TokioRwLock<FxHashMap<Utf8PathBuf, tokio::sync::broadcast::Sender<ConfigurationStatus>>>,
+
+    /// Cached configuration status per base path to avoid reloading on every request.
+    configuration_status_by_path:
+        TokioRwLock<FxHashMap<ConfigurationCacheKey, ConfigurationStatus>>,
+}
+
+/// The parameters provided by the client in the "initialize" request
+struct InitializeParams {
+    /// The capabilities provided by the client as part of [`ls_types::InitializeParams`]
+    client_capabilities: ClientCapabilities,
+    client_information: Option<ClientInformation>,
+    root_uri: Option<Uri>,
+}
+
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+pub(crate) enum ConfigurationStatus {
+    /// The configuration file was properly loaded
+    Loaded = 0,
+    /// The configuration file does not exist
+    Missing = 1,
+    /// The configuration file exists but could not be loaded
+    Error = 2,
+    /// The `.editorconfig` file has some errors that biome can't solve
+    EditorConfigError = 3,
+    /// Currently loading the configuration
+    Loading = 4,
+    /// The configuration file is correct, but the plugins cannot be loaded
+    PluginError = 5,
+}
+
+impl ConfigurationStatus {
+    pub(crate) const fn is_error(&self) -> bool {
+        matches!(self, Self::Error)
+    }
+
+    pub(crate) const fn is_editorconfig_error(&self) -> bool {
+        matches!(self, Self::EditorConfigError)
+    }
+
+    pub(crate) const fn is_plugin_error(&self) -> bool {
+        matches!(self, Self::PluginError)
+    }
+
+    pub(crate) const fn is_loaded(&self) -> bool {
+        matches!(self, Self::Loaded)
+    }
+}
+
+impl TryFrom<u8> for ConfigurationStatus {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, ()> {
+        match value {
+            0 => Ok(Self::Loaded),
+            1 => Ok(Self::Missing),
+            2 => Ok(Self::Error),
+            3 => Ok(Self::EditorConfigError),
+            4 => Ok(Self::Loading),
+            5 => Ok(Self::PluginError),
+            _ => Err(()),
+        }
+    }
+}
+
+pub(crate) type SessionHandle = Arc<Session>;
+
+/// Holds the set of capabilities supported by the Language Server
+/// instance and whether they are enabled or not
+#[derive(Default)]
+pub(crate) struct CapabilitySet {
+    registry: FxHashMap<&'static str, (&'static str, CapabilityStatus)>,
+}
+
+/// Represents whether a capability is enabled or not, optionally holding the
+/// configuration associated with the capability
+pub(crate) enum CapabilityStatus {
+    Enable(Option<Value>),
+    Disable,
+}
+
+impl CapabilitySet {
+    /// Insert a capability in the set
+    pub(crate) fn add_capability(
+        &mut self,
+        id: &'static str,
+        method: &'static str,
+        status: CapabilityStatus,
+    ) {
+        self.registry.insert(id, (method, status));
+    }
+}
+
+impl Session {
+    pub(crate) fn new(
+        key: SessionKey,
+        client: Client,
+        workspace: Arc<WorkspaceServer>,
+        db_state: Arc<DbState>,
+        cancellation: Arc<Notify>,
+        service_rx: watch::Receiver<ServiceNotification>,
+    ) -> Self {
+        let config = RwLock::new(ExtensionSettings::new());
+        Self {
+            key,
+            client,
+            initialize_params: OnceCell::default(),
+            workspace,
+            db_state,
+            configuration_status: Default::default(),
+            projects: Default::default(),
+            documents: Default::default(),
+            diagnostics: Default::default(),
+            project_diagnostics: Default::default(),
+            extension_settings: config,
+            cancellation,
+            notified_broken_configuration: Default::default(),
+            initialized: AtomicBool::new(false),
+            service_rx,
+            loading_operations: Default::default(),
+            configuration_status_by_path: Default::default(),
+            workspace_folders: Default::default(),
+        }
+    }
+
+    /// Returns the workspace, wrapped so that any call interrupted by a
+    /// concurrent update to the workspace database is automatically retried.
+    ///
+    /// Use this accessor in code where nobody would re-send the work if we
+    /// dropped it:
+    ///
+    /// - **LSP notifications**, i.e. one-way messages from the editor, such
+    ///   as `textDocument/didOpen`, `textDocument/didChange` and
+    ///   `textDocument/didClose`. The editor sends them once and never asks
+    ///   again: dropping a `didChange` would leave our copy of the document
+    ///   permanently out of sync with the editor.
+    /// - **Background tasks** the server starts on its own, such as
+    ///   refreshing the diagnostics of the open documents or loading the
+    ///   configuration file. Project scans run inside an epoch that queues
+    ///   setter-based writes instead of retrying the traversal.
+    ///
+    /// LSP request handlers (formatting, code actions, ...) should use
+    /// [Self::workspace_for_request] instead.
+    pub(crate) fn workspace(&self) -> impl Workspace + '_ {
+        RetryingWorkspace::new(self.workspace.with_db_state(&self.db_state))
+    }
+
+    /// Returns the workspace without automatic retries.
+    ///
+    /// Use this accessor in **LSP request handlers**, i.e. handlers for
+    /// messages the editor sends and awaits an answer for, such as
+    /// `textDocument/formatting` or `textDocument/codeAction`. These handlers
+    /// run inside `catch_lsp_operation`, which turns an interrupted call into
+    /// a `ContentModified` response.
+    ///
+    /// Requests must not retry on their own, because their positions and
+    /// ranges are only meaningful for the document version the editor sent
+    /// them for. If the user types while we compute code actions for line 10,
+    /// a retry would compute them for whatever moved to line 10 after the
+    /// edit. Answering with `ContentModified` instead makes the editor
+    /// re-send the request with fresh positions, if it still needs it.
+    pub(crate) fn workspace_for_request(&self) -> impl Workspace + '_ {
+        self.workspace.with_db_state(&self.db_state)
+    }
+
+    /// Initialize this session instance with the incoming initialization parameters from the client
+    #[instrument(level = "debug", skip_all)]
+    pub(crate) fn initialize(
+        self: &Arc<Self>,
+        client_capabilities: ClientCapabilities,
+        client_information: Option<ClientInformation>,
+        root_uri: Option<Uri>,
+        workspace_folders: Option<Vec<WorkspaceFolder>>,
+    ) {
+        let result = self.initialize_params.set(InitializeParams {
+            client_capabilities,
+            client_information,
+            root_uri,
+        });
+
+        {
+            let mut this_workspace_folders = self.workspace_folders.write();
+            *this_workspace_folders = workspace_folders;
+        }
+
+        if let Err(err) = result {
+            error!("Failed to initialize session: {err}");
+        }
+
+        let session = self.clone();
+        spawn(async move {
+            let mut service_data_rx = session.service_rx.clone();
+            session.reconcile_project_diagnostics(true).await;
+            while let Ok(()) = service_data_rx.changed().await {
+                let notification = service_data_rx.borrow_and_update().clone();
+                let stopped = matches!(notification, ServiceNotification::WatcherStopped);
+                session.reconcile_project_diagnostics(!stopped).await;
+                match notification {
+                    ServiceNotification::IndexUpdated
+                    | ServiceNotification::ProjectAnalysisReady { .. } => {
+                        let session = session.clone();
+                        spawn(async move {
+                            session.update_all_diagnostics().await;
+                        });
+                    }
+                    ServiceNotification::WatcherStopped => break,
+                }
+            }
+        });
+    }
+
+    /// Register a set of capabilities with the client
+    pub(crate) async fn register_capabilities(&self, capabilities: CapabilitySet) {
+        let mut registrations = Vec::new();
+        let mut unregistrations = Vec::new();
+
+        let mut register_methods = String::new();
+        let mut unregister_methods = String::new();
+
+        for (id, (method, status)) in capabilities.registry {
+            unregistrations.push(Unregistration {
+                id: id.to_string(),
+                method: method.to_string(),
+            });
+
+            if !unregister_methods.is_empty() {
+                unregister_methods.push_str(", ");
+            }
+
+            unregister_methods.push_str(method);
+
+            if let CapabilityStatus::Enable(register_options) = status {
+                registrations.push(Registration {
+                    id: id.to_string(),
+                    method: method.to_string(),
+                    register_options,
+                });
+
+                if !register_methods.is_empty() {
+                    register_methods.push_str(", ");
+                }
+
+                register_methods.push_str(method);
+            }
+        }
+
+        if let Err(e) = self.client.unregister_capability(unregistrations).await {
+            error!(
+                "Error unregistering {unregister_methods:?} capabilities: {}",
+                e
+            );
+        } else {
+            info!("Unregister capabilities {unregister_methods:?}");
+        }
+
+        if let Err(e) = self.client.register_capability(registrations).await {
+            error!("Error registering {register_methods:?} capabilities: {}", e);
+        } else {
+            info!("Register capabilities {register_methods:?}");
+        }
+    }
+
+    /// Returns the key for the project that should be used for a given path.
+    pub(crate) fn project_for_path(&self, path: &Utf8Path) -> Option<ProjectKey> {
+        self.projects
+            .pin()
+            .iter()
+            .filter(|(project_path, _project_key)| path.starts_with(project_path.as_path()))
+            .max_by_key(|(project_path, _project_key)| project_path.as_str().len())
+            .map(|(_project_path, project_key)| *project_key)
+    }
+
+    /// Registers an open project with its root path and scans the folder.
+    #[tracing::instrument(level = "debug", skip(self))]
+    pub(crate) async fn insert_and_scan_project(
+        self: &Arc<Self>,
+        project_key: ProjectKey,
+        path: BiomePath,
+        scan_kind: ScanKind,
+        force: bool,
+    ) {
+        self.projects.pin().insert(path.clone(), project_key);
+
+        // Spawn the scan in the background, to avoid timing out the LSP request.
+        let session = self.clone();
+        spawn(async move { session.scan_project(project_key, scan_kind, force).await })
+            .await
+            .expect("Scanning task to complete successfully");
+    }
+
+    pub(crate) fn forget_project(&self, project: ProjectKey) {
+        self.projects.pin().retain(|_, key| *key != project);
+    }
+
+    pub(crate) fn open_documents(&self) -> Vec<(Uri, Document)> {
+        self.documents
+            .pin()
+            .iter()
+            .map(|(uri, doc)| (uri.clone(), doc.clone()))
+            .collect()
+    }
+
+    /// Get a [`Document`] matching the provided [`Uri`]
+    ///
+    /// If document does not exist, result is [WorkspaceError::NotFound]
+    pub(crate) fn document(&self, url: &Uri) -> Option<Document> {
+        self.documents.pin().get(url).cloned()
+    }
+
+    /// Set the [`Document`] for the provided [`Uri`]
+    ///
+    /// Used by [`handlers::text_document] to synchronize documents with the client.
+    pub(crate) fn insert_document(&self, url: Uri, document: Document) {
+        self.documents.pin().insert(url, document);
+    }
+
+    /// Remove the [`Document`] matching the provided [`Uri`]
