@@ -1,0 +1,23 @@
+*** Begin Patch
+*** Update File: crates/biome_service/src/project_analysis.rs
+@@
+ mod rpc;
++
++#[cfg(all(test, feature = "module_graph", feature = "lang_js"))]
++#[path = "project_analysis/watch.tests.rs"]
++mod watch_tests;
+*** Update File: crates/biome_service/src/scanner/watcher.tests.rs
+@@
+ use super::*;
++
++#[test]
++fn watch_ambiguous_event_reconciles_existing_file() {
++    let mut fs = TemporaryFs::new("watch_ambiguous_event_reconciles_existing_file");
++    let path = fs.create_file("index.ts", "export const value = 1;");
++    let os = fs.create_os();
++    let (bridge, _) = MockWorkspaceWatcherBridge::new(&os, ProjectKey::new(), ScanKind::Project);
++    let diagnostics = Watcher::handle_notify_event(&bridge, NotifyEvent::new(EventKind::Any).add_path(path.clone().into_std_path_buf()));
++    assert!(diagnostics.is_empty());
++    assert!(bridge.indexed_files.pin().contains(&path), "ambiguous events must reindex current files");
++}
+*** End Patch

@@ -1,0 +1,15 @@
+from pathlib import Path
+import json,hashlib
+root=Path('xtask/project_analysis/fixtures/watch')
+fixtures={
+'application': {'biome.json':'{"projectAnalysis":{"enabled":true}}\n','package.json':'{"name":"owned-application","private":true,"scripts":{"start":"node index.js"}}\n','index.js':'import { value } from "./lib.js";\nconsole.log(value);\n','lib.js':'export const value = 1;\nexport const unused = 2;\n'},
+'library': {'biome.json':'{"projectAnalysis":{"enabled":true}}\n','package.json':'{"name":"owned-library","exports":"./index.js"}\n','index.js':'export { value } from "./lib.js";\n','lib.js':'export const value = 1;\nexport const unused = 2;\n'},
+'workspace': {'biome.json':'{"projectAnalysis":{"enabled":true}}\n','package.json':'{"name":"owned-workspace","private":true,"workspaces":["packages/*"]}\n','packages/app/package.json':'{"name":"owned-app","private":true,"scripts":{"start":"node index.js"}}\n','packages/app/index.js':'import { value } from "../lib/index.js";\nconsole.log(value);\n','packages/lib/package.json':'{"name":"owned-lib","exports":"./index.js"}\n','packages/lib/index.js':'export const value = 1;\nexport const unused = 2;\n'},
+}
+projects=[]
+for name,files in fixtures.items():
+ for path,content in files.items():
+  p=root/name/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(content)
+ source='packages/lib/index.js' if name=='workspace' else 'lib.js'
+ projects.append({'name':name,'root':name,'files':{p:hashlib.sha256(s.encode()).hexdigest() for p,s in files.items()},'mutations':[{'name':'source','changes':{source:'export const value = 3;\nexport const unused = 4;\n'}},{'name':'membership','changes':{'created/member.js':'export const member = 1;\n'}},{'name':'manifest','changes':{'package.json':json.dumps({**json.loads(files['package.json']),'optionalDependencies':{'uninstalled':'1.0.0'}})+'\n'}}]})
+(root/'pinned-projects.json').write_text(json.dumps({'schema_version':1,'projects':projects},indent=2)+'\n')

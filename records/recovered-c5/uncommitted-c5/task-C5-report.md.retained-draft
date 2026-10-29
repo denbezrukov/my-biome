@@ -1,0 +1,21 @@
+# C5 implementation report
+
+Status: IN PROGRESS. No completion or passing verification claim.
+Base: `e645266862c389ffaae3c7e72aeac7b6e02b162d`.
+Branch: `feat/native-project-analysis`.
+
+## Scope and authority
+
+Requirements: task-C5-brief.md, task-C5-handoff.md, task-C5-execution-handoff.md. Current API authority: `/workspace/.biome-cloud/knip-design/c5-current-api-reconciliation.md`, parent verified against this base. A5 report and existing acquisition/result cache inspected. Changed revisions retain authorized fresh Shared/Owned acquisition; no competing resolver, graph, plugin/runtime bridge, or incremental speedup claim.
+
+Seven approved untracked design documents remain excluded from this task. SCSS branch and all prior evidence remain preserved. Parent owns independent review and capacity operations. No subagents were spawned.
+
+## Evidence recording
+
+`c5-logs/record.py` adapts the C4 gate recorder to the C5 base and log directory. It records exact commands/environment/status/storage, freezes changed and control source bytes, and hashes actual Cargo-reported executables. Commands activate `/workspace/.biome-cloud/activate.sh`, override `CARGO_BUILD_JOBS=1`, retain no incremental compilation and default stack. Start floors: workspace 1.4 GiB and tmp 1.25 GiB.
+
+`watcher-red.log` is NOT causal RED. The isolated command `cargo test --locked --offline -p biome_cli --test main cases::watcher --message-format=json` began compiling a different dev-feature union. It was interrupted with SIGINT (exit -2) before any tests/executables; partial artifacts were preserved. Available workspace dropped to 1,471,995,904 bytes, below the floor. All heavy work was held and the parent was notified. Subsequent focused runs must select the exact existing five-package union without a test-target restriction, using name filters.
+
+## Pending
+
+Causal RED, implementation, focused GREEN, benchmark graph reconciliation/execution, final affected verification, formatting/lint, any required generation, changeset, full self-review and commit are still pending.

@@ -2393,6 +2393,151 @@
       "sha256": "5d3074d0d19f1aaa6186e2b89b949733294c588b0479ff04148000bd5fe5f702"
     },
     {
+      "path": "records/recovered-c5/README.md",
+      "bytes": 3772,
+      "sha256": "0faa0caeefe8900eaa363e3cdfa9f3b17d4882cdd3e0adfd3e96655f3e055e77"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/Cargo.toml",
+      "bytes": 5030,
+      "sha256": "a91281f9584baf4a397ee9f729cfeb4856b25a1ac926fe640e205f90237152af"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/commands/analyze.rs",
+      "bytes": 7414,
+      "sha256": "ca0cd5206c17957d22b7e4c74fe9a4b7e59d344bf16ba2a4424b424ea831bdac"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/diagnostics.rs",
+      "bytes": 19485,
+      "sha256": "7e162b1e470a2a7da7e78ac81dced53cb3c7a3ba798ebf5f9404703afa7e69a9"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "bytes": 19361,
+      "sha256": "6567ba33ca72d95e27e9cf359297e4b6be2fcde6f286c1a8f6d1322e11522e4c"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/runner/impls/watchers/default.rs",
+      "bytes": 2611,
+      "sha256": "4fbfd1b87375baa2e301aea1c17729579011c706f244cdbf0fc90e023112397e"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/runner/impls/watchers/mock.rs",
+      "bytes": 614,
+      "sha256": "48906de704a5721ab001cb30659a1b1add7e5ffebc3929a8559a1c1a0b007d79"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/runner/project_analysis.rs",
+      "bytes": 21511,
+      "sha256": "3ab3760675a4547eff624e483cf477e3b3057dd9f203e39da3437e6b902c45a0"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_cli/src/runner/watcher.rs",
+      "bytes": 466,
+      "sha256": "bafc2563989c4382918f06b64ced2366795c2c85ba85a5692450b6569152c062"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_project_analysis/src/coverage.rs",
+      "bytes": 1733,
+      "sha256": "f5a254372ffbe6bd1e434fca1d68692a5a58d7025630b3d835e4ec4a508fbf08"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_project_analysis/src/model.rs",
+      "bytes": 5362,
+      "sha256": "f32c69a510bfb849bca984ac712318c2420fde68cda4c50f6828122ad4229e17"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_service/src/project_analysis.rs",
+      "bytes": 4275,
+      "sha256": "440a2783e5da58e3254649f4101b821b14830843ee11d5a36587d500a8bd2b9e"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_service/src/project_analysis/pinned_fs.rs",
+      "bytes": 6506,
+      "sha256": "cd1b2c7208cfcbcac56b75871b907d82c8e51e069d4348ade6ecc449817f1e31"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_service/src/project_analysis/snapshot.rs",
+      "bytes": 25979,
+      "sha256": "ce53ad7391f700339040014a4e8253aa473b21dbd300628feeafe1154e0a2a6e"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_service/src/project_analysis/transport.rs",
+      "bytes": 5426,
+      "sha256": "c7ff275202b0214496765766d3bc826cc42f3c454f3153d41219aa52c3433d99"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/crates/biome_service/src/scanner/watcher.rs",
+      "bytes": 21566,
+      "sha256": "34c749af55c2411fc51f7ff5f4c1a6479f514a0d90bc57108cdfb3fdcdbe9b1e"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/xtask/project_analysis/Cargo.toml",
+      "bytes": 516,
+      "sha256": "242bc9d6b4c728101d1f7cbb8e2834a55336aaea5073a93ae7c7af62706a4591"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/xtask/project_analysis/src/execution.rs",
+      "bytes": 8604,
+      "sha256": "c8834babbbecfac8bcc6c4c9fc11ea02e61321cbd495bd55f2c86380ae825315"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/xtask/project_analysis/src/main.rs",
+      "bytes": 3361,
+      "sha256": "b4ae294bb933e68ca0fbad1e65f55fad3b8ff545efe39d8762184c53c43756a5"
+    },
+    {
+      "path": "records/recovered-c5/base-e645266/xtask/project_analysis/tests/cli.rs",
+      "bytes": 1327,
+      "sha256": "7b567db06e7fa19669fbe2a4289487d4cd8879e5e6675e9eb5c3e7e7987bb0ea"
+    },
+    {
+      "path": "records/recovered-c5/historical-gate-state.md",
+      "bytes": 4443,
+      "sha256": "e5b181374c5e6e48b9fc68ecb6a180155c3219f95657ceafb389757b5dee772b"
+    },
+    {
+      "path": "records/recovered-c5/manifest.json",
+      "bytes": 16067,
+      "sha256": "b17ac1694ff60b4bf1dd394957133e799d05f63ffbb89a18bdc3019791455b89"
+    },
+    {
+      "path": "records/recovered-c5/partial-e645266/crates/biome_cli/src/runner/mod.rs.transcription-unverified",
+      "bytes": 31917,
+      "sha256": "6c6165acbeacb4898507b97e3e20472e33a594d12f13bec35956e49471523f45"
+    },
+    {
+      "path": "records/recovered-c5/partial-e645266/crates/biome_project_analysis/src/result.rs.lines-1-130",
+      "bytes": 4133,
+      "sha256": "ba03e9af6c5aac548699ecb302adbf82a1e791a27b57d63f57e9f134a505d2a8"
+    },
+    {
+      "path": "records/recovered-c5/uncommitted-c5/crates/biome_cli/tests/cases/watcher.rs",
+      "bytes": 4845,
+      "sha256": "50aac4ca2a316612eb3f0bc3abcbf5de1ad4b2b8b8a18aebceb5d447dbb5748c"
+    },
+    {
+      "path": "records/recovered-c5/uncommitted-c5/crates/biome_service/src/project_analysis/watch.tests.rs",
+      "bytes": 8026,
+      "sha256": "813c3d943cdbc39c054b33a55f8d981a134402075efa973222fc9012917f4e29"
+    },
+    {
+      "path": "records/recovered-c5/uncommitted-c5/fixture-creation-command.py.txt",
+      "bytes": 1968,
+      "sha256": "e8c09b53f929e08fb8377ae2e84cba773e53755eb672a2f987f8c012ee2f0384"
+    },
+    {
+      "path": "records/recovered-c5/uncommitted-c5/service-registration-and-scanner-test.patch",
+      "bytes": 958,
+      "sha256": "8ef4329f1bb593beb0a15052d195703daaf63c2ed052c4562e005fe33a0ad7c5"
+    },
+    {
+      "path": "records/recovered-c5/uncommitted-c5/task-C5-report.md.retained-draft",
+      "bytes": 2064,
+      "sha256": "c5472f271e6e0d13a4d7aba06e86d6d92569ba5fb26ec5cca2fb30b6baecfdac"
+    },
+    {
       "path": "records/recovered-d1-api-reconcile/crates/biome_configuration/src/project_analysis.rs.L10-L14.fragment",
       "bytes": 242,
       "sha256": "3fc8197df4cf236b3092435932acfe5cb1de7f87d990fd72672ea5a7de78e4ae"

@@ -1,0 +1,372 @@
+{
+  "recovery_date": "2026-10-29",
+  "original_repository": "/workspace/my-biome",
+  "reviewed_base_commit": "e645266862c389ffaae3c7e72aeac7b6e02b162d",
+  "original_branch": "feat/native-project-analysis",
+  "status": "partial recovery only; no C5 completion or tests claimed",
+  "authentication_sources": [
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-c4/original-final-commit-binding.transcribed.json",
+      "sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b"
+    },
+    {
+      "path": "/workspace/.biome-cloud/native-recovery/recovered-c4/fix1-retained-display.patch",
+      "sha256": "44f5f27fbac42f052e717a535be608d5badcc71e82e57cc18ad43548ec1f996c"
+    }
+  ],
+  "counts": {
+    "base_full_transcriptions": 19,
+    "authenticated_base_files": 8,
+    "partial_or_unverified_files": 2,
+    "uncommitted_C5_artifacts": 5
+  },
+  "artifacts": [
+    {
+      "artifact": "README.md",
+      "bytes": 3772,
+      "sha256": "0faa0caeefe8900eaa363e3cdfa9f3b17d4882cdd3e0adfd3e96655f3e055e77",
+      "git_blob_sha1": "0c2651fad9d6a35cccbb050d0fb02a36a7701ea0",
+      "stage": "recovery_metadata_created_2026-10-29"
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/Cargo.toml",
+      "bytes": 5030,
+      "sha256": "a91281f9584baf4a397ee9f729cfeb4856b25a1ac926fe640e205f90237152af",
+      "git_blob_sha1": "12690311fa610bdf24a5ada3e098dad530f07d06",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/Cargo.toml",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "a91281f9584baf4a397ee9f729cfeb4856b25a1ac926fe640e205f90237152af",
+        "expected_bytes": 5030,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/commands/analyze.rs",
+      "bytes": 7414,
+      "sha256": "ca0cd5206c17957d22b7e4c74fe9a4b7e59d344bf16ba2a4424b424ea831bdac",
+      "git_blob_sha1": "3378ce09b0b34fe0eba221405aec31ae64f0cff7",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/commands/analyze.rs",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "ca0cd5206c17957d22b7e4c74fe9a4b7e59d344bf16ba2a4424b424ea831bdac",
+        "expected_bytes": 7414,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/diagnostics.rs",
+      "bytes": 19485,
+      "sha256": "7e162b1e470a2a7da7e78ac81dced53cb3c7a3ba798ebf5f9404703afa7e69a9",
+      "git_blob_sha1": "477352227cfa24634ebadef510a0267ef2711a07",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/diagnostics.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "bytes": 19361,
+      "sha256": "6567ba33ca72d95e27e9cf359297e4b6be2fcde6f286c1a8f6d1322e11522e4c",
+      "git_blob_sha1": "dace6c4ebc26060abe9f6f245bafdce07b3f4c4d",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "authentication": {
+        "kind": "historical_final_patch_new_git_blob_prefix",
+        "expected": "dace6c4ebc2",
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/runner/impls/watchers/default.rs",
+      "bytes": 2611,
+      "sha256": "4fbfd1b87375baa2e301aea1c17729579011c706f244cdbf0fc90e023112397e",
+      "git_blob_sha1": "ec1e0c2dd1d8059c66b08e58dde7e7f837e82a83",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/runner/impls/watchers/default.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/runner/impls/watchers/mock.rs",
+      "bytes": 614,
+      "sha256": "48906de704a5721ab001cb30659a1b1add7e5ffebc3929a8559a1c1a0b007d79",
+      "git_blob_sha1": "d1612501e4bd40c4c6b53812464e4ee1fd8abbcb",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/runner/impls/watchers/mock.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/runner/project_analysis.rs",
+      "bytes": 21511,
+      "sha256": "3ab3760675a4547eff624e483cf477e3b3057dd9f203e39da3437e6b902c45a0",
+      "git_blob_sha1": "d2e9b4ca1a9ba78364a5794c736ff8a5afa7a5e2",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/runner/project_analysis.rs",
+      "authentication": {
+        "kind": "historical_final_patch_new_git_blob_prefix",
+        "expected": "d2e9b4ca1a9",
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_cli/src/runner/watcher.rs",
+      "bytes": 466,
+      "sha256": "bafc2563989c4382918f06b64ced2366795c2c85ba85a5692450b6569152c062",
+      "git_blob_sha1": "984c1bcb1ed637c6404ddbf144529f3793e4b5f4",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_cli/src/runner/watcher.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_project_analysis/src/coverage.rs",
+      "bytes": 1733,
+      "sha256": "f5a254372ffbe6bd1e434fca1d68692a5a58d7025630b3d835e4ec4a508fbf08",
+      "git_blob_sha1": "28ce43ad2a861b1277cd7ee81996f148a2794de1",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_project_analysis/src/coverage.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_project_analysis/src/model.rs",
+      "bytes": 5362,
+      "sha256": "f32c69a510bfb849bca984ac712318c2420fde68cda4c50f6828122ad4229e17",
+      "git_blob_sha1": "653ba569fe039027222e4f4152b1d8ebb71b5b25",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_project_analysis/src/model.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_service/src/project_analysis/pinned_fs.rs",
+      "bytes": 6506,
+      "sha256": "cd1b2c7208cfcbcac56b75871b907d82c8e51e069d4348ade6ecc449817f1e31",
+      "git_blob_sha1": "8d6f38371734321284f4554b7110c42b4de267d3",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_service/src/project_analysis/pinned_fs.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_service/src/project_analysis/snapshot.rs",
+      "bytes": 25979,
+      "sha256": "ce53ad7391f700339040014a4e8253aa473b21dbd300628feeafe1154e0a2a6e",
+      "git_blob_sha1": "8f5ac0ad9c2dc2226d096362fe3a2350dda04086",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_service/src/project_analysis/snapshot.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_service/src/project_analysis/transport.rs",
+      "bytes": 5426,
+      "sha256": "c7ff275202b0214496765766d3bc826cc42f3c454f3153d41219aa52c3433d99",
+      "git_blob_sha1": "17e0e96f5b4b23c2fba7aa047b6d4229e6ea0223",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_service/src/project_analysis/transport.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_service/src/project_analysis.rs",
+      "bytes": 4275,
+      "sha256": "440a2783e5da58e3254649f4101b821b14830843ee11d5a36587d500a8bd2b9e",
+      "git_blob_sha1": "c99010b8a7b6dbb3d9b8a2395a63d44d6ee0f90e",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_service/src/project_analysis.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/crates/biome_service/src/scanner/watcher.rs",
+      "bytes": 21566,
+      "sha256": "34c749af55c2411fc51f7ff5f4c1a6479f514a0d90bc57108cdfb3fdcdbe9b1e",
+      "git_blob_sha1": "3b26b0434b1d0610e5543206750518016d4fefdd",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "crates/biome_service/src/scanner/watcher.rs",
+      "authentication": {
+        "kind": "no_independent_historical_hash_available",
+        "matches": null
+      }
+    },
+    {
+      "artifact": "base-e645266/xtask/project_analysis/Cargo.toml",
+      "bytes": 516,
+      "sha256": "242bc9d6b4c728101d1f7cbb8e2834a55336aaea5073a93ae7c7af62706a4591",
+      "git_blob_sha1": "557834a39055972f5226f4b65f9a375a6b56f109",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "xtask/project_analysis/Cargo.toml",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "242bc9d6b4c728101d1f7cbb8e2834a55336aaea5073a93ae7c7af62706a4591",
+        "expected_bytes": 516,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/xtask/project_analysis/src/execution.rs",
+      "bytes": 8604,
+      "sha256": "c8834babbbecfac8bcc6c4c9fc11ea02e61321cbd495bd55f2c86380ae825315",
+      "git_blob_sha1": "7d29aeb9e92edc96ad16517bafd7a26557758cdc",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "xtask/project_analysis/src/execution.rs",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "c8834babbbecfac8bcc6c4c9fc11ea02e61321cbd495bd55f2c86380ae825315",
+        "expected_bytes": 8604,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/xtask/project_analysis/src/main.rs",
+      "bytes": 3361,
+      "sha256": "b4ae294bb933e68ca0fbad1e65f55fad3b8ff545efe39d8762184c53c43756a5",
+      "git_blob_sha1": "046ab9383a6fefc292c7240af85096cd29555635",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "xtask/project_analysis/src/main.rs",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "b4ae294bb933e68ca0fbad1e65f55fad3b8ff545efe39d8762184c53c43756a5",
+        "expected_bytes": 3361,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "base-e645266/xtask/project_analysis/tests/cli.rs",
+      "bytes": 1327,
+      "sha256": "7b567db06e7fa19669fbe2a4289487d4cd8879e5e6675e9eb5c3e7e7987bb0ea",
+      "git_blob_sha1": "298d2216b0aecfa656e567e02ff61f413cd0010e",
+      "stage": "completed_base_e645266_full_read_transcription",
+      "original_path": "xtask/project_analysis/tests/cli.rs",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256",
+        "expected": "7b567db06e7fa19669fbe2a4289487d4cd8879e5e6675e9eb5c3e7e7987bb0ea",
+        "expected_bytes": 1327,
+        "matches": true
+      }
+    },
+    {
+      "artifact": "historical-gate-state.md",
+      "bytes": 4443,
+      "sha256": "e5b181374c5e6e48b9fc68ecb6a180155c3219f95657ceafb389757b5dee772b",
+      "git_blob_sha1": "f2d2577e23734a9911a81954c6f2fb6cfcb403e5",
+      "stage": "recovery_metadata_created_2026-10-29"
+    },
+    {
+      "artifact": "partial-e645266/crates/biome_cli/src/runner/mod.rs.transcription-unverified",
+      "bytes": 31917,
+      "sha256": "6c6165acbeacb4898507b97e3e20472e33a594d12f13bec35956e49471523f45",
+      "git_blob_sha1": "db6588f6ffc88ce6817872724acb257126856b22",
+      "stage": "completed_base_partial_or_unverified_transcription",
+      "original_path": "crates/biome_cli/src/runner/mod.rs",
+      "authentication": {
+        "kind": "historical_C4_full_SHA256_MISMATCH",
+        "expected": "58eaee942a5bdb532bcbc1848deb6634c11c217a21225259ab20199ed4381d13",
+        "expected_bytes": 31929,
+        "matches": false
+      },
+      "limitation": "800-line candidate must not be treated as exact full original source."
+    },
+    {
+      "artifact": "partial-e645266/crates/biome_project_analysis/src/result.rs.lines-1-130",
+      "bytes": 4133,
+      "sha256": "ba03e9af6c5aac548699ecb302adbf82a1e791a27b57d63f57e9f134a505d2a8",
+      "git_blob_sha1": "7cadb7d4c532f902b5df2d872449e3b20644bad3",
+      "stage": "completed_base_partial_or_unverified_transcription",
+      "original_path": "crates/biome_project_analysis/src/result.rs",
+      "authentication": {
+        "kind": "partial_literal_read_only",
+        "matches": null
+      },
+      "limitation": "Only original lines 1-130, no reconstructed tail."
+    },
+    {
+      "artifact": "uncommitted-c5/crates/biome_cli/tests/cases/watcher.rs",
+      "bytes": 4845,
+      "sha256": "50aac4ca2a316612eb3f0bc3abcbf5de1ad4b2b8b8a18aebceb5d447dbb5748c",
+      "git_blob_sha1": "5ab92267346525cc58614634a3d58c31a789e85b",
+      "stage": "uncommitted_C5_test_preparation_or_evidence",
+      "authentication": {
+        "kind": "retained_context_no_independent_historical_hash",
+        "matches": null
+      },
+      "original_path": "crates/biome_cli/tests/cases/watcher.rs"
+    },
+    {
+      "artifact": "uncommitted-c5/crates/biome_service/src/project_analysis/watch.tests.rs",
+      "bytes": 8026,
+      "sha256": "813c3d943cdbc39c054b33a55f8d981a134402075efa973222fc9012917f4e29",
+      "git_blob_sha1": "3b699e7d2d1b13d2b21fa7c2ae03e9ccb98a21a2",
+      "stage": "uncommitted_C5_test_preparation_or_evidence",
+      "authentication": {
+        "kind": "retained_context_no_independent_historical_hash",
+        "matches": null
+      },
+      "original_path": "crates/biome_service/src/project_analysis/watch.tests.rs"
+    },
+    {
+      "artifact": "uncommitted-c5/fixture-creation-command.py.txt",
+      "bytes": 1968,
+      "sha256": "e8c09b53f929e08fb8377ae2e84cba773e53755eb672a2f987f8c012ee2f0384",
+      "git_blob_sha1": "c71ac3f04cf888ecaf6a2ab07b9b6a5b001ef6be",
+      "stage": "uncommitted_C5_test_preparation_or_evidence",
+      "authentication": {
+        "kind": "retained_context_no_independent_historical_hash",
+        "matches": null
+      },
+      "original_paths_scope": "xtask/project_analysis/fixtures/watch; generator text only, not executed in recovery"
+    },
+    {
+      "artifact": "uncommitted-c5/service-registration-and-scanner-test.patch",
+      "bytes": 958,
+      "sha256": "8ef4329f1bb593beb0a15052d195703daaf63c2ed052c4562e005fe33a0ad7c5",
+      "git_blob_sha1": "825c37dedc94567e2441a6e855f6343eb3a26a59",
+      "stage": "uncommitted_C5_test_preparation_or_evidence",
+      "authentication": {
+        "kind": "retained_context_no_independent_historical_hash",
+        "matches": null
+      },
+      "original_paths": [
+        "crates/biome_service/src/project_analysis.rs",
+        "crates/biome_service/src/scanner/watcher.tests.rs"
+      ]
+    },
+    {
+      "artifact": "uncommitted-c5/task-C5-report.md.retained-draft",
+      "bytes": 2064,
+      "sha256": "c5472f271e6e0d13a4d7aba06e86d6d92569ba5fb26ec5cca2fb30b6baecfdac",
+      "git_blob_sha1": "4ca1c96ffaedc582dac58a0f491f9679a812422c",
+      "stage": "uncommitted_C5_test_preparation_or_evidence",
+      "authentication": {
+        "kind": "retained_context_no_independent_historical_hash",
+        "matches": null
+      },
+      "original_path": ".superpowers/sdd/native-project-analysis-2026-10-26/task-C5-report.md"
+    }
+  ]
+}

@@ -1,9 +1,17 @@
-# Native project-analysis source recovery
+# Native project-analysis recovery
 
-This branch preserves original source and patches recovered from retained agent history after the cloud workspace became unavailable. It is a partial recovery archive, not a buildable feature branch or a completed PR.
+This branch preserves original source, patches, and provenance recovered from retained agent history after the original cloud workspace disappeared. It is a partial recovery archive. It is not a buildable feature branch, and historical test results do not validate the assembled source.
 
-The original implementation base was `6359a9b03670e85b50785d59d10eb087cf89fe3f` and its last recorded reviewed commit was `e645266862c389ffaae3c7e72aeac7b6e02b162d`. Those commit objects are not available in the current checkout.
+The original implementation started at `6359a9b03670e85b50785d59d10eb087cf89fe3f`, which is still available. Its last recorded reviewed commit was `e645266862c389ffaae3c7e72aeac7b6e02b162d`; that commit object has not been recovered.
 
-The recovered A5 snapshot file matches the Git blob prefix recorded in its original diff. The C4 source-binding JSON matches its retained full historical SHA-256 and records expected content hashes for 44 files. The complete C4 final-fix patch has validated hunk lengths, but its base is still being recovered. Other missing files must be recovered before reassembly and fresh validation. Historical test results do not validate a reconstructed tree.
+## Contents
 
-Only source, patch and checksum artifacts are preserved here. No historical commands have been executed. The current `feat/project-analysis-contracts` branch remains separate.
+- `records/` preserves original source snapshots, exact patches, partial fragments, and per-task provenance. Filenames and manifests distinguish earlier, final, and uncommitted versions.
+- `recovered-records-index.json` records the size and SHA-256 of archived files. These checksums establish copy integrity. Original-byte identity is claimed only where a retained historical hash or Git blob identifier also matches.
+- `sources/`, `patches/`, and `integrity/` contain the first authenticated recovery checkpoint. Later records supersede those versions where documented.
+
+Original source recovered includes project configuration and metadata, engine analyses, service integration, CLI processing/reporting components, editor sessions, and regression tests. The authenticated C4 source-binding manifest records hashes for 44 original files. The authenticated C3 binding records final editor integration hashes. Several later complete files match those records exactly.
+
+Missing bodies and final-version changes remain. Per-task manifests and the assembled source coverage report, when present, are the authority for those gaps. A complete earlier version is not assumed to be the final implementation.
+
+Recovered command text is inert evidence and has not been executed. The current `feat/project-analysis-contracts` checkout and index remain separate. No upstream branch was changed.
