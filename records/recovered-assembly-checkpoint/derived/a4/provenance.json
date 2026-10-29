@@ -1,0 +1,56 @@
+[
+  {
+    "path": "crates/biome_module_graph/src/project_facts.rs",
+    "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "fragments": [
+      [
+        1,
+        "recovered-a4/a4-project_facts.lines-1-430.partial.rs"
+      ],
+      [
+        357,
+        "recovered-a4-review/a4-project_facts.collect_import.exact-fragment.rs"
+      ],
+      [
+        490,
+        "recovered-a4/a4-project_facts.lines-490-1034.partial.rs"
+      ],
+      [
+        1034,
+        "recovered-a4/a4-project_facts.lines-1034-end.partial.rs"
+      ]
+    ],
+    "matching_overlap_lines": 85,
+    "git_blob_sha1": "aaeec90614dca91b9171126a729ef61afd77623a",
+    "historical_preimage_prefix": "aaeec90614d",
+    "original_diff": "recovered-a4/fix1-01-production.complete.diff",
+    "sha256": "197ef156fcb65f3912f59b1bb3a3069d97f7db6a615a90b2b79b89fb060c288b"
+  },
+  {
+    "path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+    "stage": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "fragments": [
+      [
+        1,
+        "recovered-a4/a4-project-test.lines-1-275.partial.rs"
+      ],
+      [
+        257,
+        "recovered-a4-review/a4-project-test.commonjs-and-entries.exact-fragment.rs"
+      ],
+      [
+        278,
+        "recovered-a4/a4-project-test.lines-278-586.partial.rs"
+      ],
+      [
+        587,
+        "recovered-a4/a4-project-test.lines-587-end.partial.rs"
+      ]
+    ],
+    "matching_overlap_lines": 21,
+    "git_blob_sha1": "fe70beeca51222f98204343f01e003e5a6d0f9f5",
+    "historical_preimage_prefix": "fe70beeca51",
+    "original_diff": "recovered-a4/fix1-02-tests.complete.diff",
+    "sha256": "528f585ba4db6d52e001500aad0bd03e6b7fbf9bcf387f5a542a28cec4ebc7bb"
+  }
+]

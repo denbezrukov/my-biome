@@ -1,0 +1,15 @@
+{
+  "statuses": {
+    "later_known_changes_missing": 20,
+    "latest_available_complete_source": 161,
+    "missing_complete_source": 46
+  },
+  "selected_complete_files": 181,
+  "selected_authenticated_files": 97,
+  "selected_observed_at_e645": 32,
+  "selected_e645_authenticated": 22,
+  "versions": 263,
+  "exact_patch_transitions": 56,
+  "rejected_inputs": 2,
+  "selected_fixture_group_authenticated_files": 14
+}

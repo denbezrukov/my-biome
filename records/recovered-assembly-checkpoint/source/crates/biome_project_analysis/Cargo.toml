@@ -1,0 +1,23 @@
+[package]
+name              = "biome_project_analysis"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish           = false
+
+[dependencies]
+biome_diagnostics = { workspace = true }
+biome_glob        = { workspace = true }
+biome_text_size   = { workspace = true, features = ["serde"] }
+camino            = { workspace = true, features = ["serde1"] }
+regex             = { workspace = true }
+schemars          = { workspace = true, optional = true }
+serde             = { workspace = true }
+serde_json        = { workspace = true }
+sha2              = "0.10.9"
+
+[features]
+schema = ["biome_diagnostics/schema", "biome_text_size/schema", "dep:schemars"]
+
+[lints]
+workspace = true

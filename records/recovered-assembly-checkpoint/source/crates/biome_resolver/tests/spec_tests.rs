@@ -1,0 +1,1454 @@
+use biome_fs::{MemoryFileSystem, OsFileSystem};
+use biome_package::{CompilerOptions, Manifest, PackageJson, TsConfigJson};
+use biome_resolver::*;
+use camino::{Utf8Path, Utf8PathBuf};
+
+/// Returns the path to a `fixtures/` subdirectory, regardless of working dir.
+fn get_fixtures_path(subdir: &str) -> Utf8PathBuf {
+    let mut path: Utf8PathBuf = std::env::current_dir().unwrap().try_into().unwrap();
+    while !path.join("Cargo.lock").exists() {
+        path = path
+            .parent()
+            .expect("couldn't find Cargo.lock")
+            .to_path_buf();
+    }
+    path.join("crates/biome_resolver/tests/fixtures")
+        .join(subdir)
+}
+
+#[test]
+fn test_resolve_relative_path() {
+    let base_dir = get_fixtures_path("resolver_cases_1");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "./bar",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./bar?query",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./bar#hash",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./folder/qux.ts",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &[],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/folder/qux.ts")))
+    );
+
+    assert_eq!(
+        resolve(
+            ".",
+            &base_dir.join("folder"),
+            &fs,
+            &ResolveOptions {
+                default_files: &["linked_foo"],
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/foo.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "../bar.js",
+            &base_dir.join("folder"),
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./folder/../bar.js",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                assume_relative: true,
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/bar.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["js"],
+                ..Default::default()
+            }
+        ),
+        Err(ResolveError::NotFound)
+    );
+}
+
+#[test]
+fn test_resolve_relative_directory_with_default_file() {
+    let base_dir = get_fixtures_path("resolver_cases_1");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "./folder",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["qux"],
+                extensions: &["js", "ts"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/folder/qux.ts")))
+    );
+}
+
+#[test]
+fn test_resolve_relative_symlinks() {
+    let base_dir = get_fixtures_path("resolver_cases_1");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "./linked_folder",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["qux"],
+                extensions: &["js", "ts"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/folder/qux.ts")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./folder/linked_foo.js",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/foo.js")))
+    );
+
+    assert_eq!(
+        resolve(
+            "./linked_folder/linked_foo.js",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/foo.js")))
+    );
+}
+
+#[test]
+fn test_resolve_dependency() {
+    let base_dir = get_fixtures_path("resolver_cases_2");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/foo/node_modules/bar/index.js"
+        )))
+    );
+
+    assert_eq!(
+        resolve(
+            "bar/index.js",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/foo/node_modules/bar/index.js"
+        )))
+    );
+
+    assert_eq!(
+        resolve(
+            "qux",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/qux/dist/index.js"
+        )))
+    );
+
+    assert_eq!(
+        resolve(
+            "qux/prelude",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/qux/dist/prelude.js"
+        )))
+    );
+
+    assert_eq!(
+        resolve(
+            "qux/dist/prelude.js",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Err(ResolveError::NotFound)
+    );
+
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/foo/node_modules/bar/index.js"
+        )))
+    );
+}
+
+#[test]
+fn test_package_names() {
+    for name in ["package", "package.grit", "@scope/package"] {
+        assert!(is_package_name(name), "expected {name} to be valid");
+    }
+    for name in [
+        "",
+        ".",
+        "..",
+        "package/",
+        "package/subpath",
+        "@scope",
+        "@scope/",
+        "@scope/.",
+        "@scope/..",
+        "@scope/package/subpath",
+    ] {
+        assert!(!is_package_name(name), "expected {name} to be invalid");
+    }
+}
+
+#[test]
+fn test_package_specifier_parts() {
+    assert_eq!(
+        package_specifier_parts("package/rule"),
+        Ok(("package", "rule"))
+    );
+    assert_eq!(
+        package_specifier_parts("@scope/package/presets/recommended"),
+        Ok(("@scope/package", "presets/recommended"))
+    );
+    assert_eq!(package_specifier_parts("package"), Ok(("package", "")));
+    for specifier in [
+        "./package/rule",
+        "@scope",
+        "@scope//rule",
+        "package/../rule",
+        "package//rule",
+        "package/rule/",
+    ] {
+        assert!(
+            package_specifier_parts(specifier).is_err(),
+            "expected {specifier} to be invalid"
+        );
+    }
+}
+
+#[test]
+fn test_resolve_package_root() {
+    let base_dir = get_fixtures_path("resolver_cases_2");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve_package_root("bar", &base_dir.join("foo"), &fs),
+        Ok(base_dir.join("foo/node_modules/bar"))
+    );
+    assert_eq!(
+        resolve_package_root("qux", &base_dir.join("foo"), &fs),
+        Ok(base_dir.join("node_modules/qux"))
+    );
+    assert_eq!(
+        resolve_package_root("qux/prelude", &base_dir.join("foo"), &fs),
+        Err(ResolveError::InvalidPackageSpecifier)
+    );
+    assert_eq!(
+        resolve_package_root("qux/", &base_dir.join("foo"), &fs),
+        Err(ResolveError::InvalidPackageSpecifier)
+    );
+
+    let scoped_base_dir = get_fixtures_path("resolver_cases_8");
+    let scoped_fs = OsFileSystem::new(scoped_base_dir.clone());
+    assert_eq!(
+        resolve_package_root("@kcconfigs/biome", &scoped_base_dir, &scoped_fs),
+        Ok(scoped_base_dir.join("node_modules/@kcconfigs/biome"))
+    );
+    assert_eq!(
+        resolve_package_root("@kcconfigs", &scoped_base_dir, &scoped_fs),
+        Err(ResolveError::InvalidPackageSpecifier)
+    );
+    assert_eq!(
+        resolve_package_root("@scope/.", &scoped_base_dir, &scoped_fs),
+        Err(ResolveError::InvalidPackageSpecifier)
+    );
+    assert_eq!(
+        resolve_package_root("@scope/..", &scoped_base_dir, &scoped_fs),
+        Err(ResolveError::InvalidPackageSpecifier)
+    );
+}
+
+struct BrokenSymlinkFs {
+    broken_path: Utf8PathBuf,
+}
+
+impl ResolverFsProxy for BrokenSymlinkFs {
+    fn find_package_json(
+        &self,
+        _search_dir: &Utf8Path,
+    ) -> Result<(Utf8PathBuf, PackageJson), ResolveError> {
+        Err(ResolveError::NotFound)
+    }
+
+    fn path_info(&self, path: &Utf8Path) -> Result<PathInfo, ResolveError> {
+        if path == self.broken_path {
+            Err(ResolveError::BrokenSymlink)
+        } else {
+            Ok(PathInfo::Directory)
+        }
+    }
+
+    fn read_package_json_in_directory(
+        &self,
+        _dir_path: &Utf8Path,
+    ) -> Result<PackageJson, ResolveError> {
+        Err(ResolveError::NotFound)
+    }
+
+    fn read_tsconfig_json(&self, _path: &Utf8Path) -> Result<TsConfigJson, ResolveError> {
+        Err(ResolveError::NotFound)
+    }
+}
+
+#[test]
+fn test_resolve_package_root_propagates_broken_symlinks() {
+    let base_dir = Utf8Path::new("/project");
+    for broken_path in [
+        base_dir.join("node_modules"),
+        base_dir.join("node_modules/plugin"),
+    ] {
+        let fs = BrokenSymlinkFs { broken_path };
+        assert_eq!(
+            resolve_package_root("plugin", base_dir, &fs),
+            Err(ResolveError::BrokenSymlink)
+        );
+    }
+}
+
+#[test]
+fn test_resolve_imports_alias() {
+    let base_dir = get_fixtures_path("resolver_cases_2");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "#components/HelloWorld",
+            &base_dir.join("foo"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/foo/src/components/HelloWorld.tsx"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_node_builtins() {
+    let base_dir = get_fixtures_path("resolver_cases_3");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "buffer",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["js"],
+                resolve_node_builtins: true,
+                ..Default::default()
+            }
+        ),
+        Err(ResolveError::NodeBuiltIn)
+    );
+
+    assert_eq!(
+        resolve(
+            "buffer",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["js"],
+                resolve_node_builtins: false,
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/buffer/index.js"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_bun_builtins() {
+    let base_dir = get_fixtures_path("resolver_cases_3");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "bun:sqlite",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["js"],
+                resolve_bun_builtins: true,
+                ..Default::default()
+            }
+        ),
+        Err(ResolveError::BunBuiltIn)
+    );
+}
+
+#[test]
+fn test_resolve_shared_biome_config() {
+    let base_dir = get_fixtures_path("resolver_cases_3");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    // Using default options should work, because we explicitly tell people to\
+    // use `"exports": { "./biome": "./biome.jsonc?" }`.
+    assert_eq!(
+        resolve(
+            "shared_biome_config/biome",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/shared_biome_config/biome.jsonc"
+        )))
+    );
+
+    // We don't support this, but using custom condition names should
+    // work too with these fixtures.
+    assert_eq!(
+        resolve(
+            "shared_biome_config",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                condition_names: &["biome"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/shared_biome_config/biome.jsonc"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_typescript_path_aliases() {
+    let base_dir = get_fixtures_path("resolver_cases_3");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "@/components/Foo",
+            &base_dir.join("src"),
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["ts", "js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/src/components/Foo.ts"
+        )))
+    );
+
+    assert_eq!(
+        resolve(
+            "@/components",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["ts", "js"],
+                ..Default::default()
+            }
+        ),
+        Err(ResolveError::NotFound)
+    );
+}
+
+#[test]
+fn test_resolve_typescript_path_aliases2() {
+    let base_dir = get_fixtures_path("resolver_cases_4");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "@util/foo",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["ts", "js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/util/foo.ts")))
+    );
+
+    assert_eq!(
+        resolve(
+            "jquery",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                default_files: &["index"],
+                extensions: &["ts", "js"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/vendor/jquery/dist/index.js"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_typescript_path_alias_from_project_reference() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/package.json".into(), "{}");
+    fs.insert(
+        "/tsconfig.json".into(),
+        r#"{"references":[{"path":"./configs/app.json"}]}"#,
+    );
+    fs.insert(
+        "/configs/app.json".into(),
+        r#"{"references":[{"path":"./bad"},{"path":"./lib"},{"path":"../tsconfig.json"}]}"#,
+    );
+    fs.insert(
+        "/configs/bad/tsconfig.json".into(),
+        r#"{"compilerOptions":{"paths":{"@/*":["../../src"]}}}"#,
+    );
+    fs.insert(
+        "/configs/lib/tsconfig.json".into(),
+        r#"{"compilerOptions":{"paths":{"@/*":["../../src/*"],"ab*bc":["../../src/*"]}}}"#,
+    );
+    fs.insert("/src/utils.js".into(), "export {};");
+
+    let options = ResolveOptions {
+        extensions: &["js"],
+        ..Default::default()
+    };
+    let resolution = resolve_with_metadata("@/utils", Utf8Path::new("/src"), &fs, &options)
+        .expect("path alias should resolve through project references");
+
+    assert_eq!(
+        resolution.kind(),
+        ResolutionKind::TsConfigPathMapping {
+            can_add_extension: true
+        }
+    );
+    assert_eq!(resolution.into_path(), Utf8Path::new("/src/utils.js"));
+
+    let (Some(mut root_config), _) =
+        TsConfigJson::read_manifest(&fs, "/tsconfig.json".as_ref()).consume()
+    else {
+        panic!("root config should deserialize");
+    };
+    root_config.path.clear();
+    let explicit_options = options
+        .clone()
+        .with_tsconfig(DiscoverableManifest::Explicit {
+            package_path: "/tsconfig.json".into(),
+            manifest: &root_config,
+        });
+    assert_eq!(
+        resolve("@/utils", Utf8Path::new("/src"), &fs, &explicit_options),
+        Ok(Utf8PathBuf::from("/src/utils.js"))
+    );
+
+    assert_eq!(
+        resolve("missing", Utf8Path::new("/src"), &fs, &options),
+        Err(ResolveError::NotFound)
+    );
+    assert_eq!(
+        resolve("abc", Utf8Path::new("/src"), &fs, &options),
+        Err(ResolveError::NotFound)
+    );
+}
+
+#[test]
+fn test_failed_typescript_path_alias_uses_package_fallback() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/package.json".into(), "{}");
+    fs.insert(
+        "/tsconfig.json".into(),
+        r#"{"compilerOptions":{"paths":{"exact":["./exact.js"],"fallback":["./missing"]}}}"#,
+    );
+    fs.insert("/exact.js".into(), "export {};");
+    fs.insert("/node_modules/fallback/index.js".into(), "export {};");
+
+    let resolution = resolve_with_metadata(
+        "fallback",
+        Utf8Path::new("/src"),
+        &fs,
+        &ResolveOptions {
+            default_files: &["index"],
+            extensions: &["js"],
+            ..Default::default()
+        },
+    )
+    .expect("package fallback should resolve");
+
+    assert_eq!(resolution.kind(), ResolutionKind::Other);
+    assert_eq!(
+        resolution.into_path(),
+        Utf8Path::new("/node_modules/fallback/index.js")
+    );
+
+    let exact_resolution = resolve_with_metadata(
+        "exact",
+        Utf8Path::new("/src"),
+        &fs,
+        &ResolveOptions::default(),
+    )
+    .expect("exact path alias should resolve");
+    assert_eq!(
+        exact_resolution.kind(),
+        ResolutionKind::TsConfigPathMapping {
+            can_add_extension: false
+        }
+    );
+}
+
+#[test]
+fn test_resolve_typescript_path_alias_without_dot_prefix() {
+    let base_dir = get_fixtures_path("resolver_cases_9");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    assert_eq!(
+        resolve(
+            "@/styles/styles.css",
+            &base_dir,
+            &fs,
+            &ResolveOptions {
+                extensions: &["css"],
+                ..Default::default()
+            }
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/src/styles/styles.css"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_type_definitions() {
+    let base_dir = get_fixtures_path("resolver_cases_5");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("fastq", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/fastq/index.d.ts"
+        )))
+    );
+
+    assert_eq!(
+        resolve("types-and-main", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/types-and-main/types/index.d.ts"
+        )))
+    );
+
+    assert_eq!(
+        resolve("source-main", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/source-main/src/index.ts"
+        )))
+    );
+
+    assert_eq!(
+        resolve("runtime-main", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/runtime-main/dist/index.d.ts"
+        )))
+    );
+
+    assert_eq!(
+        resolve("untyped-main", &base_dir, &fs, &options),
+        Err(ResolveError::DirectoryWithoutDefault)
+    );
+
+    assert_eq!(
+        resolve("react", &base_dir.join("src"), &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/@types/react/index.d.ts"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_type_definitions_from_another_type_definition() {
+    let base_dir = get_fixtures_path("resolver_cases_5");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve(
+            "../_internal/index.js",
+            Utf8Path::new(&format!("{base_dir}/node_modules/swr/dist/index")),
+            &fs,
+            &options
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/swr/dist/_internal/index.d.ts"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_self_reference_without_exports_field() {
+    let base_dir = get_fixtures_path("resolver_cases_5");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve(
+            "next/dist/request",
+            Utf8Path::new(&format!("{base_dir}/node_modules/next")),
+            &fs,
+            &options
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/next/dist/request.d.ts"
+        )))
+    );
+}
+
+/// A package with an `exports` field may reference itself by name, but only
+/// through the subpaths listed in the `exports` map.
+#[test]
+fn test_resolve_self_reference_with_exports_field() {
+    let base_dir = get_fixtures_path("resolver_cases_5");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve(
+            "swr/_internal",
+            Utf8Path::new(&format!("{base_dir}/node_modules/swr/dist/index")),
+            &fs,
+            &options
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/swr/dist/_internal/index.d.mts"
+        )))
+    );
+
+    // A subpath that is not listed in the `exports` map must not fall back to
+    // the file on disk.
+    assert_eq!(
+        resolve(
+            "swr/dist/index/index.js",
+            Utf8Path::new(&format!("{base_dir}/node_modules/swr/dist/index")),
+            &fs,
+            &options
+        ),
+        Err(ResolveError::NotFound)
+    );
+}
+
+#[test]
+fn test_resolve_type_definitions_with_custom_type_roots() {
+    let base_dir = get_fixtures_path("resolver_cases_6");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let symlinked_node_modules = get_fixtures_path("resolver_cases_5").join("node_modules");
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        type_roots: TypeRoots::Auto, // auto-detected from `tsconfig.json`
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("custom", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/typings/custom.d.ts")))
+    );
+
+    // `fastq` defines types in its own package, so the custom type roots don't
+    // affect it.
+    assert_eq!(
+        resolve("fastq", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{symlinked_node_modules}/fastq/index.d.ts"
+        )))
+    );
+
+    // React's `@types` package can no longer be found due to the custom type
+    // roots. We'll fall back to the regular index file.
+    assert_eq!(
+        resolve("react", &base_dir.join("src"), &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{symlinked_node_modules}/react/index.js"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_type_definitions_without_type_specification() {
+    let base_dir = get_fixtures_path("resolver_cases_5");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        resolve_types: true,
+        type_roots: TypeRoots::Auto, // auto-detected from `tsconfig.json`
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("sleep", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/sleep/dist/index.d.ts"
+        )))
+    );
+
+    // Make sure the re-export is resolvable too:
+    assert_eq!(
+        resolve(
+            "./src/index",
+            Utf8Path::new(&format!("{base_dir}/node_modules/sleep/dist")),
+            &fs,
+            &options
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/sleep/dist/src/index.d.ts"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_from_base_url() {
+    let base_dir = get_fixtures_path("resolver_cases_7");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["default"],
+        extensions: &["js", "ts"],
+        ..Default::default()
+    };
+
+    // Make sure resolution works with explicitly specified `tsconfig.json`.
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir.join("src"),
+            &fs,
+            &options
+                .clone()
+                .with_tsconfig(DiscoverableManifest::Explicit {
+                    package_path: Utf8PathBuf::from(format!("{base_dir}/tsconfig.json")),
+                    manifest: &TsConfigJson {
+                        compiler_options: CompilerOptions {
+                            base_url: Some(base_dir.join("src")),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    }
+                })
+        ),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/bar.ts")))
+    );
+
+    // Make sure resolution works with auto-discovered `tsconfig.json`.
+    assert_eq!(
+        resolve("bar", &base_dir.join("src"), &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/bar.ts")))
+    );
+
+    // It shouldn't matter if we're resolving from a different base directory.
+    assert_eq!(
+        resolve("bar", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/bar.ts")))
+    );
+    assert_eq!(
+        resolve("bar", &base_dir.join("src/foo"), &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/bar.ts")))
+    );
+
+    // Resolution should work in subfolders too.
+    assert_eq!(
+        resolve("foo/foo", &base_dir.join("src"), &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/foo/foo.ts")))
+    );
+
+    // Make sure resolution falls back to `node_modules/` without `baseUrl`.
+    assert_eq!(
+        resolve(
+            "bar",
+            &base_dir.join("src"),
+            &fs,
+            &options
+                .clone()
+                .with_tsconfig(DiscoverableManifest::Explicit {
+                    package_path: Utf8PathBuf::from(format!("{base_dir}/tsconfig.json")),
+                    manifest: &TsConfigJson {
+                        compiler_options: CompilerOptions {
+                            base_url: None,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    }
+                })
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/bar/index.js"
+        )))
+    );
+}
+
+#[test]
+fn test_resolve_alias_with_multiple_target_values() {
+    let base_dir = get_fixtures_path("resolver_cases_6");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        default_files: &["index"],
+        extensions: &["ts", "js"],
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("#lib/a", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/lib/a.tsx")))
+    );
+    assert_eq!(
+        resolve("#lib/b", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/lib/b.ts")))
+    );
+    assert_eq!(
+        resolve("#lib/c", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/lib/c/index.ts")))
+    );
+    assert_eq!(
+        resolve("#lib/d", &base_dir, &fs, &options),
+        Err(ResolveError::NotFound)
+    );
+    assert_eq!(
+        resolve("#lib/d.js", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/src/lib/d.js")))
+    );
+}
+
+#[test]
+fn test_resolve_extension_alias() {
+    let base_dir = get_fixtures_path("resolver_cases_7");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        default_files: &["index"],
+        extensions: &["js"],
+        extension_aliases: &[("js", &["ts", "js"]), ("mjs", &["mts"])],
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("./index.js", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/index.ts"))),
+        "should alias fully specified file",
+    );
+
+    assert_eq!(
+        resolve("./dir/index.js", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/dir/index.ts"))),
+        "should alias fully specified file when there are two alternatives",
+    );
+
+    assert_eq!(
+        resolve("./dir2/index.js", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/dir2/index.js"))),
+        "should also allow the second alternative",
+    );
+
+    assert_eq!(
+        resolve("./dir2/index.mjs", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/dir2/index.mts"))),
+        "should support alias option without an array",
+    );
+}
+
+#[test]
+fn test_resolve_extension_alias_not_apply_to_extension_nor_main_files() {
+    let base_dir = get_fixtures_path("resolver_cases_7");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    let options = ResolveOptions {
+        default_files: &["index"],
+        extensions: &["js"],
+        extension_aliases: &[("js", &[])],
+        ..Default::default()
+    };
+
+    assert_eq!(
+        resolve("./dir2", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/dir2/index.js"))),
+        "directory",
+    );
+
+    assert_eq!(
+        resolve("./dir2/index", &base_dir, &fs, &options),
+        Ok(Utf8PathBuf::from(format!("{base_dir}/dir2/index.js"))),
+        "file",
+    );
+}
+
+/// Tests that exports patterns are sorted by specificity per the Node.js
+/// PATTERN_KEY_COMPARE algorithm (longer prefix wins), so `./features/*`
+/// takes priority over `./*` when resolving `features/svelte`.
+///
+/// Regression test for https://github.com/biomejs/biome/issues/9370
+#[test]
+fn test_resolve_exports_pattern_specificity() {
+    let base_dir = get_fixtures_path("resolver_cases_8");
+    let fs = OsFileSystem::new(base_dir.clone());
+
+    // Exact match: "." -> "./src/presets/default.json"
+    assert_eq!(
+        resolve(
+            "@kcconfigs/biome",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/@kcconfigs/biome/src/presets/default.json"
+        ))),
+        "exact match on root export",
+    );
+    // Pattern match: "./*" -> "./src/presets/*.json"
+    assert_eq!(
+        resolve(
+            "@kcconfigs/biome/default",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/@kcconfigs/biome/src/presets/default.json"
+        ))),
+        "wildcard match on ./* pattern",
+    );
+
+    // More specific pattern: "./features/*" must take priority over "./*"
+    // This is the core bug from #9370.
+    assert_eq!(
+        resolve(
+            "@kcconfigs/biome/features/svelte",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Ok(Utf8PathBuf::from(format!(
+            "{base_dir}/node_modules/@kcconfigs/biome/src/features/svelte.json"
+        ))),
+        "./features/* must match before ./* for features/svelte",
+    );
+
+    // Null target: "./features/private-internal/*" -> null (explicitly excluded)
+    assert_eq!(
+        resolve(
+            "@kcconfigs/biome/features/private-internal/secret",
+            &base_dir,
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Err(ResolveError::NotFound),
+        "null target should block resolution",
+    );
+
+    assert!(
+        package_has_exported_subpath(
+            "@kcconfigs/biome",
+            "features/private-internal/secret",
+            &base_dir,
+            &fs,
+        )
+        .unwrap()
+    );
+    assert!(package_has_exported_subpath("@kcconfigs/biome", "missing", &base_dir, &fs).unwrap());
+
+    let other_base = get_fixtures_path("resolver_cases_7");
+    let other_fs = OsFileSystem::new(other_base.clone());
+    assert!(
+        !package_has_exported_subpath("bar", "configs/recommended", &other_base, &other_fs)
+            .unwrap()
+    );
+}
+
+#[test]
+fn resolution_project_profiles() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/package.json".into(), r#"{"name":"app"}"#);
+    fs.insert("/app/node_modules/pkg/package.json".into(), r#"{"name":"pkg","exports":{"types":"./types.d.ts","require":"./require.js","import":"./import.js","default":"./default.js"}}"#);
+    for name in ["types.d.ts", "require.js", "import.js", "default.js"] {
+        fs.insert(format!("/app/node_modules/pkg/{name}").into(), "");
+    }
+    let options = ResolveOptions {
+        condition_names: &["import", "require", "node", "default"],
+        extensions: &["ts", "js"],
+        ..Default::default()
+    };
+    let runtime = resolve_with_trace("pkg", Utf8Path::new("/app"), &fs, &options);
+    assert_eq!(
+        runtime.result.unwrap().into_path(),
+        Utf8Path::new("/app/node_modules/pkg/require.js")
+    );
+    assert!(
+        runtime
+            .trace
+            .events
+            .iter()
+            .any(|event| matches!(event, ResolutionEvent::Condition(name) if name == "require"))
+    );
+    assert!(runtime.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Package { path, .. } if path == Utf8Path::new("/app/node_modules/pkg"))));
+    let declaration = resolve_with_trace(
+        "pkg",
+        Utf8Path::new("/app"),
+        &fs,
+        &ResolveOptions {
+            condition_names: &["types", "import", "require", "node", "default"],
+            ..options.clone()
+        },
+    );
+    assert_eq!(
+        declaration.result.unwrap().into_path(),
+        Utf8Path::new("/app/node_modules/pkg/types.d.ts")
+    );
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"name":"pkg","exports":{"default":"./missing.js","require":"./require.js"}}"#,
+    );
+    fs.insert("/app/src/pkg.ts".into(), "");
+    let mappings = [SourceMapping {
+        from: "/app/node_modules/pkg/missing.js".into(),
+        to: "/app/src/pkg.ts".into(),
+    }];
+    let mapped = resolve_with_trace(
+        "pkg",
+        Utf8Path::new("/app"),
+        &fs,
+        &ResolveOptions {
+            source_mappings: &mappings,
+            ..options
+        },
+    );
+    assert_eq!(
+        mapped.result.unwrap().into_path(),
+        Utf8Path::new("/app/src/pkg.ts")
+    );
+    assert!(mapped.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Target(path) if path == Utf8Path::new("/app/node_modules/pkg/missing.js"))));
+}
+
+#[test]
+fn resolution_legacy_unchanged() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/package.json".into(), "{}");
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"exports":{"require":"./require.js","types":"./types.d.ts","import":"./import.js"}}"#,
+    );
+    for name in ["types.d.ts", "require.js", "import.js"] {
+        fs.insert(format!("/app/node_modules/pkg/{name}").into(), "");
+    }
+    let options = ResolveOptions {
+        condition_names: &["types", "import", "default"],
+        resolve_types: true,
+        ..Default::default()
+    };
+    assert_eq!(
+        resolve("pkg", Utf8Path::new("/app"), &fs, &options).unwrap(),
+        Utf8Path::new("/app/node_modules/pkg/types.d.ts")
+    );
+}
+
+#[test]
+fn resolution_project_mapping_provenance_and_errors() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/package.json".into(), "{}");
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"name":"installed-pkg","main":"./dist.js"}"#,
+    );
+    fs.insert("/app/source.ts".into(), "");
+    let mappings = [SourceMapping {
+        from: "pkg".into(),
+        to: "/app/source.ts".into(),
+    }];
+    let outcome = resolve_with_trace(
+        "pkg",
+        Utf8Path::new("/app"),
+        &fs,
+        &ResolveOptions {
+            source_mappings: &mappings,
+            ..Default::default()
+        },
+    );
+    assert_eq!(
+        outcome.result.unwrap().into_path(),
+        Utf8Path::new("/app/source.ts")
+    );
+    assert!(outcome.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Package { path, name: Some(name) } if path == Utf8Path::new("/app/node_modules/pkg") && name == "installed-pkg")));
+}
+
+#[test]
+fn resolution_project_partial_manifest_quality() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/package.json".into(), "{}");
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"name":false,"main":"./index.js"}"#,
+    );
+    fs.insert("/app/node_modules/pkg/index.js".into(), "");
+    let result = resolve_with_trace(
+        "pkg",
+        Utf8Path::new("/app"),
+        &fs,
+        &ResolveOptions::default(),
+    );
+    assert!(result.trace.events.iter().any(
+        |event| matches!(event, ResolutionEvent::Manifest { quality, .. } if quality.has_errors())
+    ));
+    assert!(result.result.is_ok());
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"main":"./index.js"}"#,
+    );
+    fs.insert(
+        "/app/tsconfig.json".into(),
+        r#"{"compilerOptions":{"paths":{"alias":false}}}"#,
+    );
+    let result = resolve_with_trace(
+        "pkg",
+        Utf8Path::new("/app"),
+        &fs,
+        &ResolveOptions::default(),
+    );
+    assert!(result.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Manifest { path, quality } if path.ends_with("tsconfig.json") && quality.has_errors())));
+    assert!(
+        resolve(
+            "pkg",
+            Utf8Path::new("/app"),
+            &fs,
+            &ResolveOptions::default()
+        )
+        .is_ok()
+    );
+}
+
+#[test]
+fn resolution_project_review_relative_absolute_mapping() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/src/a.ts".into(), "");
+    fs.insert("/app/recursive.ts".into(), "");
+    let mappings = [
+        SourceMapping {
+            from: "/app/dist/a.js".into(),
+            to: "/app/src/a.ts".into(),
+        },
+        SourceMapping {
+            from: "/app/src/a.ts".into(),
+            to: "/app/recursive.ts".into(),
+        },
+    ];
+    let options = ResolveOptions {
+        source_mappings: &mappings,
+        extension_aliases: &[("js", &["ts", "js"])],
+        ..Default::default()
+    };
+    let result = resolve_with_trace("./dist/../dist/a.js", Utf8Path::new("/app"), &fs, &options);
+    assert_eq!(
+        result.result.unwrap().into_path(),
+        Utf8Path::new("/app/src/a.ts")
+    );
+    assert!(result.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Target(path) if path == Utf8Path::new("/app/dist/a.js"))));
+    assert_eq!(
+        result
+            .trace
+            .events
+            .iter()
+            .filter(|event| matches!(event, ResolutionEvent::Mapping(_)))
+            .count(),
+        1
+    );
+    assert_eq!(
+        resolve(
+            "./dist/a.js",
+            Utf8Path::new("/app"),
+            &fs,
+            &ResolveOptions::default()
+        ),
+        Err(ResolveError::NotFound)
+    );
+}
+
+#[test]
+fn resolution_project_review_declaration_main_mapping() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/app/package.json".into(), "{}");
+    fs.insert(
+        "/app/node_modules/pkg/package.json".into(),
+        r#"{"name":"installed-pkg","main":"./dist/index.js"}"#,
+    );
+    fs.insert("/app/src/pkg.ts".into(), "");
+    let mappings = [SourceMapping {
+        from: "/app/node_modules/pkg/dist/index.js".into(),
+        to: "/app/src/pkg.ts".into(),
+    }];
+    let options = ResolveOptions {
+        resolve_types: true,
+        source_mappings: &mappings,
+        ..Default::default()
+    };
+    let result = resolve_with_trace("pkg", Utf8Path::new("/app"), &fs, &options);
+    assert_eq!(
+        result.result.unwrap().into_path(),
+        Utf8Path::new("/app/src/pkg.ts")
+    );
+    assert!(result.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Package { path, name: Some(name) } if path == Utf8Path::new("/app/node_modules/pkg") && name == "installed-pkg")));
+    assert!(result.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Target(path) if path == Utf8Path::new("/app/node_modules/pkg/dist/index.js"))));
+    assert!(
+        resolve(
+            "pkg",
+            Utf8Path::new("/app"),
+            &fs,
+            &ResolveOptions {
+                source_mappings: &[],
+                ..options
+            }
+        )
+        .is_err()
+    );
+}

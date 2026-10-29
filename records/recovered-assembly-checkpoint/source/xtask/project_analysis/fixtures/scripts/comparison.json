@@ -1,0 +1,20 @@
+{
+  "reference": "knip@6.43.0",
+  "originalObservations": "original-node-start-observations.json",
+  "originalFixtures": "original-node-start-fixtures.json",
+  "originalInvocationCount": 15,
+  "correction": "production-start-node-targets",
+  "fixture": "production-start-node-targets",
+  "configuration": {"entry": [], "project": ["*.{js,cjs}!"], "includeEntryExports": true},
+  "native": {
+    "default": {"files": ["idle.js"], "exports": []},
+    "production": {"files": ["before.js", "build.js", "checks.js", "idle.js"], "exports": []},
+    "strict": {"files": ["before.js", "build.js", "checks.js", "idle.js"], "exports": []}
+  },
+  "explicitEntryOverlap": {
+    "entry": ["app.js!", "setup.cjs!"],
+    "exports": ["app.js:appMarker", "setup.cjs:setupMarker"]
+  },
+  "disposition": "Intentional conservative native correction, not parity. D4 requires project-specific migration review where this difference occurs.",
+  "unsupported": ["tool argument adapters", "executable configuration", "dynamic shell expansion", "inline JavaScript", "dependency findings", "catalog findings", "migration qualification"]
+}

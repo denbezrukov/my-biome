@@ -1,0 +1,5 @@
+{
+  "revision": {"session_id": "test", "project_root": "/project", "epoch": 1, "config_digest": "0000000000000000000000000000000000000000000000000000000000000000", "input_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "inventory": {"files": [], "workspaces": [], "roots": [], "declarations": []},
+  "modules": {}, "sources": {}, "coverage": {"status": "complete"}
+}

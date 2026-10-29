@@ -1,0 +1,7 @@
+    pub fn with_db_state<'a>(&'a self, db_state: &'a DbState) -> WorkspaceServerWithDb<'a> {
+        db_state.analysis.subscribe(self.notification_tx.clone());
+        WorkspaceServerWithDb {
+            server: self,
+            db_state,
+        }
+    }

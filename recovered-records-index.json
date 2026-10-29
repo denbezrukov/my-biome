@@ -913,6 +913,1061 @@
       "sha256": "a20e6c726507f8841a816bec3ec8d0f1c5678e13114ca9c7fefe7eff7869e381"
     },
     {
+      "path": "records/recovered-assembly-checkpoint/GAPS.md",
+      "bytes": 5751,
+      "sha256": "02464f346e52b0c2c21025871416609da95524d646bd791da7db58f458b39a92"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/README.md",
+      "bytes": 1201,
+      "sha256": "6be560645ccce69d32406e1b7978fcb4f65ac8255095a4bf9c715aa4e35bc3cd"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/assemble.py",
+      "bytes": 22481,
+      "sha256": "9a947db6ebafa6e270c0786e5e9d1d38f48b731bd932f36408a5425f919e21df"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/coverage-manifest.json",
+      "bytes": 468337,
+      "sha256": "cc0b606c612c22d8f478689c2520abdc5e013d805baca4db988a8a2aa0cdbb17"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/provenance.json",
+      "bytes": 9268,
+      "sha256": "dfe0ba0e2150c12fb36c55440a278187b1c2caa339a7bbc29dbf2678310e3359"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/.gitignore",
+      "bytes": 59,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "bytes": 102,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "bytes": 39,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "bytes": 55,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "bytes": 11,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/orphan-file/package.json",
+      "bytes": 47,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/production-defaults/package.json",
+      "bytes": 225,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "bytes": 85,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a1-literals/xtask/project_analysis/oracle/package.json",
+      "bytes": 177,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a4/crates/biome_module_graph/src/project_facts.rs",
+      "bytes": 60040,
+      "sha256": "197ef156fcb65f3912f59b1bb3a3069d97f7db6a615a90b2b79b89fb060c288b"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a4/crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "bytes": 27441,
+      "sha256": "528f585ba4db6d52e001500aad0bd03e6b7fbf9bcf387f5a542a28cec4ebc7bb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/a4/provenance.json",
+      "bytes": 1701,
+      "sha256": "d9ae2689ebf5e6147ab11996aaee1e7e3e15687001c080301724369b426c2f87"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/b3/crates/biome_service/src/project_analysis/members.tests.rs",
+      "bytes": 27514,
+      "sha256": "636c43ae3231df0b8c5b04360e2ec7513c4b6bea5b472fdeb66e090b55a0d964"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/b3/provenance.json",
+      "bytes": 478,
+      "sha256": "1a77d36bd9ac50123f75df7bd103e71ee5518614f998f9fc273bf5b5358f0c53"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/b6/crates/biome_service/src/project_analysis/inventory.rs",
+      "bytes": 55137,
+      "sha256": "eab578c1e86e144da42f310fa857123fa1217a77345d21ad266c87c79927f9c1"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/derived/b6/provenance.json",
+      "bytes": 753,
+      "sha256": "c5a0c2d33112d5994c08d28559656cb64b75319b7acf9955a540fb6d9fb59a72"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/manifest.json",
+      "bytes": 515,
+      "sha256": "162c9442c41c0db6c12931e828198d9db743c2c7a5eda6709147fa0e7bc1750c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.cargo/config.toml",
+      "bytes": 1933,
+      "sha256": "55e1096e26df831c9aca829c83fe9383d913a402dccc0b8a3c4920ff44769ab7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/breezy-carpets-brake.md",
+      "bytes": 304,
+      "sha256": "34bd8ef0c4cbb7276be7a388d6f0c6dd2bfa69f41d9d6f45237dc592dae89a29"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/common-files-fry.md",
+      "bytes": 517,
+      "sha256": "fe02452a577bf5904bc06c669f24085a5eb8cee559d9200d810cdbbf807c8849"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/eight-otters-try.md",
+      "bytes": 311,
+      "sha256": "f571160b65f483e62eee58ee6cb5a7b83e7a22c8e3b9add648d897f2d5fd4b75"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/free-bushes-refuse.md",
+      "bytes": 333,
+      "sha256": "b6196863fb708155b46b63eda659db1a3d587ecb852c71e7376d7f72286557c8"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/grumpy-doodles-chew.md",
+      "bytes": 297,
+      "sha256": "bdff4ec469ff287c05607ff9c680581ed7f8aabfab0fc1e80fe3c81fe6608ada"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/many-ties-decide.md",
+      "bytes": 392,
+      "sha256": "4aa52b25783d75686da390f504f2f4906a13564b558bf9a644de040cf445bf3c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/modern-towns-allow.md",
+      "bytes": 364,
+      "sha256": "f2cbe5d1d23e54d062feed2d01c6cf327967b418f652f7ff96ff241cca19a586"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/perky-pumas-camp.md",
+      "bytes": 225,
+      "sha256": "9c740e9b83e2bee24a7b8def503e0770304ede664186e161d30710a3cdff7634"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/slow-ends-grow.md",
+      "bytes": 314,
+      "sha256": "91a5e4893cd00b24dc3e9bb7b1f75d087aedd2eb06faaf5c543d2601f0bba553"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/upset-animals-turn.md",
+      "bytes": 272,
+      "sha256": "59160cea97ede98ccec5a5fed55bc3c19dbd73108bc13bf5da19c05cb051e0ac"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/.changeset/witty-things-attend.md",
+      "bytes": 347,
+      "sha256": "46bd41d407e6ebc3b5acd7f6ccbbfd2b524d71105f1d9a4e346b7aa52d6422ae"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/Cargo.lock",
+      "bytes": 179634,
+      "sha256": "cc9f442499e4d68f484ebcb17b7db1d457ac1cd1785290b9c4607255a58d7153"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/Cargo.toml",
+      "bytes": 17229,
+      "sha256": "564cd30b3ce9f6b2d1fc12cdd8c9444d67b8f6da48419fbab58280a055779f3e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/Cargo.toml",
+      "bytes": 5030,
+      "sha256": "a91281f9584baf4a397ee9f729cfeb4856b25a1ac926fe640e205f90237152af"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/commands/analyze.rs",
+      "bytes": 7414,
+      "sha256": "ca0cd5206c17957d22b7e4c74fe9a4b7e59d344bf16ba2a4424b424ea831bdac"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/diagnostics.rs",
+      "bytes": 19485,
+      "sha256": "7e162b1e470a2a7da7e78ac81dced53cb3c7a3ba798ebf5f9404703afa7e69a9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/main.rs",
+      "bytes": 5047,
+      "sha256": "6f1d95ab35b3329715cffaf24f1e31abf450b4153063c8afa5f8ebb612585eb6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/reporter/project_analysis/mod.rs",
+      "bytes": 7742,
+      "sha256": "29538a6d5ea7a66929f03cf25cbe0cbdee2e0c8b5c69cc3fe30763b4964543fb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/reporter/project_analysis/native.rs",
+      "bytes": 435,
+      "sha256": "50c179e1da4eb399c83849985d8fef2944794a796de344cb6737b5bc3f55c6d6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/collector.rs",
+      "bytes": 1693,
+      "sha256": "40188b6e637db28210f90fde51fe3a25330133960d45101f2d5aa8997727c67c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/crawler.rs",
+      "bytes": 11117,
+      "sha256": "c57acfb2251e0a51d9e10fd15538f12a25ec2c364eb9c5da282a6ccff12468d6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/diagnostics.rs",
+      "bytes": 4018,
+      "sha256": "7b82a392cff04d88469e6518c699c28f62a7282c470dc00e3a045ab494529354"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/handler.rs",
+      "bytes": 7072,
+      "sha256": "9f2bf8f752fb6523d8aa99a937bedf9f29f0f72524e9b2da81e0b186b5a80346"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/collectors/default.rs",
+      "bytes": 16240,
+      "sha256": "00c3e602adea6aa095a067987a8f50f23cdc30b7e62971909208e14b0d63f1f6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/commands/traversal.rs",
+      "bytes": 7470,
+      "sha256": "64051afb1af708cdb8d7590be68d38de3196c433ad7ec3ebb15c0b1fd995a978"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/crawlers/default.rs",
+      "bytes": 1903,
+      "sha256": "962644c5e0dddda74b94314da0b50f5a84ae1a04abbdb3148047fca76e71d9e7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/finalizers/default.rs",
+      "bytes": 19361,
+      "sha256": "6567ba33ca72d95e27e9cf359297e4b6be2fcde6f286c1a8f6d1322e11522e4c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/handlers/default.rs",
+      "bytes": 134,
+      "sha256": "0238698681f9c25b77cdc734d989856a8dc8f06f704376a8999534a83c535842"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/process_file/check.rs",
+      "bytes": 5488,
+      "sha256": "ee9d4600234c79bf15e629ab216a2874c0fb0b103ce2f73f3bd66d68c2d156d8"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/process_file/lint_and_assist.rs",
+      "bytes": 8394,
+      "sha256": "73d9e9ef2f8331b12d02c698e479d948b8e9261c88305a86db7f3d6b698d80a6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/watchers/default.rs",
+      "bytes": 2611,
+      "sha256": "4fbfd1b87375baa2e301aea1c17729579011c706f244cdbf0fc90e023112397e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/impls/watchers/mock.rs",
+      "bytes": 614,
+      "sha256": "48906de704a5721ab001cb30659a1b1add7e5ffebc3929a8559a1c1a0b007d79"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/process_file.rs",
+      "bytes": 19942,
+      "sha256": "b8f510096ccf7acc1e9ac6ea3094620b9cc13c4b7ef69412d12a4a1bc6972f27"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/project_analysis.rs",
+      "bytes": 21511,
+      "sha256": "3ab3760675a4547eff624e483cf477e3b3057dd9f203e39da3437e6b902c45a0"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/src/runner/watcher.rs",
+      "bytes": 466,
+      "sha256": "bafc2563989c4382918f06b64ced2366795c2c85ba85a5692450b6569152c062"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/tests/project_analysis_exit.rs",
+      "bytes": 37122,
+      "sha256": "f2bd06cadba8feffa3ad5ae8cb7f3a3d4907ddaaae531785171a3629a0ae085f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+      "bytes": 16382,
+      "sha256": "547484f1986a04ae07925f94f6d3fb8b290a91676db3a173a45836c272dc9f58"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/Cargo.toml",
+      "bytes": 4134,
+      "sha256": "28f57e440a0c08c0c13b5f99ec2d710b7bf0b403ca0ce725072875dbcecf801c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/src/lib.rs",
+      "bytes": 37188,
+      "sha256": "c1990af407eff75d31aee6c489b7be224f5d8b945de604b7ab991958fff5c4e4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/src/project_analysis.rs",
+      "bytes": 17777,
+      "sha256": "02ccc29f7e146008ce4482814cefdfc0f08503cc4135c331fba2ed1c520eabf3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "bytes": 499,
+      "sha256": "50525046e13c886b0edcb8843125509d63c8e29a1ad3561f7e55879b7bd69f8b"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "bytes": 53,
+      "sha256": "f20f8eeb96d9cac3ea0ded012398639c56db90e2681282a8d7d606831296861a"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "bytes": 50,
+      "sha256": "5aeadfb82ae23d7ec0ea20a6fe1f7a904d071c983c2447656705c7aa122a4e03"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "bytes": 23,
+      "sha256": "3458a3605d43476e96a86f2350d393e8927d7ebfeef59eea59213e4b6b694bdb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_configuration/tests/project_analysis.rs",
+      "bytes": 13164,
+      "sha256": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_console/src/lib.rs",
+      "bytes": 12037,
+      "sha256": "14e19eac8b2726e574652318c7febda6d77808c11d668a853a9ec7919b309503"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_fs/src/fs.rs",
+      "bytes": 22317,
+      "sha256": "195374d88ac04e12544e0c7e1fbbb2e632de552becf317bcf375dcd02362dedf"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_fs/src/fs/memory.rs",
+      "bytes": 19818,
+      "sha256": "b1a633bbde27d267788ba334420c90689e854059616f67df3821cb68cf44eafa"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_fs/src/fs/os.rs",
+      "bytes": 16489,
+      "sha256": "af7b1d54e3c213ee681fb0832d4b53c743c75fa19d2c06c63571164a7c457ac7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_fs/tests/canonical_path.rs",
+      "bytes": 2656,
+      "sha256": "d886e5f48351f5c64955ba1708441b581e1839215244e3f1636876b3bec73416"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/Cargo.toml",
+      "bytes": 2313,
+      "sha256": "85e114f81a6adeb68e169d67330e221edea5e832898216bfed6c569091e016dc"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/documents.rs",
+      "bytes": 734,
+      "sha256": "a9d2ddc8e87ca7adb805c48407d6f3666ad094fea98d88dbde487aa485bacf92"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/handlers/text_document.rs",
+      "bytes": 9791,
+      "sha256": "4fc413c9ac98feb1eb344db1414640ddd30d49ba2ab5ea7bf986945fcd01e2c4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/lib.rs",
+      "bytes": 428,
+      "sha256": "2ca59d494ae39e4f156f6e90fef5d5e8cd65c2f2f0c499a77e04eee422ac3138"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/project_analysis.rs",
+      "bytes": 23954,
+      "sha256": "fcad09d0388bd89ad7dc38cda1e563eea6fcbe837d5c4befb0ae356ab2b91067"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/project_analysis.tests.rs",
+      "bytes": 49265,
+      "sha256": "fbc1ae4cbe562b02164588b6dd048eb28c63dc2b49f4a57fdcebca2029007411"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/server.rs",
+      "bytes": 36020,
+      "sha256": "c521bd0cadaf1264d417aa5c9e34a205853094d9c7f1d007c8f0fb86f65eda69"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/server_project_analysis.tests.rs",
+      "bytes": 5243,
+      "sha256": "eca30adff140e20a85e1d51b69f8b9fbf2a0f8749b789aa194d78ac59e5ba000"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_lsp/src/session.rs",
+      "bytes": 66215,
+      "sha256": "7a3959bcadf9764ec9133f85ea72de08d69bb0822c3dd7142ef1ba9b5e9b157e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/db/queries.rs",
+      "bytes": 8677,
+      "sha256": "775d0ced074ae7e13525ee5452c40d10982b7266d4526fa9bcdc38d4382f9547"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/db/queries/dependencies.rs",
+      "bytes": 4562,
+      "sha256": "84d0d4bd393b58a4e561c44d182e52f4bfabb2ab37651bf3474d259689b18347"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/db/queries/project_exports.rs",
+      "bytes": 5995,
+      "sha256": "3d1ff171e22d04b038a5d1a01120f808b6d1c5ee08be9730a538468adb61a97c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/js_module_info.rs",
+      "bytes": 18461,
+      "sha256": "d5992c1cdd9ed5ed12238c92e6d53effa8798377d180777fd5ca6eaac16ec80a"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/js_module_info/collector.rs",
+      "bytes": 44145,
+      "sha256": "26191ae91904fcf3af5bf14a9d2f0d7d21a271764abc22abc53d3ea1645d8f01"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/js_module_info/visitor.rs",
+      "bytes": 19987,
+      "sha256": "d527ee9af81900ae6a7084bc9fe49066e20dd360e3263b781dbc39a66bb53109"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/lib.rs",
+      "bytes": 3180,
+      "sha256": "dd91ded34c671cdb1f3dcd061a342f6f9888120397eb70436bbba0ca0acbaa8f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/module_graph.rs",
+      "bytes": 8263,
+      "sha256": "c0a301d090863e80fa0308f63e60d7a733031f653cd3de09d8a8d5ecebdf2400"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/project_commands.rs",
+      "bytes": 4533,
+      "sha256": "baf1f8298cf968307c1e290f11187eaaaeb4112912761ff648ba7c3820c08301"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/project_facts.rs",
+      "bytes": 95206,
+      "sha256": "c8a57beeb81bf636292aa565d3991f3fd01cb6849e3d0a86591979400bfd9c1d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/project_members.rs",
+      "bytes": 10977,
+      "sha256": "c45d43634bfa553e25722a3b7ef3de2d72c8bacfae8395ce760a89d4cfb99892"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/src/resolution.rs",
+      "bytes": 10813,
+      "sha256": "b9a9aa06e27fe1c352e5289535b83cf01f77b36ec5ffc122c3304f60bcc3124c"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/tests/spec_tests.rs",
+      "bytes": 23742,
+      "sha256": "60d8803fbff4424a1f0cb519a9988b17e686ff5e6af030521f4c0a578379eee9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "bytes": 36227,
+      "sha256": "831831979f021ee4ab7e6b8609d59baa972e593731e995e98ad0892cc3a8e387"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_module_graph/tests/spec_tests/support.rs",
+      "bytes": 8274,
+      "sha256": "709e0aa53550ff9a8a41fd96a647c956887026355b43d62a4940d58e836d3778"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/lib.rs",
+      "bytes": 2734,
+      "sha256": "a03189c0a368aca7822255273ad9c0ef1ca4658739945514e95314873884c238"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/node_js_package/mod.rs",
+      "bytes": 4177,
+      "sha256": "de015a22e4f239b68e78d99786e132cc3d640003598c63624c5af790f92939b5"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/node_js_package/package_json.rs",
+      "bytes": 35139,
+      "sha256": "a13e31a99a40afecca632b4d416e7b8c415f7980f383e690e4a12af5abc785ae"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 15608,
+      "sha256": "693d8efbf0c2e37ebb2ebd44193dc77136b7999bc8bfd9d54c5bff4a9c8923ec"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "bytes": 21155,
+      "sha256": "1f2896532e5fc47ed600f641896e6b36a6b48d7d816c14eb658c2ec35ff367ff"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/src/node_js_package/workspace_metadata.rs",
+      "bytes": 9381,
+      "sha256": "c05e3053d37eac65a620a68fdaeffe94f738b5af8e05280c22c1f4ba40801a82"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/tests/project_metadata.rs",
+      "bytes": 14282,
+      "sha256": "75433266aff2b8b8d0647697199c15e13f821448dc0312a26cc2aa4d298227e3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "bytes": 3114,
+      "sha256": "6977fde8f7911f3d9c888ca53034139c99d7404ee6649b6f2a480d5a095ce523"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "bytes": 10184,
+      "sha256": "394e452fd1fbac2d518b8c24b47b59f928ccf781ab550f06bb09b2da40b89184"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_package/tests/workspace_metadata.rs",
+      "bytes": 1302,
+      "sha256": "d8001d11d31d1744ccdd109b51ab9d8ef42a7cf525c229dfb52b030e13c0522b"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/Cargo.toml",
+      "bytes": 709,
+      "sha256": "23f14088542da8539d9c8e0c1ca80428682d599e18118f07bb46196e0bb9e54d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/catalogs.rs",
+      "bytes": 12984,
+      "sha256": "f2e72b6b60622819e611e37e8f9008a0bee8f2f0343af15b1289ae6d77917a3e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/coverage.rs",
+      "bytes": 1733,
+      "sha256": "f5a254372ffbe6bd1e434fca1d68692a5a58d7025630b3d835e4ec4a508fbf08"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/dependencies.rs",
+      "bytes": 31271,
+      "sha256": "5fdb940e90065292d91d674b875b5368e86c43a9f0ea2770ce6f224abc3a26a5"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/exports.rs",
+      "bytes": 41459,
+      "sha256": "30a00ebfc23e2d8408b894ccaa71ad269b23a06b403f819325ef22561a6a2c15"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/facts.rs",
+      "bytes": 9201,
+      "sha256": "a75e8b1c39d167e492825c0c1e741b4ae286a3bccde962e3f64c0a961ac47d7b"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/inventory.rs",
+      "bytes": 6647,
+      "sha256": "f37f8581f875682c774668fa51744ac7015fc236e2287ed9531aae5b4b1a4535"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/lib.rs",
+      "bytes": 8994,
+      "sha256": "513f0f8c64ca3568bccc5854ea6b101effa247e0c21c5c90f399cc83bcb141ca"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/members.rs",
+      "bytes": 18878,
+      "sha256": "f2079a28a205dd66300dd773c570b79bf03c1b27320303478f6679cd05a5d0b4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/model.rs",
+      "bytes": 5362,
+      "sha256": "f32c69a510bfb849bca984ac712318c2420fde68cda4c50f6828122ad4229e17"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/normalize.rs",
+      "bytes": 6251,
+      "sha256": "5769a65f971a1dc7109555fda0ab17fca8a9f9004c8d75e48edcbba1e70dc748"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/options.rs",
+      "bytes": 7015,
+      "sha256": "a328a6f10e281799e94a6b9a857df577cd1a58a1f611ed02a49d31e3f03e00a2"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/policy.rs",
+      "bytes": 25506,
+      "sha256": "15e827f8ca0410ee01a2059bcc4c9f2ee8c6c8c719cb5f544ddaab6468b1b935"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/reachability.rs",
+      "bytes": 23188,
+      "sha256": "32cfe52e3ac3a4349b41777ec6269435d12f9e154d2d93a100cfe7fe8c5393a2"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/report_metadata.rs",
+      "bytes": 16314,
+      "sha256": "7ec3527e6c3e94206f7db7b705ad025e3187c45d16ea3b6dbc67c24e4bec7d65"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/resolution.rs",
+      "bytes": 5854,
+      "sha256": "2a8e53c2d1b9749cdec1a19a93ce97dfab722e9efb2b7ab95820b11193d8867d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/result.rs",
+      "bytes": 5430,
+      "sha256": "0f199a13761e2994ccc177e7e004b3ec98c9c4b97eda5bcf5d509f3acf37c5ef"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/scripts.rs",
+      "bytes": 37197,
+      "sha256": "6b58c0975cd6b6b15b0a0e02ad84e96c61c733bdddda474ef9f3e3189de8de98"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/contracts.rs",
+      "bytes": 11400,
+      "sha256": "82705f997f47a185724e9beb83c1eb9f775e0404b3dacdc69d15d7f613e53127"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "bytes": 123,
+      "sha256": "1e9784ad4abc8a659823632f607292259db75f1b20fdf02619717d983b959228"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/fixtures/empty.json",
+      "bytes": 399,
+      "sha256": "a8034f8d4d435abe04ebbea3eb67f54c1cc1c9ad6fbe0c1aff540b6506af8167"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/fixtures/unreachable_chain_and_cycle.expected.json",
+      "bytes": 63,
+      "sha256": "3ca9680198fa57519cddd6775373f303215567afadae672b02024d2fcf130156"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/members.rs",
+      "bytes": 7217,
+      "sha256": "5ef044c92f0400bbc76b6dbfa3c63122009df573bc6fbabe73cc5cc346d679e2"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/policy.rs",
+      "bytes": 9695,
+      "sha256": "bacd546d7a3f447b2b95e6ac461238088ba95197a9dcb0b5b2e75f41a8ce5ef9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/scripts.rs",
+      "bytes": 12669,
+      "sha256": "3fcbab0250bfe9936b0e411796c290f6193a4aedc4ed155d1f2f4ff016138604"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/support/mod.rs",
+      "bytes": 1263,
+      "sha256": "d8fd7f3d4c9928ec5fe6c79323039134ad06c71b4e2e4995d7324a903f537817"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_resolver/src/db.rs",
+      "bytes": 29879,
+      "sha256": "2fdfc39584b3e8abc86d7600ef6999a2cc7a38ef8bfbbbe1d30ff26857e03e64"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_resolver/src/lib.rs",
+      "bytes": 65859,
+      "sha256": "9b5a9f09bdda11393a0e3a69cf01922a36bb5e2e7e5f8e3e43d560cafe91df8f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_resolver/src/resolver_fs_proxy.rs",
+      "bytes": 9462,
+      "sha256": "5cdeb662e933bd292032231070bd994c70aa73363821e9137a0f57bf7b84c95d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_resolver/tests/consumer_context.rs",
+      "bytes": 3944,
+      "sha256": "4775b3501a3d741dcc536525818facd7a320676c3690f06f8db23bab333986ae"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_resolver/tests/spec_tests.rs",
+      "bytes": 42406,
+      "sha256": "0c46021cfec4613717a4256902552c686ee87ecab87b3e3d778c1acc308de3ac"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/Cargo.toml",
+      "bytes": 10211,
+      "sha256": "d2434ca46f120d09f63b4f542517469102e98b0f4d887ccb33b86c7d0071293e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/module_graph.rs",
+      "bytes": 1007,
+      "sha256": "8919b6890da4fdcad512b732800d435408278b839816512f1e0854f9079d7400"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis.rs",
+      "bytes": 4275,
+      "sha256": "440a2783e5da58e3254649f4101b821b14830843ee11d5a36587d500a8bd2b9e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/b6.tests.rs",
+      "bytes": 37813,
+      "sha256": "371094017bd08561c7a1e93023ccc229933f31e4bb76aa13e75a3ee0464eee77"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/coordinator.rs",
+      "bytes": 21312,
+      "sha256": "fb3cf0598b3e4dc645ca039e017e058bbfa4d6d05cf7d0483fb59ab99c70f4a3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/dependencies.rs",
+      "bytes": 32480,
+      "sha256": "54f16fde6054fcefc4d476f0ff99729e20e92be5993f93e6d8d9f3dc9c96d7e4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/dependencies.tests.rs",
+      "bytes": 62557,
+      "sha256": "e7fd3e2557d72e6a67c8823aede3847f53699bd2416da816201a9d330c4c5931"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/exports.tests.rs",
+      "bytes": 54669,
+      "sha256": "f151cc05ddc6cccf02bc59cca62b6459496b069ecc6c7ce01676fb2ef5152bb7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/fixtures/README.md",
+      "bytes": 8896,
+      "sha256": "03494d80097e30f965195e163ea110b2c19cb21f047fbd68fbcb08dc9a50c543"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/inventory.rs",
+      "bytes": 55137,
+      "sha256": "eab578c1e86e144da42f310fa857123fa1217a77345d21ad266c87c79927f9c1"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/members.tests.rs",
+      "bytes": 27799,
+      "sha256": "66c006449a7e72b9ab23c4632171f25871becc38e919229f89a862de93cd0337"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/owned_facts.rs",
+      "bytes": 25740,
+      "sha256": "09eaa4147ca4dde3db35c8a9fc1591f3ec18e49dc6db9b04b2344a75a305537f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/paths.rs",
+      "bytes": 5841,
+      "sha256": "7cc5b472c9f7724c6bf4bc0ab6a129b2c89b0fea2c53412b913766ddeed51c8d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/pinned_fs.rs",
+      "bytes": 6506,
+      "sha256": "cd1b2c7208cfcbcac56b75871b907d82c8e51e069d4348ade6ecc449817f1e31"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/policy.rs",
+      "bytes": 17282,
+      "sha256": "61d1dfddc6a95911ef27966a748689d6b63bf44769ee3c37bb880cebd1406f02"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/reachability.tests.rs",
+      "bytes": 26447,
+      "sha256": "f74c43e4f6d33ab85723fa4711f53fb410549a70b234e469eaefe85542b7b50e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/scripts.rs",
+      "bytes": 12737,
+      "sha256": "479ce6f34379ffe309585bfccc037710b37812e4dc3d918442028559c441e268"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/scripts.tests.rs",
+      "bytes": 30330,
+      "sha256": "0b6cd5b9926ad2d03c933665cc032dfee0bea67e96e92590cda4375b1d449edb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/snapshot.rs",
+      "bytes": 25979,
+      "sha256": "ce53ad7391f700339040014a4e8253aa473b21dbd300628feeafe1154e0a2a6e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/transport.rs",
+      "bytes": 5426,
+      "sha256": "c7ff275202b0214496765766d3bc826cc42f3c454f3153d41219aa52c3433d99"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/tsconfig.rs",
+      "bytes": 12290,
+      "sha256": "562ae4ff1345112b97b6c330f6b1fcf86cf3b61af3efafedb9dec9c4e97ca90f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/scanner/watcher.rs",
+      "bytes": 21566,
+      "sha256": "34c749af55c2411fc51f7ff5f4c1a6479f514a0d90bc57108cdfb3fdcdbe9b1e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L2327-L2389.excerpt",
+      "bytes": 2642,
+      "sha256": "014d67e8ce005b36af9372bc3cbc0aefc4ace9f1598ee26b4de0f917f2ac7b3e"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L2772-L2813.excerpt",
+      "bytes": 3629,
+      "sha256": "b4cde0c488f122083e6dd4882c1bc3b5e3472a0c0e72b8c0e6b5ddd9394e88e4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L2877-L2889.excerpt",
+      "bytes": 480,
+      "sha256": "2dc4a61db0768239782dae7b3bad3b7e4fb322209d0bb6c212a2d433dfab2cc6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L3369-L3508.excerpt",
+      "bytes": 5029,
+      "sha256": "c051b5b296759131706f4c17a9ae4b5545aed2b6d5cb2f26d09b3589f4a0850d"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L4322-L4353.excerpt",
+      "bytes": 1459,
+      "sha256": "9e6c5a913ff91500722d84c04966933982bc38ee98bedfd75324e3ce24b57cbd"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_service/src/workspace/server.rs.L447-L453.excerpt",
+      "bytes": 256,
+      "sha256": "a40ac9d55de34c4d043066312a8a2b79a552022d8945391263ef9baebce7531f"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_wasm/Cargo.toml",
+      "bytes": 2401,
+      "sha256": "f6424f51eeada856b9c5db8be28268bff936b930ca90297bab757ef2a33391e4"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/crates/biome_wasm/src/lib.rs",
+      "bytes": 15796,
+      "sha256": "b03f8835a50147d406cba8d0e7f073b0bd7d878c00c6ac9f2f81260119a3096a"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+      "bytes": 478357,
+      "sha256": "e7acbc9756695f13b04c4517ac6a316a01086eb0ef8d8ed42203825e5251ddef"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/packages/@biomejs/biome/configuration_schema.json",
+      "bytes": 714024,
+      "sha256": "e07b4f61bde4a5fa14a872fcf796d49de4e36513333e47098862fa5eae953ceb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/rust-toolchain.toml",
+      "bytes": 234,
+      "sha256": "bd7b06458e86e1606ce6f793b95b4ede16832ad87ce9e7262e42d66b6a54a257"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/.gitignore",
+      "bytes": 59,
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/Cargo.toml",
+      "bytes": 516,
+      "sha256": "242bc9d6b4c728101d1f7cbb8e2834a55336aaea5073a93ae7c7af62706a4591"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/README.md",
+      "bytes": 5269,
+      "sha256": "e7e816c9d2caf87802c12fa2fda86957b08964759b92f92b421eb0d56b6cdb37"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "bytes": 102,
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "bytes": 39,
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "bytes": 55,
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "bytes": 11,
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "bytes": 70,
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/orphan-file/package.json",
+      "bytes": 47,
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/production-defaults/package.json",
+      "bytes": 225,
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "bytes": 85,
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "bytes": 25,
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "bytes": 48,
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/scripts/README.md",
+      "bytes": 2628,
+      "sha256": "3c1d47b3c7592156250fdb002fdd86d9f2df22e69e1690c604e89c3452e763d8"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/scripts/command-comparisons.json",
+      "bytes": 11603,
+      "sha256": "5d8a35ed8f49d6f8687c722cfff400473fd2ae421fb9ae4f7e42852ea81dfc69"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/fixtures/scripts/comparison.json",
+      "bytes": 1113,
+      "sha256": "0a88b05a8f80d0620ebbb371cb26a86076408aa63cee5690e13199e02e30fcdb"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/observations/corrupt-artifact.json",
+      "bytes": 633,
+      "sha256": "ba26190b91538f0d388c7757abcb8c9a428a0b441ec2889a1e05c305df3567b6"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/observations/namespace-known-key.json",
+      "bytes": 3055,
+      "sha256": "728bec8599818cc9df6630d90eaf2997f531d1721412f48af8e7a3cbb2f400d5"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/observations/orphan-file.json",
+      "bytes": 2907,
+      "sha256": "11b20d1fe14d994702b75a56b038ac02c8fdfae21cce1aa95a258af2a960a1db"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/observations/production-defaults.json",
+      "bytes": 4138,
+      "sha256": "7c0fde73f45a7f2b9feeb1f04bdbb188ca5e1b348d5c402dd98766bbcd81f439"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/oracle/identity.json",
+      "bytes": 290,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/oracle/package.json",
+      "bytes": 177,
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/oracle/validation.json",
+      "bytes": 903,
+      "sha256": "ae111a9db187c0d59bd070e3f84fc55f377c14d49c13b1200343f7a03865e28a"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/policy/comparison-index.json",
+      "bytes": 12791,
+      "sha256": "cc634fa476876d0fab91abb46fefb41761045dc9dec62cd506cd0232bfd3a037"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/policy/native-expectations.json",
+      "bytes": 3928,
+      "sha256": "ec6090f2f102d9f6d8f4bb072f8f826e0d6c4a2707719171f3ded7ecdadd4b07"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/src/execution.rs",
+      "bytes": 8604,
+      "sha256": "c8834babbbecfac8bcc6c4c9fc11ea02e61321cbd495bd55f2c86380ae825315"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/src/main.rs",
+      "bytes": 3361,
+      "sha256": "b4ae294bb933e68ca0fbad1e65f55fad3b8ff545efe39d8762184c53c43756a5"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/source/xtask/project_analysis/tests/cli.rs",
+      "bytes": 1327,
+      "sha256": "7b567db06e7fa19669fbe2a4289487d4cd8879e5e6675e9eb5c3e7e7987bb0ea"
+    },
+    {
+      "path": "records/recovered-assembly-checkpoint/summary.json",
+      "bytes": 414,
+      "sha256": "c1104f5fa2d60c06d81228610daeecba3f369068ed7c38eb61078941b5867f0e"
+    },
+    {
       "path": "records/recovered-b1/RECOVERY.md",
       "bytes": 5525,
       "sha256": "3db576101507e750331aa8ebda299b0357dc99e84a111fe307a695d6ea5eed82"

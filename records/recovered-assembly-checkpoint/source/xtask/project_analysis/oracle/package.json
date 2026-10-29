@@ -1,0 +1,7 @@
+{
+  "name": "biome-project-analysis-oracle",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": { "knip": "6.43.0" },
+  "engines": { "node": "^20.19.0 || >=22.12.0" }
+}

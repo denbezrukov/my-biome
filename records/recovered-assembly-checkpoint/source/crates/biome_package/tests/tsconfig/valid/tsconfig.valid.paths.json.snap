@@ -1,0 +1,245 @@
+---
+source: crates/biome_package/tests/manifest_spec_tests.rs
+expression: tsconfig.valid.paths.json
+---
+## Input
+
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/services": [
+        "services",
+        "vendor/services"
+      ]
+    }
+  },
+}
+
+
+## Data structure
+
+TsConfigJson {
+    root: true,
+    path: "<PREFIX>/tsconfig/valid/tsconfig.valid.paths.json",
+    extends: None,
+    files: None,
+    include: None,
+    exclude: None,
+    compiler_options: CompilerOptions {
+        base_url: Some(
+            "<PREFIX>/tsconfig/valid/src",
+        ),
+        root_dir: None,
+        out_dir: None,
+        root_dirs: None,
+        module: None,
+        module_resolution: None,
+        custom_conditions: None,
+        types: None,
+        allow_js: None,
+        resolve_json_module: None,
+        allow_importing_ts_extensions: None,
+        resolve_package_json_exports: None,
+        resolve_package_json_imports: None,
+        module_suffixes: None,
+        no_resolve: None,
+        preserve_symlinks: None,
+        paths: Some(
+            {
+                "@/services": [
+                    "services",
+                    "vendor/services",
+                ],
+            },
+        ),
+        paths_base: "<PREFIX>/tsconfig/valid/src",
+        type_roots: None,
+        jsx_factory: None,
+        jsx_fragment_factory: None,
+    },
+    references: [],
+    metadata: Some(
+        MetadataValue {
+            value: Object(
+                JsonObject(
+                    {
+                        JsonString(
+                            "compilerOptions",
+                        ): Object(
+                            JsonObject(
+                                {
+                                    JsonString(
+                                        "baseUrl",
+                                    ): String(
+                                        JsonString(
+                                            "src",
+                                        ),
+                                    ),
+                                    JsonString(
+                                        "paths",
+                                    ): Object(
+                                        JsonObject(
+                                            {
+                                                JsonString(
+                                                    "@/services",
+                                                ): Array(
+                                                    JsonArray(
+                                                        [
+                                                            String(
+                                                                JsonString(
+                                                                    "services",
+                                                                ),
+                                                            ),
+                                                            String(
+                                                                JsonString(
+                                                                    "vendor/services",
+                                                                ),
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                        ),
+                    },
+                ),
+            ),
+            range: 0..150,
+            members: {
+                "compilerOptions": MetadataValue {
+                    value: Object(
+                        JsonObject(
+                            {
+                                JsonString(
+                                    "baseUrl",
+                                ): String(
+                                    JsonString(
+                                        "src",
+                                    ),
+                                ),
+                                JsonString(
+                                    "paths",
+                                ): Object(
+                                    JsonObject(
+                                        {
+                                            JsonString(
+                                                "@/services",
+                                            ): Array(
+                                                JsonArray(
+                                                    [
+                                                        String(
+                                                            JsonString(
+                                                                "services",
+                                                            ),
+                                                        ),
+                                                        String(
+                                                            JsonString(
+                                                                "vendor/services",
+                                                            ),
+                                                        ),
+                                                    ],
+                                                ),
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            },
+                        ),
+                    ),
+                    range: 23..147,
+                    members: {
+                        "baseUrl": MetadataValue {
+                            value: String(
+                                JsonString(
+                                    "src",
+                                ),
+                            ),
+                            range: 40..45,
+                            members: {},
+                            elements: [],
+                        },
+                        "paths": MetadataValue {
+                            value: Object(
+                                JsonObject(
+                                    {
+                                        JsonString(
+                                            "@/services",
+                                        ): Array(
+                                            JsonArray(
+                                                [
+                                                    String(
+                                                        JsonString(
+                                                            "services",
+                                                        ),
+                                                    ),
+                                                    String(
+                                                        JsonString(
+                                                            "vendor/services",
+                                                        ),
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ),
+                            range: 60..143,
+                            members: {
+                                "@/services": MetadataValue {
+                                    value: Array(
+                                        JsonArray(
+                                            [
+                                                String(
+                                                    JsonString(
+                                                        "services",
+                                                    ),
+                                                ),
+                                                String(
+                                                    JsonString(
+                                                        "vendor/services",
+                                                    ),
+                                                ),
+                                            ],
+                                        ),
+                                    ),
+                                    range: 82..137,
+                                    members: {},
+                                    elements: [
+                                        MetadataValue {
+                                            value: String(
+                                                JsonString(
+                                                    "services",
+                                                ),
+                                            ),
+                                            range: 92..102,
+                                            members: {},
+                                            elements: [],
+                                        },
+                                        MetadataValue {
+                                            value: String(
+                                                JsonString(
+                                                    "vendor/services",
+                                                ),
+                                            ),
+                                            range: 112..129,
+                                            members: {},
+                                            elements: [],
+                                        },
+                                    ],
+                                },
+                            },
+                            elements: [],
+                        },
+                    },
+                    elements: [],
+                },
+            },
+            elements: [],
+        },
+    ),
+    metadata_diagnostics: [],
+}
