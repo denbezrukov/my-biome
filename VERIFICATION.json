@@ -1,0 +1,781 @@
+{
+  "scope": "Recovery provenance and copy-integrity verification only; no project execution or historical tests rerun.",
+  "assembly_manifest_sha256": "d25e49aa63390d755eac9638e609204fb4c27c3462a5c1a83c8598018c8f1acc",
+  "assembly_stable_during_check": true,
+  "assembly_records": 228,
+  "complete_materialized_files": 194,
+  "status_counts": {
+    "latest_available_complete_source": 174,
+    "missing_complete_source": 34,
+    "later_known_changes_missing": 20
+  },
+  "materialized_file_errors": [],
+  "unexpected_materialized_paths": [],
+  "missing_materialized_paths": [],
+  "historical_proof_kind_counts": {
+    "original_sha256": 27,
+    "see_per_file_historical_proof": 9,
+    "no_historical_proof": 89,
+    "agent_verified_original_sha256": 10,
+    "original_git_blob_prefix_before_and_after": 32,
+    "agent_verified_original_git_blob_prefix": 3,
+    "agent_verified_original_blob_prefix": 4,
+    "agent_reconstructed_from_exact_diff": 3,
+    "literal_extraction_with_fixture_group_validation": 16,
+    "original_git_blob_prefix_from_immutable_reference_regeneration": 1
+  },
+  "selected_recorded_original_digest_or_prefix_matches": 106,
+  "authenticated_paths": [
+    ".cargo/config.toml",
+    ".changeset/eight-otters-try.md",
+    ".changeset/free-bushes-refuse.md",
+    ".changeset/many-ties-decide.md",
+    ".changeset/modern-towns-allow.md",
+    ".changeset/witty-things-attend.md",
+    "Cargo.lock",
+    "Cargo.toml",
+    "crates/biome_cli/Cargo.toml",
+    "crates/biome_cli/src/commands/analyze.rs",
+    "crates/biome_cli/src/main.rs",
+    "crates/biome_cli/src/reporter/project_analysis/mod.rs",
+    "crates/biome_cli/src/reporter/project_analysis/native.rs",
+    "crates/biome_cli/src/runner/impls/collectors/default.rs",
+    "crates/biome_cli/src/runner/impls/commands/traversal.rs",
+    "crates/biome_cli/src/runner/impls/crawlers/default.rs",
+    "crates/biome_cli/src/runner/impls/finalizers/default.rs",
+    "crates/biome_cli/src/runner/project_analysis.rs",
+    "crates/biome_cli/tests/project_analysis_exit.rs",
+    "crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+    "crates/biome_configuration/Cargo.toml",
+    "crates/biome_configuration/src/lib.rs",
+    "crates/biome_configuration/src/project_analysis.rs",
+    "crates/biome_console/src/lib.rs",
+    "crates/biome_fs/src/fs.rs",
+    "crates/biome_fs/src/fs/memory.rs",
+    "crates/biome_lsp/Cargo.toml",
+    "crates/biome_lsp/src/documents.rs",
+    "crates/biome_lsp/src/handlers/text_document.rs",
+    "crates/biome_lsp/src/lib.rs",
+    "crates/biome_lsp/src/project_analysis.rs",
+    "crates/biome_lsp/src/project_analysis.tests.rs",
+    "crates/biome_lsp/src/server.rs",
+    "crates/biome_lsp/src/session.rs",
+    "crates/biome_module_graph/src/db/queries.rs",
+    "crates/biome_module_graph/src/db/queries/project_exports.rs",
+    "crates/biome_module_graph/src/js_module_info.rs",
+    "crates/biome_module_graph/src/js_module_info/collector.rs",
+    "crates/biome_module_graph/src/js_module_info/visitor.rs",
+    "crates/biome_module_graph/src/lib.rs",
+    "crates/biome_module_graph/src/module_graph.rs",
+    "crates/biome_module_graph/src/project_commands.rs",
+    "crates/biome_module_graph/src/project_facts.rs",
+    "crates/biome_module_graph/src/project_members.rs",
+    "crates/biome_module_graph/tests/spec_tests.rs",
+    "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+    "crates/biome_module_graph/tests/spec_tests/support.rs",
+    "crates/biome_package/src/lib.rs",
+    "crates/biome_package/src/node_js_package/mod.rs",
+    "crates/biome_package/src/node_js_package/package_json.rs",
+    "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+    "crates/biome_package/tests/project_metadata.rs",
+    "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+    "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+    "crates/biome_project_analysis/Cargo.toml",
+    "crates/biome_project_analysis/src/catalogs.rs",
+    "crates/biome_project_analysis/src/dependencies.rs",
+    "crates/biome_project_analysis/src/exports.rs",
+    "crates/biome_project_analysis/src/lib.rs",
+    "crates/biome_project_analysis/src/members.rs",
+    "crates/biome_project_analysis/src/model.rs",
+    "crates/biome_project_analysis/src/normalize.rs",
+    "crates/biome_project_analysis/src/options.rs",
+    "crates/biome_project_analysis/src/policy.rs",
+    "crates/biome_project_analysis/src/reachability.rs",
+    "crates/biome_project_analysis/src/report_metadata.rs",
+    "crates/biome_project_analysis/src/result.rs",
+    "crates/biome_project_analysis/src/scripts.rs",
+    "crates/biome_project_analysis/tests/contracts.rs",
+    "crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+    "crates/biome_project_analysis/tests/fixtures/unreachable_chain_and_cycle.expected.json",
+    "crates/biome_project_analysis/tests/members.rs",
+    "crates/biome_project_analysis/tests/scripts.rs",
+    "crates/biome_project_analysis/tests/support/mod.rs",
+    "crates/biome_resolver/src/db.rs",
+    "crates/biome_resolver/src/lib.rs",
+    "crates/biome_resolver/src/resolver_fs_proxy.rs",
+    "crates/biome_resolver/tests/spec_tests.rs",
+    "crates/biome_service/Cargo.toml",
+    "crates/biome_service/src/project_analysis/b6.tests.rs",
+    "crates/biome_service/src/project_analysis/dependencies.rs",
+    "crates/biome_service/src/project_analysis/exports.tests.rs",
+    "crates/biome_service/src/project_analysis/fixtures/README.md",
+    "crates/biome_service/src/project_analysis/inventory.rs",
+    "crates/biome_service/src/project_analysis/members.tests.rs",
+    "crates/biome_service/src/project_analysis/owned_facts.rs",
+    "crates/biome_service/src/project_analysis/policy.rs",
+    "crates/biome_service/src/project_analysis/reachability.tests.rs",
+    "crates/biome_service/src/project_analysis/scripts.tests.rs",
+    "crates/biome_service/src/project_analysis/snapshot.rs",
+    "crates/biome_service/src/project_analysis/tsconfig.rs",
+    "crates/biome_service/src/scanner/watcher.rs",
+    "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+    "packages/@biomejs/biome/configuration_schema.json",
+    "rust-toolchain.toml",
+    "xtask/project_analysis/Cargo.toml",
+    "xtask/project_analysis/README.md",
+    "xtask/project_analysis/compatibility.json",
+    "xtask/project_analysis/fixtures/scripts/README.md",
+    "xtask/project_analysis/fixtures/scripts/command-comparisons.json",
+    "xtask/project_analysis/fixtures/scripts/comparison.json",
+    "xtask/project_analysis/oracle/package-lock.json",
+    "xtask/project_analysis/reference/tests.json",
+    "xtask/project_analysis/src/execution.rs",
+    "xtask/project_analysis/src/main.rs",
+    "xtask/project_analysis/tests/cli.rs"
+  ],
+  "selected_observed_at_e645": 32,
+  "selected_e645_authenticated": 22,
+  "selected_directly_bound_by_authenticated_original_manifests": [
+    {
+      "path": ".cargo/config.toml",
+      "binding": "c3"
+    },
+    {
+      "path": ".changeset/modern-towns-allow.md",
+      "binding": "c3"
+    },
+    {
+      "path": "Cargo.toml",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_cli/Cargo.toml",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_cli/src/commands/analyze.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/mod.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/native.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_lsp/Cargo.toml",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/documents.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/handlers/text_document.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/lib.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/project_analysis.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/project_analysis.tests.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/server.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_lsp/src/session.rs",
+      "binding": "c3"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/lib.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/report_metadata.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/result.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/members.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/members.tests.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/policy.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "binding": "c3"
+    },
+    {
+      "path": "xtask/project_analysis/Cargo.toml",
+      "binding": "c4"
+    },
+    {
+      "path": "xtask/project_analysis/src/execution.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "xtask/project_analysis/src/main.rs",
+      "binding": "c4"
+    },
+    {
+      "path": "xtask/project_analysis/tests/cli.rs",
+      "binding": "c4"
+    }
+  ],
+  "authenticated_original_manifests": {
+    "c4": {
+      "path": "recovered-c4/original-final-commit-binding.transcribed.json",
+      "sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b",
+      "historical_sha256_match": true,
+      "source_bindings": 44
+    },
+    "c3": {
+      "path": "recovered-c3/final-precommit-bindings.exact-recovered.json",
+      "sha256": "8c43a106b69fdc6c0643eddec5a685e8b2a1ff2598915697689ef45dc07d97b0",
+      "historical_sha256_match": true,
+      "source_bindings": 14
+    }
+  },
+  "original_manifest_source_coverage": {
+    "c4": {
+      "recovered_bound_file_count": 15,
+      "bound_file_count": 44,
+      "found": [
+        {
+          "path": "crates/biome_cli/Cargo.toml",
+          "recovered_from": [
+            "recovered-c5/base-e645266/crates/biome_cli/Cargo.toml",
+            "recovered-assembly-checkpoint/source/crates/biome_cli/Cargo.toml",
+            "recovered-assembly/source/crates/biome_cli/Cargo.toml"
+          ]
+        },
+        {
+          "path": "crates/biome_cli/src/commands/analyze.rs",
+          "recovered_from": [
+            "recovered-c5/base-e645266/crates/biome_cli/src/commands/analyze.rs",
+            "recovered-assembly-checkpoint/source/crates/biome_cli/src/commands/analyze.rs",
+            "recovered-assembly/source/crates/biome_cli/src/commands/analyze.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_cli/src/reporter/project_analysis/mod.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_cli/src/reporter/project_analysis/mod.rs",
+            "recovered-c5-api-prep/crates/biome_cli/src/reporter/project_analysis/mod.rs",
+            "recovered-assembly/source/crates/biome_cli/src/reporter/project_analysis/mod.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_cli/src/reporter/project_analysis/native.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_cli/src/reporter/project_analysis/native.rs",
+            "recovered-c5-api-prep/crates/biome_cli/src/reporter/project_analysis/native.rs",
+            "recovered-assembly/source/crates/biome_cli/src/reporter/project_analysis/native.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+            "recovered-assembly/source/crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+            "recovered-c4-review/lint_help.snap"
+          ]
+        },
+        {
+          "path": "crates/biome_project_analysis/src/lib.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/lib.rs",
+            "recovered-c5-api-prep/crates/biome_project_analysis/src/lib.rs",
+            "recovered-assembly/source/crates/biome_project_analysis/src/lib.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_project_analysis/src/report_metadata.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/report_metadata.rs",
+            "recovered-c5-api-prep/crates/biome_project_analysis/src/report_metadata.rs",
+            "recovered-assembly/source/crates/biome_project_analysis/src/report_metadata.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_project_analysis/src/result.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_project_analysis/src/result.rs",
+            "recovered-c5-api-prep/crates/biome_project_analysis/src/result.rs",
+            "recovered-assembly/source/crates/biome_project_analysis/src/result.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_project_analysis/tests/members.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_project_analysis/tests/members.rs",
+            "recovered-assembly/source/crates/biome_project_analysis/tests/members.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_service/src/project_analysis/members.tests.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/members.tests.rs",
+            "recovered-assembly/source/crates/biome_service/src/project_analysis/members.tests.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_service/src/project_analysis/policy.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_service/src/project_analysis/policy.rs",
+            "recovered-c5-api-prep/crates/biome_service/src/project_analysis/policy.rs",
+            "recovered-assembly/source/crates/biome_service/src/project_analysis/policy.rs"
+          ]
+        },
+        {
+          "path": "xtask/project_analysis/Cargo.toml",
+          "recovered_from": [
+            "recovered-c5/base-e645266/xtask/project_analysis/Cargo.toml",
+            "recovered-assembly-checkpoint/source/xtask/project_analysis/Cargo.toml",
+            "recovered-assembly/source/xtask/project_analysis/Cargo.toml"
+          ]
+        },
+        {
+          "path": "xtask/project_analysis/src/execution.rs",
+          "recovered_from": [
+            "recovered-c5/base-e645266/xtask/project_analysis/src/execution.rs",
+            "recovered-assembly-checkpoint/source/xtask/project_analysis/src/execution.rs",
+            "recovered-assembly/source/xtask/project_analysis/src/execution.rs"
+          ]
+        },
+        {
+          "path": "xtask/project_analysis/src/main.rs",
+          "recovered_from": [
+            "recovered-c5/base-e645266/xtask/project_analysis/src/main.rs",
+            "recovered-assembly-checkpoint/source/xtask/project_analysis/src/main.rs",
+            "recovered-assembly/source/xtask/project_analysis/src/main.rs"
+          ]
+        },
+        {
+          "path": "xtask/project_analysis/tests/cli.rs",
+          "recovered_from": [
+            "recovered-c5/base-e645266/xtask/project_analysis/tests/cli.rs",
+            "recovered-assembly-checkpoint/source/xtask/project_analysis/tests/cli.rs",
+            "recovered-assembly/source/xtask/project_analysis/tests/cli.rs"
+          ]
+        }
+      ],
+      "missing_exact_bound_versions": [
+        ".changeset/smooth-owls-show.md",
+        "Cargo.lock",
+        "crates/biome_cli/src/cli_options.rs",
+        "crates/biome_cli/src/commands/mod.rs",
+        "crates/biome_cli/src/lib.rs",
+        "crates/biome_cli/src/main.rs",
+        "crates/biome_cli/src/reporter/mod.rs",
+        "crates/biome_cli/src/reporter/project_analysis/compatibility.rs",
+        "crates/biome_cli/src/reporter/project_analysis/explain.rs",
+        "crates/biome_cli/src/runner/impls/finalizers/default.rs",
+        "crates/biome_cli/src/runner/mod.rs",
+        "crates/biome_cli/src/runner/project_analysis.rs",
+        "crates/biome_cli/tests/cases/mod.rs",
+        "crates/biome_cli/tests/cases/reporter_project_analysis.rs",
+        "crates/biome_cli/tests/fixtures/project_reporters/cycle-presentation.json",
+        "crates/biome_cli/tests/fixtures/project_reporters/fixtures.json",
+        "crates/biome_cli/tests/fixtures/project_reporters/oracle.json",
+        "crates/biome_cli/tests/project_analysis_exit.rs",
+        "crates/biome_cli/tests/snapshots/main_cases_help/check_help.snap",
+        "crates/biome_cli/tests/snapshots/main_commands_analyze/analyze_help_local.snap",
+        "crates/biome_project_analysis/src/policy.rs",
+        "crates/biome_project_analysis/tests/contracts.rs",
+        "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+        "xtask/project_analysis/README.md",
+        "xtask/project_analysis/REPORTING.md",
+        "xtask/project_analysis/compatibility.json",
+        "xtask/project_analysis/src/compare.rs",
+        "xtask/project_analysis/src/conformance.rs",
+        "xtask/project_analysis/src/normalize.rs"
+      ]
+    },
+    "c3": {
+      "recovered_bound_file_count": 12,
+      "bound_file_count": 14,
+      "found": [
+        {
+          "path": ".cargo/config.toml",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/.cargo/config.toml",
+            "recovered-assembly/source/.cargo/config.toml"
+          ]
+        },
+        {
+          "path": ".changeset/modern-towns-allow.md",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/.changeset/modern-towns-allow.md",
+            "recovered-c3-review/c3-main/.changeset/modern-towns-allow.md",
+            "recovered-assembly/source/.changeset/modern-towns-allow.md"
+          ]
+        },
+        {
+          "path": "Cargo.toml",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/Cargo.toml",
+            "recovered-assembly/source/Cargo.toml"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/Cargo.toml",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/Cargo.toml",
+            "recovered-c3-review/c3-main/crates/biome_lsp/Cargo.toml",
+            "recovered-assembly/source/crates/biome_lsp/Cargo.toml"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/documents.rs",
+          "recovered_from": [
+            "recovered-c3-fix1-review/stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/documents.rs",
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/documents.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/documents.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/handlers/text_document.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/handlers/text_document.rs",
+            "recovered-c3-review/c3-main/crates/biome_lsp/src/handlers/text_document.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/handlers/text_document.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/lib.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/lib.rs",
+            "recovered-c3-review/c3-main/crates/biome_lsp/src/lib.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/lib.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/project_analysis.rs",
+          "recovered_from": [
+            "recovered-c3-fix1-review/stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/project_analysis.rs",
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/project_analysis.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/project_analysis.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/project_analysis.tests.rs",
+          "recovered_from": [
+            "recovered-c3-fix1-review/stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/project_analysis.tests.rs",
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/project_analysis.tests.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/project_analysis.tests.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/server.rs",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/server.rs",
+            "recovered-c3-review/c3-main/crates/biome_lsp/src/server.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/server.rs"
+          ]
+        },
+        {
+          "path": "crates/biome_lsp/src/session.rs",
+          "recovered_from": [
+            "recovered-c3-fix1-review/stages/12bf926317b7032e2ddc46124bf277b8409bf5fd/full/crates/biome_lsp/src/session.rs",
+            "recovered-assembly-checkpoint/source/crates/biome_lsp/src/session.rs",
+            "recovered-assembly/source/crates/biome_lsp/src/session.rs"
+          ]
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "recovered_from": [
+            "recovered-assembly-checkpoint/source/rust-toolchain.toml",
+            "recovered-assembly/source/rust-toolchain.toml"
+          ]
+        }
+      ],
+      "missing_exact_bound_versions": [
+        "Cargo.lock",
+        "crates/biome_service/Cargo.toml"
+      ]
+    }
+  },
+  "archive": {
+    "index_sha256": "3bc6232b5e54a2db2af495fdf46a9aa7c5cbb856cda1dd9d31e52d76662d8146",
+    "stable_during_check": true,
+    "records": 1056,
+    "bytes": 13919997,
+    "copy_integrity_errors": [],
+    "all_indexed_paths_present_in_git_tree": true,
+    "verified_commit": "71a04649258b7e1ff53d05c6f704ea06f15bd1c7",
+    "receipt_note": "This receipt is added after the indexed payload verification; it does not change the indexed source payload."
+  },
+  "repo": {
+    "head": "a72fa3415b932ed18cd4f76be4494543d383fa97",
+    "status": "## feat/project-analysis-contracts"
+  },
+  "incomplete_paths": [
+    {
+      "path": ".changeset/smooth-owls-show.md",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "Cargo.lock",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "Cargo.toml",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_cli/src/cli_options.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/commands/mod.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/lib.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/mod.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/compatibility.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/reporter/project_analysis/explain.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/src/runner/mod.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/cases/mod.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/cases/reporter_project_analysis.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/fixtures/project_reporters/cycle-presentation.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/fixtures/project_reporters/fixtures.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/fixtures/project_reporters/oracle.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/snapshots/main_cases_help/check_help.snap",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_cli/tests/snapshots/main_commands_analyze/analyze_help_local.snap",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_module_graph/src/project_facts.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/catalogs.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/cycles.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_project_analysis/src/dependencies.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/exports.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/members.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/policy.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/reachability.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/resolution.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/src/scripts.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/contracts.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/exports.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/fixtures/duplicate_binding.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_project_analysis/tests/fixtures/duplicate_spelling.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/Cargo.toml",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/fixtures/members-oracle.json",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/owned_facts.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/provenance.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/rpc.tests.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/project_analysis/snapshot.tests.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/scanner/workspace_bridges.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/workspace.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/workspace/client.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/workspace/server.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "crates/biome_service/src/workspace_types.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "packages/@biomejs/backend-jsonrpc/tests/workspace.test.mjs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "packages/@biomejs/js-api/tests/project-analysis.test.ts",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "xtask/project_analysis/README.md",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "xtask/project_analysis/REPORTING.md",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "xtask/project_analysis/compatibility.json",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "xtask/project_analysis/src/compare.rs",
+      "status": "missing_complete_source"
+    },
+    {
+      "path": "xtask/project_analysis/src/conformance.rs",
+      "status": "later_known_changes_missing",
+      "same_stage_competing_blobs": []
+    },
+    {
+      "path": "xtask/project_analysis/src/normalize.rs",
+      "status": "missing_complete_source"
+    }
+  ],
+  "limitations": [
+    "Recorded original hashes/prefixes match recovered bytes; only the C3/C4 original binding documents themselves are independently authenticated by retained whole-document hashes here.",
+    "The C4 binding describes d574 main-stage source; five later C4 fixes legitimately changed files.",
+    "Completeness is limited to observed recovered paths. The original repository tree is unavailable.",
+    "Clean current Git status does not independently prove that no historical edits ever occurred.",
+    "No buildability, behavioral correctness or test-pass claims are made."
+  ]
+}

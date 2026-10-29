@@ -10,6 +10,8 @@ The original implementation started at `6359a9b03670e85b50785d59d10eb087cf89fe3f
 
 See the [coverage manifest](records/recovered-assembly/coverage-manifest.json), [remaining gaps](records/recovered-assembly/GAPS.md), and [assembly summary](records/recovered-assembly/summary.json). Every materialized file's size and SHA-256 was checked before archiving. At this checkpoint, 20 selected files need known later edits and 34 observed paths lack complete source.
 
+Final copy-integrity checks cover all 194 materialized files and all 1,056 indexed recovery records. See [verification receipt](VERIFICATION.json). These checks do not establish that the feature builds or passes its tests.
+
 ## Contents
 
 - `records/` preserves original source snapshots, exact patches, partial fragments, and per-task provenance. Filenames and manifests distinguish earlier, final, and uncommitted versions.
