@@ -68,7 +68,10 @@ loads owned snapshots in this stage.
 `compatibility.json` enumerates issue keys, root/workspace configuration, CLI
 flags (including short aliases), reporters, fix families and all 198 deferred
 plugins with explicit owner/status. Plugin keys apply at both configuration
-scopes. Native passed/failed cases and unsupported cases have separate lists.
+scopes. The separate `static_schema` field records declarative JSON/JSONC parsing
+support; it does not promote native analysis status or establish migration eligibility.
+The configuration tests exhaustively check these static root/workspace keys and reject
+all deferred plugin keys. Native passed/failed cases and unsupported cases have separate lists.
 `reference/inventory.md` and `reference/sources.json` preserve the original source
 research and hashes. That research is not execution evidence. `reference/tests.json`
 lists all 828 pinned test paths, owners and dispositions, with selected exact test

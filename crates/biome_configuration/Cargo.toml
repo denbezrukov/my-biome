@@ -25,7 +25,7 @@ name    = "biome_json"
 biome_analyze              = { workspace = true, features = ["serde"] }
 biome_configuration_macros = { workspace = true }
 biome_console              = { workspace = true }
-biome_deserialize          = { workspace = true }
+biome_deserialize          = { workspace = true, features = ["indexmap"] }
 biome_deserialize_macros   = { workspace = true }
 biome_diagnostics          = { workspace = true }
 biome_formatter            = { workspace = true, features = ["serde"] }
@@ -44,6 +44,7 @@ biome_string_case          = { workspace = true }
 biome_yaml_syntax          = { workspace = true, optional = true }
 bpaf                       = { workspace = true, optional = true }
 camino                     = { workspace = true }
+indexmap                   = { workspace = true, features = ["serde"] }
 regex                      = { workspace = true }
 rustc-hash                 = { workspace = true }
 schemars                   = { workspace = true, optional = true }
@@ -53,6 +54,7 @@ serde                      = { workspace = true, features = ["derive"] }
 biome_json_parser = { path = "../biome_json_parser" }
 criterion         = { package = "codspeed-criterion-compat", version = "=5.0.1" }
 insta             = { workspace = true }
+serde_json        = { workspace = true }
 tests_macros      = { workspace = true }
 
 [target.'cfg(all(target_family="unix", not(all(target_arch = "aarch64", target_env = "musl"))))'.dev-dependencies]

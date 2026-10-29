@@ -67,6 +67,13 @@
 			"description": "A list of GritQL plugins to load.",
 			"anyOf": [{ "$ref": "#/$defs/Plugins" }, { "type": "null" }]
 		},
+		"projectAnalysis": {
+			"description": "Declarative project analysis inputs. Disabled by default; native analysis integration is pending.",
+			"anyOf": [
+				{ "$ref": "#/$defs/ProjectAnalysisConfiguration" },
+				{ "type": "null" }
+			]
+		},
 		"root": {
 			"description": "Marks whether this file is the root configuration for a Biome project. The root configuration\nestablishes the project's base settings, while `false` marks a configuration found inside the\nproject as nested rather than a second project root.\n\nDefaults to `true`. Biome implicitly treats `root` as `false` when a nested configuration uses\n`\"extends\": \"//\"`. All other nested configurations must explicitly set `root` to `false`.",
 			"anyOf": [{ "$ref": "#/$defs/Bool" }, { "type": "null" }]
@@ -397,6 +404,10 @@
 				}
 			},
 			"additionalProperties": false
+		},
+		"AnalysisStrings": {
+			"description": "A string or list of strings, normalized to a list during deserialization.",
+			"$ref": "#/$defs/StringOrStrings"
 		},
 		"ArrowParentheses": {
 			"oneOf": [
@@ -1984,6 +1995,26 @@
 				}
 			]
 		},
+		"DependencyUse": {
+			"description": "Credits a dependency used outside statically collected references.",
+			"type": "object",
+			"properties": {
+				"package": {
+					"description": "Package credited by this declaration.",
+					"type": "string"
+				},
+				"reason": {
+					"description": "Why the package is used outside statically collected references.",
+					"type": "string"
+				},
+				"workspace": {
+					"description": "Workspace owning the declaration.",
+					"type": "string"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["package", "workspace", "reason"]
+		},
 		"DestructuringConfig": {
 			"type": "object",
 			"properties": {
@@ -3148,6 +3179,26 @@
 				}
 			},
 			"additionalProperties": false
+		},
+		"LocalExportUses": {
+			"description": "Local export use credit, either for every symbol kind or selected kinds.",
+			"anyOf": [
+				{ "type": "boolean" },
+				{
+					"type": "object",
+					"properties": {
+						"class": { "type": "boolean" },
+						"enum": { "type": "boolean" },
+						"function": { "type": "boolean" },
+						"interface": { "type": "boolean" },
+						"member": { "type": "boolean" },
+						"namespace": { "type": "boolean" },
+						"type": { "type": "boolean" },
+						"variable": { "type": "boolean" }
+					},
+					"additionalProperties": false
+				}
+			]
 		},
 		"MarkdownConfiguration": {
 			"description": "Options applied to Markdown files",
@@ -8370,6 +8421,224 @@
 			"description": "A preset configuration for enabling a set of rules.",
 			"type": "string",
 			"enum": ["recommended", "all", "none"]
+		},
+		"ProjectAnalysisConfiguration": {
+			"description": "Declarative project analysis inputs. Native analysis support is tracked separately from schema support.",
+			"type": "object",
+			"properties": {
+				"$schema": {
+					"description": "Optional schema URL for migrated static configuration.",
+					"type": ["string", "null"]
+				},
+				"cycles": {
+					"description": "Static runtime cycle policies.",
+					"anyOf": [
+						{ "$ref": "#/$defs/ProjectCycleConfiguration" },
+						{ "type": "null" }
+					]
+				},
+				"dependencyUses": {
+					"description": "Explicit dependency uses with a workspace and a reason.",
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/DependencyUse" }
+				},
+				"enabled": {
+					"description": "Enables project analysis inputs. Defaults to false; native analysis integration is pending.",
+					"type": ["boolean", "null"]
+				},
+				"entry": {
+					"description": "Entry globs. Explicit values replace the default production entry globs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"exclude": {
+					"description": "Issue categories excluded from reporting after analysis.",
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/ProjectIssueKind" }
+				},
+				"ignore": {
+					"description": "Suppresses all findings for matching paths without excluding graph inputs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreBinaries": {
+					"description": "Executable names or patterns exempted from binary findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreDependencies": {
+					"description": "Dependency names or patterns exempted from dependency findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreExportsUsedInFile": {
+					"description": "Credits local export uses for all or selected symbol kinds. Defaults to false.",
+					"anyOf": [{ "$ref": "#/$defs/LocalExportUses" }, { "type": "null" }]
+				},
+				"ignoreFiles": {
+					"description": "Suppresses unused-file findings only; matching files remain graph inputs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreGlobalBinaries": {
+					"description": "Accepts known global executable names. Defaults to true.",
+					"type": ["boolean", "null"]
+				},
+				"ignoreIssues": {
+					"description": "Suppresses specified issue kinds for each path glob.",
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": "array",
+						"items": { "$ref": "#/$defs/ProjectIssueKind" }
+					}
+				},
+				"ignoreMembers": {
+					"description": "Member names or patterns exempted from member findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreUnresolved": {
+					"description": "Import specifiers or patterns exempted from unresolved findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreWorkspaces": {
+					"description": "Ordered workspace discovery exclusions; prefix ! re-includes a workspace.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"include": {
+					"description": "Issue categories selected for reporting after analysis.",
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/ProjectIssueKind" }
+				},
+				"includeEntryExports": {
+					"description": "Includes ordinary entry exports in findings. Defaults to false.",
+					"type": ["boolean", "null"]
+				},
+				"mode": {
+					"description": "Analysis mode. Defaults to default.",
+					"anyOf": [
+						{ "$ref": "#/$defs/ProjectAnalysisMode" },
+						{ "type": "null" }
+					]
+				},
+				"paths": {
+					"description": "Static import aliases, with one or more targets per alias.",
+					"type": ["object", "null"],
+					"additionalProperties": { "$ref": "#/$defs/AnalysisStrings" }
+				},
+				"project": {
+					"description": "Candidate globs. Explicit values replace the default production project glob.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"publicEntries": {
+					"description": "Entry paths whose exported API is public.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"rules": {
+					"description": "Per-category severity: error, warn or off.",
+					"type": ["object", "null"],
+					"properties": {
+						"binaries": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"catalog": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"catalogReferences": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"cycles": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"dependencies": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"devDependencies": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"duplicates": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"enumMembers": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"exports": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"files": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"namespaceMembers": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"nsExports": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"nsTypes": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"optionalPeerDependencies": {
+							"$ref": "#/$defs/ProjectIssueSeverity"
+						},
+						"types": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"unlisted": { "$ref": "#/$defs/ProjectIssueSeverity" },
+						"unresolved": { "$ref": "#/$defs/ProjectIssueSeverity" }
+					},
+					"additionalProperties": false
+				},
+				"sourceMappings": {
+					"description": "Explicit source and output directory pairs.",
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/SourceMapping" }
+				},
+				"tags": {
+					"description": "Export tag selection, with + to include and - to exclude.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"treatConfigHintsAsErrors": {
+					"description": "Counts configuration hints as errors. Defaults to false.",
+					"type": ["boolean", "null"]
+				},
+				"treatTagHintsAsErrors": {
+					"description": "Counts tag hints as errors. Defaults to false.",
+					"type": ["boolean", "null"]
+				},
+				"tsconfig": {
+					"description": "Explicit tsconfig paths; configuration execution is unsupported.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"useTsconfigFiles": {
+					"description": "Uses tsconfig files/include/exclude and references as declared program inputs.",
+					"type": ["boolean", "null"]
+				},
+				"workspaces": {
+					"description": "Per-workspace static settings, keyed by workspace path or glob.",
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"$ref": "#/$defs/WorkspaceAnalysisConfiguration"
+					}
+				}
+			},
+			"additionalProperties": false
+		},
+		"ProjectAnalysisMode": {
+			"description": "Selects the declared analysis mode. Parsing this setting does not run analysis.",
+			"type": "string",
+			"enum": ["default", "production", "strict"]
+		},
+		"ProjectCycleConfiguration": {
+			"description": "Runtime cycle policies; dynamic imports are excluded by default.",
+			"type": "object",
+			"properties": {
+				"allow": {
+					"description": "Allowed root-relative cycle paths, without the repeated closing vertex.",
+					"type": ["array", "null"],
+					"default": null,
+					"items": { "type": "array", "items": { "type": "string" } }
+				},
+				"dynamicImports": {
+					"description": "Includes runtime cycles through dynamic import expressions.",
+					"type": ["boolean", "null"],
+					"default": null
+				}
+			},
+			"additionalProperties": false
+		},
+		"ProjectIssueKind": {
+			"description": "The 17 issue category keys in the pinned compatibility profile.",
+			"type": "string",
+			"enum": [
+				"files",
+				"dependencies",
+				"devDependencies",
+				"optionalPeerDependencies",
+				"unlisted",
+				"binaries",
+				"unresolved",
+				"exports",
+				"types",
+				"nsExports",
+				"nsTypes",
+				"duplicates",
+				"enumMembers",
+				"namespaceMembers",
+				"catalog",
+				"catalogReferences",
+				"cycles"
+			]
+		},
+		"ProjectIssueSeverity": {
+			"description": "Severity for a project issue category.",
+			"type": "string",
+			"enum": ["error", "warn", "off"]
 		},
 		"PropertyAssignmentMode": {
 			"description": "Specifies whether property assignments on function parameters are allowed or denied.",
@@ -14901,6 +15170,22 @@
 			},
 			"additionalProperties": false
 		},
+		"SourceMapping": {
+			"description": "Maps generated output back to its source directory.",
+			"type": "object",
+			"properties": {
+				"output": {
+					"description": "Output directory relative to the workspace.",
+					"type": "string"
+				},
+				"source": {
+					"description": "Source directory relative to the workspace.",
+					"type": "string"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["source", "output"]
+		},
 		"SourceMatcher": {
 			"anyOf": [
 				{ "$ref": "#/$defs/NegatablePredefinedSourceMatcher" },
@@ -14936,6 +15221,12 @@
 					"items": { "type": "string" },
 					"minItems": 1
 				}
+			]
+		},
+		"StringOrStrings": {
+			"anyOf": [
+				{ "type": "string" },
+				{ "type": "array", "items": { "type": "string" } }
 			]
 		},
 		"Style": {
@@ -19620,6 +19911,70 @@
 					"const": "ignore"
 				}
 			]
+		},
+		"WorkspaceAnalysisConfiguration": {
+			"description": "Workspace settings supported by the pinned static compatibility profile.",
+			"type": "object",
+			"properties": {
+				"entry": {
+					"description": "Entry globs. Explicit values replace the default production entry globs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignore": {
+					"description": "Suppresses all findings for matching paths without excluding graph inputs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreBinaries": {
+					"description": "Executable names or patterns exempted from binary findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreDependencies": {
+					"description": "Dependency names or patterns exempted from dependency findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreExportsUsedInFile": {
+					"description": "Credits local export uses for all or selected symbol kinds. Defaults to false.",
+					"anyOf": [{ "$ref": "#/$defs/LocalExportUses" }, { "type": "null" }]
+				},
+				"ignoreFiles": {
+					"description": "Suppresses unused-file findings only; matching files remain graph inputs.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreGlobalBinaries": {
+					"description": "Accepts known global executable names. Defaults to true.",
+					"type": ["boolean", "null"]
+				},
+				"ignoreIssues": {
+					"description": "Suppresses specified issue kinds for each path glob.",
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": "array",
+						"items": { "$ref": "#/$defs/ProjectIssueKind" }
+					}
+				},
+				"ignoreMembers": {
+					"description": "Member names or patterns exempted from member findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"ignoreUnresolved": {
+					"description": "Import specifiers or patterns exempted from unresolved findings.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				},
+				"includeEntryExports": {
+					"description": "Includes ordinary entry exports in findings. Defaults to false.",
+					"type": ["boolean", "null"]
+				},
+				"paths": {
+					"description": "Static import aliases, with one or more targets per alias.",
+					"type": ["object", "null"],
+					"additionalProperties": { "$ref": "#/$defs/AnalysisStrings" }
+				},
+				"project": {
+					"description": "Candidate globs. Explicit values replace the default production project glob.",
+					"anyOf": [{ "$ref": "#/$defs/AnalysisStrings" }, { "type": "null" }]
+				}
+			},
+			"additionalProperties": false
 		},
 		"YamlConfiguration": {
 			"description": "Options applied to Yaml files",

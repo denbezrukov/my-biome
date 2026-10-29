@@ -26,6 +26,8 @@ pub mod json;
 #[cfg(feature = "lang_md")]
 pub mod markdown;
 pub mod max_size;
+pub mod project_analysis;
+pub use project_analysis::ProjectAnalysisConfiguration;
 mod overrides;
 pub mod tailwind;
 pub mod vcs;
@@ -193,6 +195,11 @@ pub struct Configuration {
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub files: Option<FilesConfiguration>,
+
+    /// Declarative project analysis inputs. Disabled by default; native analysis integration is pending.
+    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_analysis: Option<ProjectAnalysisConfiguration>,
 
     /// Configures formatting for selected files.
     #[cfg_attr(feature = "cli", bpaf(external(formatter_configuration), optional))]

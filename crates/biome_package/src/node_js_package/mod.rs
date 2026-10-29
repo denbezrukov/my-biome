@@ -1,4 +1,9 @@
 mod package_json;
+mod project_metadata;
+pub use project_metadata::{
+    CatalogDeclaration, CatalogMetadata, Located, MetadataValue, ProjectMetadata,
+    read_project_metadata,
+};
 mod tsconfig_json;
 mod turbo_json;
 

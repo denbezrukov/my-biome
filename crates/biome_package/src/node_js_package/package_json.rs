@@ -56,6 +56,8 @@ pub struct PackageJson {
     pub imports: Option<JsonValue>,
     pub main: Option<Box<str>>,
     pub types: Option<Box<str>>,
+    /// Project-analysis evidence and diagnostics, separate from legacy resolver diagnostics.
+    pub project_metadata: super::ProjectMetadata,
 }
 
 static_assertions::assert_impl_all!(PackageJson: Send, Sync);
@@ -618,7 +620,16 @@ impl Deserializable for PackageJson {
         value: &impl DeserializableValue,
         name: &str,
     ) -> Option<Self> {
-        value.deserialize(ctx, PackageJsonVisitor, name)
+        let metadata = {
+            let mut metadata_context = biome_deserialize::DefaultDeserializationContext {
+                id: ctx.id(),
+                ..Default::default()
+            };
+            super::ProjectMetadata::deserialize(&mut metadata_context, value, name)
+        };
+        let mut package = value.deserialize(ctx, PackageJsonVisitor, name)?;
+        package.project_metadata = metadata.unwrap_or_default();
+        Some(package)
     }
 }
 

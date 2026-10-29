@@ -75,165 +75,205 @@
   "root_configuration": {
     "$schema": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "rules": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "entry": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "project": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "paths": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignore": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreFiles": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreBinaries": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreGlobalBinaries": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreDependencies": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreMembers": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreUnresolved": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreExportsUsedInFile": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreIssues": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "cycles": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreWorkspaces": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "includeEntryExports": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "compilers": {
       "owner": "deferred extensions",
-      "status": "unsupported"
+      "status": "unsupported",
+      "static_schema": "unsupported"
     },
     "asyncCompilers": {
       "owner": "deferred extensions",
-      "status": "unsupported"
+      "status": "unsupported",
+      "static_schema": "unsupported"
     },
     "tags": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "treatConfigHintsAsErrors": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "treatTagHintsAsErrors": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "preprocessor": {
       "owner": "deferred extensions",
-      "status": "unsupported"
+      "status": "unsupported",
+      "static_schema": "unsupported"
     },
     "preprocessorOptions": {
       "owner": "deferred extensions",
-      "status": "unsupported"
+      "status": "unsupported",
+      "static_schema": "unsupported"
     },
     "include": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "exclude": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "workspaces": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     }
   },
   "workspace_configuration": {
     "entry": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "project": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "paths": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignore": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreFiles": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreBinaries": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreGlobalBinaries": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreDependencies": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreMembers": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreUnresolved": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreExportsUsedInFile": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "ignoreIssues": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     },
     "includeEntryExports": {
       "owner": "B7",
-      "status": "untested"
+      "status": "untested",
+      "static_schema": "supported"
     }
   },
   "cli": {

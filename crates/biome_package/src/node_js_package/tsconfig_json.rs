@@ -15,25 +15,116 @@ use camino::{Utf8Path, Utf8PathBuf};
 use indexmap::IndexMap;
 use rustc_hash::FxHasher;
 
-#[derive(Clone, Debug, Default, Deserializable)]
-#[deserializable(unknown_fields = "allow")]
+#[derive(Clone, Debug, Default)]
 pub struct TsConfigJson {
     /// Whether this is the caller tsconfig.
     /// Used for final template variable substitution when all configs are
     /// extended and merged.
-    #[deserializable(skip)]
     pub root: bool,
 
     /// Path to `tsconfig.json`. Contains the `tsconfig.json` filename.
-    #[deserializable(skip)]
     pub path: Utf8PathBuf,
 
     pub extends: Option<ExtendsField>,
+    pub files: Option<super::Located<Vec<String>>>,
+    pub include: Option<super::Located<Vec<String>>>,
+    pub exclude: Option<super::Located<Vec<String>>>,
 
     pub compiler_options: CompilerOptions,
 
     /// Project references.
     pub references: Vec<ProjectReference>,
+
+    /// Original tsconfig values and nested source ranges, before resolver normalization.
+    pub metadata: Option<super::MetadataValue>,
+
+    /// Static project metadata diagnostics, independent of legacy resolver diagnostics.
+    pub metadata_diagnostics: Vec<biome_diagnostics::serde::Diagnostic>,
+}
+
+#[derive(Default, Deserializable)]
+#[deserializable(unknown_fields = "allow")]
+struct TsConfigFields {
+    #[deserializable(rename = "extends")]
+    _extends: Option<ExtendsField>,
+    compiler_options: CompilerOptions,
+    files: Option<super::Located<Vec<String>>>,
+    include: Option<super::Located<Vec<String>>>,
+    exclude: Option<super::Located<Vec<String>>>,
+    #[deserializable(rename = "references")]
+    _references: Vec<ProjectReference>,
+}
+
+#[derive(Default, Deserializable)]
+#[deserializable(unknown_fields = "allow")]
+struct LegacyTsConfigFields {
+    extends: Option<ExtendsField>,
+    compiler_options: LegacyCompilerOptions,
+    references: Vec<super::Located<LegacyProjectReference>>,
+}
+
+// The resolver's field list preserves its unknown-option warnings independently of project support.
+#[derive(Default, Deserializable)]
+struct LegacyCompilerOptions {
+    base_url: Option<Utf8PathBuf>,
+    paths: Option<CompilerOptionsPathsMap>,
+    type_roots: Option<Vec<String>>,
+    jsx_factory: Option<JsxFactoryIdentifier>,
+    jsx_fragment_factory: Option<JsxFactoryIdentifier>,
+}
+
+#[derive(Default, Deserializable)]
+struct LegacyProjectReference {
+    path: Utf8PathBuf,
+}
+
+impl Deserializable for TsConfigJson {
+    fn deserialize(
+        ctx: &mut dyn DeserializationContext,
+        value: &impl DeserializableValue,
+        name: &str,
+    ) -> Option<Self> {
+        let (fields, metadata, metadata_diagnostics) = {
+            let mut metadata_context = biome_deserialize::DefaultDeserializationContext {
+                id: ctx.id(),
+                ..Default::default()
+            };
+            let fields = TsConfigFields::deserialize(&mut metadata_context, value, name);
+            let metadata = super::MetadataValue::deserialize(&mut metadata_context, value, name);
+            let diagnostics = metadata_context
+                .diagnostics
+                .into_iter()
+                .map(biome_diagnostics::serde::Diagnostic::new)
+                .collect();
+            (fields.unwrap_or_default(), metadata, diagnostics)
+        };
+        let legacy = LegacyTsConfigFields::deserialize(ctx, value, name)?;
+        Some(Self {
+            extends: legacy.extends,
+            compiler_options: CompilerOptions {
+                base_url: legacy.compiler_options.base_url,
+                paths: legacy.compiler_options.paths,
+                type_roots: legacy.compiler_options.type_roots,
+                jsx_factory: legacy.compiler_options.jsx_factory,
+                jsx_fragment_factory: legacy.compiler_options.jsx_fragment_factory,
+                ..fields.compiler_options
+            },
+            files: fields.files,
+            include: fields.include,
+            exclude: fields.exclude,
+            references: legacy
+                .references
+                .into_iter()
+                .map(|reference| ProjectReference {
+                    path: reference.value.path,
+                    location: Some(reference.range),
+                })
+                .collect(),
+            metadata,
+            metadata_diagnostics,
+            ..Self::default()
+        })
+    }
 }
 
 impl Manifest for TsConfigJson {
@@ -134,6 +225,21 @@ pub struct CompilerOptions {
     ///
     /// The base URL is normalised to an absolute path after parsing.
     pub base_url: Option<Utf8PathBuf>,
+    pub root_dir: Option<super::Located<String>>,
+    pub out_dir: Option<super::Located<String>>,
+    pub root_dirs: Option<super::Located<Vec<String>>>,
+    pub module: Option<super::Located<String>>,
+    pub module_resolution: Option<super::Located<String>>,
+    pub custom_conditions: Option<super::Located<Vec<String>>>,
+    pub types: Option<super::Located<Vec<String>>>,
+    pub allow_js: Option<super::Located<bool>>,
+    pub resolve_json_module: Option<super::Located<bool>>,
+    pub allow_importing_ts_extensions: Option<super::Located<bool>>,
+    pub resolve_package_json_exports: Option<super::Located<bool>>,
+    pub resolve_package_json_imports: Option<super::Located<bool>>,
+    pub module_suffixes: Option<super::Located<Vec<String>>>,
+    pub no_resolve: Option<super::Located<bool>>,
+    pub preserve_symlinks: Option<super::Located<bool>>,
 
     /// Path aliases.
     pub paths: Option<CompilerOptionsPathsMap>,
@@ -186,8 +292,23 @@ impl Deserializable for ExtendsField {
 }
 
 #[derive(Clone, Debug, Default, Deserializable)]
+#[deserializable(with_validator)]
 pub struct ProjectReference {
+    #[deserializable(required)]
     pub path: Utf8PathBuf,
+    #[deserializable(skip)]
+    pub location: Option<biome_text_size::TextRange>,
+}
+impl biome_deserialize::DeserializableValidator for ProjectReference {
+    fn validate(
+        &mut self,
+        _ctx: &mut dyn DeserializationContext,
+        _name: &str,
+        range: biome_text_size::TextRange,
+    ) -> bool {
+        self.location = Some(range);
+        true
+    }
 }
 
 /// A JSX factory identifier that is normalized during deserialization.
@@ -236,6 +357,43 @@ impl Deserializable for JsxFactoryIdentifier {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn legacy_values_and_unknown_field_warnings_are_preserved() {
+        let source = r#"{
+            "extends":["base","extra"], "futureRoot":false,
+            "compilerOptions":{"baseUrl":"src","paths":{"@/*":["lib/*"]},"typeRoots":["types"],
+                "jsxFactory":"React.createElement","jsxFragmentFactory":"React.Fragment","futureOption":false},
+            "references":[{"path":"../lib"}]
+        }"#;
+        let (config, diagnostics) =
+            TsConfigJson::parse(Utf8Path::new("/project/tsconfig.json"), source);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(config.metadata_diagnostics.len(), 1);
+        assert_eq!(
+            config.extends,
+            Some(ExtendsField::Multiple(vec!["base".into(), "extra".into()]))
+        );
+        assert_eq!(
+            config.compiler_options.base_url.as_deref(),
+            Some(Utf8Path::new("/project/src"))
+        );
+        assert_eq!(
+            config.compiler_options.paths_base,
+            Utf8Path::new("/project/src")
+        );
+        assert_eq!(
+            config.compiler_options.paths.as_ref().unwrap()["@/*"],
+            ["lib/*"]
+        );
+        assert_eq!(
+            config.compiler_options.type_roots.as_ref().unwrap(),
+            &["types"]
+        );
+        assert_eq!(config.jsx_factory_identifier(), Some("React"));
+        assert_eq!(config.jsx_fragment_factory_identifier(), Some("React"));
+        assert_eq!(config.references[0].path, Utf8Path::new("../lib"));
+    }
 
     #[test]
     fn test_jsx_factory_normalization() {

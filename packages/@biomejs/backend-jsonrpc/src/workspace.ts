@@ -85,6 +85,10 @@ export interface Configuration {
 	 */
 	plugins?: Plugins;
 	/**
+	 * Declarative project analysis inputs. Disabled by default; native analysis integration is pending.
+	 */
+	projectAnalysis?: ProjectAnalysisConfiguration;
+	/**
 	 * Marks whether this file is the root configuration for a Biome project. The root configuration
 	 * establishes the project's base settings, while `false` marks a configuration found inside the
 	 * project as nested rather than a second project root.
@@ -491,6 +495,149 @@ export interface MarkdownConfiguration {
  */
 export type Overrides = OverridePattern[];
 export type Plugins = PluginConfiguration[];
+/**
+ * Declarative project analysis inputs. Native analysis support is tracked separately from schema support.
+ */
+export interface ProjectAnalysisConfiguration {
+	/**
+	 * Optional schema URL for migrated static configuration.
+	 */
+	$schema?: string;
+	/**
+	 * Static runtime cycle policies.
+	 */
+	cycles?: ProjectCycleConfiguration;
+	/**
+	 * Explicit dependency uses with a workspace and a reason.
+	 */
+	dependencyUses?: DependencyUse[];
+	/**
+	 * Enables project analysis inputs. Defaults to false; native analysis integration is pending.
+	 */
+	enabled?: boolean;
+	/**
+	 * Entry globs. Explicit values replace the default production entry globs.
+	 */
+	entry?: AnalysisStrings;
+	/**
+	 * Issue categories excluded from reporting after analysis.
+	 */
+	exclude?: ProjectIssueKind[];
+	/**
+	 * Suppresses all findings for matching paths without excluding graph inputs.
+	 */
+	ignore?: AnalysisStrings;
+	/**
+	 * Executable names or patterns exempted from binary findings.
+	 */
+	ignoreBinaries?: AnalysisStrings;
+	/**
+	 * Dependency names or patterns exempted from dependency findings.
+	 */
+	ignoreDependencies?: AnalysisStrings;
+	/**
+	 * Credits local export uses for all or selected symbol kinds. Defaults to false.
+	 */
+	ignoreExportsUsedInFile?: LocalExportUses;
+	/**
+	 * Suppresses unused-file findings only; matching files remain graph inputs.
+	 */
+	ignoreFiles?: AnalysisStrings;
+	/**
+	 * Accepts known global executable names. Defaults to true.
+	 */
+	ignoreGlobalBinaries?: boolean;
+	/**
+	 * Suppresses specified issue kinds for each path glob.
+	 */
+	ignoreIssues?: Record<string, ProjectIssueKind[]>;
+	/**
+	 * Member names or patterns exempted from member findings.
+	 */
+	ignoreMembers?: AnalysisStrings;
+	/**
+	 * Import specifiers or patterns exempted from unresolved findings.
+	 */
+	ignoreUnresolved?: AnalysisStrings;
+	/**
+	 * Ordered workspace discovery exclusions; prefix ! re-includes a workspace.
+	 */
+	ignoreWorkspaces?: AnalysisStrings;
+	/**
+	 * Issue categories selected for reporting after analysis.
+	 */
+	include?: ProjectIssueKind[];
+	/**
+	 * Includes ordinary entry exports in findings. Defaults to false.
+	 */
+	includeEntryExports?: boolean;
+	/**
+	 * Analysis mode. Defaults to default.
+	 */
+	mode?: ProjectAnalysisMode;
+	/**
+	 * Static import aliases, with one or more targets per alias.
+	 */
+	paths?: Record<string, AnalysisStrings>;
+	/**
+	 * Candidate globs. Explicit values replace the default production project glob.
+	 */
+	project?: AnalysisStrings;
+	/**
+	 * Entry paths whose exported API is public.
+	 */
+	publicEntries?: AnalysisStrings;
+	/**
+	 * Per-category severity: error, warn or off.
+	 */
+	rules?: {
+		binaries?: ProjectIssueSeverity;
+		catalog?: ProjectIssueSeverity;
+		catalogReferences?: ProjectIssueSeverity;
+		cycles?: ProjectIssueSeverity;
+		dependencies?: ProjectIssueSeverity;
+		devDependencies?: ProjectIssueSeverity;
+		duplicates?: ProjectIssueSeverity;
+		enumMembers?: ProjectIssueSeverity;
+		exports?: ProjectIssueSeverity;
+		files?: ProjectIssueSeverity;
+		namespaceMembers?: ProjectIssueSeverity;
+		nsExports?: ProjectIssueSeverity;
+		nsTypes?: ProjectIssueSeverity;
+		optionalPeerDependencies?: ProjectIssueSeverity;
+		types?: ProjectIssueSeverity;
+		unlisted?: ProjectIssueSeverity;
+		unresolved?: ProjectIssueSeverity;
+	};
+	/**
+	 * Explicit source and output directory pairs.
+	 */
+	sourceMappings?: SourceMapping[];
+	/**
+	 * Export tag selection, with + to include and - to exclude.
+	 */
+	tags?: AnalysisStrings;
+	/**
+	 * Counts configuration hints as errors. Defaults to false.
+	 */
+	treatConfigHintsAsErrors?: boolean;
+	/**
+	 * Counts tag hints as errors. Defaults to false.
+	 */
+	treatTagHintsAsErrors?: boolean;
+	/**
+	 * Explicit tsconfig paths; configuration execution is unsupported.
+	 */
+	tsconfig?: AnalysisStrings;
+	/**
+	 * Uses tsconfig files/include/exclude and references as declared program inputs.
+	 */
+	useTsconfigFiles?: boolean;
+	/**
+	 * Per-workspace static settings, keyed by workspace path or glob.
+	 */
+	workspaces?: Record<string, WorkspaceAnalysisConfiguration>;
+}
 export type Bool = boolean;
 /**
  * Tells Biome where your code lists Tailwind CSS classes, so the Tailwind
@@ -1423,6 +1570,154 @@ export interface OverridePattern {
  * ```
  */
 export type PluginConfiguration = string | PluginWithOptions;
+/**
+ * Runtime cycle policies; dynamic imports are excluded by default.
+ */
+export interface ProjectCycleConfiguration {
+	/**
+	 * Allowed root-relative cycle paths, without the repeated closing vertex.
+	 */
+	allow?: string[][];
+	/**
+	 * Includes runtime cycles through dynamic import expressions.
+	 */
+	dynamicImports?: boolean;
+}
+/**
+ * Credits a dependency used outside statically collected references.
+ */
+export interface DependencyUse {
+	/**
+	 * Package credited by this declaration.
+	 */
+	package: string;
+	/**
+	 * Why the package is used outside statically collected references.
+	 */
+	reason: string;
+	/**
+	 * Workspace owning the declaration.
+	 */
+	workspace: string;
+}
+/**
+ * A string or list of strings, normalized to a list during deserialization.
+ */
+export type AnalysisStrings = StringOrStrings;
+/**
+ * The 17 issue category keys in the pinned compatibility profile.
+ */
+export type ProjectIssueKind =
+	| "files"
+	| "dependencies"
+	| "devDependencies"
+	| "optionalPeerDependencies"
+	| "unlisted"
+	| "binaries"
+	| "unresolved"
+	| "exports"
+	| "types"
+	| "nsExports"
+	| "nsTypes"
+	| "duplicates"
+	| "enumMembers"
+	| "namespaceMembers"
+	| "catalog"
+	| "catalogReferences"
+	| "cycles";
+/**
+ * Local export use credit, either for every symbol kind or selected kinds.
+ */
+export type LocalExportUses =
+	| boolean
+	| {
+			class?: boolean;
+			enum?: boolean;
+			function?: boolean;
+			interface?: boolean;
+			member?: boolean;
+			namespace?: boolean;
+			type?: boolean;
+			variable?: boolean;
+	  };
+/**
+ * Selects the declared analysis mode. Parsing this setting does not run analysis.
+ */
+export type ProjectAnalysisMode = "default" | "production" | "strict";
+/**
+ * Severity for a project issue category.
+ */
+export type ProjectIssueSeverity = "error" | "warn" | "off";
+/**
+ * Maps generated output back to its source directory.
+ */
+export interface SourceMapping {
+	/**
+	 * Output directory relative to the workspace.
+	 */
+	output: string;
+	/**
+	 * Source directory relative to the workspace.
+	 */
+	source: string;
+}
+/**
+ * Workspace settings supported by the pinned static compatibility profile.
+ */
+export interface WorkspaceAnalysisConfiguration {
+	/**
+	 * Entry globs. Explicit values replace the default production entry globs.
+	 */
+	entry?: AnalysisStrings;
+	/**
+	 * Suppresses all findings for matching paths without excluding graph inputs.
+	 */
+	ignore?: AnalysisStrings;
+	/**
+	 * Executable names or patterns exempted from binary findings.
+	 */
+	ignoreBinaries?: AnalysisStrings;
+	/**
+	 * Dependency names or patterns exempted from dependency findings.
+	 */
+	ignoreDependencies?: AnalysisStrings;
+	/**
+	 * Credits local export uses for all or selected symbol kinds. Defaults to false.
+	 */
+	ignoreExportsUsedInFile?: LocalExportUses;
+	/**
+	 * Suppresses unused-file findings only; matching files remain graph inputs.
+	 */
+	ignoreFiles?: AnalysisStrings;
+	/**
+	 * Accepts known global executable names. Defaults to true.
+	 */
+	ignoreGlobalBinaries?: boolean;
+	/**
+	 * Suppresses specified issue kinds for each path glob.
+	 */
+	ignoreIssues?: Record<string, ProjectIssueKind[]>;
+	/**
+	 * Member names or patterns exempted from member findings.
+	 */
+	ignoreMembers?: AnalysisStrings;
+	/**
+	 * Import specifiers or patterns exempted from unresolved findings.
+	 */
+	ignoreUnresolved?: AnalysisStrings;
+	/**
+	 * Includes ordinary entry exports in findings. Defaults to false.
+	 */
+	includeEntryExports?: boolean;
+	/**
+	 * Static import aliases, with one or more targets per alias.
+	 */
+	paths?: Record<string, AnalysisStrings>;
+	/**
+	 * Candidate globs. Explicit values replace the default production project glob.
+	 */
+	project?: AnalysisStrings;
+}
 export type VcsClientKind = "git";
 /**
  * Options that change how the Yaml formatter behaves
@@ -1752,6 +2047,7 @@ export interface PluginWithOptions {
 	 */
 	resolutionKind?: PluginResolvePath;
 }
+export type StringOrStrings = string | string[];
 export type NoDuplicateClassesConfiguration =
 	| RuleAssistPlainConfiguration
 	| RuleAssistWithNoDuplicateClassesOptions;

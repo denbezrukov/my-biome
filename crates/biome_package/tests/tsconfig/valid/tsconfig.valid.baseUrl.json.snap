@@ -17,10 +17,28 @@ TsConfigJson {
     root: true,
     path: "<PREFIX>/tsconfig/valid/tsconfig.valid.baseUrl.json",
     extends: None,
+    files: None,
+    include: None,
+    exclude: None,
     compiler_options: CompilerOptions {
         base_url: Some(
             "<PREFIX>/tsconfig/valid/src",
         ),
+        root_dir: None,
+        out_dir: None,
+        root_dirs: None,
+        module: None,
+        module_resolution: None,
+        custom_conditions: None,
+        types: None,
+        allow_js: None,
+        resolve_json_module: None,
+        allow_importing_ts_extensions: None,
+        resolve_package_json_exports: None,
+        resolve_package_json_imports: None,
+        module_suffixes: None,
+        no_resolve: None,
+        preserve_symlinks: None,
         paths: None,
         paths_base: "",
         type_roots: None,
@@ -28,4 +46,63 @@ TsConfigJson {
         jsx_fragment_factory: None,
     },
     references: [],
+    metadata: Some(
+        MetadataValue {
+            value: Object(
+                JsonObject(
+                    {
+                        JsonString(
+                            "compilerOptions",
+                        ): Object(
+                            JsonObject(
+                                {
+                                    JsonString(
+                                        "baseUrl",
+                                    ): String(
+                                        JsonString(
+                                            "src",
+                                        ),
+                                    ),
+                                },
+                            ),
+                        ),
+                    },
+                ),
+            ),
+            range: 0..52,
+            members: {
+                "compilerOptions": MetadataValue {
+                    value: Object(
+                        JsonObject(
+                            {
+                                JsonString(
+                                    "baseUrl",
+                                ): String(
+                                    JsonString(
+                                        "src",
+                                    ),
+                                ),
+                            },
+                        ),
+                    ),
+                    range: 23..49,
+                    members: {
+                        "baseUrl": MetadataValue {
+                            value: String(
+                                JsonString(
+                                    "src",
+                                ),
+                            ),
+                            range: 40..45,
+                            members: {},
+                            elements: [],
+                        },
+                    },
+                    elements: [],
+                },
+            },
+            elements: [],
+        },
+    ),
+    metadata_diagnostics: [],
 }
