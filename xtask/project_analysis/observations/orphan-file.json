@@ -41,8 +41,8 @@
     ],
     "cwd": "/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis/oracle",
     "exit_code": 0,
-    "stderr": "npm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1\nnpm notice To update run: npm install -g npm@12.2.1\nnpm notice\n",
-    "stdout": "\nadded 23 packages in 1s\n"
+    "stderr": "",
+    "stdout": "\nadded 23 packages in 822ms\n"
   },
   "native_status": "untested",
   "normalized": {

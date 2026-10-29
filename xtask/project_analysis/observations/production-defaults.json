@@ -43,7 +43,7 @@
     "cwd": "/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis/oracle",
     "exit_code": 0,
     "stderr": "",
-    "stdout": "\nadded 23 packages in 923ms\n"
+    "stdout": "\nadded 23 packages in 963ms\n"
   },
   "native_status": "untested",
   "normalized": {

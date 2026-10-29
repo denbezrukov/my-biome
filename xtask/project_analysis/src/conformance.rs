@@ -17,14 +17,14 @@ impl Serialize for CaseOutcome {
     }
 }
 
-use crate::artifact::{install, sha256};
+use crate::artifact::{InstalledOracle, install, sha256};
 use anyhow::{Context, bail, ensure};
 use serde_json::{Value, json};
 use std::{
     collections::BTreeSet,
     fs,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Output},
 };
 
 pub const CASES: [&str; 3] = ["orphan-file", "namespace-known-key", "production-defaults"];
@@ -103,14 +103,55 @@ fn write_json(path: &Path, value: &Value) -> anyhow::Result<()> {
     Ok(())
 }
 
+fn retain_output(
+    output: &Output,
+    observation: &mut Value,
+    pending_path: &Path,
+    normalize: impl FnOnce(Value) -> anyhow::Result<Value>,
+) -> anyhow::Result<Value> {
+    observation["exit_code"] = json!(output.status.code());
+    observation["stdout"] = json!(String::from_utf8_lossy(&output.stdout));
+    observation["stderr"] = json!(String::from_utf8_lossy(&output.stderr));
+    if std::str::from_utf8(&output.stdout).is_err() {
+        observation["stdout_bytes"] = json!(output.stdout);
+    }
+    if std::str::from_utf8(&output.stderr).is_err() {
+        observation["stderr_bytes"] = json!(output.stderr);
+    }
+    write_json(pending_path, observation)?;
+    let normalized = serde_json::from_slice(&output.stdout)
+        .context("process did not emit JSON")
+        .and_then(normalize);
+    if let Err(error) = &normalized {
+        observation["normalization_error"] = json!(format!("{error:#}"));
+        write_json(pending_path, observation)?;
+    }
+    normalized
+}
+
 pub fn run(
     name: &str,
     oracle_only: bool,
     engine: Option<&Path>,
     artifact: Option<&Path>,
 ) -> anyhow::Result<()> {
+    run_at_root(
+        Path::new(env!("CARGO_MANIFEST_DIR")),
+        name,
+        oracle_only,
+        engine,
+        artifact,
+    )
+}
+
+fn run_at_root(
+    root: &Path,
+    name: &str,
+    oracle_only: bool,
+    engine: Option<&Path>,
+    artifact: Option<&Path>,
+) -> anyhow::Result<()> {
     ensure!(CASES.contains(&name), "unknown conformance case: {name}");
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let fixture = root.join("fixtures").join(name);
     let observations_dir = root.join("observations");
     fs::create_dir_all(&observations_dir)?;
@@ -122,17 +163,14 @@ pub fn run(
             .args(["--case", name])
             .current_dir(&fixture)
             .output()?;
-        let normalized: Value = serde_json::from_slice(&output.stdout)
-            .context("engine must emit its own JSON result")?;
         let outcome = CaseOutcome {
             capability: CapabilityStatus::Untested,
             matches: false,
         };
-        let observation = json!({"case":name,"command":[engine.to_string_lossy(),"--case",name],"cwd":fixture,"exit_code":output.status.code(),"stdout":String::from_utf8_lossy(&output.stdout),"stderr":String::from_utf8_lossy(&output.stderr),"normalized":normalized,"outcome":outcome,"reason":"No reviewed native expectations or engine capabilities exist yet."});
-        write_json(
-            &observations_dir.join(format!("{name}.native.pending.json")),
-            &observation,
-        )?;
+        let mut observation = json!({"case":name,"command":[engine.to_string_lossy(),"--case",name],"cwd":fixture,"outcome":outcome,"reason":"No reviewed native expectations or engine capabilities exist yet."});
+        let pending_path = observations_dir.join(format!("{name}.native.pending.json"));
+        observation["normalized"] = retain_output(&output, &mut observation, &pending_path, Ok)?;
+        write_json(&pending_path, &observation)?;
         bail!("native conformance is untested; output retained without a parity claim");
     }
     ensure!(
@@ -140,6 +178,12 @@ pub fn run(
         "--engine and --oracle-only are mutually exclusive"
     );
     let oracle = install(root, artifact)?;
+    run_oracle(root, name, oracle)
+}
+
+fn run_oracle(root: &Path, name: &str, oracle: InstalledOracle) -> anyhow::Result<()> {
+    let fixture = root.join("fixtures").join(name);
+    let observations_dir = root.join("observations");
     let mut args = vec![
         "--config",
         "knip.json",
@@ -150,6 +194,18 @@ pub fn run(
     if name == "production-defaults" {
         args.push("--production");
     }
+    let identity = json!({"artifact":oracle.identity,"executable":oracle.executable,"executable_sha256":sha256(&fs::read(&oracle.executable)?),"node_executable":oracle.node,"node_sha256":sha256(&fs::read(&oracle.node)?)});
+    let command: Vec<_> = [
+        oracle.node.to_string_lossy().into_owned(),
+        oracle.executable.to_string_lossy().into_owned(),
+    ]
+    .into_iter()
+    .chain(args.iter().map(|arg| (*arg).to_owned()))
+    .collect();
+    let mut observation = json!({"case":name,"identity":identity,"command":command,"cwd":fixture,"environment":{"NO_COLOR":"1","NODE_OPTIONS":null,"NODE_PATH":null},"installation":oracle.installation,"fixture_digest":fixture_digest(&fixture)?,"native_status":"untested"});
+    let pending_path = observations_dir.join(format!("{name}.pending.json"));
+    write_validation(root, &identity, false)?;
+    write_json(&pending_path, &observation)?;
     let output = Command::new(&oracle.node)
         .arg(&oracle.executable)
         .args(&args)
@@ -158,11 +214,9 @@ pub fn run(
         .env_remove("NODE_OPTIONS")
         .env_remove("NODE_PATH")
         .output()?;
-    let stdout = String::from_utf8(output.stdout)?;
-    let stderr = String::from_utf8(output.stderr)?;
-    let normalized =
-        normalize_oracle(&serde_json::from_str(&stdout).context("oracle did not emit JSON")?)?;
-    let identity = json!({"artifact":oracle.identity,"executable":oracle.executable,"executable_sha256":sha256(&fs::read(&oracle.executable)?),"node_executable":oracle.node,"node_sha256":sha256(&fs::read(&oracle.node)?)});
+    observation["normalized"] = retain_output(&output, &mut observation, &pending_path, |value| {
+        normalize_oracle(&value)
+    })?;
     let expectation_path = root
         .join("expectations/oracle")
         .join(format!("{name}.json"));
@@ -172,27 +226,27 @@ pub fn run(
         None
     };
     let matches = expected.as_ref().is_some_and(|expected| {
-        expected["normalized"] == normalized
-            && expected["exit_code"] == json!(output.status.code())
-            && expected["stderr"] == stderr
+        expected["normalized"] == observation["normalized"]
+            && expected["exit_code"] == observation["exit_code"]
+            && expected["stderr"] == observation["stderr"]
     });
-    let command: Vec<_> = [
-        oracle.node.to_string_lossy().into_owned(),
-        oracle.executable.to_string_lossy().into_owned(),
-    ]
-    .into_iter()
-    .chain(args.iter().map(|arg| (*arg).to_owned()))
-    .collect();
-    let observation = json!({"case":name,"identity":identity,"command":command,"cwd":fixture,"environment":{"NO_COLOR":"1","NODE_OPTIONS":null,"NODE_PATH":null},"installation":oracle.installation,"fixture_digest":fixture_digest(&fixture)?,"exit_code":output.status.code(),"stdout":stdout,"stderr":stderr,"normalized":normalized,"oracle_matches_expectation":matches,"native_status":"untested"});
+    observation["oracle_matches_expectation"] = json!(matches);
     let suffix = if matches { "json" } else { "pending.json" };
     write_json(
         &observations_dir.join(format!("{name}.{suffix}")),
         &observation,
     )?;
+    if matches {
+        fs::remove_file(&pending_path)?;
+    }
     let mut observations = Vec::new();
     for case in CASES {
         let path = observations_dir.join(format!("{case}.json"));
-        if path.is_file() {
+        if path.is_file()
+            && !observations_dir
+                .join(format!("{case}.pending.json"))
+                .exists()
+        {
             let observed: Value = serde_json::from_slice(&fs::read(path)?)?;
             let expectation: Value = serde_json::from_slice(&fs::read(
                 root.join("expectations/oracle")
@@ -208,10 +262,7 @@ pub fn run(
         }
     }
     let validated = matches && profile_is_validated(&observations, &identity);
-    write_json(
-        &root.join("oracle/validation.json"),
-        &json!({"profile":"oracle-smoke-3","identity":identity,"validated":validated,"cases":CASES,"native_status":"untested"}),
-    )?;
+    write_validation(root, &identity, validated)?;
     ensure!(
         matches,
         "oracle output needs review or differs from expectation; retained {name}.pending.json"
@@ -222,9 +273,134 @@ pub fn run(
     Ok(())
 }
 
+fn write_validation(root: &Path, identity: &Value, validated: bool) -> anyhow::Result<()> {
+    write_json(
+        &root.join("oracle/validation.json"),
+        &json!({"profile":"oracle-smoke-3","identity":identity,"validated":validated,"cases":CASES,"native_status":"untested"}),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failed_oracle_process_retains_output_and_invalidates_validation() {
+        let directory = tempfile::tempdir().unwrap();
+        for path in ["fixtures/orphan-file", "observations", "oracle"] {
+            fs::create_dir_all(directory.path().join(path)).unwrap();
+        }
+        let validation_path = directory.path().join("oracle/validation.json");
+        write_json(&validation_path, &json!({"validated": true})).unwrap();
+        let executable = std::env::current_exe().unwrap();
+        let oracle = InstalledOracle {
+            identity: crate::artifact::ArtifactIdentity {
+                package: "test-oracle".into(),
+                version: "1".into(),
+                integrity: "test".into(),
+                dependency_lock_digest: "test".into(),
+                runtime_version: "test".into(),
+            },
+            node: executable.clone(),
+            executable,
+            installation: json!({"exit_code": 0}),
+        };
+        assert!(run_oracle(directory.path(), "orphan-file", oracle).is_err());
+        let observation: Value = serde_json::from_slice(
+            &fs::read(
+                directory
+                    .path()
+                    .join("observations/orphan-file.pending.json"),
+            )
+            .expect("failed oracle output must be retained"),
+        )
+        .unwrap();
+        assert_eq!(observation["stdout"], "");
+        assert!(observation["stderr"].as_str().unwrap().contains("config"));
+        assert_ne!(observation["exit_code"], json!(0));
+        assert_eq!(
+            observation["identity"]["artifact"]["package"],
+            "test-oracle"
+        );
+        assert_eq!(observation["installation"]["exit_code"], 0);
+        assert!(observation["normalization_error"].as_str().is_some());
+        let validation: Value =
+            serde_json::from_slice(&fs::read(validation_path).unwrap()).unwrap();
+        assert_eq!(validation["validated"], false);
+    }
+
+    #[test]
+    fn failed_native_process_retains_raw_output_and_parse_error() {
+        let directory = tempfile::tempdir().unwrap();
+        fs::create_dir_all(directory.path().join("fixtures/orphan-file")).unwrap();
+        let executable = std::env::current_exe().unwrap();
+        let result = run_at_root(
+            directory.path(),
+            "orphan-file",
+            false,
+            Some(&executable),
+            None,
+        );
+        assert!(result.is_err());
+        let observation: Value = serde_json::from_slice(
+            &fs::read(
+                directory
+                    .path()
+                    .join("observations/orphan-file.native.pending.json"),
+            )
+            .expect("failed process observation must be retained"),
+        )
+        .unwrap();
+        assert_eq!(observation["stdout"], "");
+        assert!(observation["stderr"].as_str().unwrap().contains("case"));
+        assert_ne!(observation["exit_code"], json!(0));
+        assert!(observation["normalization_error"].as_str().is_some());
+    }
+
+    #[test]
+    fn oracle_normalization_errors_preserve_process_provenance() {
+        let directory = tempfile::tempdir().unwrap();
+        let pending_path = directory.path().join("oracle.pending.json");
+        let failed = Command::new(std::env::current_exe().unwrap())
+            .args(["--case", "orphan-file"])
+            .output()
+            .unwrap();
+        assert!(!failed.status.success());
+        for stdout in [
+            b"not JSON\n".as_slice(),
+            br#"{"error":"invalid config"}"#,
+            &[0xff],
+        ] {
+            let output = Output {
+                status: failed.status,
+                stdout: stdout.to_vec(),
+                stderr: b"configuration failed\n\xff".to_vec(),
+            };
+            let mut observation = json!({
+                "command": ["oracle", "--reporter", "json"],
+                "identity": {"artifact": "pinned"},
+                "installation": {"exit_code": 0}
+            });
+            assert!(
+                retain_output(&output, &mut observation, &pending_path, |value| {
+                    normalize_oracle(&value)
+                })
+                .is_err()
+            );
+            let retained: Value =
+                serde_json::from_slice(&fs::read(&pending_path).unwrap()).unwrap();
+            assert_eq!(retained["command"], json!(["oracle", "--reporter", "json"]));
+            assert_eq!(retained["identity"]["artifact"], "pinned");
+            assert_eq!(retained["installation"]["exit_code"], 0);
+            assert_eq!(retained["exit_code"], json!(output.status.code()));
+            assert_eq!(retained["stdout"], String::from_utf8_lossy(stdout).as_ref());
+            assert_eq!(retained["stderr_bytes"], json!(output.stderr));
+            assert!(retained["normalization_error"].as_str().is_some());
+            if std::str::from_utf8(stdout).is_err() {
+                assert_eq!(retained["stdout_bytes"], json!(stdout));
+            }
+        }
+    }
 
     #[test]
     fn unsupported_is_not_success() {
