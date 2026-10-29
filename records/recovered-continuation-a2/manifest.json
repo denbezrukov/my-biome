@@ -1,7 +1,7 @@
 {
   "base": "37156c2c36b",
   "branch": "feat/native-project-config",
-  "status": "A2 original restoration plus new independently validated foundation failure-path fix; not yet committed; tests passed; fresh lint/reviews and oracle reruns pending",
+  "status": "A2 and separate conformance fix committed, pushed, tested, formatted, linted, and reviewed with no outstanding findings",
   "files": [
     {
       "path": ".changeset/perky-pumas-camp.md",
@@ -123,5 +123,7 @@
       "bytes": 17633,
       "sha256": "ae1b6c08b0c436f589d63d97fa0dea339276891381d3da503db824210b44d2c1"
     }
-  ]
+  ],
+  "foundation_commit": "e92f1c2d6f67582a2f594305ff87a4950352edb9",
+  "configuration_commit": "e67e1d9516be2cc53722e848bed1ac52367e73df"
 }

@@ -1,0 +1,3 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.44s
+     Running `/workspace/.biome-cloud/native-continuation/target/debug/xtask_project_analysis conformance --case namespace-known-key --oracle-only`
+retained oracle observation namespace-known-key; profile validated: true; native parity: untested

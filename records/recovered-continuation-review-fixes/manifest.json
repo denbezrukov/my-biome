@@ -1,6 +1,6 @@
 {
   "base": "e67e1d9516be2cc53722e848bed1ac52367e73df",
-  "status": "corrective working sources; filesystem verification/review passed; metadata16 focused tests pass after opt-in missing-value recovery; expanded full verification and fresh final review pending",
+  "status": "validated corrections committed, pushed and independently re-reviewed with no findings",
   "files": [
     {
       "path": ".changeset/calm-tips-accept.md",
@@ -52,5 +52,10 @@
       "bytes": 19405,
       "sha256": "dfbeb23f1ddb75e1e8cae162e226ebc4a9c030f590f3bd686c02183d1ef6e2ca"
     }
-  ]
+  ],
+  "product_branches": {
+    "feat/native-project-foundation": "e92f1c2d6f67582a2f594305ff87a4950352edb9",
+    "feat/native-project-config": "eafa925c01535ccf6173694fd9652a363fbbcd09",
+    "feat/native-project-filesystem": "cba300340ca9166157609e92b287c80205994841"
+  }
 }

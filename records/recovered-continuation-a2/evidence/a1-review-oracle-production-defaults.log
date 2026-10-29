@@ -1,0 +1,3 @@
+    Finished `dev` profile [unoptimized] target(s) in 0.20s
+     Running `/workspace/.biome-cloud/native-continuation/target/debug/xtask_project_analysis conformance --case production-defaults --oracle-only`
+retained oracle observation production-defaults; profile validated: true; native parity: untested

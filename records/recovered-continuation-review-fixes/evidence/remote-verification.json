@@ -1,0 +1,9 @@
+{
+  "repository": "denbezrukov/my-biome",
+  "verified_remote_heads": {
+    "feat/native-project-config": "eafa925c01535ccf6173694fd9652a363fbbcd09",
+    "feat/native-project-filesystem": "cba300340ca9166157609e92b287c80205994841",
+    "feat/native-project-foundation": "e92f1c2d6f67582a2f594305ff87a4950352edb9"
+  },
+  "product_worktree_clean": true
+}

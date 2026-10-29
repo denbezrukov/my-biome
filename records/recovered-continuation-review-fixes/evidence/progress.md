@@ -63,3 +63,13 @@ Fresh focused metadata suite: 15 passed, including malformed types/array positio
 ## Missing-value recovery follow-up
 
 Fresh metadata correction review found named fields with absent values still discarded by the common JSON adapter. Parent validated parser member retention and adapter member.value().ok()? behavior. The new missing-property regression failed on absent types. Added a default-off DeserializationVisitor flag, forwarded through ErasedDeserializationVisitor, letting only metadata visitors retain named JSON members with missing values as an invalid placeholder ranged over the original member. Ordinary readers keep default behavior. Metadata keeps types present/invalid, custom.answer present/invalid, and tsconfig rootDir present/invalid; legacy PackageJson diagnostics and types fallback remain unchanged. All16 metadata tests pass. Full deserializer and affected suites, formatting and workspace lint are running again. Final correction now spans five paths (two deserializer, metadata source/test, changeset), separate from five filesystem paths.
+
+Expanded final verification passed after opt-in missing-value recovery: all six affected crates with --all-features --locked, 31 deserializer unit tests plus4 doctests, 16 metadata focused tests, configuration, package, filesystem, engine and harness suites. `just f` and workspace `just l` also passed. Final context-isolated review now covers the complete five-file metadata/deserializer correction; five separately reviewed filesystem files remain unstaged.
+
+## Final saved state
+
+- `feat/native-project-foundation` pushed and remotely verified at `e92f1c2d6f67582a2f594305ff87a4950352edb9`.
+- `feat/native-project-config` pushed and remotely verified at `eafa925c01535ccf6173694fd9652a363fbbcd09`.
+- `feat/native-project-filesystem` pushed and remotely verified at `cba300340ca9166157609e92b287c80205994841`.
+
+Metadata final independent review: no findings. Filesystem final independent review: no findings. All final tests/format/lint passed. Product worktree clean. Separate commits retained; no upstream write or force push.

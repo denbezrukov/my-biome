@@ -4,6 +4,14 @@ This branch preserves original source, patches, and provenance recovered from re
 
 The original implementation started at `6359a9b03670e85b50785d59d10eb087cf89fe3f`, which is still available. Its last recorded reviewed commit was `e645266862c389ffaae3c7e72aeac7b6e02b162d`; that commit object has not been recovered.
 
+## Validated continuation branches
+
+- [feat/native-project-foundation](https://github.com/denbezrukov/my-biome/tree/feat/native-project-foundation): `e92f1c2d6f67582a2f594305ff87a4950352edb9`.
+- [feat/native-project-config](https://github.com/denbezrukov/my-biome/tree/feat/native-project-config): `eafa925c01535ccf6173694fd9652a363fbbcd09`.
+- [feat/native-project-filesystem](https://github.com/denbezrukov/my-biome/tree/feat/native-project-filesystem): `cba300340ca9166157609e92b287c80205994841`.
+
+These product increments passed fresh affected tests, formatting, workspace lint, and independent reviews after corrections. See the [current progress record](records/recovered-continuation-review-fixes/evidence/CURRENT.md), [remote verification](records/recovered-continuation-review-fixes/evidence/remote-verification.json), and [continuation manifest](records/recovered-continuation-review-fixes/manifest.json). Native Knip replacement remains incomplete. The historical archive below remains distinct from these validated branches.
+
 ## Assembled source checkpoint
 
 [`records/recovered-assembly/source/`](records/recovered-assembly/source/) contains 194 complete historical source, fixture, and configuration files arranged at their original repository paths. This is a mixture of recovered stages, not a working final checkout. 106 files match recorded original per-file digests or Git blob prefixes; 14 further fixture files are authenticated together by three recorded fixture-group digests.

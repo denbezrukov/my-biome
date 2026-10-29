@@ -1,3 +1,3 @@
-# Continuation checkpoint
+# Validated continuation: foundation correction and configuration
 
-These are current working sources above foundation commit 37156c2c36b. The configuration increment is restored original A2; the harness failure-retention fix is newly written. They are intended for separate commits. Full affected tests and 11 harness tests pass. Lint, fresh reviews, and real oracle reruns were still underway at this checkpoint. See manifest and evidence; this archive is not a standalone checkout.
+The archived A2 and foundation correction sources are committed and pushed separately to denbezrukov/my-biome. Exact commit IDs and content checksums are in manifest.json. Full affected tests, 11 harness tests, three fresh pinned Knip oracle smoke cases, formatting and all-workspace Clippy passed. Independent reviews found no outstanding issues. The comparison harness now retains failed process output and invalidates stale validation. Native analysis remains unimplemented at this stage; the oracle smoke results are not native parity. See evidence/CURRENT.md and the product branches.
