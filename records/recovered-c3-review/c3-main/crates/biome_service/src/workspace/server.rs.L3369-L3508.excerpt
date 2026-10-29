@@ -1,0 +1,140 @@
+    /// Changes the content of an open file.
+    fn change_file(
+        &self,
+        ChangeFileParams {
+            project_key,
+            path,
+            content,
+            version,
+            inline_config,
+            editor_features,
+        }: ChangeFileParams,
+    ) -> Result<ChangeFileResult, WorkspaceError> {
+        let _analysis = self.db_state.analysis.mutation();
+        let is_indexed = self.should_update_service_data(&path);
+        let documents = self.documents.pin();
+        let (index, existing_version, same_content) = documents
+            .get(path.as_path())
+            .map(|document| {
+                (
+                    document.file_source_index,
+                    document.version,
+                    document.content == content,
+                )
+            })
+            .ok_or_else(|| WorkspaceError::not_found(path.to_string()))?;
+
+        if existing_version.is_some_and(|existing_version| existing_version > version)
+            || existing_version == Some(version) && !same_content
+        {
+            warn!(%version, %path, "outdated_file_change");
+            // Safely ignore older versions.
+            return Ok(ChangeFileResult {
+                diagnostics: Vec::new(),
+            });
+        }
+
+        if existing_version == Some(version) {
+            let parsed = {
+                let db = self.get_db();
+                db.get_parsed_source(path.as_path())
+                    .ok_or_else(|| WorkspaceError::not_found(path.to_string()))?
+            };
+            return self.finish_change_file(project_key, &path, parsed);
+        }
+
+        let (_, settings, query) = {
+            let db = self.get_db();
+            self.project_get_settings_query(&db, project_key, &path, inline_config)
+        }
+        .ok_or_else(WorkspaceError::no_project)?;
+        let settings =
+            self.settings_handle_with_query(&settings, editor_features.unwrap_or_default(), query);
+
+        // We remove the node cache for the document, if it exists.
+        // This is done so that we need to hold the lock as short as possible
+        // (it's released directly after the statement). The potential downside
+        // is that if two calls to `change_file()` happen concurrently, then the
+        // second would have a cache miss, and not update the cache either.
+        // This seems an unlikely scenario however, and the impact is small
+        // anyway, so this seems a worthwhile tradeoff.
+        let node_cache = self.node_cache.lock().unwrap().remove(path.as_path());
+
+        let persist_node_cache = node_cache.is_some();
+        let mut node_cache = node_cache.unwrap_or_default();
+
+        let document_source = self.get_file_source(
+            &path,
+            settings.as_ref().experimental_full_html_support_enabled(),
+        );
+
+        let ParseResult {
+            any_parse,
+            language,
+        } = self.parse(&path, &content, &settings, document_source, &mut node_cache)?;
+
+        let (index, document_source) = if let Some(language) = language {
+            (self.db_add_source(language), language)
+        } else {
+            (index, document_source)
+        };
+
+        // Second-pass parsing for HTML files with embedded JavaScript and CSS content
+        let mut node_cache = NodeCache::default();
+
+        // Second-pass parsing for HTML files with embedded JavaScript and CSS content
+        let embedded_snippets = if DocumentFileSource::can_contain_embeds(
+            path.as_path(),
+            settings.as_ref().experimental_full_html_support_enabled(),
+        ) {
+            self.parse_embedded_language_snippets(
+                &path,
+                &document_source,
+                &any_parse,
+                &mut node_cache,
+                &settings,
+            )?
+        } else {
+            vec![]
+        }
+        .into_iter()
+        .map(|(parse, content, source)| (parse, content, self.db_add_source(source)))
+        .collect();
+
+        let parsed =
+            self.db_update_parsed_file(path.as_path(), any_parse, index, embedded_snippets);
+
+        let document = Document {
+            content,
+            version: Some(version),
+            file_source_index: index,
+            syntax: Some(Ok(())),
+        };
+
+        if persist_node_cache {
+            self.node_cache
+                .lock()
+                .unwrap()
+                .insert(path.to_path_buf(), node_cache);
+        }
+
+        documents
+            .insert(path.clone().into(), document)
+            .ok_or_else(|| WorkspaceError::not_found(path.to_string()))?;
+
+        #[cfg(test)]
+        if self
+            .cancel_change_file_after_document_update
+            .swap(false, Ordering::AcqRel)
+        {
+            std::panic::resume_unwind(Box::new(salsa::Cancelled::PendingWrite));
+        }
+
+        if is_indexed {
+            self.finish_change_file(project_key, &path, parsed)
+        } else {
+            Ok(ChangeFileResult {
+                diagnostics: Vec::new(),
+            })
+        }
+    }

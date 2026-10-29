@@ -1,0 +1,13 @@
+impl Workspace for WorkspaceServerWithDb<'_> {
+    fn pull_project_diagnostics(
+        &self,
+        params: PullProjectDiagnosticsParams,
+    ) -> Result<ProjectAnalysisResult, WorkspaceError> {
+        self.project_diagnostics(params)
+    }
+    fn pull_project_analysis_states(
+        &self,
+        params: PullProjectAnalysisStatesParams,
+    ) -> Result<Vec<ProjectAnalysisState>, WorkspaceError> {
+        Ok(self.db_state.analysis.reconcile(&params.project_keys))
+    }
