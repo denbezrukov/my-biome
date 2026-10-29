@@ -1,0 +1,421 @@
+{
+  "originalCount": 14,
+  "originalObservations": "original-command-observations.json",
+  "originalFixtures": "original-command-fixtures.json",
+  "cases": [
+    {
+      "case": "01-provider-baseline",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker"
+      ],
+      "boundedCorrection": null,
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    },
+    {
+      "case": "02-npx-binary-provider",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [],
+      "nativePackages": [
+        "boxen-cli"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": null,
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "03-npx-versioned-package",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [],
+      "nativePackages": [
+        "boxen-cli"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": null,
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "04-npm-exec-named-catalog",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [],
+      "nativePackages": [
+        "catalog-positive",
+        "sherif"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": "npm-exec-catalog-provenance",
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "05-pnpm-exec-node",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "local.js"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker"
+      ],
+      "boundedCorrection": null,
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    },
+    {
+      "case": "06-npm-run-quoted-semicolon",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "semi;colon.js"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": null,
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "07-npm-workspace-child",
+      "mode": "production",
+      "nativeConfiguration": {
+        "entry": [],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true,
+        "workspaces": {
+          ".": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          },
+          "child": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          }
+        }
+      },
+      "nativeTargets": [
+        "child/local.js"
+      ],
+      "nativePackages": [
+        "child-provider",
+        "positive-provider"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": "static-workspace-script-forwarding",
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "08-pnpm-dir-child",
+      "mode": "production",
+      "nativeConfiguration": {
+        "entry": [],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true,
+        "workspaces": {
+          ".": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          },
+          "child": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          }
+        }
+      },
+      "nativeTargets": [
+        "child/local.js"
+      ],
+      "nativePackages": [
+        "child-provider",
+        "positive-provider"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": "static-workspace-script-forwarding",
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "09-yarn-workspace-child",
+      "mode": "production",
+      "nativeConfiguration": {
+        "entry": [],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true,
+        "workspaces": {
+          ".": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          },
+          "child": {
+            "entry": [],
+            "project": [
+              "*.{js,cjs}!"
+            ],
+            "includeEntryExports": true,
+            "ignoreGlobalBinaries": true
+          }
+        }
+      },
+      "nativeTargets": [
+        "child/local.js"
+      ],
+      "nativePackages": [
+        "child-provider",
+        "positive-provider"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": "static-workspace-script-forwarding",
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "10-shell-cd-child",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "**/*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "child/local.js"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js",
+        "local.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker"
+      ],
+      "boundedCorrection": "static-shell-cwd",
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    },
+    {
+      "case": "11-node-options-quoted-local-preload",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "local.js",
+        "pre load.cjs"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker"
+      ],
+      "boundedCorrection": "quoted-node-options-preload",
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    },
+    {
+      "case": "12-production-noargs-recursion",
+      "mode": "production",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "target.js"
+      ],
+      "nativePackages": [
+        "recursive-provider",
+        "selected-provider"
+      ],
+      "nativeCoverage": "incomplete",
+      "nativeFiles": [],
+      "nativeExports": [],
+      "boundedCorrection": "no-argument-script-recursion",
+      "precision": "Unsupported tool/default-config or stdin entry precision; no output parity claim; D4 must block affected workflow pending complete evidence."
+    },
+    {
+      "case": "13-source-exec-dead",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!",
+          "entry.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "target.js"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js",
+        "producer.js",
+        "target.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker",
+        "entry.js:entryMarker"
+      ],
+      "boundedCorrection": null,
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    },
+    {
+      "case": "14-source-exec-live",
+      "mode": "default",
+      "nativeConfiguration": {
+        "entry": [
+          "control.js!",
+          "entry.js!"
+        ],
+        "project": [
+          "*.{js,cjs}!"
+        ],
+        "includeEntryExports": true,
+        "ignoreGlobalBinaries": true
+      },
+      "nativeTargets": [
+        "target.js"
+      ],
+      "nativePackages": [],
+      "nativeCoverage": "complete",
+      "nativeFiles": [
+        "idle.js"
+      ],
+      "nativeExports": [
+        "control.js:controlMarker",
+        "entry.js:entryMarker",
+        "producer.js:producerMarker"
+      ],
+      "boundedCorrection": null,
+      "precision": "Compare only supported file/export projection; dependency/catalog findings remain unsupported."
+    }
+  ]
+}

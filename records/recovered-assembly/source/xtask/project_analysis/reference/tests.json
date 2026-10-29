@@ -1,0 +1,5537 @@
+{
+  "source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+  "tree_sha256": "e26fe31bc43594cc076d8662f15e7ab895aa07cfbcfb1462df553911ad60b026",
+  "scope": "Test-path inventory; unported groups have not been executed. Selected test titles and negative assertions are source research, not native coverage.",
+  "groups": [
+    {
+      "path": "packages/knip/test/cli/cli-compilers.test.ts",
+      "git_blob": "1165505d2342eeb634e2e48db29bcba55e6d837d",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-config.test.ts",
+      "git_blob": "fd279e405012dc60c3d67b53e9251f9fcfdbde47",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-include.test.ts",
+      "git_blob": "efb8c1810ec858448486d96d0dea994ca2f5b41e",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-max-issues.test.ts",
+      "git_blob": "cd2a98a8ca84bb8e624baad981c9e8aab13cea1e",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-plugin-config-errors.test.ts",
+      "git_blob": "5ea46993bf28c460de9e4107b980197c71ce20cc",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-preprocessor.test.ts",
+      "git_blob": "1d4738f47eadae960fbe9f9408712a9db1c54dc2",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-codeclimate.test.ts",
+      "git_blob": "8f53aed8d75ae377e016bf93779b66c41d6b1e40",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-compact.test.ts",
+      "git_blob": "6496c8f7a40af481db1ed90b1b94d12c1c4fa843",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-cycles.test.ts",
+      "git_blob": "8b51fee41c119b4bf17fd45be09c3fac97c0b325",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-github-actions.test.ts",
+      "git_blob": "f0ea444abda0190428063f4f814f64eb3300332a",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-json-catalog.test.ts",
+      "git_blob": "baf23b808c28ca565d5d82508394aec732984dd8",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-json.test.ts",
+      "git_blob": "8fc84c54092672c72515e22199dcfd94e2a288dd",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-markdown-short.test.ts",
+      "git_blob": "915b5b0411f28bc058a2b678b9c3c0e8335452d2",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-markdown.test.ts",
+      "git_blob": "f5144b2f3c1c3688502af0ea7538da9d0b706a67",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-sarif.test.ts",
+      "git_blob": "c2f273aabca152f7bfe1e26a5b9aa8687eaa4a8a",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-symbols-catalog.test.ts",
+      "git_blob": "6bf0ea20eb771986035e462a71bdac5a7c33a54a",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-symbols-directory.test.ts",
+      "git_blob": "a2763fdcf9bc0c3fd01a2669336576a2bc4eba81",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-symbols-pathlike.test.ts",
+      "git_blob": "e321162c08741714422ce368876102c467f303c5",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter-symbols-single-group.test.ts",
+      "git_blob": "912b2094598409a1ebcaaa76cb9abbedf9cfa025",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-reporter.test.ts",
+      "git_blob": "87ffd5ab41255fa60ecef3689853896c3b60b53a",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace-ambiguous.test.ts",
+      "git_blob": "ad9a5077d1d9ed2325b151f5fcfe1a76b2c40441",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace-external.test.ts",
+      "git_blob": "322a4b067181beb3cc3d88b4387c4643f6755650",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace-member.test.ts",
+      "git_blob": "306d1bb1795ef4cbfd24692f0803c331c3761227",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace-no-match.test.ts",
+      "git_blob": "562d7789f823b3a10e8b97477fdeb52e0cd10427",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace-verdict.test.ts",
+      "git_blob": "92cd913e1fb6492434fadd23bb252bef7357d5c0",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-trace.test.ts",
+      "git_blob": "9a9e25a42d7e504cbeeb8d20480a211b142f6360",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-treat-config-hints-as-errors.test.ts",
+      "git_blob": "7cc38c53ef3e02627c7a15f6a020da7677f610b7",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli-treat-tag-hints-as-errors.test.ts",
+      "git_blob": "59839cd40993c37ef5472e9baae1b31b36ec41f2",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/cli.test.ts",
+      "git_blob": "b86ba216950566360aeed32b0820335ec5f0cbad",
+      "owner": "C4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/cli/config-preprocessor.test.ts",
+      "git_blob": "79fb032f9f8808e3c9e74a64bfaa66d1d3e102bd",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/basic.test.ts",
+      "git_blob": "386bfe626c3c3b5489203a5cc789fb4be9f3b051",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/imports-within-scripts.test.ts",
+      "git_blob": "744eb5afee06c88f2609e1a7f3bde318fc8aecd2",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/less-packages.test.ts",
+      "git_blob": "4a5b052a069687eb858178653aebc2b44a0dd537",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/less.test.ts",
+      "git_blob": "ece3a241f223b513215ce3ab448447b8abaf55ba",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/manual.test.ts",
+      "git_blob": "865837a976d4fcd534a55e9ea7caf30f71752390",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/marko-workspace-nested.test.ts",
+      "git_blob": "954d299d53b7b6707d00525a25dbb7dce693a2ed",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/marko-workspace.test.ts",
+      "git_blob": "4626c431ca34a11f86a53969ca836dcac9ef5939",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/on-demand.test.ts",
+      "git_blob": "6add0e1324152ed9f598ab8e7c959e00933e016c",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/prisma.test.ts",
+      "git_blob": "730fad64972333778a65e4e426eb3672aff9132b",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/promise-sync.test.ts",
+      "git_blob": "2a3ce91d24e77de4c912be0b903f1c6ab1ed5837",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/script-bodies.test.ts",
+      "git_blob": "b51d1b2498c154ed1c7d76b795ff33cfd07db180",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/scss-packages.test.ts",
+      "git_blob": "f672276c64f8e00e3fd9871dff71fe1250307aeb",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/scss-paths.test.ts",
+      "git_blob": "757acc2ace52ced90858f7ae46d54b938c784e2a",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/scss-url.test.ts",
+      "git_blob": "de6d3ba073d9be3797598f4974ad78e3085fb90f",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/scss.test.ts",
+      "git_blob": "d0bcf0ba8047de4810b3f2581b54b81034e56bc2",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/style-comments.test.ts",
+      "git_blob": "c1775a08afa4d5ba81730159a8f8d29f9438dc20",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/stylus-packages.test.ts",
+      "git_blob": "0ab9ed7593c565ba8abcd5e7784416aac0e12afb",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/stylus.test.ts",
+      "git_blob": "53b70d42713bb97704082ffd37deccad5dcb2a47",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/tailwind-import-url.test.ts",
+      "git_blob": "4b0f916a9699e1858d5ed916fb21506d7b635156",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/tailwind.test.ts",
+      "git_blob": "818faacf4c2f69e2383ed9c58bb42bbe7c7cd332",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/compilers/tsrx.test.ts",
+      "git_blob": "cba5590b519eba9df5e555fdc75d134235e60f87",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/dependencies/aliased-packages-ancestor.test.ts",
+      "git_blob": "e07d54f8ac85efba68054fad98df167776c40b85",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/aliased-packages.test.ts",
+      "git_blob": "e335c1287e9b1e8d42073bd2bfcca40dd2d6b3c4",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/ambient-module-reexport.test.ts",
+      "git_blob": "15b9ab875ae8aad99c816df4e73006187121c27f",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/basic.test.ts",
+      "git_blob": "9e0c5c2ee9d7d85647ff7be5f66a7f6376a76bd3",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/binary-package-name.test.ts",
+      "git_blob": "226d074db6f2695e4ba32e544141305fccd0294b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/binary-provider-collision.test.ts",
+      "git_blob": "054400bcbf16d85703a6220a3e7828b73dfc5ace",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/binary-scoped-name.test.ts",
+      "git_blob": "46ea2de2f6e707a4c14cbca8ea253d2fe5c71f4a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/bun-dev-dependency.test.ts",
+      "git_blob": "4525756fc776f51b682495c31c6170d77fa4cc32",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.empty.test.ts",
+      "git_blob": "c40ff359bad80904ce51afe77293122d6ec9ebc0",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.package-json.test.ts",
+      "git_blob": "660aaad6a01046b4f70e6427eb401ac0dc50fffc",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.pnpm-dlx.test.ts",
+      "git_blob": "4c5d8928be36e4fd5927f634d9e67b13002b7490",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.pnpm.test.ts",
+      "git_blob": "6bed2ac6b12a0d1df07f75841ad85008b0c85b45",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.yarn.test.ts",
+      "git_blob": "3e232afee3962d43835fd99f1d7cc413f59f9e58",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/declaration-dependencies.test.ts",
+      "git_blob": "55bd953ed5a7db96373b4d206297b0fe2d31d905",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/definitely-typed.test.ts",
+      "git_blob": "add203d486d881dfd6d61604d06d044eade1c237",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/duplicate-dependencies.test.ts",
+      "git_blob": "249283cad2a271798dc03edd054994566dc9317e",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/hoisted-dependencies.test.ts",
+      "git_blob": "9997cdfcaf69b447796b4795b6d0631fa952bd30",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/host-provided-vscode.test.ts",
+      "git_blob": "1e9bf152925f73a0892b0c6f9ee1e7b7ff9de1ee",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/node-protocol-builtins.test.ts",
+      "git_blob": "8cf06b606b779e05f1eee93ecc2f0635b4c00f97",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/optional-dependency-binary.test.ts",
+      "git_blob": "ca1b9e9248f8f0349975deb644a80e7640172660",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/path-shaped-binary.test.ts",
+      "git_blob": "ab8a4c0339b3d4aa51613fa8c9f372bce73e41bd",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-circular.test.ts",
+      "git_blob": "d89d20a265c779b5f71f730ffbe790d1ab63933f",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-host-transitive.test.ts",
+      "git_blob": "06d388e80ceb4f918625b540290f665026a95d3b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-host.test.ts",
+      "git_blob": "5c0c6030e421e42b8c31b780ac48f6426906ad34",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+      "git_blob": "1e7a5f4f5083a45773c9fa612ea6f1de8acb215a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-strict.test.ts",
+      "git_blob": "7520431105b804d276af5007240c09a4a50a968c",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional.test.ts",
+      "git_blob": "afbc115c52074ee0fc39b88e5d634fc2ef9ab33d",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies.test.ts",
+      "git_blob": "c2c4df8b1cffa7efcca7e6c98985e874be5578fc",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-transitive.test.ts",
+      "git_blob": "335979924c1dba5bf123651d26e6860586d42712",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/session-dependencies.test.ts",
+      "git_blob": "885da0f836e37b8fccc3d8e29f32e9ce4c16501b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/subpath-import-wildcard-workspace.test.ts",
+      "git_blob": "ed49fa7baaac3b93ed722669bf103d7986d6ce66",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/tilde-name-workspace.test.ts",
+      "git_blob": "cce91a041fa57bd8651426db49887488857a876a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/dependencies/types.test.ts",
+      "git_blob": "4d7cf92edcfc5b74661a07b31a5df4cde5db2c46",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/e2e/fix-tsc.test.ts",
+      "git_blob": "59ac7b7a047e15999f42296c888510f4df2a46df",
+      "owner": "D4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/e2e/yarn-pnp.test.ts",
+      "git_blob": "cbae5021e2381068b88c6209552d748173feb61c",
+      "owner": "D4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/empty-main.test.ts",
+      "git_blob": "f1d664f2cf0bebdc51272105cf82855339019e95",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/exports-enum-members.test.ts",
+      "git_blob": "2ac20a79cdf9e50377747f9ee467901578c066d7",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/exports-namespace.test.ts",
+      "git_blob": "50e805b3ca52ec126e407a217f77b87db5a84025",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/files.test.ts",
+      "git_blob": "802c58f19e8305dc867d3422fdec12154bccfdad",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+      "git_blob": "f0c4649c17021ae7d31ca5ff718287efa97e5914",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/include-entry-exports.test.ts",
+      "git_blob": "63353b08cf7673159fb60552d35eee014489603b",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/include-entry-reexports.test.ts",
+      "git_blob": "7110c77fc5bfa7115e243ad8ad07e5ff8c4bb282",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/include-libs.test.ts",
+      "git_blob": "cb13f661abd4d5f35dbe304eb89a5405571eadac",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/js.test.ts",
+      "git_blob": "a5093eee0169a951da131dabe11f125f6a25693a",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/negated-production-paths.test.ts",
+      "git_blob": "dd6f66fcdb0dce7c08bdf27c47eebc09dd7942e5",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/null-root-export.test.ts",
+      "git_blob": "17e53c0b9e1748a816e909e82f6003efb1447ec1",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-bare.test.ts",
+      "git_blob": "37b458a96639358ac20228320e9dedf93b3e5e4a",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-all-gitignored.test.ts",
+      "git_blob": "d3737a925121eaf8e15afa61744f0585e1a6663e",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-gitignored-workspace.test.ts",
+      "git_blob": "389e28c4eae1b313ecf38cdc6b3a5d03189944e9",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+      "git_blob": "bec23a4002ff2bbe84172d50e3247e82998da245",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+      "git_blob": "09d1eb620fa3fc2ae4e4cc28b9130c4133295b0f",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-root-dir.test.ts",
+      "git_blob": "29139555684b6edcab2819a1125a6f56e8285290",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-test-files.test.ts",
+      "git_blob": "67600af2449228f4959086946291f82c34e8332e",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points.test.ts",
+      "git_blob": "32e7348e83b21d900bf2d0f489327a6bc03f3ccd",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/production-plugin-negations.test.ts",
+      "git_blob": "79f7bf234f2fe5748c38c108683523b35821b7d1",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/entry/public-enum-members.test.ts",
+      "git_blob": "763ee04a63329c4fc2061012390644770c0558ff",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/entry/self-reference-from-plugin.test.ts",
+      "git_blob": "0493173cb094f26d8ca225a1bd42c7f7c715378b",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/entry/self-reference.test.ts",
+      "git_blob": "440e774e780c62a57b20bec6b90a29b3743e18f4",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/basic.test.ts",
+      "git_blob": "74774812720a2c7b2c1cba5b53feb58492ce1cfb",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/default-interface.test.ts",
+      "git_blob": "656087ca09f6bb2ec6eb31f1a0e43b5ee50fd1b3",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/default-type.test.ts",
+      "git_blob": "d88c98be132fffdb3a562965e9951f56ce0622aa",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/duplicate-exports-alias.test.ts",
+      "git_blob": "6ac4b1a414f58fae397f68082519b0912d209435",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/export-spread.test.ts",
+      "git_blob": "9400d6690337679be70b46918b3290f7fc4e13fb",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/exports/special-characters.test.ts",
+      "git_blob": "124abc6c50aba2df22eb7cad53f201770a4f58df",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-catalog-json-root.test.ts",
+      "git_blob": "18a51f85121d1bb798874a05efc012b0b7093a68",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-catalog-json.test.ts",
+      "git_blob": "f601dce6e58fa5c8daa706c74659b4f58b31c870",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-catalog-yaml.test.ts",
+      "git_blob": "e9b1af4f8e14b99d5362eec86fff70f800bf7a25",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-exclude-dependencies.test.ts",
+      "git_blob": "d8905946ba10fe59fddecfb7a6395e0f52473b56",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-import-attributes.test.ts",
+      "git_blob": "8e2ea78700d6ef41ac8be473128361dc1b14572e",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-members.test.ts",
+      "git_blob": "1b5bd696f1b7653b802734f720e5b62c1d0fe403",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix-workspaces.test.ts",
+      "git_blob": "bc5239345fbe54a2e8d32a83143d3db45a2eef27",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/fix.test.ts",
+      "git_blob": "9e2b74087043e15f15936ebf5a372815a656e1be",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/fix/format.test.ts",
+      "git_blob": "0dfbd2a26aafaf8099c475c1634f0fc090984bec",
+      "owner": "D2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/ambiguous-star-export.test.ts",
+      "git_blob": "98e5644ac89899c5b1b0aef6a550f49fd25c9187",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/contention-demand.test.ts",
+      "git_blob": "f6649833487d4a2582b997e81494efef6181a6dd",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/contention.test.ts",
+      "git_blob": "9dcb97df7d9ac09d528a55cf8276ac273cd0713a",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/cycles.test.ts",
+      "git_blob": "97b3b6ed4f2502d351fe2b90018c6e2ba308f42d",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/is-referenced.test.ts",
+      "git_blob": "e1c2cdf54b0e49082d92ba614e68f60fe013e419",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/resolve-export-origins.test.ts",
+      "git_blob": "aedff15cb579edd150e4d7a995472b12cd0df062",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/trace-export.test.ts",
+      "git_blob": "a6f0128cb1e8aec334609acc6c8fb59677c93f2a",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/walk-down.test.ts",
+      "git_blob": "cae3ce18d9357859675972a9a5760383bde33588",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/graph-explorer/walk-up.test.ts",
+      "git_blob": "37c43d0fe26dd2e3d27d75598eab744b57524e62",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/alias-exclude.test.ts",
+      "git_blob": "e462a98d6f6e177f76788fa119989f1622ac3981",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/basic.test.ts",
+      "git_blob": "073d917f298ed11419eb87c94e669f3d8bdbbb04",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/false.test.ts",
+      "git_blob": "5e7b96d5f040331e1c38df6dc654fb63445c1dfa",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/id-chars.test.ts",
+      "git_blob": "55d26bdd3f167d0b83a7e920f76d2edb156ba0aa",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/id-underscores.test.ts",
+      "git_blob": "06868726ad8459deca5bb0f29b2b17ed5143d868",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-local-alias.test.ts",
+      "git_blob": "b29296c4275504cd8bbdcfe8783a68349bd21074",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-local-unused.test.ts",
+      "git_blob": "36b6f2021932ca6c172820b35826cc3cc68421f2",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-local.test.ts",
+      "git_blob": "10265edbce2e4bff4a472bfd16b23b9fa1568cb9",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-name-collision.test.ts",
+      "git_blob": "72e372c2fe706fd9c9a6571fa502bde09ab027b7",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-specifier.test.ts",
+      "git_blob": "9b7d2f4e0b54efabc3b6e50bf3991267f1075800",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export-value.test.ts",
+      "git_blob": "8d9a5e5b6de78d3fc0ed3fe85eb9fa5cdcfb5e23",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/re-export.test.ts",
+      "git_blob": "c77ed3a1ae2acd18fb5f2c586cfafc1b9c6505f7",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/shorthand.test.ts",
+      "git_blob": "34fae20bfab9ca4c362c19ee364e930a3101b86d",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/typeof-class.test.ts",
+      "git_blob": "be2abe2fd65983b9b03cc7a09f1057a946d6c416",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/types-and-interfaces-typeof.test.ts",
+      "git_blob": "6b5a9e8c0a59ce5566cb7e0cec492c4ed85e15d2",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore-exports-used-in-file/types-and-interfaces.test.ts",
+      "git_blob": "ee8766c97a44f90fd60d79db44a4d4754be9ddc1",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/dependencies-binaries-json.test.ts",
+      "git_blob": "35ad9fccb2dddde8efd99a55f8e701bf222c2a72",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/dependencies-binaries.test.ts",
+      "git_blob": "d26d9eb3b8e8ba11eccf72bc0d99190d45caa453",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/files.test.ts",
+      "git_blob": "6578224b3645bc5a427b4846f6eeda137bb2faac",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/global-binaries-workspace.test.ts",
+      "git_blob": "618b246ab04538f1604f23be5f9e2d07a2f1f8af",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/global-binaries.test.ts",
+      "git_blob": "5bc386e9b534ba942b8d8a375244a1fe194a2931",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/issues-workspaces.test.ts",
+      "git_blob": "35d59c0528794fb03b5d97f236fb3c7876ccf805",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/issues.test.ts",
+      "git_blob": "ab51eab9cc7c4d96e5672b19fa872c8deb82fed0",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/members.test.ts",
+      "git_blob": "7971999347bfeb1aed802eccd8c3e5ff6775815f",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/negated.test.ts",
+      "git_blob": "bc024458c7805b33d8a66b8c8ac40fa53281f661",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/patterns.test.ts",
+      "git_blob": "33913b16843380bc47e7a8c9de8f687b7ed61916",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/unresolved.test.ts",
+      "git_blob": "62621d2f5f044faa4b60750a01a48216d0783746",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/ignore/unresolved2.test.ts",
+      "git_blob": "c4fd0a6af9bd2db838269ca0e07536e057907086",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/basic.test.ts",
+      "git_blob": "562be6249bbc345e544af066b74bafdbc6a9cc92",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/circular-dependencies.test.ts",
+      "git_blob": "5a9069d107873cf8987f1990eb8ad99d93a462ad",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/destructure-spread.test.ts",
+      "git_blob": "97f279b40f553f9cd3cf1273be34ac64bff5a335",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/dynamic-access.test.ts",
+      "git_blob": "126dba0ffad72ab4d742e73f9c745fb08e5fc2d3",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/gitignored-generated.test.ts",
+      "git_blob": "bcd28835ba6671766f03231ad2c54d62b95627c5",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-equals.test.ts",
+      "git_blob": "c204d64018e84035a389fe76d7cb58d19f5adf22",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-errors.test.ts",
+      "git_blob": "c9f09a2e1b0ccb73f788a95f4202dededfe8a2e7",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-meta-glob-alias.test.ts",
+      "git_blob": "460a76ffa4af7914fd24d606ee89ba16b2552640",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-meta-glob.test.ts",
+      "git_blob": "846800a05d4dfc231407abe5c73ee7f3fb55a6ac",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-named-default-id.test.ts",
+      "git_blob": "918f678eba503c8882ca6d169ae1784c75223393",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/import-star-iteration.test.ts",
+      "git_blob": "692601417ddc7cd7a5f11dae2b1c83526a4598fb",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/loaders.test.ts",
+      "git_blob": "26af2c9ca087a4ad26abee487d78338de41c6b86",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/namespace-arrays.test.ts",
+      "git_blob": "4ccdb26891cbe71ad986e5b292a2034ccbb95d2c",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/namespace-jsx.test.ts",
+      "git_blob": "66c0240b94f4e1548edbf39e2fc66851da8c0a83",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/namespace-with-nsexports.test.ts",
+      "git_blob": "0068bfde0aae89a1285cac34d4fe52cb65a8a557",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/namespace.test.ts",
+      "git_blob": "98b2db401784c8369b2ecdfb316bd345e7af82d7",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/node-fs-promises-glob.test.ts",
+      "git_blob": "e4f2a747fa5e0bbe2d6fa8ebdeb9ee3232b2852b",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/opaque.test.ts",
+      "git_blob": "617f56cc984d9beee8dea698935e07326755209d",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/prop-access-call.test.ts",
+      "git_blob": "cc6541145ab0945c225e79d10494c1298f5e7c45",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/self.test.ts",
+      "git_blob": "4a0d9865a1eeec5bdadc4b9b69f58978efa7f1ea",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/imports/typeof.test.ts",
+      "git_blob": "4559a37b46ec87b2dc1e818015ee295156ab1532",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/cache-entry-policy.test.ts",
+      "git_blob": "57f340fb52d06f020b9505b04acb0f38299cf445",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/cache-glob-new-entry.test.ts",
+      "git_blob": "60c382fee67cd83cba9ca07a3ac3a61af1862d54",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/cache-glob-unignored.test.ts",
+      "git_blob": "3108aeabdcf83d8ccbfefcc140d96b7dedb243f9",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/git-branch-file.test.ts",
+      "git_blob": "d2f4a0287f9e6d55cfb8d750d5629e41c9dbf1ab",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore-mixed-patterns.test.ts",
+      "git_blob": "f3276a7ba56de6c938b83bb9768612ba9a4e8ca4",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore-negated-basename.test.ts",
+      "git_blob": "11af86f5bab4435a3a8731169b5b22294adfd2e2",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore-negated-compiler.test.ts",
+      "git_blob": "2eeb257fab5bae69a580f0e5ede5d45ae767d79a",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore-nested-negation.test.ts",
+      "git_blob": "989002ce9f09513e59e2f3b544c372ab828726bc",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore-star-negation.test.ts",
+      "git_blob": "147dada367680224e3fc4b44c2d036fc124f7c41",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/gitignore.test.ts",
+      "git_blob": "66c010a993d037148038f09c7ff30f5a04c0bbb9",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/glob-characters-in-cwd.test.ts",
+      "git_blob": "1ba7a7402b36ac849ce21180f94f48f51fc9bf49",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/glob-symlinks-out-of-scope.test.ts",
+      "git_blob": "f6b9d9e263b30477c63ab6efe7ceb9cce7d3d812",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/glob-symlinks.test.ts",
+      "git_blob": "3ae5a0daf4f01bffa2ec9cb88bfe1884ff80cdaa",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/rerun.test.ts",
+      "git_blob": "932ef78b13e82f1cbd5916843b06c74c92417be3",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/infra/zero-config.test.ts",
+      "git_blob": "9b74d9e0129e2b994ef9f6d6759f572e0831e2fb",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/commonjs-tsconfig.test.ts",
+      "git_blob": "6a3a4d69a72b4c94400cd6ae34df6284e44f5461",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/commonjs.test.ts",
+      "git_blob": "261f89fc4665eae42cddfab1278daf5e550142f3",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/custom-elements.test.ts",
+      "git_blob": "1cee17068ce9444864f03c28e7f32c259ff49820",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/js-only.test.ts",
+      "git_blob": "631e3bcd09edba2be6f219f8f685aebc18cfc0ff",
+      "owner": "B1",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/jsdoc-exports.test.ts",
+      "git_blob": "fcdd43b84ed8dc392fecc187f687193c12a050a0",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/jsdoc-import-tag.test.ts",
+      "git_blob": "7f5c6a49ef3243a1d0babcdd1f57c76ee9640477",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/jsdoc.test.ts",
+      "git_blob": "c7b2975b1385fbf32af11303a65df6cdf5317485",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/jsx.test.ts",
+      "git_blob": "273def8725fe6fd6ec04793d60ca85d55d801f93",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/language/svelte-script-jsdoc-import.test.ts",
+      "git_blob": "9fba8bb2ed59b0b07c93d3bfc74e85f976b96d71",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/language/tagged-template-literal.test.ts",
+      "git_blob": "f7def5940f4665df078d7f7a16a896a9a17a8764",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/barrel-namespace-chain.test.ts",
+      "git_blob": "4dbbf86b7f6c5679e7ffe0d40a473367be4cd9a5",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/module-block.test.ts",
+      "git_blob": "be4b9682941d77c5a32e7753a51e3bea0f000a92",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/module-register.test.ts",
+      "git_blob": "b018c190eb6b04027c11e3950169cdd219ee508f",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/namespace-enumerated.test.ts",
+      "git_blob": "605f18f52e8e9d9344c421e7f0e0103858dfda85",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/namespace-member-re-export-as.test.ts",
+      "git_blob": "03067c0a3752c34335777d4155031fd1374bae6f",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/namespace-member-re-export-star.test.ts",
+      "git_blob": "2fb12e23ec62ba4fd49943d8ea2d5b9c25415ddb",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/ns-spread-reexport.test.ts",
+      "git_blob": "3a25ebf6d6a4bb035b6043442c2e0882e8d2141d",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/shadow-false-negative.test.ts",
+      "git_blob": "6e310c06039ccbe683acda1971c4b354de6a08d8",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/namespaces/ts-namespace.test.ts",
+      "git_blob": "86beccd828d5986ea877f16721dcc06678024827",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/basic.test.ts",
+      "git_blob": "333018a0a9539829441852870800246c097ff9f4",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/cache-cycle.test.ts",
+      "git_blob": "45e1c1636ba8607f2d70e77db6bf484d8a82472c",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/cache-shared-config.test.ts",
+      "git_blob": "dffe184a0caa2b86850676ea39c0c5277834ab5a",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/child-process-exec.test.ts",
+      "git_blob": "cfeacf947287664dcd229c0d4968d126c6367bf3",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/config-file-entries.test.ts",
+      "git_blob": "363c6deafd2a733a1421c5c52b7c59bd6f4c3e72",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/cross-workspace-inputs.test.ts",
+      "git_blob": "ddbc1a7ab0d2e9c5442e941468e27fc2d862b20e",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/load-error-only.test.ts",
+      "git_blob": "04e7052e79952ea0f2409397090c6448b6e048a3",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/load-error.test.ts",
+      "git_blob": "dd2b4e99ad749282a4bcb7ac9bf0ed2b81586460",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/npm-exec.test.ts",
+      "git_blob": "ddad9590b8aea08e0aaad5dce7cdc0cfdc80445e",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/npm-scripts.test.ts",
+      "git_blob": "d9c7451fb6d76ca1bbfe2f89bad3a85114f54247",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/plugin-disable.test.ts",
+      "git_blob": "8d7b586fcb2aa97c0750d1fe37ceb197495f9cc3",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/plugin-negated-entry-globs.test.ts",
+      "git_blob": "886c6d7f09e7e377bb1141edde3b9fdc36cf2343",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/plugin-overlap.test.ts",
+      "git_blob": "8cd76932eb5857b218c3ad5bb8b349c0b759a868",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/resolve-config-error.test.ts",
+      "git_blob": "056ff48405fc959513c0fb28a039489f71f70b0b",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/script-visitors-bun.test.ts",
+      "git_blob": "9548795905a33f0e225d8553bce017fb21a14ebb",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/script-visitors-execa.test.ts",
+      "git_blob": "0c3fbc0f72c617bfe92400fb6db1075f1c8471f6",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugin-config/script-visitors-zx.test.ts",
+      "git_blob": "5f63c83c690c863ecc7c0069d7828d5192aaf344",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/_template.test.ts",
+      "git_blob": "596b183484ec84ce994275c3f17e1a5410066d32",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/angular.test.ts",
+      "git_blob": "5f6abd375acba512b2ba5e3298cc390a8a3d1a67",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/angular2.test.ts",
+      "git_blob": "7aa940541115abd4bd41b1b9c6bf449a4bbc2491",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/angular3.test.ts",
+      "git_blob": "572af08d2763330035008668c125bf9e980c6251",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/angular4.test.ts",
+      "git_blob": "b71ae7ed15ef1704906672c8a801e546ab2b6bcf",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro-db.test.ts",
+      "git_blob": "a6e6f537ad7ee4bbb4ed6a4671e078d7af6568dd",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro-markdoc.test.ts",
+      "git_blob": "d8c93ff58478e81abb8d79e3fe23b8215d8252ed",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro-og-canvas.test.ts",
+      "git_blob": "67882f29d52077b8878b5032d16a1f635b562149",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro-self-closing-script.test.ts",
+      "git_blob": "3b24b7b5bf09982d6c0ad45ea6b81b8cc1cabe01",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro-sharp-image-service.test.ts",
+      "git_blob": "dd98300ae891e63fae5baaaf9c72e4eb1732b421",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro.test.ts",
+      "git_blob": "8b73b492a0268b45c6ec5f2378d304677f2aec03",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/astro2.test.ts",
+      "git_blob": "0eaba4a19cfdc20eef4c1eadd8420dda79e58954",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/ava.test.ts",
+      "git_blob": "7e2c146435bc5b93dbf224610474363f5f958abc",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/ava2.test.ts",
+      "git_blob": "9404620810cdc3c7de0669cd34ad32da424237b9",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/ava3.test.ts",
+      "git_blob": "acb1ed20b7e0d7fef4f399e5f719aa9e4ba6e878",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/babel.test.ts",
+      "git_blob": "aed53d22a5de14f7f7fa9fc7a65ee0abad2384cc",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/biome-workspace.test.ts",
+      "git_blob": "b08886e7791ccc7baaa70990a40ef929302d4a0e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/biome.test.ts",
+      "git_blob": "0992d0dd6516e230cdf21eb449130150a26816fa",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/borp.test.ts",
+      "git_blob": "b2748357e9a5bf15e4e8bef89d994e83b1a97d10",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/buf.test.ts",
+      "git_blob": "d257a6fee3eda2f898289140af786595be7698f6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bumpp.test.ts",
+      "git_blob": "899a12fe41f2efa510603cf447a01a857aad822c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun.test.ts",
+      "git_blob": "2180f9321146d6c917fc1e82122213a10daccc6d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun10.test.ts",
+      "git_blob": "46f855b60ff0deb09cdca1db844b5a3adfe5490b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun2.test.ts",
+      "git_blob": "1ef96f5a0e52cd4265a93780835723f5245ab386",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun3.test.ts",
+      "git_blob": "3eedaac91f6daf4cc75a23c0807dc69fe70cdfef",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun4.test.ts",
+      "git_blob": "619d55b0cf37fa17ba828f4b6c0abe696e1c5849",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun5.test.ts",
+      "git_blob": "e598a525bde3896c5fd5494732e005a8a4e0a827",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun6.test.ts",
+      "git_blob": "bf4ec68ad13b67605b898e18802818af1bc5ae4b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun7.test.ts",
+      "git_blob": "0e96df2552d5f85d31ee7fa002f2aa69aa86b6a0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun8.test.ts",
+      "git_blob": "9600efeae6072da0fdc3fa69340bfa60d438309f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/bun9.test.ts",
+      "git_blob": "edcec6b895ef54c3de3508dc9b77f774352fc051",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/capacitor-spm.test.ts",
+      "git_blob": "381f873780a4fe5d22fa1f22329f02a34343956a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/capacitor.test.ts",
+      "git_blob": "c4081f810139b1806f39ac0863931d02d0d83000",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/catalyst.test.ts",
+      "git_blob": "ed79108aca425cc2102862eb0af44efedf11fd31",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/changelogen.test.ts",
+      "git_blob": "c5dab04960fae588b332027d35748f05181aec4c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/changelogithub.test.ts",
+      "git_blob": "3b87693b492c59a089637749ecc6d23db6357c76",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/changesets.test.ts",
+      "git_blob": "f78f13c5c634471d58dfa589c02c879023a8103b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/commitizen.test.ts",
+      "git_blob": "c4ee761282853c32b061d454b98107a62282ff44",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/commitlint.test.ts",
+      "git_blob": "967ed6fae696abb5362c763e9183e2f753720e69",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/convex-custom-functions.test.ts",
+      "git_blob": "8b7ceeb6615196f5cf6e72d50c1d2b770cee31f3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/convex.test.ts",
+      "git_blob": "b3813d6ac7858dd0d1884b3f4d0184a455c8678a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/create-typescript-app.test.ts",
+      "git_blob": "63856a40d36cd96b9023ee873e1f993c1f58c4d5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cspell.test.ts",
+      "git_blob": "009b399bd7973920187c42142a5ca08938d8bda1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber.test.ts",
+      "git_blob": "1bda297feab1e5ab5b3007fa1213ae48db9c6a49",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber2.test.ts",
+      "git_blob": "07018f19d769a7e396d734be3e64fbd6a705ddea",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber3.test.ts",
+      "git_blob": "bc559dfaf7d7f7e3cd6e82e0534ecbb30478e473",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber4.test.ts",
+      "git_blob": "197b9809fe941cb3c132e71c243e56778e8cea3b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber5.test.ts",
+      "git_blob": "97347f707259d3d1b05b3247bb5f0688c37d9a63",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber6.test.ts",
+      "git_blob": "2423f4ce6911e87da0ee60ed1c12843b2ac7717f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cucumber7.test.ts",
+      "git_blob": "066cc7286284fdd71a4ea66dd8d6ae50162f47bb",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cypress-multi-reporter.test.ts",
+      "git_blob": "484a71eb9875e923d7ea4dc5b59a9ace03501895",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cypress.test.ts",
+      "git_blob": "8a17c2b87712c4bffd7b0079d4da911073d2607a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/cypress2.test.ts",
+      "git_blob": "c91053254aa49cab2b8606d60061b2c2e6fdd12f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/danger.test.ts",
+      "git_blob": "4324447aa9fb60024493bfe2218d950d9b52b5c0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/dependency-cruiser.test.ts",
+      "git_blob": "1cc649d308b35840d94b2b796560ca829105f3ae",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/docusaurus.test.ts",
+      "git_blob": "cad0a1b315a3f7e56ea8648f62f5ed853c357956",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/drizzle.test.ts",
+      "git_blob": "f5aee5d203da9c6736175f93f2425ef480aa60d0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-forge-path.test.ts",
+      "git_blob": "ff837261ea2916b3cc4136d899aaa956c8495ed0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-forge-webpack-typescript.test.ts",
+      "git_blob": "90bb1c488c3c29751067bf2ae830fef0c264729e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-forge-webpack.test.ts",
+      "git_blob": "97632676904d680a677420cc89206ccd68e9ee39",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-forge.test.ts",
+      "git_blob": "cd1850a8cbadecae21434eee0ab67b833d3c3745",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-vite-html.test.ts",
+      "git_blob": "471ac87a0ff0c47b454f8a1c588cf8377d0647e8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/electron-vite.test.ts",
+      "git_blob": "20e65c284a04419b2aab06803010d292f877898b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eleventy.test.ts",
+      "git_blob": "44158275462c7cbc6c0821976dc38f79076e6b60",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eleventy2.test.ts",
+      "git_blob": "3f4f2bc685bc03a7eca0549bbce5f1db5e54dc4b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eleventy3.test.ts",
+      "git_blob": "0543ec9574ec2b47b0aa9c1df5302199e9673f47",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eleventy4.test.ts",
+      "git_blob": "217c33220e3fcd7aa58aae32282ec618bca0e619",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/esbuild.test.ts",
+      "git_blob": "7e73fee24abae2ff4677709658bf6d4f3f01530c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint-cli.test.ts",
+      "git_blob": "3727de74d60d1d8293dc3a62ef72cc17e7e50f8c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint.test.ts",
+      "git_blob": "6c453fed2aa7642a3104f51b9582ade5174bb316",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint10.test.ts",
+      "git_blob": "92db323063e376ccede49cfe0dd47da322887f49",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint2.test.ts",
+      "git_blob": "8e4c734caced4adc8127b264bb4c58b44efbafab",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint3.test.ts",
+      "git_blob": "74c8c45fbb43e00d38ce8913ee4def441433edea",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint4.test.ts",
+      "git_blob": "1521eaea6fabee5bb8a6fe5c8bf60f5a00431259",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint5.test.ts",
+      "git_blob": "0b4f3eac98d5298d8eba856cea22e3517e0cfc00",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint6.test.ts",
+      "git_blob": "012c87d91275ff2a3e7da89a39c5a8431e3b3e03",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint7.test.ts",
+      "git_blob": "89ba00d16233d4e9ba8b5034ab0f4cb6c4bcba9f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint8.test.ts",
+      "git_blob": "70014bd244dae243d7c5a7ddc22d588dad6fc599",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eslint9.test.ts",
+      "git_blob": "87cc14d30ae22eda2a7490b5c77620cff0b7629d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eve-agent-files.test.ts",
+      "git_blob": "b6918647ee8f87a121ad561877ba4fa3c23ed202",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eve-workspace.test.ts",
+      "git_blob": "59675e6d3ff1913d4fe6ec2d7895388cc2f67b49",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/eve.test.ts",
+      "git_blob": "9584564213a786d53bc72f3ba07f1a42c6949d61",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo-router.test.ts",
+      "git_blob": "ef32720bb8fa8adc94c9eb1d3609db3c81a2236c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo.test.ts",
+      "git_blob": "3c34e2222335e19030cf9308e370fa668b434b1f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo2.test.ts",
+      "git_blob": "5b49350aed676eca33e5aa3e69cb3e88ecd30344",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo3.test.ts",
+      "git_blob": "7d0a043cebd5b7974a4a2c9237cd613a88b6f43b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo4.test.ts",
+      "git_blob": "c891dad077cf7be69227f5eea2203b6d37b1bc6e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expo5.test.ts",
+      "git_blob": "81ca0e11c36ca8762c2b32f19922fee9517e7976",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/expressive-code.test.ts",
+      "git_blob": "ce8f8af6ce40dcf8ed4b48962c59502ac91aa773",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/fast.test.ts",
+      "git_blob": "c16f5ca60074b1217d2ebcca9b4e17390c8e1314",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/filesystem-routing.test.ts",
+      "git_blob": "34a84edbf6fe98a717cad2837ea04c4b4a9d3a30",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/flue-config.test.ts",
+      "git_blob": "9b119286f2e06a76f3da6e2eefb7a029bd718eff",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/flue.test.ts",
+      "git_blob": "f1e9014316edec7c5094181fcace537d86b84a3e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/fooi.test.ts",
+      "git_blob": "d27fa3e2110c012309c201190ad6b98da883ed6d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/fumadocs.test.ts",
+      "git_blob": "a24002b24efe7b0856d6a2ce1d91907d9547f240",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/gatsby.test.ts",
+      "git_blob": "52b1300a494ffbe8537cc99fe70ba82e07f92a58",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/github-action.test.ts",
+      "git_blob": "fc2623626381aa0b456ffbc4e2bab93f8cc98f8a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/github-actions-binary-policy.test.ts",
+      "git_blob": "dce8b1ea48e3966afc4767fbe237e3f3590ae89d",
+      "owner": "B4",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/github-actions-workspaces.test.ts",
+      "git_blob": "8621f110ab56847dbfe71dcd7092dad7205ede93",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/github-actions.test.ts",
+      "git_blob": "53a29f6e52eb3332017070e78cf31987e63cc029",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/graphql-codegen-graphql-config.test.ts",
+      "git_blob": "c52cdca5d3163299e6292192ed71d0457170ed24",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/graphql-codegen-graphql-config2.test.ts",
+      "git_blob": "cbe443cb9d123c619ae82261069dad7b8fa3dbbc",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/graphql-codegen-near-operation-file.test.ts",
+      "git_blob": "c90ec7ae287dc2e95b1b70d41a3dad42a9f6318a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/graphql-codegen-output.test.ts",
+      "git_blob": "cceb94ca68b4055c12e1964f37db4c265a635b79",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/graphql-codegen.test.ts",
+      "git_blob": "16173d1af971c6a263056053b0d1e8d4fd185d4b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/hardhat.test.ts",
+      "git_blob": "6fd42f6fe7918d5ae68ed2e6a7c69a03f2d99199",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/husky-legacy.test.ts",
+      "git_blob": "a731deae16d5f9f6f939c9566f1ba5f0fd477f8f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/husky-v8.test.ts",
+      "git_blob": "24373e12d9612c3009dddd292e30d504bb40733b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/husky-v9-1.test.ts",
+      "git_blob": "32898a7a3c4e914a24fad6c1be83e0a2b843b483",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/husky-v9.test.ts",
+      "git_blob": "66673ab7de9e3e963318fa634e3f56caac51ee0a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/i18next-parser.test.ts",
+      "git_blob": "f1a169d50390a61fc5db06dae69c7548c840906f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jasmine.test.ts",
+      "git_blob": "f84da4c9fd34afb5e3d307a65d3009806fb2c328",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jasmine2.test.ts",
+      "git_blob": "27742555925a47c499c435e78438ad8f4e9dfa46",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jasmine3.test.ts",
+      "git_blob": "f87b9e6bc50ddc151dfe688b6344779164dafa50",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jasmine4.test.ts",
+      "git_blob": "814f49cfe4d84003a6c76fafcfb853c670e1ac5a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-manual-mocks.test.ts",
+      "git_blob": "66e78e8909861b18186ddf7eb3001de1f70bd8ee",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-module-calls.test.ts",
+      "git_blob": "aa6d8f34f48137f7428b3115d6b94c53a725b297",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-prefix-workspace.test.ts",
+      "git_blob": "bbf4567c0fa87be5ed1a34580b1154a53c71adb7",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-prefix.test.ts",
+      "git_blob": "d17ea208e1f81e808deb757de2d248ee41ad8079",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-projects.test.ts",
+      "git_blob": "f55e8ec1a7c510bea29dc49be12b4a1a8726b2b8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-transform.test.ts",
+      "git_blob": "f152dc7e236bb2d91cc811a3916a41804e2da7f0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest-virtual-mocks.test.ts",
+      "git_blob": "582e235aeef311194811661a442509455e079cb4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest.test.ts",
+      "git_blob": "86a5508b8444aea871667ea57fa840f9cc04f524",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest2.test.ts",
+      "git_blob": "bcb7a80486c8298c24e54feb6e9710df08688e37",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest3.test.ts",
+      "git_blob": "45320592424991b55128b0c0b76e88344d8b7fe3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/jest4.test.ts",
+      "git_blob": "9796b50a7b86809d1686ff6b79a3c875f9e8c5e8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/karma.test.ts",
+      "git_blob": "3b6186c5ac67bcd1dfa029a42dc4b6a90c1ad511",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/karma2.test.ts",
+      "git_blob": "74a68308ab9001bc3dcbd5051a665675c2afca51",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/karma3.test.ts",
+      "git_blob": "f5b4c8f5966d595c873cd78ee016bb2573ccc52d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/knex-inline.test.ts",
+      "git_blob": "60133c882a0a8c1ecff599799acbe4a1c96ee95f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/knex.test.ts",
+      "git_blob": "3231e2270e96f559df567df40c111d9698fd49c4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/ladle.test.ts",
+      "git_blob": "f9123dfd723834379cce2674b9f70eb66eae4732",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/laravel-vite-plugin.test.ts",
+      "git_blob": "6c10cbf51b6241c3b1e4c0fcddf27b377faa06e2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lefthook-ci.test.ts",
+      "git_blob": "414d0cdea5b29bdc76184b121e70350fc7e73b2a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lefthook-v1.test.ts",
+      "git_blob": "e5ef47940dfb7851a399f94321728f9a77da5656",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lefthook-yaml.test.ts",
+      "git_blob": "cac87758dd11e885b90d5e8bc8c10bf4923362ee",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lefthook.test.ts",
+      "git_blob": "05c4fa7d6e4360a7118b802dd2a1da6df6c71d55",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lint-staged.test.ts",
+      "git_blob": "4bb16f4e249432a105e76f2f5dccaf9fb570ffed",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/linthtml.test.ts",
+      "git_blob": "dfb4a2d752c401fce07ccfb2c80e77524972fd4e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lit.test.ts",
+      "git_blob": "fa744bdaf6103d43df30d1c2278d0856511503f0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lockfile-lint.test.ts",
+      "git_blob": "24175bb9c6bf23654f713789761c0431591d8d91",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lost-pixel.test.ts",
+      "git_blob": "dbc050dbdbaeb6bcad8db8974833608863361343",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/lunaria.test.ts",
+      "git_blob": "e82ea283dbe79a0fbfdf257871a4c7dbd1d4be41",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/markdownlint-cli2.test.ts",
+      "git_blob": "3e90c9318a43236fefc99f4d7cc62e4b72f68b51",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/markdownlint.test.ts",
+      "git_blob": "eb7e56816ec86bf55a10539335d6b6faa89721ec",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/marko-compiler.test.ts",
+      "git_blob": "2dc69193080bb753ce86bc1794777024cb257494",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/marko.test.ts",
+      "git_blob": "0ae3ade51217808eb668c0f144aa636c4c5f2b27",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mcp.test.ts",
+      "git_blob": "f1ba9ad45eefe45fb9159941625029b1e24ba43a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mdx-content-mapper.test.ts",
+      "git_blob": "fc928bedfb4729e0dbae29de0e87483f22c57700",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mdx.test.ts",
+      "git_blob": "1007b7d07cd99332eb750a448abd080845efb61c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mdxlint.test.ts",
+      "git_blob": "e1c99bb474d1c020242b87ab7ed88d20da9fd79c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/metro-defaults.test.ts",
+      "git_blob": "68c550cab6aede58898519e838088659f64c46b4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/metro-react-native.test.ts",
+      "git_blob": "648210ec25e71fc62ac2d3486d51444c6825d9b2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/metro.test.ts",
+      "git_blob": "773cff11d0a9c39a6e2db9903db9990a20cd0cc3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mise-global-binaries.test.ts",
+      "git_blob": "03d8ed1d8d5f6c7916d9ea7a26b042ef8724b147",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mise-local-binaries.test.ts",
+      "git_blob": "44d8b65269da231df2fef55c9b33ba4f81a6f9a5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mise-removed-task.test.ts",
+      "git_blob": "74e997a03b62ff5f4b74c7c1dd9916e8a4b0b63a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mise-workspaces.test.ts",
+      "git_blob": "dd3b469fb4a50827bd4416bad3063d4db0afc209",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mise.test.ts",
+      "git_blob": "0a593d1cba0cae24827256a9b59743020f49df19",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mocha.test.ts",
+      "git_blob": "41b471faf98594db3be3321d899d2b8a251a3031",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/mocha2.test.ts",
+      "git_blob": "f9d370537aecdb1c971a2556a6acab54ba08b9c1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/moonrepo.test.ts",
+      "git_blob": "186e657c400d8fd7be2b3dd65bb27276b4377e7f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/msw.test.ts",
+      "git_blob": "3828d05a77b31f1a32e663ba2f47dead2e1615bc",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nano-spawn.test.ts",
+      "git_blob": "76a693aab8a2f30ff21bd3aaa6f372936c1500c1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nano-staged.test.ts",
+      "git_blob": "d7ce171b21e1757d0e326d43c40d5c0d74813fc5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nest.test.ts",
+      "git_blob": "fbf30a5d2d4b3abcccff1388fdf977f6e081730f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/netlify.test.ts",
+      "git_blob": "3dbe50b7b22cc7a2397152ee7abc09e1036f40ef",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-intl.test.ts",
+      "git_blob": "f354053c7dbf78346d10e68e9c415e33527bc038",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-mdx.test.ts",
+      "git_blob": "35cf770a87c0da5fccd78901982c5f6856b21165",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-middleware.test.ts",
+      "git_blob": "f8a3e3e43e4ccb9c9670cfd5e55ea6f6b7d24981",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-mixed-routers.test.ts",
+      "git_blob": "5710a52fdb899a0266095ee9e83174cc182efdee",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-page-extensions.test.ts",
+      "git_blob": "94be320ff6962a7b03ee1a94e2458623f7555df5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-root-and-src.test.ts",
+      "git_blob": "fd2d67aeab9215cf1c32ec68144c040e77f40a02",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-subdirectory.test.ts",
+      "git_blob": "1d4e3270e3c5f5f5860569b7eb677f7aaf7df6ea",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next-turbopack-loaders.test.ts",
+      "git_blob": "e859b81bdf4fee853e64e1b7960cab1f6a705b4b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/next.test.ts",
+      "git_blob": "60abf4b300d41e878da74af78b58d53edde2fc8a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nitro.test.ts",
+      "git_blob": "7c3d3393bbfc29f01ef32b3e2992915bdd2f0667",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node-modules-inspector.test.ts",
+      "git_blob": "b14a70d97244f382ce646f440ac50b95d4318ec1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node-test-reporter.test.ts",
+      "git_blob": "87fd0dbf533e7639b948897815b828cc4277d919",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node-test-runner-c8.test.ts",
+      "git_blob": "002b27524d5f33fd44186aeea6fa3cade9262ce3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node-test-runner-nub.test.ts",
+      "git_blob": "f28ce44e3162a960264f2cc32ce1947b78ce15a7",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node-test-runner.test.ts",
+      "git_blob": "05d025035e513816b8d177d71be62f7f6b9dac69",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/node.test.ts",
+      "git_blob": "f6d7bb2759e7eddcc702b31ac24a5c38d4328827",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nodemon.test.ts",
+      "git_blob": "fff83a66b8f58407214e21bb2edd68b9efe84be0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/npm-package-json-lint.test.ts",
+      "git_blob": "cbbcbfe85ddbf66b1fc586109b137322958c6838",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-auto-import-disabled.test.ts",
+      "git_blob": "eefb8eaaf1319afff8884a4435fb4fe6a9f54c76",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-auto-import.test.ts",
+      "git_blob": "b38ea4da7d6c22f5160b6794c3da84f8b4849150",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-config-extends.test.ts",
+      "git_blob": "c39914deacc547d0931aeb1aa4cb4ccb5b8cfc9f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-config.test.ts",
+      "git_blob": "cf49b9efb42c2db9edff34367d39c7b6a0e1003d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-layers.test.ts",
+      "git_blob": "ea64a3fc539fcffefbc78086f5ee6e8503c28089",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-no-root-tsconfig.test.ts",
+      "git_blob": "6d6bccbd98e20117ecf851e72c22f41df072d3d4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt-shared.test.ts",
+      "git_blob": "393d68dc87b95f3b27023540d157dd462a18c2c9",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxt.test.ts",
+      "git_blob": "c6d58907901f221f249a0adc972180daf09a6e40",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nuxtjs-i18n.test.ts",
+      "git_blob": "6ff2c8ea2ad0fb6fe884407f73e7035b1c86ff12",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nx-crystal.test.ts",
+      "git_blob": "568f06875e2418ef08a8380de5b61de3e0701cbe",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nx-generators.test.ts",
+      "git_blob": "73069cd4b498e6e5fe4acd8702015a761f7c20e2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nx.test.ts",
+      "git_blob": "6fb0a3e92bf506c15f3aedf1b22f8fed94cacd73",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/nyc.test.ts",
+      "git_blob": "e09f5fc186bd18689deeedd3df21e216ec4e4f86",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oclif-commands.test.ts",
+      "git_blob": "0b1707b2a3a8b80b7062b64e6fad00467106fe0c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oclif.test.ts",
+      "git_blob": "ec8ee01393c3c90f8900b5e501dc62b110650dc5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/openapi-ts.test.ts",
+      "git_blob": "b3833e5c26447e27126ad6beb9e9aeb4f28e1190",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/openclaw.test.ts",
+      "git_blob": "bbd18afbc88106821d82d061daa4f6769db81f18",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/orval.test.ts",
+      "git_blob": "5cca7d67499a51b13cf0e9cab61410ec10ea9f46",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/osls.test.ts",
+      "git_blob": "658181fbf95f7ab4f9b899b5e11298b1b252d946",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxfmt.test.ts",
+      "git_blob": "d13ffab13c74bf336bcf97d82553932ed85b4f66",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-extends.test.ts",
+      "git_blob": "6d6382c65a3e6ce6644b55afeb0f95467b94d2a0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-disabled.test.ts",
+      "git_blob": "ae0fa1f91bb3dbfff4221ace16adf46eb0638418",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-extends.test.ts",
+      "git_blob": "44fd0cedbe6a1d552868837c86732f6ec59cba54",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-function.test.ts",
+      "git_blob": "cc7e6e4c1745f3d8f6002a4324fdf6de79047206",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-imports.test.ts",
+      "git_blob": "22bd93132fdb75baeffd47d6501fce7b9686765c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-preset.test.ts",
+      "git_blob": "43db4794081054e30996f919bb6010338b40c4a3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-replacement.test.ts",
+      "git_blob": "c6d50e32e1d79b019e88805b256530b690f24943",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-settings.test.ts",
+      "git_blob": "862de83d23f98307f320c6fca6fe1cf63ed165dd",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-vite-disabled.test.ts",
+      "git_blob": "5040eee0c243f7ea9ed58980f3b066760655a856",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-runtime-vite-excluded.test.ts",
+      "git_blob": "5cb0bee7484c90b144903c355709548c2d630747",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-vite-config-import.test.ts",
+      "git_blob": "4065e3c587e018c60186fdc4c74cdae58d67677d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-vite-config-scope.test.ts",
+      "git_blob": "b363edccde46824958cd18087b8d492f3c4179ce",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-vite-config-spread.test.ts",
+      "git_blob": "d88c970133a32357a133265b42048504b94c1e47",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint-vite-config.test.ts",
+      "git_blob": "c451d748ec816ed098dea352c475e8fd583eef64",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint.test.ts",
+      "git_blob": "aa18c78867b57fb69a215b9198a226dda0d9456d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/oxlint2.test.ts",
+      "git_blob": "0625bb0f853bdb5922cacea4a6c5525bcb61ddcf",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/panda-css.test.ts",
+      "git_blob": "4ff7a6c07e2a228d1ebcccad36775b2c11894367",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/parcel.test.ts",
+      "git_blob": "854a4de15997ccee0daf7346ed308e8ab6eb1a38",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/payload.test.ts",
+      "git_blob": "3e044e6db337ffaa9d82ee89428beb366f4108bf",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/pino.test.ts",
+      "git_blob": "074b28c5327aca476888de3c20f6dc878798f708",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright-ct.test.ts",
+      "git_blob": "04aea98151e25963003294ef9fd2e104702d98cf",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright-ct2.test.ts",
+      "git_blob": "39ab879d6e6da0dd32654abeb88418eb0d8b2732",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright.test.ts",
+      "git_blob": "9ee517da394ba2e91bc80875d57ad0979878cafc",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright2.test.ts",
+      "git_blob": "4f357cef45f2bed408406ab96c7084b77986ca8a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright3.test.ts",
+      "git_blob": "33511d805918d01e8d6b939e82fe1e07afb99717",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/playwright5.test.ts",
+      "git_blob": "e43ad745b9a2cbe70b624c4bc812657c530ba79d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/plop.test.ts",
+      "git_blob": "d88f5eaae51b439f9c4e605395680cbd17e6101e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/pm2.test.ts",
+      "git_blob": "f71a1b57cd525f5aba95169410818ebb13dd5cd9",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/pnpm.test.ts",
+      "git_blob": "fed29774f9c59ddce93c2b20eb67577eaaaea20a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-cjs.test.ts",
+      "git_blob": "8bd07d24748d60e37735352d1adf9d65bdf0d2fa",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-disabled.test.ts",
+      "git_blob": "77ea6481736389e45379c2b2e3d5cc54e32ead31",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-next.test.ts",
+      "git_blob": "a79883af81d9de05f895dd2a5b44f04d35989087",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-tailwindcss.test.ts",
+      "git_blob": "c9cb8f66b6d3b8bc605087bd6dc9c06a1f61a122",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-tailwindcss2.test.ts",
+      "git_blob": "f9a0bc7c3fcb59e17ae84f5e0c5f9222fe3568ff",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss-tailwindcss3.test.ts",
+      "git_blob": "3a5f1ae97527387580434bfb38a0dd77c93a2cd6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/postcss.test.ts",
+      "git_blob": "75350167202cc5e82e7b79181b0eb6f2f702ff8f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/pre-commit.test.ts",
+      "git_blob": "7dbc8a6700fb39905897482d082c405481cb01b4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/preconstruct.test.ts",
+      "git_blob": "9acdd59df291e1179ac23bff782a6869833ff573",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/prettier-re-exports.test.ts",
+      "git_blob": "cadb2bebb0351923beb9b05cc5b69e975e6a9490",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/prettier.test.ts",
+      "git_blob": "ccce376b79eb4c34ef631430f0ea9be8ab9d59ab",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/prisma.test.ts",
+      "git_blob": "39d19c53f40ca0af67143ff53a13f9632633cd43",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/prisma2.test.ts",
+      "git_blob": "c0e4aa358b7c26aaf9d4e5dc1ed28bf37b5717f4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/quasar.test.ts",
+      "git_blob": "c5c13447cfc475c3696f2957b4bd944664c1fec8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/qwik.test.ts",
+      "git_blob": "863224a323e5a19717f50d1d8bc4729a2549cc87",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/railway.test.ts",
+      "git_blob": "eb39dcac3e74cb783389ae1b7dfc0ee233c6276a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/raycast.test.ts",
+      "git_blob": "25c0b5fadf9ed9fe9374d4384fd83d84c5242f96",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-cosmos.test.ts",
+      "git_blob": "f2dd642f44ba9fdcba674a530c38f894e6b4b165",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-email.test.ts",
+      "git_blob": "15e1e39d6fd562a27d139ebe3c6856dc62235af1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-native-ts.test.ts",
+      "git_blob": "78285c9358605806b831d8fd3d0ffed89a7263b5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-native.test.ts",
+      "git_blob": "feb7ed5d55f4a6c9659080eedd37d261e5ba1d7a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-router-jsx-route.test.ts",
+      "git_blob": "b4b90fc690d25a5299ad9cd492d94d23a86eb6b6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/react-router.test.ts",
+      "git_blob": "dc890c76754f8c241cf2ba64e8e1b5cea3b437da",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/relay.test.ts",
+      "git_blob": "73a38c4434058f318e53307ed075cf407b830656",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/relay2.test.ts",
+      "git_blob": "4eeee460c38fce07a3c6766538e6cacbcbbb0c65",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/release-it.test.ts",
+      "git_blob": "ce95316be720e404598fc7bc54add11af3751fcf",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-fallback-scoped.test.ts",
+      "git_blob": "d7e59f683d932fd8bada457187b3b45d938ba44c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-fallback-unscoped.test.ts",
+      "git_blob": "66b0d168b6add9472defec1e76e62af3827a3d3e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-local-path.test.ts",
+      "git_blob": "1e6d66fb59fb5581a7601cd5e22ed26e2b9c2543",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-missing-placeholder.test.ts",
+      "git_blob": "cf37bead2712bfd2e48f9c9ade92d4278a0cca99",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-primary-scoped.test.ts",
+      "git_blob": "ab121f4d3d39b9672dfefee1453d0af8812ac5a0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark-primary-unscoped.test.ts",
+      "git_blob": "474872300047aacee61b6d7fef0fa13e21405940",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remark.test.ts",
+      "git_blob": "89a0ff32fd23710fd49f3fb19c280421a741034a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/remix.test.ts",
+      "git_blob": "07c63a4321f66499f1d746574d87116aac5680e9",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rolldown.test.ts",
+      "git_blob": "b2edc1605cfc94ce876db760b4237bbecb16ba62",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rollup.test.ts",
+      "git_blob": "851cd49bfdec0b350bc89bac105404ab0a1b0dce",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rsbuild-function.test.ts",
+      "git_blob": "6bf127e4e329ecc9d95f56bcfbf97670e6ab3971",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rsbuild.test.ts",
+      "git_blob": "e6fbe1c185e5269821ba499e262fed6792ecc936",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rslib.test.ts",
+      "git_blob": "73ecf7b9d353dc8c77e172a96e747eaa4590e5b6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rspack.test.ts",
+      "git_blob": "7527ef897c7f9a6e897483b547325d0897bc1af7",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-alias.test.ts",
+      "git_blob": "5a9e0eb54111e0480c3130481c78979352ece5a3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-cli.test.ts",
+      "git_blob": "f568d7e2f5395bb8753755dd7395345189406c03",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-config.test.ts",
+      "git_blob": "aa44f31ac7a80467fd89575a5833ffc46f972f4d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-entry-override.test.ts",
+      "git_blob": "4d97452acf96a56b21b286ce17924246336ea1ba",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-mock.test.ts",
+      "git_blob": "7c90fca42512dd57ba97597d0ec053f81243e5f6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-projects-root.test.ts",
+      "git_blob": "b9ca40620e7965d2ba69a58bf854f22fe1dfbdea",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-projects.test.ts",
+      "git_blob": "134da93b36661e1433762cac3b446e1b1988a7d2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest-workspaces.test.ts",
+      "git_blob": "f58ed80e1f0cb760a00ef1b3fc57d99e68bd36b6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest.test.ts",
+      "git_blob": "69c78a46dd3983c3d377b81e6efa7a564effc924",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/rstest2.test.ts",
+      "git_blob": "29548edf5a7b1a4ad7c0acbfc6e5d9986d4d9d32",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sanity.test.ts",
+      "git_blob": "0ad8bc1301bf502f805b85ace8a99f49ae9bad26",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/semantic-release.test.ts",
+      "git_blob": "9b5ddbb3119a0ead68fc2b1001c6f5bb65ba637d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sentry.test.ts",
+      "git_blob": "9a51d270b852e365c4ca19936f7289beba21c3c4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/serverless-framework-file-variables.test.ts",
+      "git_blob": "1996ea1e0a0ab23be800a0e2d2febd1272c9ab4f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/serverless-framework.test.ts",
+      "git_blob": "53706059acdf95d0ff59a351615f138db9f607ac",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/simple-git-hooks.test.ts",
+      "git_blob": "4973de081dc9b86fbb519deec219a2fda72437c7",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/size-limit.test.ts",
+      "git_blob": "cfd5b6091732b35d9f2b90d5d054d7d2b406b180",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/solidjs-vite-plugin.test.ts",
+      "git_blob": "f4a3ba503b15aaf0be64983204fb0b4728597a4d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sst.test.ts",
+      "git_blob": "9d21ca935639b8dfc89c9966c4a9763c0f111033",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sst2.test.ts",
+      "git_blob": "bccd22255bd455ba99ee27b20adea3519594c913",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/starlight.test.ts",
+      "git_blob": "8d8d0dc16d37e037b604b05f344eadacdb5b84b4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/stencil.test.ts",
+      "git_blob": "ae373f66847f48e089ddd44668fa606fc007b8c7",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/storybook.test.ts",
+      "git_blob": "8c0e37b35fa56d6d96fd1eef4b1aa741ad7ae434",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/storybook2.test.ts",
+      "git_blob": "ce60d63908a61675eba97fb3841228a4f42136ad",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/storybook3.test.ts",
+      "git_blob": "5cfd4c8fbb80f922a16d67652044837f24df81d2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/storybook4.test.ts",
+      "git_blob": "c82540a21c6ff33255b387d3c902b6a70868fcea",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/storybook5.test.ts",
+      "git_blob": "54f83008e25ae05f51a730798240a967d3ace1af",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/stryker.test.ts",
+      "git_blob": "dd85c28a255a8bee8c357cb94476691cab90ba96",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/stylelint.test.ts",
+      "git_blob": "6de048202049d4adefe01c8b917615507507d5ae",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/stylelint2.test.ts",
+      "git_blob": "8f35fa1a57b233dd7e2271e451d17ab6b2ea9885",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/stylelint3.test.ts",
+      "git_blob": "e94ab82884cbe437728a22f80dab906448c35894",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/svelte.test.ts",
+      "git_blob": "b4bbebd020d7eac3bb53afb45e43b418a8bac86a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sveltejs-package.test.ts",
+      "git_blob": "4e8ad21c27f22ebbd9c215d880aad1ad42798b89",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sveltekit-monorepo.test.ts",
+      "git_blob": "4bca88ec991c78eebedc4d6ae93ce87d78a6a504",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/sveltekit.test.ts",
+      "git_blob": "710b4b0351d2075ec78fe239eaeb46795321564f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/svgo.test.ts",
+      "git_blob": "718c7e898e7326e4faab8cc5824a978f5f7c83a9",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/svgr.test.ts",
+      "git_blob": "ce808614f510a2322b2a4b7fff586ac05e4a4ed6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/swc.test.ts",
+      "git_blob": "386aef72422f1454c5be633f46d47f34251e73a6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/syncpack.test.ts",
+      "git_blob": "e04e10b29d3b284ad46dc89192022c6ecfa24a07",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tailwind.test.ts",
+      "git_blob": "2906c9a742a85397797b26893a082b4f00c20bd1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tailwind2.test.ts",
+      "git_blob": "724e76bd447dc3aca7ef8bc50c4e8719f326be10",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tailwind3.test.ts",
+      "git_blob": "adde24c4d3eaf2dc8dd4e5f06b427488e237de9d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tailwind4.test.ts",
+      "git_blob": "effcd7a651faaa87641921ec394199a5f159c5d2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tailwind5.test.ts",
+      "git_blob": "ca15929bed543eb3c3ccdfd355b4c4f0aed3fe89",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tanstack-router.test.ts",
+      "git_blob": "0341acdf6c474bd3ac7b8df155f2b2bf5cefc568",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tanstack-start.test.ts",
+      "git_blob": "0365c4dff49248bcaac465c62b8e74f989d21b9b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/taskfile.test.ts",
+      "git_blob": "6a0ad93b6e2ee925a8481dba2b6dbab00b984bbd",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/taskfile2.test.ts",
+      "git_blob": "b3dc42f2acdd44406e515ace93ac4d73cf3a7d9a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tauri.test.ts",
+      "git_blob": "1cb5642630566d9ec2d5df61fac70142b917f070",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/temporal.test.ts",
+      "git_blob": "58f7a96b0fbd8714a602b8ea1d3f17d38e9a4a7d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/textlint-package-json.test.ts",
+      "git_blob": "11f9c12d746bcb293df717eb7c97fe34c54e1633",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/textlint.test.ts",
+      "git_blob": "0252f3ab8845352bb5fd58d106e7dc8b73c19713",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/travis.test.ts",
+      "git_blob": "8ebf0e9c239de4ab4b4230bfff67d09434430dc2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsd.test.ts",
+      "git_blob": "f070b831c94c6d6186fc5cfbde0d4260a48fda28",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsdown-cli.test.ts",
+      "git_blob": "a61d64432ca5ee80e4ca0d165862ce6f2a56ee2f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsdown.test.ts",
+      "git_blob": "6b950a77dac65ddc6936594f64ac5e06349a23a8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsgo.test.ts",
+      "git_blob": "b4f078dd5693fd54f1d69d1c3bcf5a851db1550d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsrs.test.ts",
+      "git_blob": "b7eb675b03ab0aa5c1f0f42460d246b2b8958f64",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsup.test.ts",
+      "git_blob": "40a0b0263b6372d4088d160424ef784fcf59479b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/tsx.test.ts",
+      "git_blob": "6ca9b1de3137dc33d501ffa73bcf299237a6b774",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/turbo.test.ts",
+      "git_blob": "e24eb6817fdba4ebae529cc49711648d5999818e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/turbo2.test.ts",
+      "git_blob": "8cfedcd703485a04c0c48599f6d6f41c3b52f2f0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/turbo3.test.ts",
+      "git_blob": "8510a2b11340b59157a3d542d902ce28862c3478",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/typedoc.test.ts",
+      "git_blob": "874ad7c56dabeb690cef09e99917eeb47f6cee1a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/typedoc2.test.ts",
+      "git_blob": "230d9f542aded74f867f730c177a34f9cebf82a1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/typescript-content-mapper.test.ts",
+      "git_blob": "c101c7151b1edcb21b11dde9423af5f66e848b74",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/typescript.test.ts",
+      "git_blob": "60e9027356738bfba4e30a85571f713b03aba312",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/typescript2.test.ts",
+      "git_blob": "2c9a34f2fa675ed420db6f4b6c8ba54f42022849",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unbuild.test.ts",
+      "git_blob": "6f0adbedb5d3cc6906b374dfa1b8d3ff71a4cc01",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unocss.test.ts",
+      "git_blob": "175c72c66f4133e5a44b855357674706407c9f68",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-auto-import.test.ts",
+      "git_blob": "499c80d7b21bafcd0763dc6083818b6b4b00c0f2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-icons.test.ts",
+      "git_blob": "71f1ac41f91dabba33a6c4cf935f2f7cecd0acf5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-vue-components-vue2.test.ts",
+      "git_blob": "47839c39ecbca3d3a48b5078e1cde772b375b81a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-vue-components.test.ts",
+      "git_blob": "bf033a1a8200f74e143e1266960b4424ff1d0606",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-vue-i18n.test.ts",
+      "git_blob": "001ab99d336d546f32a7252122683c64128301c5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-vue-markdown.test.ts",
+      "git_blob": "39ccf163ce338b02b2d4c51436ba88d944aa6ee3",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/unplugin-vue-router.test.ts",
+      "git_blob": "f85ac101d9751defc86a1374edb39aec5aff9161",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/varlock-load-path.test.ts",
+      "git_blob": "c25c619de08d9e59ca83831ae77edb95e085b59f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/varlock-parser.test.ts",
+      "git_blob": "a2f3c282d80a0daeb45de4a466f93d968e08fbab",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/varlock-production.test.ts",
+      "git_blob": "11b4b24993d01a91c2baa5e003345b56265eb4e6",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/varlock.test.ts",
+      "git_blob": "8f8b2d3fb41da63dda6fd8c35f8fdc208179df1b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vercel-og.test.ts",
+      "git_blob": "763e85475ec72bd10558d2f79f3b401e1c8b51f1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vercel.test.ts",
+      "git_blob": "0f8e32439afd17c2166e86ca8c639fd6080fae6e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vike.test.ts",
+      "git_blob": "728cfa07a73fe27fc6d2170cf98d783b7ee8aa81",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-mpa.test.ts",
+      "git_blob": "1a4c80350e87af0d75b7d8c3ca9d3eb114b12f02",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-pages-custom-dir.test.ts",
+      "git_blob": "55a37e725fdd586e31fd85f12c3fe6a4ed903000",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-pages.test.ts",
+      "git_blob": "7a86d13461996f124354b829f58b65649870f3fa",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-pwa-nuxt.test.ts",
+      "git_blob": "081501bc5b846ca58959630735077b24d597fc79",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-pwa.test.ts",
+      "git_blob": "0ddbd19793c52ca74b32a1c231623fbc187a9e36",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-vue-layouts-custom-dir.test.ts",
+      "git_blob": "2b6fb41745c379524c4d662afebcc6920ba5a328",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plugin-vue-layouts-next.test.ts",
+      "git_blob": "72d68a74797cec52c9409c2b0838c386a5531b65",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-plus.test.ts",
+      "git_blob": "510d9db65d9e0e4664ccd68aeedc27dfcff43d4b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-public-custom.test.ts",
+      "git_blob": "1a8026c0929e30af450e69174032ae0f7fe6f1b0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-public-disabled.test.ts",
+      "git_blob": "96faa166da6868b3685b143e3e298da1285c838d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-pwa-assets-generator.test.ts",
+      "git_blob": "486d93c79dce69ce2aa704b21e376e90a05a6096",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite-rolldown-babel.test.ts",
+      "git_blob": "71e870ba8ccbd4f678e9a20c9b6aa0526a444416",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite.test.ts",
+      "git_blob": "ce324c4ee05a30fda589c6bfb51cfa3b1bfba30c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite2.test.ts",
+      "git_blob": "f5600a4bbfe97b80db80d34c630f8e7e56dc975c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite3.test.ts",
+      "git_blob": "028a26c077f0acb19a8730dc600a929157d39d48",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite4.test.ts",
+      "git_blob": "f2e8fe07b05bba8b28de2551ecd4259d93d7b233",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite5.test.ts",
+      "git_blob": "e116e6f9bdff22a05f710903ec219639a423545d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vite6.test.ts",
+      "git_blob": "8e96e02fd7baa82af7798e7ba9949d50d3c30b2d",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitepress-config-dir.test.ts",
+      "git_blob": "822a15e4c3297a54c68bb994a4698e6e2596ad3b",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitepress.test.ts",
+      "git_blob": "9c323d3d3553633c9c732b9140a2f288fbf0b3f4",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest-coverage-flag.test.ts",
+      "git_blob": "341b5eadd65bcee61f0d7e52af2f3495bd1f1eb8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest-npm-script.test.ts",
+      "git_blob": "99e12233e688a472b5adc4b4e8cdaf979d0f0f22",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest-regression.test.ts",
+      "git_blob": "db915777383f9b0c5be8bb356395346c4ad269f2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest.test.ts",
+      "git_blob": "8b0489139f8a46caa546ee93a39cdb3b8def2de2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest10.test.ts",
+      "git_blob": "ffe1ad8a3d2e1f2d1ef596b1ebdd17448e1c88c0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest11.test.ts",
+      "git_blob": "1beff2aa4321aaae0bd51176bec451e1e015e31f",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest12.test.ts",
+      "git_blob": "90ff13700efb7c2fb9fba326a616b76ad4470fad",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest13.test.ts",
+      "git_blob": "89347a294048d5f32ce7e639f271a70a7b0b9fce",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest14.test.ts",
+      "git_blob": "51e2f14be1a11811736635b1762aadaa7927446c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest15.test.ts",
+      "git_blob": "297e047ea0346cbba6175d2004147345a5eb69de",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest16.test.ts",
+      "git_blob": "82ecc4f15309f052a026431340ba999e8777c28e",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest17.test.ts",
+      "git_blob": "b56739ac3c341f8dceac34f508789930e6bf7547",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest18.test.ts",
+      "git_blob": "ffd5529c58b0823219481311f7de077253bfab26",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest19.test.ts",
+      "git_blob": "aff2e189d8c157e5c73182d31a0a43ae69478030",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest2.test.ts",
+      "git_blob": "506984ccb8fb28c1d9c032dff9515f89a4b05a1a",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest3.test.ts",
+      "git_blob": "5f4d6344d7eb063dec8ce7ad07e895dd0b1429f1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest4.test.ts",
+      "git_blob": "eafa911708d49de0aa2434326a7a065404a661b2",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest5.test.ts",
+      "git_blob": "577d1bcb14f2ee3b4d459529847fbcda0facad94",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest6.test.ts",
+      "git_blob": "58e2e3b4440f3364b102eedd001b20581e174416",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest7.test.ts",
+      "git_blob": "5ce082805a28bf6bacb79f5fa6f1bba6305e1164",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest8.test.ts",
+      "git_blob": "047715a00dd83ae4f34f4b6a6e526020c17cae81",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vitest9.test.ts",
+      "git_blob": "81f9f138948fd91821ec8e402b8c7af843a86199",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vue-webpack.test.ts",
+      "git_blob": "871fd86aacd6920c897cc95c4ab3f877ef860329",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/vue.test.ts",
+      "git_blob": "fb073b84b6991301f1addf926fdece99b1a0c022",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webdriver-io.test.ts",
+      "git_blob": "2597b94cec1f132a850433aba3d69f7a71a608f0",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack-cli.test.ts",
+      "git_blob": "6d98a0baaa7f64ae17149bc819ed965d0f27671c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack-entry-function.test.ts",
+      "git_blob": "d5a80cdd611eb4b819fbf5c883f2f22d44a86a20",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack-entry-import.test.ts",
+      "git_blob": "0054d476792f46c1b54b948a2f72d7e0aa6d0353",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack-re-exports.test.ts",
+      "git_blob": "3c9d17974951073bcc733232732ce201ed885811",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack-ts-config.test.ts",
+      "git_blob": "ae25413cf5c2afe0ad4879f3da81bbf2684b2088",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack.test.ts",
+      "git_blob": "3e4b643278801497d520f2e42d489ac8ffd585b1",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/webpack2.test.ts",
+      "git_blob": "abf05332ebe59404fd41fe62ab266e98a02ed212",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/wireit.test.ts",
+      "git_blob": "3d2d927a480f39e9b0d59dcfa3b97f94663687a8",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/wrangler.test.ts",
+      "git_blob": "f4f5cbc3b85c50c3d8c6cbae7a702390c3f3dde5",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/wxt.test.ts",
+      "git_blob": "ce86ddfbda41a77c34ac338ad647d14481360074",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/xo-0.test.ts",
+      "git_blob": "4cc9a20e2b1b33924cb27095d4dc61d110ef3c02",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/xo.test.ts",
+      "git_blob": "1826d1d059da4ef27c1a503a4b2d9d8622a37842",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/yarn.test.ts",
+      "git_blob": "323cfb4ed30c60c7d13f971fc800e4eb3207c926",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/plugins/yorkie.test.ts",
+      "git_blob": "10d40f9e3361d4e40619bfdc7eed14ec383ea80c",
+      "owner": "deferred plugins",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/re-exports/aliased-ns.test.ts",
+      "git_blob": "4d4e77e264c936dce1ba5a4e23877b9c6eb0163a",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+      "git_blob": "caf34f14aafc764183b2edac8fc2f7916a58908b",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/basic.test.ts",
+      "git_blob": "204353c7a69112b9df8bdd2d694ea136e7c1c790",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/builtin-origins.test.ts",
+      "git_blob": "44c984239e1c996c688af7625e3916ea0e9accd8",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/cjs.test.ts",
+      "git_blob": "7fde442b40871cf86d76ea863455608ca565c91c",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/contention-kinds.test.ts",
+      "git_blob": "de2697ae784878b379150db0acda024edb115794",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/deep.test.ts",
+      "git_blob": "ef30db2607b81b29595ffd4286d69ce4f1bf983e",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/default-renamed-deep.test.ts",
+      "git_blob": "200902b990d0dfef2929294ce33c787e463d7ed7",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/default-renamed.test.ts",
+      "git_blob": "e653edd2cca57b19946b22b95bc4f067e645221d",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/destructure-spread.test.ts",
+      "git_blob": "5a0cef1c946d9cb2a3a119bd5075a09999fe732d",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/enum-members-workspace.test.ts",
+      "git_blob": "d0d59568279c3dc4ac09d632501d7900fb1c7020",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/enum-unused.test.ts",
+      "git_blob": "9736297403a68bfdea1ab3239f5d97f4fbf13f31",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/enum.test.ts",
+      "git_blob": "93d846c1954976357746e00d6a9deb9732ec4687",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/excluded-tag.test.ts",
+      "git_blob": "19aab572ef45b9c8f905d01d1a738eac776dd391",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/export-declaration.test.ts",
+      "git_blob": "7d962107fb595e8ce0876b0deb725c72093f28eb",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/export-ns.test.ts",
+      "git_blob": "bcbfa1383afcc697a9b98f5a4fdebd4fe73f7898",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/external-barrel.test.ts",
+      "git_blob": "9cb22f4e20ab29c6b7c8db163cf4b087935030c1",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/ignore-exports-used-in-file.test.ts",
+      "git_blob": "abe999f0cb3dc09468f5623a840ffaa16d40e1ee",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/ns-member.test.ts",
+      "git_blob": "2a74ca48af228475b142611f8fee6f26e57099d5",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/pseudo.test.ts",
+      "git_blob": "39592943d00ec3ce2d96fc3d2985feca05a301dc",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/public.test.ts",
+      "git_blob": "ba9d3140692c78b82f7f82a79f04f070b39ed335",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/recursive.test.ts",
+      "git_blob": "6e66e8403d6fc45a162b503f60fda1c306b995d2",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/renamed.test.ts",
+      "git_blob": "38f17b0da75af2aa6dd3e6f61d9aa52cc9c2628d",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/spread.test.ts",
+      "git_blob": "47823af9c831cdbd5f54ea341d1ce207f6805d53",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/twice.test.ts",
+      "git_blob": "3417cce2b770a3123e9145eb89e12d4146e15e69",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/re-exports/with-decorator.test.ts",
+      "git_blob": "063f3214d2edeaa4b0fd9f720d72000e12bcc747",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/ambient-declaration-files.test.ts",
+      "git_blob": "7450866dd3393308da8aa28089b661c4d01d3b83",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/custom-compiler-source-map.test.ts",
+      "git_blob": "27f15fbdf35640b0cb66db04c352a763be22d2e3",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/resolution/custom-conditions.test.ts",
+      "git_blob": "7bd22b29b60dbb9ad6f4b9cf00de406d99a6d577",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/custom-paths-workspaces.test.ts",
+      "git_blob": "c5c5653ff9f1c58d5685f42cacb8300b28a06bc1",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/extensions-css-ts.test.ts",
+      "git_blob": "c391db2f8a1da9b74f29652769ee4c1a3684d57b",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/module-resolution-baseurl-implicit-relative.test.ts",
+      "git_blob": "de66fec8e0564e9c0bd3220b4c3c3da7e3c94843",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/module-resolution-non-std-absolute.test.ts",
+      "git_blob": "830cd80b660eeea788d0bdec277d64ecd8af14ec",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/module-resolution-non-std-implicit.test.ts",
+      "git_blob": "cf01c339f60406e64c878d617b91209148b1d1d4",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/module-resolution-non-std.test.ts",
+      "git_blob": "da6cedd5ca8305713ed21317925535228b7665cf",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/module-resolution-tsconfig-paths.test.ts",
+      "git_blob": "273a7ed46cee3ae28fbd1c2d8b08eb50264f44fd",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/path-aliases.test.ts",
+      "git_blob": "778359f9774bd9869c0a67ab3debcef1e61b9fc4",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/path-aliases2.test.ts",
+      "git_blob": "853946d3a9a9fe61c42d386104f4ae5f82b6c15b",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/pathless.test.ts",
+      "git_blob": "239f6db3b67a650b7926973181d20f29c70f2d81",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/subpath-import-from-plugin.test.ts",
+      "git_blob": "66b186cfb781a9c5d22e5a0031f27cc246c301e1",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/resolution/subpath-import.test.ts",
+      "git_blob": "aaea5f35df13b475f02341861adfc16658b39afa",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/subpath-imports-outdir.test.ts",
+      "git_blob": "83d5298337bc7611f7fde7e1a97889bae0955873",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/subpath-imports-to-dist.test.ts",
+      "git_blob": "21f10ff3a4ad5a0f7924331bc620f275b6385f85",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/subpath-patterns.test.ts",
+      "git_blob": "b5918373f293d5a69465dbf0633440016a5ddcb7",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsc-files-mode-references-workspaces.test.ts",
+      "git_blob": "1deecd17125d28abcf2b1fbf4101bfff9055b113",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsc-files-mode-references.test.ts",
+      "git_blob": "3cd3f0c62fa848cdac334d2047abbb5f82985b87",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsc-files-mode-svelte.test.ts",
+      "git_blob": "621a1b85ac313de9b8f50c23128402fc32a42524",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsc-files-mode.test.ts",
+      "git_blob": "b6f4fc79b614d075585a64bed21d465a1735f2e0",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-cli-paths.test.ts",
+      "git_blob": "a3eb5acc0935a847fd5b0648d9fa11cf1f7cb5e3",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-extends.test.ts",
+      "git_blob": "3313ed0c5ab7a68ea0b6ab20b3dbb9cb06e21236",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-files-extends.test.ts",
+      "git_blob": "fa05376c8b9af7df6ca16baaea7ad4a05ad6275c",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-include-dir.test.ts",
+      "git_blob": "7994787dbf0a1a66e15d430f076f79da6e701de7",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-nested-paths.test.ts",
+      "git_blob": "293aa1a073a7828103cfce005af633e145782294",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-paths-extends-svelte.test.ts",
+      "git_blob": "73b3a6d7ef7a85447b2c90ee8b6ca88f31849a43",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-paths-extends.test.ts",
+      "git_blob": "d0b44c3a3093b11b5af3ac32d5995bd41d34b5e0",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-preset-strict.test.ts",
+      "git_blob": "2c8a97eb8ec2cdd68e7a12ed5aed4de4b4de5463",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-references-source-map.test.ts",
+      "git_blob": "0dcc85a6bf503e6f8bbc59a780f1331144bac340",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-rootdirs.test.ts",
+      "git_blob": "7e69fd93f963c6278999685c8c6d918189776517",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-solution-references.test.ts",
+      "git_blob": "edeeeaaa1d315a57709b910cce16564ffa957c87",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-types-as-type-only.test.ts",
+      "git_blob": "ffd77f9c7314433d7afd7e6d9dc4635f487454fc",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-types-extends.test.ts",
+      "git_blob": "20eec9e914efbc724651002138cf27ccfe87fbc7",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/tsconfig-types-references.test.ts",
+      "git_blob": "52482680e646f87f3461f1853ae3a6f753d5c384",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/unresolved-rtl.test.ts",
+      "git_blob": "c623f39ec8143ba38b2a6789c5e504265f4b6419",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/url-import-meta-url.test.ts",
+      "git_blob": "96f1629518750968f4b400024e84d62a3c829c31",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/worker-path-join.test.ts",
+      "git_blob": "6e71b4bb033091dd5f03ad04fe4ceb3a75cbefad",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/resolution/workspace-export-fallback-array.test.ts",
+      "git_blob": "75a771b84f28e4b633087cfd592e9d78a9353d89",
+      "owner": "B6",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/session/compilers-cache.test.ts",
+      "git_blob": "346aa5ab67417d743586ebc2cfedc0bd00f9ce62",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/compilers-overlap.test.ts",
+      "git_blob": "f4d312d5af118011d4ccf39c86905e3453911e12",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/compilers-recovery.test.ts",
+      "git_blob": "20bd6ba5f3ab61901d16afe739814c2f6f6c291b",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/compilers-watch.test.ts",
+      "git_blob": "a7b2950998d57134380621e913c7f68a49a2e06b",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/compilers.test.ts",
+      "git_blob": "97c4911582a8693da5c26f7763f6df54ddd4f6db",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/session.contention.test.ts",
+      "git_blob": "206314cb9dca72a7a570a9cb0c3c7f574d31a3ba",
+      "owner": "A5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/session/session.file-changes.test.ts",
+      "git_blob": "f17490e6042e8338b29f4fd01189c80d86a65010",
+      "owner": "A5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/session/session.preprocessor.test.ts",
+      "git_blob": "8e0d5acf1282fa62b5390ed8df941097b487fe14",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/session/session.re-exports.test.ts",
+      "git_blob": "ab9e3a8cd6a5b61c63b9decd7a7a9ea20acc0216",
+      "owner": "A5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/session/session.test.ts",
+      "git_blob": "2549cddaaead1283b91ee54a67b05615e928466b",
+      "owner": "A5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/session/watch-directory.test.ts",
+      "git_blob": "0d38c50f8ed77da297c9ddb313d7fee3fe4bbb4c",
+      "owner": "A5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/configuration-hints.test.ts",
+      "git_blob": "9560f2d1832877f1de148c2f391bd305e8e31d0a",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/configuration-hints2.test.ts",
+      "git_blob": "878f45dde614c60db8637d2d9a5d30c3bd1a96e4",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/pragma.test.ts",
+      "git_blob": "37b1b3502c63573a863dfb9f234b39df767965ef",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/rules.test.ts",
+      "git_blob": "6c9eecdd0ac28e2954fa371cb72baee77985ad83",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+      "git_blob": "d24ea3a015bc41846e8c1bd4de12781379f592e7",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tag-on-member.test.ts",
+      "git_blob": "60edd109fe0b0072b56212ffff9c0bb85eca2724",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+      "git_blob": "3e7fc941ca2c155e53c62890c911e16ef7246627",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tags-cli.test.ts",
+      "git_blob": "48aeda5feb463b480d258e82b3d8b98ba15799b2",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tags-exclude.test.ts",
+      "git_blob": "7f03ef0d32cac4440426fbbb1cc1934fd006ffb6",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tags-include.test.ts",
+      "git_blob": "568e0fde59cff8480d12566a282531648433276c",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/basic.test.ts",
+      "git_blob": "7bf05024d71f9916c22f6ed4126bc63db0408f23",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/declaration-emit-inferred-router.test.ts",
+      "git_blob": "74cc2aafd2f4e33c40f192d07f726e9927508bbf",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/declare-module-ambient-stub.test.ts",
+      "git_blob": "384b30e6f3f65c8343eb41b5a422f445b20f3dd8",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/declare-module-augmentation-external.test.ts",
+      "git_blob": "143f8a44f0d04b7d5907e2f5d93c6a67c6f74305",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/declare-module-augmentation.test.ts",
+      "git_blob": "f28c36da96d833c4eb3e49c582725c66b43be17c",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/dts-baseurl-implicit-relative.test.ts",
+      "git_blob": "8dc5a2e99ee52f5a6d175c4588953bc6ff8b9b78",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/dts-compiled.test.ts",
+      "git_blob": "d70dbd6820ef5eada4c8361468cf39be7cd2b8ba",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/dts-imports-are-type-only.test.ts",
+      "git_blob": "35585311c1b284475663ebbe89bab1d88002746a",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/dts.test.ts",
+      "git_blob": "722a9eeb13d0c81c9bc0663f3d4dc4a09270e15f",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-element-access-resolution.test.ts",
+      "git_blob": "024bc06a163723a96b69fe476b511026d9180f45",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-element-access-string-key.test.ts",
+      "git_blob": "5c284d4e88782aab68bdc788943e91c3af16c8d6",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-element-access.test.ts",
+      "git_blob": "45821e2b0dc7853f22a8f8f129303d726dcb729a",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-enumerated.test.ts",
+      "git_blob": "c010ce30052d4cdeb462ea1f938f84741826581d",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/enum-members.test.ts",
+      "git_blob": "ff9e0f4cc711d1ede16ab24290c6aecf17d0eb27",
+      "owner": "B3",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/skip-exports-analysis.test.ts",
+      "git_blob": "87232e9057d60add8e29f35733528a2a201e3d74",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/type-in-type-alias.test.ts",
+      "git_blob": "687764cf137bdf79016f51d651019998458c6f73",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/type-in-type.test.ts",
+      "git_blob": "6d4da5c08c09412d5ca9fb634a9362cd59645499",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/type-in-value-export.test.ts",
+      "git_blob": "73311a6162eb2bd8a381ae7096c4ed61fc78fbab",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/type-visibility.test.ts",
+      "git_blob": "9a6172901e026a481b56e8801b719a5e8d3c59e2",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/typeof-class-in-type-alias.test.ts",
+      "git_blob": "37807dd0dc98ab982ff6f8e76f5a0ba48b3b56cd",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/typeof-in-type-alias.test.ts",
+      "git_blob": "9b82699ae865fbd9a3f4e35a5cd2c4dfc4a8221f",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/types/without-runtime.test.ts",
+      "git_blob": "0d5e6c92b150e2c4edb11e908904797114d35072",
+      "owner": "B2",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/binary-policy.test.ts",
+      "git_blob": "26578c1ec84498b304d4004ba8f319edc424ce67",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/cli-arguments.test.ts",
+      "git_blob": "0da0109045fd714081dd02c4a8deae1ba7ee8fe0",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/codeowners.test.ts",
+      "git_blob": "ddf98d9d17b65f0a3077b4a6148fbf6d796ceab1",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/comment-tags.test.ts",
+      "git_blob": "ed3739d16aa782cfc5b39601f65505ca5f85ed52",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/compiler-registry.test.ts",
+      "git_blob": "5851166679d11ad5dd638c8269c3ea97474d7c17",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/convert-gitignore-patterns.test.ts",
+      "git_blob": "7006cf9e17ac160841521f4c7a1c623f0a3554fd",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/file-entry-cache.test.ts",
+      "git_blob": "c345d57ec3cec8ed32e18931348bc065a466ab81",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/find-and-parse-gitignores.test.ts",
+      "git_blob": "85f7e1c9aeb66a00311072ad21d556576a84c52a",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/get-included-issue-types.test.ts",
+      "git_blob": "18ddc02e9c3ca897b732aaf4593e4ff3372f7458",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/get-inputs-from-scripts.test.ts",
+      "git_blob": "5305985ef8defb7008a080b4c44e7556baf1e325",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/git-common-dir.test.ts",
+      "git_blob": "f0083804547adf3ef1a13e0e265e2805dfd48d27",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/glob.test.ts",
+      "git_blob": "3b040f844ee621a36e503d6116984f461232da64",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/graph-sequencer.test.ts",
+      "git_blob": "302249ed15e4221d1fd2ea84ee0adecffe381924",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/has-strictly-ns-references.test.ts",
+      "git_blob": "819d60fc6607f28c8394f351d84bbc11124e3854",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/load.test.ts",
+      "git_blob": "def2b4cacdd5703ab56a4334c41cd71342036d72",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/mise-paths.test.ts",
+      "git_blob": "2dc00e1ead838a71a98beff439a0880fb23cbd01",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/module-graph.test.ts",
+      "git_blob": "18c37bb3a25bbe6bc751dfdf105235f1a5f8359e",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/modules.test.ts",
+      "git_blob": "fa7215bd98c3d64788daa4b430c596328752e497",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/npm-exec.test.ts",
+      "git_blob": "bce9990538bf9bd6f7a37d863238eae38791b834",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/npx.test.ts",
+      "git_blob": "abc52c21d86d687a7cec46df4da33db813d22466",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/package-json.test.ts",
+      "git_blob": "efa3f890ffb9bca255dc659febade824e6b328d4",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/parse-args.test.ts",
+      "git_blob": "1bf1764ea1f70b9cd0c9cbb46642e147db67e0cb",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/remove-export.test.ts",
+      "git_blob": "803519bbc228de3aec5a3371d4be836ce7485b01",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/resolve.test.ts",
+      "git_blob": "55615ec14afe4cf1644772950eeb8a738735f0b2",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/scripts.test.ts",
+      "git_blob": "2146c0f2afc4f3424bd88fa66e7a1508840cf4fb",
+      "owner": "B4",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/serialize.test.ts",
+      "git_blob": "468bd2124de278fd3b15117d8bc86df435cd1a87",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/source-file-manager.test.ts",
+      "git_blob": "68edc341de169e0cd5ed9e1cffc83bb5f7484db3",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/string.test.ts",
+      "git_blob": "ead55d08253703285d8a932ddcedeebe89aed24f",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/table.test.ts",
+      "git_blob": "930a7fef8abb3d24e84f0897c72eef115fb8a8d6",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/to-source-path.test.ts",
+      "git_blob": "2b309b59eae3e1c837cc1307b35911aeb2459a81",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/workspace-compilers.test.ts",
+      "git_blob": "b47d0281382a79299fffae93c1b61e1ce5c44563",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/util/workspace-selectors.test.ts",
+      "git_blob": "8952be5f630192cd0b050e000328af2714ca99ff",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/util/workspace.test.ts",
+      "git_blob": "a148445b614811df68feeceefea3465852982d0d",
+      "owner": "B7",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/basic.test.ts",
+      "git_blob": "58b4146b43efb0b0556cba660b4a8a3ee5f7d44d",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/circular-symlinks.test.ts",
+      "git_blob": "2ec6e44b2ec5423e514ca3b080d85799c69608da",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/circular.test.ts",
+      "git_blob": "847ac3f558cf4d7ce1150fc9b76fc7394ee654fd",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/config-hints.test.ts",
+      "git_blob": "5442371898e45333204e598eece6cb9ee8d0fc7f",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/cross-ref.test.ts",
+      "git_blob": "c6fe1827ba15e181d8b8b9cbbbe2404e0b1dc513",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/cross-reference.test.ts",
+      "git_blob": "26887aa0ab5522261b2ba6271183a026037b58cd",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/dts.test.ts",
+      "git_blob": "f432cfa86cacaeecee59b3afb34cb48ffa633c6b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/entry-files.test.ts",
+      "git_blob": "92eb08b47d1025885582aa59971d606d366d7a6a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/ignore-exports-used-in-file-inherit.test.ts",
+      "git_blob": "a90e2492e053fcb03c0f4ff5e3be3b7f958f2c35",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/ignore-exports-used-in-file.test.ts",
+      "git_blob": "3674a19fce21ddef6737bf6bb4d75e2d1aee24a0",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/ignored.test.ts",
+      "git_blob": "0d63ee4c4bf9658fa578371ce78b9c0de63c8925",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/include-entry-exports.test.ts",
+      "git_blob": "cabfdc79232811c927d5bd342cae6d22741315c9",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/malformed-manifest.test.ts",
+      "git_blob": "110f45f8c2a6a47335bdc55ee01bd7b7fec79824",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/module-resolution.test.ts",
+      "git_blob": "111d6d1a33613ce054090118198c59561ece17ee",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/negated-reinclude.test.ts",
+      "git_blob": "67d1194b11081e755f0925dbfe88a80ee99891e6",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/nested.test.ts",
+      "git_blob": "5464aca24db2d36e391dcef8f57aec46296b8a86",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/noconfig-plugin.test.ts",
+      "git_blob": "e73d1d94353ee987e33c3cf31396baf7a40053de",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/paths-compilers.test.ts",
+      "git_blob": "9f5c3b1ab61b12d9a5c4d0339738c507cb6734ed",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/workspaces/paths.test.ts",
+      "git_blob": "a7a1e01100a1af9466000f3c52df76840a516944",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/plugin-circular.test.ts",
+      "git_blob": "eca4fe087f5b045047362f3451d2752a7df1ba22",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/workspaces/plugin-config.test.ts",
+      "git_blob": "ffff0f36dc494daefd1d126aa943f03b4f08ca4a",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/workspaces/plugin-overlap.test.ts",
+      "git_blob": "db526cd45b53e78c3df8f8239f210c6819626d74",
+      "owner": "deferred extensions",
+      "status": "unsupported"
+    },
+    {
+      "path": "packages/knip/test/workspaces/pnpm.test.ts",
+      "git_blob": "c4a2293ec84554f02e7e1df1f8e157edbd05d73c",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/self-reference.test.ts",
+      "git_blob": "9520c724a566a908f41e416553ff546d86446e8b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/stale-config.test.ts",
+      "git_blob": "6b9e66de8d9413c6385f69168331290db4ba46d3",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/tooling.test.ts",
+      "git_blob": "02b22c12fb30f2621e7eee421cb767cc54b0fd5b",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/tsconfig-package-extends.test.ts",
+      "git_blob": "cec1230efdb6040c372ac525998201becd357d1a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+      "git_blob": "bdc83f364cd2420780ee3fc61071713249144680",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/utf8-bom.test.ts",
+      "git_blob": "0198102b8aa10d98903d00c9bfa50f4f4879b3d3",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-export-fallback-array.test.ts",
+      "git_blob": "cddf1f305346f934429f0c5f8c5e1be74a2594ac",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-scoped-paths.test.ts",
+      "git_blob": "a40eb350804dc8d951e41dd4e352cb0d33c854a1",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-selectors-errors.test.ts",
+      "git_blob": "3c9ca953dc754252c0db0a3ce9a9d9ea5b54caa6",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-selectors-root.test.ts",
+      "git_blob": "871ee1f3201d6329ad7ab3b74d69451e07f7cb5a",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-selectors.test.ts",
+      "git_blob": "d41020f225e38205a1e41ab5240d460d8d66c932",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+      "git_blob": "7c629fb6118afcae32d734564a9d2e03bd686140",
+      "owner": "B5",
+      "status": "untested"
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-tspaths-undeclared.test.ts",
+      "git_blob": "24074fe0231613a17a593a42489f6e900234ca63",
+      "owner": "B5",
+      "status": "untested"
+    }
+  ],
+  "selected_semantics": [
+    {
+      "path": "packages/knip/test/entry/files.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/files.test.ts",
+      "sha256": "22d21a6f0e310ddbebba9294b9980c03e786e8eda948e7e5aa37d38433860c34",
+      "bytes": 605,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "Use main, bin and exports fields in package.json to find entry files"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/entry/empty-main.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/empty-main.test.ts",
+      "sha256": "21d11261946902ddc78c76a13a7cfc24fd460a08b2b1ac0e07194896dc181b83",
+      "bytes": 612,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "Empty main, module, types, bin fields in package.json should not crash"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+      "sha256": "dd0ed8d1eeb4d438ddfc4be069698bf03e41050c012053cec720c75f716eb8f5",
+      "bytes": 2675,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "Exclude files behind a null package entry point",
+        "Exclude source files behind a null package entry point with a dist target",
+        "Include files re-exported below a null package entry point",
+        "Exclude files behind null package entry points with subpath suffixes",
+        "Keep manifest entries that a null package entry point would hide"
+      ],
+      "negative_assertions": [
+        "assert(!('src/internal/public.ts' in issues.files));"
+      ]
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+      "sha256": "971d052d25128ffbf1a3291d80a5b7821abfe3c6427fce540ef6ede3c9a830cc",
+      "bytes": 1081,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "Exclude gitignored package entries without removing exported aliases"
+      ],
+      "negative_assertions": [
+        "assert(!('hidden.js' in issues.files));",
+        "assert(!('dist/generated.js' in issues.files));",
+        "assert(!('dist/extra.js' in issues.files));"
+      ]
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-bare.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-bare.test.ts",
+      "sha256": "9dbd52e3cc8162c42a06c0b70c2cd1e5d442a9de3a8a7331b7e6d49a5c82027e",
+      "bytes": 549,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "No package-entry hint for bare specifier in main when first segment is a listed dependency"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+      "sha256": "acae3ca35c289904ed5fd8b4c51910e3446a7738c458dee916b7e354688c1659",
+      "bytes": 1022,
+      "owner": "B1",
+      "status": "untested",
+      "test_names": [
+        "Skip unused exports in entry source files and scripts",
+        "Report unused exports in source files (skip for scripts and plugin entry files)"
+      ],
+      "negative_assertions": [
+        "const options = await createOptions({ cwd, isIncludeEntryExports: false });",
+        "exports: 0, // skip for scripts and plugin entry files"
+      ]
+    },
+    {
+      "path": "packages/knip/test/exports/basic.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/basic.test.ts",
+      "sha256": "8745ab6b2526968480e79f6aaf5464cffb1d927c16330462579bedb0d39618ab",
+      "bytes": 2687,
+      "owner": "B2",
+      "status": "untested",
+      "test_names": [
+        "Find unused exports"
+      ],
+      "negative_assertions": [
+        "assert(!issues.exports['index.ts']);",
+        "assert(!issues.types['index.ts']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/exports/duplicate-exports-alias.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/duplicate-exports-alias.test.ts",
+      "sha256": "54c03727e5d56dc920aaeff2d89783b85ba8840a867c2a5e3e55b90ec757f27f",
+      "bytes": 909,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Ignore duplicate exports with @alias (JSDoc)"
+      ],
+      "negative_assertions": [
+        "assert(!issues.duplicates['helpers.ts']['reExportedValue|reExportedAlias']);",
+        "assert(!issues.duplicates['specifier-default.ts'], 'export { X }; export default X should not be duplicate');"
+      ]
+    },
+    {
+      "path": "packages/knip/test/imports/namespace.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace.test.ts",
+      "sha256": "5dd732c6200f17895212fc0a57d3c267f646e4a4a852c212a27597ff1e8f532f",
+      "bytes": 1064,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Ignore namespace re-export by entry file"
+      ],
+      "negative_assertions": [
+        "assert(!issues.exports['namespace10.ts'], 'NS10');",
+        "assert(!issues.exports['namespace11-opaque.ts'], 'NS11_OPAQUE');"
+      ]
+    },
+    {
+      "path": "packages/knip/test/imports/namespace-with-nsexports.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace-with-nsexports.test.ts",
+      "sha256": "879376de2f684f1d0b203bfe2a38926fd9903fdc1eee18d9c8d3be55f22a2e56",
+      "bytes": 651,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Don't ignore namespace re-export by entry file (nsExports)"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/imports/opaque.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/opaque.test.ts",
+      "sha256": "87ab9847663751c86d52c86e1f92663e222948b5972862bd58288f0c7916cd72",
+      "bytes": 579,
+      "owner": "B2",
+      "status": "untested",
+      "test_names": [
+        "Ignore exports of opaque import calls"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/namespaces/shadow-false-negative.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/shadow-false-negative.test.ts",
+      "sha256": "8441a5715cc4bae73d3c05d550a9caf4c9ecf11acdbbe8aa72d991dd6514ffbd",
+      "bytes": 755,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Report exports shadowed by local bindings with ignoreExportsUsedInFile"
+      ],
+      "negative_assertions": [
+        "const cwd = resolve('fixtures/namespaces/shadow-false-negative');",
+        "assert(!issues.exports['module.ts']?.['used']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/namespaces/namespace-enumerated.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/namespace-enumerated.test.ts",
+      "sha256": "e573a4b7fb1adbb1eb5a1d0f9747d812fc7ec21e5f0d02e5cc3c587bbe2d5ed7",
+      "bytes": 726,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Consider namespace import members used when enumerated via Object.*"
+      ],
+      "negative_assertions": [
+        "assert.equal(issues.nsExports['colors.ts'], undefined);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-enumerated.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/enum-members-enumerated.test.ts",
+      "sha256": "326abd1121c24072a4b92f1b49d5512ca918d20bdf20f520d0f827766dadf82a",
+      "bytes": 893,
+      "owner": "B3",
+      "status": "untested",
+      "test_names": [
+        "Consider enum enumerated enum members used",
+        "Consider enum enumerated enum members used (nsTypes)"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/types/skip-exports-analysis.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/skip-exports-analysis.test.ts",
+      "sha256": "ef555912078a91e501e9001f127a919d6054661de27b0c7c25f537a52ac049b8",
+      "bytes": 2021,
+      "owner": "B2",
+      "status": "untested",
+      "test_names": [
+        "ignore exports",
+        "ignore exports (isIncludeEntryExports)",
+        "ignore exports (production)"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+      "sha256": "88a97a1cb2081803f7c78f3525ba3e8f2f4a576f801ebe855dc40e3c5ef20494",
+      "bytes": 598,
+      "owner": "B2",
+      "status": "untested",
+      "test_names": [
+        "Keep exports behind ambiguous barrels alive"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/dependencies/basic.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/basic.test.ts",
+      "sha256": "baca50bd5bd9d72b0d9622ab83e17a3e5b863d5eeac5c837155bf68bbb801e8d",
+      "bytes": 2611,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "Find unused dependencies",
+        "Find unused dependencies (production)",
+        "Find unused dependencies (strict)"
+      ],
+      "negative_assertions": [
+        "assert(!issues.binaries['package.json']['jest']);",
+        "devDependencies: 0,"
+      ]
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+      "sha256": "c71ef093a1e9c2a1b4389f2af38855f8cea26037d8e4c328510e171d638e23aa",
+      "bytes": 710,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "No issues for optional peerDependencies also listed in devDependencies"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/dependencies/binary-provider-collision.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/binary-provider-collision.test.ts",
+      "sha256": "0bbe010397232dbeac1392262166addc208c8a7329d032c0298ce6a4c8ad0477",
+      "bytes": 743,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "Credit only packages that provide a referenced binary"
+      ],
+      "negative_assertions": [
+        "processed: 0,",
+        "total: 0,"
+      ]
+    },
+    {
+      "path": "packages/knip/test/dependencies/declaration-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/declaration-dependencies.test.ts",
+      "sha256": "079c0fed615084b99157da723f0d5a23ab1be8dd2a2249b881b841bc59c6b8c1",
+      "bytes": 4145,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "Use the published declaration graph for dependency placement",
+        "Skip published declaration analysis for private workspaces",
+        "Skip published declaration analysis for publishConfig.directory",
+        "Resolve published declarations without author tsconfig paths",
+        "Only analyze declarations selected by the published type surface"
+      ],
+      "negative_assertions": [
+        "assert(!issues.unlisted['dist/features/private.d.ts']?.['private-pattern']);",
+        "assert(!issues.unlisted['src/index.ts']?.['private-source']);",
+        "assert(!strict.issues.unlisted['dist/features/private.d.ts']?.['private-pattern']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.package-json.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.package-json.test.ts",
+      "sha256": "c402692aa76879d75b3051b76c8cd356fdc7c888810f418312e772404bb39bc2",
+      "bytes": 1387,
+      "owner": "B6",
+      "status": "untested",
+      "test_names": [
+        "Should track referenced catalog entries (package.json)",
+        "Should track referenced catalog entries (package.json root)"
+      ],
+      "negative_assertions": [
+        "assert(!issues.catalog['package.json']['frontend.@nu/xt']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.pnpm.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.pnpm.test.ts",
+      "sha256": "963be562df15a1d7e83817b410f8e7c2616679f5abc233d31a5058c8b4a6f7a0",
+      "bytes": 3309,
+      "owner": "B6",
+      "status": "untested",
+      "test_names": [
+        "Should track referenced default catalog entries",
+        "Should track referenced named catalog entries",
+        "Should report unused entries and unresolved references independently",
+        "Should track dependency and script catalog references outside the selected workspaces"
+      ],
+      "negative_assertions": [
+        "assert(!issues.catalog['pnpm-workspace.yaml']['default.left-pad']);",
+        "assert(!issues.catalog['pnpm-workspace.yaml']['default.ms']);",
+        "assert(!issues.catalog['pnpm-workspace.yaml']['default.bar']);",
+        "assert(!issues.catalog['pnpm-workspace.yaml']['default.kleur']);",
+        "assert(!issues.catalog['pnpm-workspace.yaml']['frontend.@nu/xt']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/imports/circular-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/circular-dependencies.test.ts",
+      "sha256": "eae7851c7e0cb126f633651b7520271cf35673594f524d79d8a57d2edb282e86",
+      "bytes": 4452,
+      "owner": "B6",
+      "status": "untested",
+      "test_names": [
+        "Does not report circular dependencies by default",
+        "Does not report exports referenced only by each other (production)",
+        "Reports circular dependencies when included",
+        "Allows circular dependencies by exact cycle path",
+        "Includes dynamic import() cycles when cycles.dynamicImports is enabled",
+        "Reports only circular dependencies with --cycles shorthand"
+      ],
+      "negative_assertions": [
+        "assert.equal(issues.cycles['format.ts'], undefined);",
+        "assert.equal(issues.cycles['model.ts'], undefined);",
+        "assert.equal(dynamicIssue, undefined);",
+        "assert.equal(issues.cycles['apricot.ts'], undefined);",
+        "assert.equal(options.isReportFiles, false);",
+        "assert.equal(options.isReportDependencies, false);",
+        "assert.equal(options.isReportExports, false);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/resolution/url-import-meta-url.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/url-import-meta-url.test.ts",
+      "sha256": "842da5614fef5759f5798cfbfefeb378274310e33a4d5f63f1a99f2e461e0dd0",
+      "bytes": 742,
+      "owner": "B4",
+      "status": "untested",
+      "test_names": [
+        "Support URL constructor using import.meta.url"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/resolution/worker-path-join.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/worker-path-join.test.ts",
+      "sha256": "f819b329f6a7848582e0d7510119df094e656d4a29c6c6292126334948269cf8",
+      "bytes": 1017,
+      "owner": "B4",
+      "status": "untested",
+      "test_names": [
+        "Resolve inline path.join(__dirname, ...) in Worker and child_process calls"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/util/get-inputs-from-scripts.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-inputs-from-scripts.test.ts",
+      "sha256": "5b8042f57991cb5b6a6c2b388d821caaadf97addd60f8b47b758ea224c0d1657",
+      "bytes": 33442,
+      "owner": "B4",
+      "status": "untested",
+      "test_names": [
+        "getInputsFromScripts (unknown programs)",
+        "getInputsFromScripts (unknown scripts)",
+        "getInputsFromScripts (node)",
+        "getInputsFromScripts (node --test)",
+        "getInputsFromScripts (node -r)",
+        "getInputsFromScripts (tsx)",
+        "getInputsFromScripts (--require)",
+        "getInputsFromScripts (.bin)",
+        "getInputsFromScripts (dotenv)",
+        "getInputsFromScripts (cross-env/env vars)",
+        "getInputsFromScripts (cross-env/node)",
+        "getInputsFromScripts (nx)",
+        "getInputsFromScripts (npm)",
+        "getInputsFromScripts (npx)",
+        "getInputsFromScripts (bun)",
+        "getInputsFromScripts (nub)",
+        "getInputsFromScripts (pnpm)",
+        "getInputsFromScripts (pnpm exec child options)",
+        "getInputsFromScripts (pnpx/pnpm dlx)",
+        "getInputsFromScripts (pn/pnx aliases)",
+        "getInputsFromScripts (yarn)",
+        "getInputsFromScripts (yarn dlx)",
+        "getInputsFromScripts (rollup)",
+        "getInputsFromScripts (\"positionals\")",
+        "getInputsFromScripts (c8)",
+        "getInputsFromScripts (nodemon)",
+        "getInputsFromScripts (concurrently)",
+        "getInputsFromScripts (double-dash)",
+        "getInputsFromScripts (advanced bash syntax)",
+        "getInputsFromScripts (redirects and shell command wrappers)",
+        "getInputsFromScripts (structured assignments)",
+        "getInputsFromScripts (plugins \u2192 double-dash)",
+        "getInputsFromScripts (plugins \u2192 config)",
+        "getInputsFromScripts (find -exec)"
+      ],
+      "negative_assertions": [
+        "rootManifest: undefined,",
+        "getManifest: () => undefined,"
+      ]
+    },
+    {
+      "path": "packages/knip/test/util/get-included-issue-types.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-included-issue-types.test.ts",
+      "sha256": "8c0b1084877dea9c0af4344a41b837ada674c92dd1693f6990844f69e0834c6e",
+      "bytes": 4443,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Resolve included issue types (default)",
+        "Resolve included issue types (default add-ons)",
+        "Resolve included issue types (include single)",
+        "Resolve included issue types (exclude some)",
+        "Resolve included issue types (overlap)",
+        "Resolve included issue types (include devDependencies)",
+        "Resolve included issue types (include dependencies)",
+        "Resolve included issue types (exclude dependencies)",
+        "Resolve included issue types (--dependencies)",
+        "Resolve included issue types (--exports)",
+        "Resolve included issue types (--files)",
+        "Resolve included issue types (--cycles)",
+        "Resolve included issue types (all)"
+      ],
+      "negative_assertions": [
+        "const excluded = (type: string) => [type, false];",
+        "assert.deepEqual(config, { ...defaults, duplicates: false, nsTypes: false });",
+        "dependencies: false,",
+        "devDependencies: false,",
+        "optionalPeerDependencies: false,"
+      ]
+    },
+    {
+      "path": "packages/knip/test/util/package-json.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/package-json.test.ts",
+      "sha256": "96beb969577dd7c84f254528a8df1a110881e6298e9be71aaa619ae17d5acb23",
+      "bytes": 3976,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Return a root conditional exports map",
+        "Prefer exact and more specific package subpath matches",
+        "Collect only the published declaration variants",
+        "Apply publishConfig overrides to the published type manifest",
+        "Fall back to an index declaration after package fields",
+        "Exclude declaration files behind a more specific null export",
+        "Apply the same export pattern match to every target wildcard"
+      ],
+      "negative_assertions": [
+        "assert.equal(getPackageMapTarget(map, './missing'), undefined);",
+        "private: false,",
+        "assert(!isPublishedTypeExportTarget(exports, './dist/features/private.d.ts'));",
+        "assert(!isPublishedTypeExportTarget(exports, './dist/dark/theme-light.d.ts'));"
+      ]
+    },
+    {
+      "path": "packages/knip/test/ignore/files.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/files.test.ts",
+      "sha256": "95eb6df10212e1dc1edbf61e864b28ea8522809574421967a02ece8926666180",
+      "bytes": 736,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Respect ignored files"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/ignore/issues.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/issues.test.ts",
+      "sha256": "5e7d477868dd37423a4d96bb332a45a9b29973f2887660efe7d9e87bfa504bd4",
+      "bytes": 1450,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Ignore specific issue types for specific file patterns"
+      ],
+      "negative_assertions": [
+        "assert(!issues.exports['src/generated/types.ts']?.['unusedGenerated']);",
+        "assert(!issues.exports['src/model.generated.ts']?.['unusedExport']);",
+        "assert(!issues.exports['src/model.generated.ts']?.['GeneratedModel']);",
+        "assert(!issues.types['src/generated/types.ts']?.['UnusedType']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+      "sha256": "c26b735ad41770022d61e19cee7264c9e8f61226912f5a7a16c9509cdeb77031",
+      "bytes": 1541,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Do not flag a tag that suppresses member issues",
+        "Report the members a tag suppresses when the tag is not configured"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+      "sha256": "58166120d10689d2fea764d71226570ca7367ec6094a8926b8b6e32a03fc1a2b",
+      "bytes": 1287,
+      "owner": "B7",
+      "status": "untested",
+      "test_names": [
+        "Flag stale @internal tags in production mode",
+        "Do not flag @internal tags in non-production mode"
+      ],
+      "negative_assertions": []
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+      "sha256": "410467cb658c04b667880f1da3bf64c2e6219c11201af2a8da54faf6c6684320",
+      "bytes": 1303,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "Undeclared sibling import is unlisted in a published workspace, suppressed in a private one",
+        "strict mode flags undeclared sibling workspace regardless of visibility"
+      ],
+      "negative_assertions": [
+        "assert(!issues.unlisted['packages/internal/index.ts']?.['@scope/fruit']);"
+      ]
+    },
+    {
+      "path": "packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+      "sha256": "43eae38ad5d2b32d9a0fd2d1af6dc943d7f667c8216f46c5cd8773e91d21abe3",
+      "bytes": 1740,
+      "owner": "B5",
+      "status": "untested",
+      "test_names": [
+        "Type-only workspace dependencies are not flagged in default mode",
+        "Type-only workspace dependencies are not flagged in production mode",
+        "Type-only workspace devDependencies should not be considered unlisted in strict mode"
+      ],
+      "negative_assertions": [
+        "assert(!issues.unlisted['packages/app/index.ts']?.['@fixtures/workspaces-type-only-dev-dependencies__types']);",
+        "assert(!issues.unlisted['packages/app/index.ts']?.['@fixtures/workspaces-type-only-dev-dependencies__prod-types']);"
+      ]
+    }
+  ]
+}

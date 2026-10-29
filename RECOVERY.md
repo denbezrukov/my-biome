@@ -6,9 +6,9 @@ The original implementation started at `6359a9b03670e85b50785d59d10eb087cf89fe3f
 
 ## Assembled source checkpoint
 
-[`records/recovered-assembly-checkpoint/source/`](records/recovered-assembly-checkpoint/source/) contains 181 complete historical source, fixture, and configuration files arranged at their original repository paths. This is a mixture of recovered stages, not a working final checkout. 97 files match recorded original per-file digests or Git blob prefixes; 14 further fixture files are authenticated together by three recorded fixture-group digests.
+[`records/recovered-assembly/source/`](records/recovered-assembly/source/) contains 194 complete historical source, fixture, and configuration files arranged at their original repository paths. This is a mixture of recovered stages, not a working final checkout. 106 files match recorded original per-file digests or Git blob prefixes; 14 further fixture files are authenticated together by three recorded fixture-group digests.
 
-See the [coverage manifest](records/recovered-assembly-checkpoint/coverage-manifest.json), [remaining gaps](records/recovered-assembly-checkpoint/GAPS.md), and [assembly summary](records/recovered-assembly-checkpoint/summary.json). Every materialized file's size and SHA-256 was checked before archiving. At this checkpoint, 20 selected files need known later edits and 46 observed paths lack complete source.
+See the [coverage manifest](records/recovered-assembly/coverage-manifest.json), [remaining gaps](records/recovered-assembly/GAPS.md), and [assembly summary](records/recovered-assembly/summary.json). Every materialized file's size and SHA-256 was checked before archiving. At this checkpoint, 20 selected files need known later edits and 34 observed paths lack complete source.
 
 ## Contents
 

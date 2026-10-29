@@ -1,0 +1,389 @@
+#![deny(clippy::use_self)]
+
+use std::io;
+use std::io::{IsTerminal, Read, Write};
+use std::panic::RefUnwindSafe;
+use termcolor::{ColorChoice, StandardStream, StandardStreamLock};
+use write::{StringBuffer, Termcolor};
+
+pub mod fmt;
+mod markup;
+mod utils;
+mod write;
+
+pub use self::markup::{Markup, MarkupBuf, MarkupElement, MarkupNode};
+pub use biome_markup::markup;
+pub use utils::*;
+
+/// Determines the "output stream" a message should get printed to
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LogLevel {
+    /// Print the message to the `Error` stream of the console, for instance
+    /// "stderr" for the [EnvConsole]
+    Error,
+    /// Print the message to the `Log` stream of the console, for instance
+    /// "stdout" for the [EnvConsole]
+    Log,
+}
+
+/// Generic abstraction over printing markup and diagnostics to an output,
+/// which can be a terminal, a file, a memory buffer ...
+pub trait Console: Send + Sync + RefUnwindSafe {
+    /// Prints a message (formatted using [markup!]) to the console.
+    ///
+    /// It adds a new line at the end.
+    fn println(&mut self, level: LogLevel, args: Markup);
+
+    /// Prints a message (formatted using [markup!]) to the console.
+    fn print(&mut self, level: LogLevel, args: Markup);
+
+    /// Prints source text without markup rendering or terminal sanitization.
+    ///
+    /// Callers must include any trailing newline in `content`.
+    fn print_raw(&mut self, level: LogLevel, content: &str);
+
+    /// Writes and flushes unsanitized text, returning any output failure.
+    ///
+    /// Callers must include any trailing newline in `content`.
+    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()>;
+
+    /// It reads from a source, and if this source contains something, it's converted into a [String]
+    fn read(&mut self) -> Option<String>;
+
+    /// It returns a string of the messages have been written to the buffer. Applicable only to certain consoles
+    fn dump(&mut self) -> Option<String> {
+        None
+    }
+
+    /// It clears the internal buffer of the console, if applicable
+    fn clear(&mut self) {}
+}
+
+/// Extension trait for [Console] providing convenience printing methods
+pub trait ConsoleExt: Console {
+    /// Prints a piece of markup with level [LogLevel::Error]
+    fn error(&mut self, args: Markup);
+
+    /// Prints a piece of markup with level [LogLevel::Log]
+    ///
+    /// Logs a message, adds a new line at the end.
+    fn log(&mut self, args: Markup);
+
+    /// Prints a piece of markup with level [LogLevel::Log]
+    ///
+    /// It doesn't add any newline
+    fn append(&mut self, args: Markup);
+
+    /// Prints a piece of source text with level [LogLevel::Log].
+    ///
+    /// It doesn't add any newline and bypasses terminal sanitization.
+    fn append_raw(&mut self, content: &str);
+}
+
+impl<T: Console + ?Sized> ConsoleExt for T {
+    fn error(&mut self, args: Markup) {
+        self.println(LogLevel::Error, args);
+    }
+
+    fn log(&mut self, args: Markup) {
+        self.println(LogLevel::Log, args);
+    }
+
+    fn append(&mut self, args: Markup) {
+        self.print(LogLevel::Log, args);
+    }
+
+    fn append_raw(&mut self, content: &str) {
+        self.print_raw(LogLevel::Log, content);
+    }
+}
+
+/// Implementation of [Console] printing messages to the standard output and standard error
+pub struct EnvConsole {
+    /// Channel to print messages
+    out: StandardStream,
+    /// Channel to print errors
+    err: StandardStream,
+    /// Channel to read arbitrary input
+    r#in: io::Stdin,
+    /// Whether further writes to `out` must be suppressed after an output failure
+    out_closed: bool,
+    /// Whether further writes to `err` must be suppressed after an output failure
+    err_closed: bool,
+}
+
+#[derive(Debug, Clone)]
+pub enum ColorMode {
+    /// Always print color using either ANSI or the Windows Console API
+    Enabled,
+    /// Never print colors
+    Disabled,
+    /// Print colors if stdout / stderr are determined to be TTY / Console
+    /// streams, and the `TERM=dumb` and `NO_COLOR` environment variables are
+    /// not set
+    Auto,
+}
+
+impl EnvConsole {
+    fn compute_color(colors: ColorMode) -> (ColorChoice, ColorChoice) {
+        match colors {
+            ColorMode::Enabled => (ColorChoice::Always, ColorChoice::Always),
+            ColorMode::Disabled => (ColorChoice::Never, ColorChoice::Never),
+            ColorMode::Auto => {
+                let stdout = if io::stdout().is_terminal() {
+                    ColorChoice::Auto
+                } else {
+                    ColorChoice::Never
+                };
+
+                let stderr = if io::stderr().is_terminal() {
+                    ColorChoice::Auto
+                } else {
+                    ColorChoice::Never
+                };
+
+                (stdout, stderr)
+            }
+        }
+    }
+
+    pub fn new(colors: ColorMode) -> Self {
+        let (out_mode, err_mode) = Self::compute_color(colors);
+
+        Self {
+            out: StandardStream::stdout(out_mode),
+            err: StandardStream::stderr(err_mode),
+            r#in: io::stdin(),
+            out_closed: false,
+            err_closed: false,
+        }
+    }
+
+    pub fn set_color(&mut self, colors: ColorMode) {
+        let (out_mode, err_mode) = Self::compute_color(colors);
+        self.out = StandardStream::stdout(out_mode);
+        self.err = StandardStream::stderr(err_mode);
+    }
+
+    /// Writes markup with a newline and flushes the stream, returning output failures.
+    /// Failed streams suppress subsequent ordinary console writes.
+    pub fn try_println(&mut self, level: LogLevel, args: Markup) -> io::Result<()> {
+        self.try_write_with(level, |out| {
+            fmt::Formatter::new(&mut Termcolor(&mut *out)).write_markup(args)?;
+            writeln!(out)
+        })
+    }
+
+    fn try_write_with(
+        &mut self,
+        level: LogLevel,
+        func: impl FnOnce(&mut StandardStreamLock) -> io::Result<()>,
+    ) -> io::Result<()> {
+        let (stream, closed) = match level {
+            LogLevel::Error => (&self.err, &mut self.err_closed),
+            LogLevel::Log => (&self.out, &mut self.out_closed),
+        };
+        if *closed {
+            return Err(io::Error::new(
+                io::ErrorKind::BrokenPipe,
+                "console stream is closed",
+            ));
+        }
+        let mut stream = stream.lock();
+        let result = func(&mut stream).and_then(|()| stream.flush());
+        if result.is_err() {
+            *closed = true;
+        }
+        result
+    }
+
+    /// Runs `func` with a lock on the stream for `level`.
+    ///
+    /// A broken pipe means nobody is reading the stream anymore (e.g. the
+    /// output was piped into `head`), so the stream is marked as closed and
+    /// any further output to it is discarded instead of panicking.
+    fn write_with(
+        &mut self,
+        level: LogLevel,
+        func: impl FnOnce(&mut StandardStreamLock) -> io::Result<()>,
+    ) {
+        let (stream, closed) = match level {
+            LogLevel::Error => (&self.err, &mut self.err_closed),
+            LogLevel::Log => (&self.out, &mut self.out_closed),
+        };
+
+        if *closed {
+            return;
+        }
+
+        match func(&mut stream.lock()) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::BrokenPipe => *closed = true,
+            Err(error) => panic!("Failed to write to the console: {error}"),
+        }
+    }
+}
+
+impl Default for EnvConsole {
+    fn default() -> Self {
+        Self::new(ColorMode::Auto)
+    }
+}
+
+impl Console for EnvConsole {
+    fn println(&mut self, level: LogLevel, args: Markup) {
+        self.write_with(level, |out| {
+            fmt::Formatter::new(&mut Termcolor(&mut *out)).write_markup(args)?;
+            writeln!(out)
+        });
+    }
+
+    fn print(&mut self, level: LogLevel, args: Markup) {
+        self.write_with(level, |out| {
+            fmt::Formatter::new(&mut Termcolor(&mut *out)).write_markup(args)?;
+            write!(out, "")
+        });
+    }
+
+    fn print_raw(&mut self, level: LogLevel, content: &str) {
+        self.write_with(level, |out| out.write_all(content.as_bytes()));
+    }
+
+    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
+        self.try_write_with(level, |out| out.write_all(content.as_bytes()))
+    }
+
+    fn read(&mut self) -> Option<String> {
+        // Here we check if stdin is redirected. If not, we bail.
+        //
+        // Doing this check allows us to pipe stdin to biome, without expecting
+        // user content when we call `read_to_string`
+        if io::stdin().is_terminal() {
+            return None;
+        }
+        let mut handle = self.r#in.lock();
+        let mut buffer = String::new();
+        let result = handle.read_to_string(&mut buffer);
+        // Skipping the error for now
+        if result.is_ok() { Some(buffer) } else { None }
+    }
+}
+
+/// Implementation of [Console] storing all printed messages to a memory buffer
+#[derive(Default, Debug)]
+pub struct BufferConsole {
+    pub out_buffer: Vec<Message>,
+    pub in_buffer: Vec<String>,
+    pub print_json: bool,
+}
+
+impl BufferConsole {
+    pub fn with_json(mut self) -> Self {
+        self.print_json = true;
+        self
+    }
+}
+
+/// Individual message entry printed to a [BufferConsole]
+#[derive(Debug)]
+pub struct Message {
+    pub level: LogLevel,
+    pub content: MarkupBuf,
+    /// Whether the content bypasses terminal sanitization.
+    pub is_raw: bool,
+}
+
+impl Message {
+    fn sanitized(level: LogLevel, content: Markup) -> Self {
+        Self {
+            level,
+            content: content.to_owned(),
+            is_raw: false,
+        }
+    }
+
+    fn raw(level: LogLevel, content: &str) -> Self {
+        Self {
+            level,
+            content: MarkupBuf(vec![markup::MarkupNodeBuf {
+                elements: Vec::new(),
+                content: content.to_string(),
+            }]),
+            is_raw: true,
+        }
+    }
+}
+
+impl Console for BufferConsole {
+    fn println(&mut self, level: LogLevel, args: Markup) {
+        self.out_buffer.push(Message::sanitized(level, args));
+    }
+
+    fn print(&mut self, level: LogLevel, args: Markup) {
+        self.out_buffer.push(Message::sanitized(level, args));
+    }
+    fn print_raw(&mut self, level: LogLevel, content: &str) {
+        self.out_buffer.push(Message::raw(level, content));
+    }
+    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
+        self.print_raw(level, content);
+        Ok(())
+    }
+
+    fn read(&mut self) -> Option<String> {
+        if self.in_buffer.is_empty() {
+            None
+        } else {
+            // for the time being we simple return the first message, as we don't
+            // particular use case for multiple prompts
+            Some(self.in_buffer[0].clone())
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct FileBufferConsole {
+    out: Vec<Message>,
+}
+
+impl FileBufferConsole {}
+
+impl Console for FileBufferConsole {
+    fn println(&mut self, level: LogLevel, args: Markup) {
+        self.out.push(Message::sanitized(level, args));
+    }
+
+    fn print(&mut self, level: LogLevel, args: Markup) {
+        self.out.push(Message::sanitized(level, args));
+    }
+    fn print_raw(&mut self, level: LogLevel, content: &str) {
+        self.out.push(Message::raw(level, content));
+    }
+
+    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
+        self.print_raw(level, content);
+        Ok(())
+    }
+
+    fn read(&mut self) -> Option<String> {
+        None
+    }
+
+    fn dump(&mut self) -> Option<String> {
+        let mut buffer = Vec::new();
+        let mut write = StringBuffer::new(&mut buffer);
+        let mut fmt = fmt::Formatter::new(&mut write);
+
+        for message in self.out.iter() {
+            for element in message.content.0.iter() {
+                fmt.write_str(element.content.as_str()).unwrap();
+            }
+        }
+
+        String::from_utf8(buffer).ok()
+    }
+
+    fn clear(&mut self) {
+        self.out.clear();
+    }
+}

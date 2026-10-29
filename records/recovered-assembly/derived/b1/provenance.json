@@ -1,0 +1,22 @@
+{
+  "stage": "df22208cc013659d537dc12e6d95cbf3c25ba11c",
+  "path": "crates/biome_module_graph/src/project_facts.rs",
+  "source_fragments": [
+    "recovered-b1-fix1-review/fragments/project_facts.rs.L1-L647",
+    "recovered-b1-fix1-review/fragments/project_facts.rs.L648-L968",
+    "recovered-b1-fix1-review/fragments/project_facts.rs.L972-EOF"
+  ],
+  "missing_lines_969_971_sources": [
+    [
+      "assembly/derived/a4/crates/biome_module_graph/src/project_facts.rs",
+      795
+    ],
+    [
+      "recovered-b2-fix1-review/990a42e751d276e8b403a0de8d099864dea54bf0/crates/biome_module_graph/src/project_facts.rs",
+      1028
+    ]
+  ],
+  "exact_context_match_lines_each_source": 12,
+  "original_sha256": "54682db138efd0a96319e43d631bc6ce6a36c6430d53ba84a7716b487fb69588",
+  "matches_original_hash": true
+}

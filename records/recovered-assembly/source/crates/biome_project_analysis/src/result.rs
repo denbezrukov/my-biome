@@ -1,0 +1,167 @@
+use crate::{
+    coverage::{CapabilityStatus, Coverage},
+    inventory::WorkspaceRecord,
+    model::{FileId, Location, SnapshotRevision, SourceRecord, WorkspaceId},
+    options::AnalysisMode,
+};
+use biome_diagnostics::Severity;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub enum IssueKind {
+    Files,
+    Dependencies,
+    DevDependencies,
+    OptionalPeerDependencies,
+    Unlisted,
+    Binaries,
+    Unresolved,
+    Exports,
+    Types,
+    NsExports,
+    NsTypes,
+    Duplicates,
+    EnumMembers,
+    NamespaceMembers,
+    Catalog,
+    CatalogReferences,
+    Cycles,
+}
+
+impl IssueKind {
+    pub const ALL: [Self; 17] = [
+        Self::Files,
+        Self::Dependencies,
+        Self::DevDependencies,
+        Self::OptionalPeerDependencies,
+        Self::Unlisted,
+        Self::Binaries,
+        Self::Unresolved,
+        Self::Exports,
+        Self::Types,
+        Self::NsExports,
+        Self::NsTypes,
+        Self::Duplicates,
+        Self::EnumMembers,
+        Self::NamespaceMembers,
+        Self::Catalog,
+        Self::CatalogReferences,
+        Self::Cycles,
+    ];
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProjectAnalysisResult {
+    /// Missing metadata means the producer did not capture report presentation facts.
+    #[serde(default)]
+    pub report_metadata: Option<crate::report_metadata::ProjectReportMetadata>,
+    #[serde(default)]
+    pub policy: crate::policy::PolicyCauses,
+    pub catalogs: crate::catalogs::CatalogAnalysis,
+    pub cycles: crate::cycles::CycleAnalysis,
+    pub resolution: crate::resolution::ResolutionAnalysis,
+    #[serde(default)]
+    pub dependencies: crate::dependencies::DependencyAnalysis,
+    pub exports: crate::exports::ExportAnalysis,
+    pub members: crate::members::MemberAnalysis,
+    pub revision: SnapshotRevision,
+    pub context: AnalysisContext,
+    #[cfg_attr(feature = "schema", schemars(with = "BTreeMap<String, SourceRecord>"))]
+    pub sources: BTreeMap<FileId, SourceRecord>,
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "BTreeMap<String, WorkspaceRecord>")
+    )]
+    pub workspaces: BTreeMap<WorkspaceId, WorkspaceRecord>,
+    pub coverage: Coverage,
+    pub capabilities: BTreeMap<IssueKind, CapabilityStatus>,
+    pub issues: Vec<ProjectIssue>,
+    pub hints: Vec<AnalysisHint>,
+    pub evidence: EvidenceGraph,
+    pub membership: crate::reachability::AnalysisMembership,
+    pub gaps: Vec<crate::reachability::ReachabilityGap>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AnalysisContext {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub virtual_scope: Option<crate::model::VirtualAnalysisScope>,
+    pub mode: AnalysisMode,
+    pub profile_id: String,
+    pub semantic_options_digest: String,
+    pub scope: Vec<WorkspaceId>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProjectIssue {
+    pub kind: IssueKind,
+    pub severity: Severity,
+    pub identity: String,
+    pub symbol: Option<String>,
+    pub location: Location,
+    pub workspace: WorkspaceId,
+    pub related_evidence: Vec<EvidenceId>,
+    pub eligible_fixes: Vec<FixKind>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "schema", schemars(rename = "ProjectAnalysisFixKind"))]
+pub enum FixKind {
+    Files,
+    Dependencies,
+    Exports,
+    Types,
+    Catalog,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AnalysisHint {
+    #[serde(default)]
+    pub report: Option<crate::report_metadata::ReportHint>,
+    pub kind: HintKind,
+    pub severity: Severity,
+    pub cause: String,
+    pub message: String,
+    pub location: Option<Location>,
+    pub workspace: WorkspaceId,
+    pub related_evidence: Vec<EvidenceId>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub enum HintKind {
+    Configuration,
+    Tag,
+}
+
+/// A producer-qualified logical path and range, with a role suffix when needed.
+/// Evidence identities are stable across snapshots and must not embed local numeric IDs.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct EvidenceId(pub String);
+
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct EvidenceGraph {
+    pub nodes: BTreeMap<EvidenceId, Evidence>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Evidence {
+    pub producer: String,
+    pub location: Option<Location>,
+    pub workspace: WorkspaceId,
+    pub explanation: String,
+    pub related: Vec<EvidenceId>,
+}

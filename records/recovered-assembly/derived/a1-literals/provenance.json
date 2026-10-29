@@ -1,0 +1,143 @@
+{
+  "stage": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+  "files": [
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/package.json",
+      "sha256": "a1532b2712ae9d46fcdb7247829fb65664a8213daf946a98fcfd95c3194a0bd0",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "sha256": "5d35e58c387511fee4d365a20744465d30518b5bc15919dc586a0252e59272ee",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "sha256": "fdea61c15a1bae16d178b1de2149cf4e25cbdfaa0cb724fb93996adee0c3b704",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "sha256": "4ac6c4020755dba55c01d5a63755e1c7f28095a8e8a139a3a207f3a116bf4cc9",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "sha256": "ad889ced056e9c0fa8801a078a11e36ee287ce4db75f1cbd2234b99561451df9",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/package.json",
+      "sha256": "22ed269b3ff526c265821c499dbfdadf59dc36668b7c5688665af10725a87bdb",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "sha256": "adce50643728e5eb00dd10e3a076450112e01249d4194ecae5b79d5db8d097a6",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "sha256": "e2c6beeb17ed005e0dd093b7af0f7966ea73d7c449c946aef8c66fa779bcd757",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "sha256": "35d89378a92b3ddef4a48488a5d2aa19366dc3834defd845014f534fd32538d3",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "ast.literal_eval of fixtures assignment plus exact original JSON formatting",
+      "original_fixture_group_digest": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7",
+      "matches_original_observation": true,
+      "digest_algorithm_source": "recovered-a1/snapshots/conformance.rs.before-test-module-move.txt lines137-159"
+    },
+    {
+      "path": "xtask/project_analysis/oracle/package.json",
+      "sha256": "3348fda04d969c0ede0db39f564e6bc0b150e70c932004b4af282dcf502f56b7",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "exact heredoc literal extraction; no historical command executed"
+    },
+    {
+      "path": "xtask/project_analysis/.gitignore",
+      "sha256": "23ec4252bb2de76fe50157cccd3187fe1e852c5580801c21fc366bcedaf64782",
+      "source": "recovered-a1/commands/040-oracle-fixtures-and-lock.sh.txt",
+      "method": "exact heredoc literal extraction; no historical command executed"
+    }
+  ]
+}

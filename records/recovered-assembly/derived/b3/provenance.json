@@ -1,0 +1,8 @@
+{
+  "path": "crates/biome_service/src/project_analysis/members.tests.rs",
+  "stage": "43c453530573278cfcdae0b78c1195ba3a99262b",
+  "base": "recovered-b3-review/members.tests.rs",
+  "append": "recovered-b3/fragments/43c453530573278cfcdae0b78c1195ba3a99262b/crates/biome_service/src/project_analysis/members.tests.rs.fix1-appended-lines-684-826",
+  "original_sha256": "636c43ae3231df0b8c5b04360e2ec7513c4b6bea5b472fdeb66e090b55a0d964",
+  "matches_original_final_manifest": true
+}

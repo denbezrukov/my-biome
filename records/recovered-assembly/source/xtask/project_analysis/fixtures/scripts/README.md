@@ -1,0 +1,13 @@
+# Static script evidence
+
+The 15 original Knip observations and their input bytes are retained unchanged. `comparison.json` records the bounded native correction `production-start-node-targets`: selected exact `start` keeps statically known Node entries and local preloads in production and strict mode. Explicit entries retain ordinary export reporting when `includeEntryExports` is enabled. This is an intentional output difference requiring project-specific migration review, not parity or migration qualification.
+
+The fixture files are analysis input only. Tests read their bytes; no manifest command, source entry, preload, shell expression or tool configuration is executed.
+
+Native static cwd/workspace forwarding, no-argument recursion, quoted forwarded argv, literal child-process/Worker commands and conservative unsupported-form gaps are bounded native behavior tested separately from the original Node/start observations. Installed binary providers are established by captured metadata, never by matching executable and package spelling. Uninstalled optional-provider guessing is deliberately unsupported. Package and catalog evidence prepares later analyses; their issue categories remain unsupported here.
+
+B4 does not discover uninvoked standalone or manifest hook/task configurations. Recognizing those conventions in migration reports belongs to the later migration stages; an absent command or adapter gap is not evidence that a project has no such conventions.
+
+The 14 supplemental command observations are retained separately in `original-command-observations.json`, with original fixture bytes in `original-command-fixtures.json`. `command-comparisons.json` declares and tests native targets, package records, coverage, and file/export projections for each case. Named bounded changes are `npm-exec-catalog-provenance`, `static-workspace-script-forwarding`, `static-shell-cwd`, `quoted-node-options-preload`, and `no-argument-script-recursion`. Dependency and catalog issue equality is not asserted because those analyses are not implemented.
+
+Unknown invoked tool/default-config semantics and the independently selected bare `node` script in case 06 retain explicit incomplete coverage. Their unbounded file uncertainty suppresses otherwise independent file/export findings. These precision limits are not accepted compatibility corrections or parity: migration must block affected workflows until a complete supported mapping or equivalent evidence exists. Internal optionality and requested-versus-installed package identities remain native/source assertions where the reference CLI cannot expose them.

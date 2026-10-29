@@ -1,0 +1,63 @@
+    /// Updates the state of any services relevant to the given `path`.
+    ///
+    /// Returns the module dependencies of the `path` if `update_kind` is
+    /// [`UpdateKind::AddedOrChanged`]. For other signal kinds, no dependencies
+    /// are determined.
+    fn update_service_data(
+        &self,
+        path: &Utf8Path,
+        update_kind: UpdateKind,
+        project_key: ProjectKey,
+    ) -> Result<(ModuleDependencies, Vec<Error>), WorkspaceError> {
+        let path = BiomePath::from(path);
+        // Index requests don't refresh dependencies: an initial scan indexes
+        // them itself, and watcher updates are refreshed by the watcher
+        // bridge.
+        #[cfg(feature = "module_graph")]
+        let refresh_dependencies = matches!(
+            &update_kind,
+            UpdateKind::AddedOrChanged(OpenFileReason::ClientRequest, _)
+        ) && self.is_manifest_for_resolution(&path);
+        // The resolver prefers the parsed source of a manifest to the
+        // filesystem, so a removed manifest must not outlive its file unless
+        // the client still has it open.
+        #[cfg(feature = "module_graph")]
+        if matches!(&update_kind, UpdateKind::Removed) && self.is_manifest_for_resolution(&path) {
+            let documents = self.documents.pin();
+            let opened_by_client = documents
+                .get(path.as_path())
+                .is_some_and(|document| document.version.is_some());
+            if !opened_by_client {
+                documents.remove(path.as_path());
+                self.db_remove_file(&path);
+            }
+        }
+        if path.is_manifest() {
+            self.update_project_layout(&path, &update_kind, project_key)?;
+        }
+        let settings = self
+            .project_get_settings_for_path(project_key, &path)
+            .ok_or_else(WorkspaceError::no_project)?;
+
+        match &update_kind {
+            UpdateKind::AddedOrChanged(OpenFileReason::Index(IndexTrigger::InitialScan), _) => {
+                // We'll send a single signal at the end of the scan.
+            }
+            _ => {
+                let _ = self.notification_tx.send(ServiceNotification::IndexUpdated);
+            }
+        }
+        let result = self.update_module_graph_internal(
+            &path,
+            update_kind,
+            settings.module_graph_resolution_kind.is_modules_and_types(),
+        )?;
+
+        #[cfg(feature = "module_graph")]
+        if refresh_dependencies {
+            // Diagnostics of dependencies aren't reported to the client.
+            let _diagnostics = self.index_new_dependencies(project_key)?;
+        }
+
+        Ok(result)
+    }

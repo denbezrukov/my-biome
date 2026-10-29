@@ -1,0 +1,12 @@
+{
+  "status": "partial-mixed-stage-original-source-assembly",
+  "warning": "Not a buildable feature. Missing source and later-version gaps recorded in coverage-manifest.json and GAPS.md. No historical tests rerun.",
+  "coverage_manifest_sha256": "d25e49aa63390d755eac9638e609204fb4c27c3462a5c1a83c8598018c8f1acc",
+  "complete_selected_files": 194,
+  "original_per_file_digest_matches": 106,
+  "additional_original_fixture_group_bound_files": 14,
+  "missing_full_source_paths": 34,
+  "known_later_change_gaps": 20,
+  "copy_integrity_verified": true,
+  "source_assembly": "assembly/"
+}

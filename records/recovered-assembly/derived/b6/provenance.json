@@ -1,0 +1,12 @@
+{
+  "original_stage": "e2dcaceab06c4870fa5e9c9eeef13e31db8c8aee",
+  "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+  "sha256": "eab578c1e86e144da42f310fa857123fa1217a77345d21ad266c87c79927f9c1",
+  "matches_original_frozen_manifest": true,
+  "source": [
+    "recovered-b6-fix1-review/final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.lines-1-871",
+    "recovered-b6-fix1-review/final-e2dcace/partial/crates/biome_service/src/project_analysis/inventory.rs.tail-from-ignore_dependencies"
+  ],
+  "missing_lines_source": "recovered-a3/patches/001-self-review-inventory-command.txt lines35-37; literal field list and exact formatting expression establish872-878",
+  "archived_commands_executed": false
+}
