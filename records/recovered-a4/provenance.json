@@ -1,0 +1,143 @@
+{
+  "recovery_kind": "exact retained conversation text; no repository or recovered-command execution",
+  "agent": "/root/project_a4_implement",
+  "original_base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "original_heads": [
+    "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "3c28dae197840dd6adee956e7d884531a073f7cc"
+  ],
+  "original_branch": "feat/native-project-analysis",
+  "original_commits_available_in_recovery": false,
+  "completeness": "PARTIAL A4 reconstruction evidence; complete four-file fix1 diff survives. Original initial implementation tool calls before compaction survive only as summary, not exact patches. Source excerpt gaps must not be filled from that summary.",
+  "chronology": [
+    "original A4 pre-lint excerpt",
+    "a4-final-lint.original.apply_patch.txt (historical patch, then historical formatter)",
+    "original A4 final source excerpts and two complete per-file diff groups",
+    "a4-changeset-trim.original-command.NOT-EXECUTED.txt -> c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "fix1-01-production.complete.diff then fix1-02-tests.complete.diff -> 3c28dae197840dd6adee956e7d884531a073f7cc"
+  ],
+  "known_gaps": [
+    "project_facts.rs original final lines 431-489 are not retained as one final-source excerpt. Pre-lint lines 438-492 and exact lint patch survive; fix1 diff includes old-line context 430-436. Original line 437 is not visible in retained exact sources. Do not guess it.",
+    "project.test.rs original final lines 276-277 are not included in retained sed excerpts. Do not invent their contents.",
+    "No original Git commit objects/tree objects recovered; hashes here identify extracted evidence, not authenticated original full commits.",
+    "No full historical logs or final task report copied; only original success/failure summaries and tool snippets remain in conversation. This recovery does not rerun or revalidate historical tests."
+  ],
+  "entries": [
+    {
+      "file": "a4-project_exports.complete.rs",
+      "original_path": "crates/biome_module_graph/src/db/queries/project_exports.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat tool output",
+      "provenance": "Original functions.exec cat project_exports.rs / resolution.rs / dependencies.rs, before c86455 commit; unchanged by fix1."
+    },
+    {
+      "file": "fix1-01-production.complete.diff",
+      "original_paths": [
+        "crates/biome_module_graph/src/project_facts.rs",
+        "crates/biome_resolver/src/lib.rs"
+      ],
+      "base": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "head": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "completeness": "complete final diff for these two files; first of two retained final fix diff outputs",
+      "provenance": "Original final self-review git diff output after fix1-format-final; no later source edits."
+    },
+    {
+      "file": "fix1-02-tests.complete.diff",
+      "base": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "head": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "completeness": "complete final diff for two test files; second of two final fix diff outputs",
+      "provenance": "Original final self-review git diff output; follows fix1-01-production.complete.diff in retained output order."
+    },
+    {
+      "file": "a4-01-resolver.complete.diff",
+      "base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+      "head": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete original final diff for resolver db.rs, lib.rs, resolver_fs_proxy.rs",
+      "provenance": "Retained original self-review git diff output; patch sections/order preserved."
+    },
+    {
+      "file": "a4-project_facts.lines-1-430.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 1-430 only",
+      "provenance": "Retained sed -n '1,430p' output after original mechanical lint fixes."
+    },
+    {
+      "file": "a4-project_facts.lines-490-1034.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 490-1034; overlap with next excerpt at 1034",
+      "provenance": "Retained sed -n '490,1034p' output after original mechanical lint fixes."
+    },
+    {
+      "file": "a4-project_facts.lines-1034-end.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 1034 through EOF (original file 1636 lines)",
+      "provenance": "Retained sed -n '1034,1660p' output after original mechanical lint fixes."
+    },
+    {
+      "file": "a4-project_facts.prelint-lines-438-492.partial.rs",
+      "completeness": "partial excerpt of pre-lint source; NOT final c864 source",
+      "provenance": "Original sed -n '438,492p;626,643p;1030,1052p;1103,1122p;1208,1264p;1300,1342p'; only first range extracted verbatim."
+    },
+    {
+      "file": "a4-final-lint.original.apply_patch.txt",
+      "completeness": "complete exact original tool patch input; not executed in recovery",
+      "provenance": "Original tools.apply_patch after first just l failure; chronological predecessor to c864 source and fix1 diffs. Original just f followed it; formatting output is not replayed."
+    },
+    {
+      "file": "a4-02-graph-and-resolver-tests.complete.diff",
+      "base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+      "head": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete original final diff for the nine listed files; dependencies/resolution/new files captured separately",
+      "provenance": "Retained original self-review git diff output following original resolver diff read; patch section order preserved."
+    },
+    {
+      "file": "a4-resolution.complete.rs",
+      "original_path": "crates/biome_module_graph/src/resolution.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat output",
+      "provenance": "Original cat project_exports.rs, resolution.rs, dependencies.rs output; no later changes to this file in A4/fix1."
+    },
+    {
+      "file": "a4-dependencies.complete.rs",
+      "original_path": "crates/biome_module_graph/src/db/queries/dependencies.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat output",
+      "provenance": "Original cat project_exports.rs, resolution.rs, dependencies.rs output; no later changes to this file in A4/fix1."
+    },
+    {
+      "file": "a4-project-test.lines-1-275.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt; lines 1-275 only, closing delimiter not included",
+      "provenance": "Original sed -n '1,275p' final self-review output."
+    },
+    {
+      "file": "a4-project-test.lines-278-586.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, 278-586",
+      "provenance": "Original sed -n '278,586p' final self-review output."
+    },
+    {
+      "file": "a4-project-test.lines-587-end.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, 587 through EOF (820)",
+      "provenance": "Original sed -n '587,840p' final self-review output."
+    },
+    {
+      "file": "a4-changeset.pretrim.exact.md",
+      "original_path": ".changeset/vast-points-move.md",
+      "completeness": "complete pre-commit cat output body, including two trailing blank lines; NOT final trimmed bytes",
+      "provenance": "Original cat .changeset/vast-points-move.md output immediately before staging revealed trailing blank lines."
+    },
+    {
+      "file": "a4-changeset-trim.original-command.NOT-EXECUTED.txt",
+      "completeness": "exact historical tool command text; inert evidence, NOT executed during recovery",
+      "provenance": "Original tools.exec_command call removing trailing blank lines and creating c86455d85ec."
+    }
+  ]
+}

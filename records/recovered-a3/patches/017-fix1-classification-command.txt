@@ -1,0 +1,8 @@
+python3 - <<'PY'
+p='crates/biome_service/src/project_analysis/inventory.rs';s=open(p).read().replace('''        for (path, location) in selected {
+            let path = match''','''        for (path, location) in selected {
+            let declaration = paths::is_declaration(&path);
+            let path = match''',1).replace('''            if paths::is_declaration(&path) {
+                let mapped''','''            if declaration {
+                let mapped''',1);open(p,'w').write(s)
+PY

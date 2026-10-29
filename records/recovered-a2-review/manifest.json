@@ -1,0 +1,482 @@
+{
+  "recovery_agent": "/root/project_a2_review",
+  "recovery_date": "2026-10-29",
+  "original_workspace": "/workspace/my-biome",
+  "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+  "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+  "later_fix_65dd354": "not present in surviving source context; not recovered",
+  "original_repository_not_read_during_recovery": true,
+  "recovered_project_code_not_executed": true,
+  "covered_original_paths": [
+    ".changeset/perky-pumas-camp.md",
+    "Cargo.lock",
+    "crates/biome_configuration/Cargo.toml",
+    "crates/biome_configuration/src/lib.rs",
+    "crates/biome_configuration/src/project_analysis.rs",
+    "crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+    "crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+    "crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+    "crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+    "crates/biome_configuration/tests/project_analysis.rs",
+    "crates/biome_package/src/lib.rs",
+    "crates/biome_package/src/node_js_package/mod.rs",
+    "crates/biome_package/src/node_js_package/package_json.rs",
+    "crates/biome_package/src/node_js_package/project_metadata.rs",
+    "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+    "crates/biome_package/tests/project_metadata.rs",
+    "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+    "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+    "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+    "packages/@biomejs/biome/configuration_schema.json",
+    "xtask/project_analysis/README.md",
+    "xtask/project_analysis/compatibility.json"
+  ],
+  "covered_original_path_count": 22,
+  "complete_source_file_count": 15,
+  "artifacts": [
+    {
+      "recovery_path": "README.md",
+      "bytes": 3540,
+      "lines": 24,
+      "sha256": "65394fd3aa285bd0cc38b466501be2a612da0ade86f8bce077648ea5b86de189",
+      "completeness": "recovery_provenance_document",
+      "provenance": {
+        "kind": "authored_during_recovery_not_original_source"
+      }
+    },
+    {
+      "recovery_path": "diffs/compatibility.patch",
+      "bytes": 6295,
+      "lines": 250,
+      "sha256": "178a768ac21377c2b896dd1c0ddf2f6aaf6119b7a495e03da99828a5717e1ce1",
+      "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+      "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_diffs_for_listed_paths_not_full_files",
+      "original_files": [
+        {
+          "original_path": "xtask/project_analysis/compatibility.json",
+          "base_blob_prefix": "460b0b66be5",
+          "head_blob_prefix": "29dabdce1e4",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        }
+      ],
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "git --no-pager diff --no-ext-diff --no-textconv b292e878464503e93cba3f1d47a10be6e5e3dc41 4b06788c9d7291e07899fcaa4e753f4e946afc7a -- xtask/project_analysis/compatibility.json",
+        "original_workdir": "/workspace/my-biome"
+      },
+      "patch_hunk_counts_match": true
+    },
+    {
+      "recovery_path": "diffs/generated.patch",
+      "bytes": 25150,
+      "lines": 743,
+      "sha256": "85d18371dfcf875ce8935a548f9600f0abd4380a26b4ac3762c7db7cd620ff3d",
+      "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+      "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_diffs_for_listed_paths_not_full_files",
+      "original_files": [
+        {
+          "original_path": "packages/@biomejs/backend-jsonrpc/src/workspace.ts",
+          "base_blob_prefix": "e5740e4eddb",
+          "head_blob_prefix": "69ddc9c6db6",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "packages/@biomejs/biome/configuration_schema.json",
+          "base_blob_prefix": "14686cede1a",
+          "head_blob_prefix": "47ee3c62088",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        }
+      ],
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "git --no-pager diff --no-ext-diff --no-textconv b292e878464503e93cba3f1d47a10be6e5e3dc41 4b06788c9d7291e07899fcaa4e753f4e946afc7a -- packages/@biomejs/backend-jsonrpc/src/workspace.ts packages/@biomejs/biome/configuration_schema.json",
+        "original_workdir": "/workspace/my-biome"
+      },
+      "patch_hunk_counts_match": true
+    },
+    {
+      "recovery_path": "diffs/integration.patch",
+      "bytes": 10020,
+      "lines": 248,
+      "sha256": "1327b57c303dfbbb3d4fe17cc33164b45dcd13cc75fedc25eaa6c607ddf827e3",
+      "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+      "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_diffs_for_listed_paths_not_full_files",
+      "original_files": [
+        {
+          "original_path": "Cargo.lock",
+          "base_blob_prefix": "119f104d79c",
+          "head_blob_prefix": "34122cb786e",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_configuration/Cargo.toml",
+          "base_blob_prefix": "9edc0f3b216",
+          "head_blob_prefix": "7a6f1bf1244",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_configuration/src/lib.rs",
+          "base_blob_prefix": "18a3a5c3d9e",
+          "head_blob_prefix": "3bf49422f19",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_package/src/lib.rs",
+          "base_blob_prefix": "84905d83515",
+          "head_blob_prefix": "ef9743854e7",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_package/src/node_js_package/mod.rs",
+          "base_blob_prefix": "f96a75841d9",
+          "head_blob_prefix": "10b6c387394",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_package/src/node_js_package/package_json.rs",
+          "base_blob_prefix": "2bc91f22657",
+          "head_blob_prefix": "4a0ffdb0f44",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        },
+        {
+          "original_path": "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+          "base_blob_prefix": "67175ca1e99",
+          "head_blob_prefix": "7275808a6ee",
+          "mode": "100644",
+          "completeness": "complete_per_file_diff"
+        }
+      ],
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "git --no-pager diff --no-ext-diff --no-textconv b292e878464503e93cba3f1d47a10be6e5e3dc41 4b06788c9d7291e07899fcaa4e753f4e946afc7a -- Cargo.lock crates/biome_configuration/Cargo.toml crates/biome_configuration/src/lib.rs crates/biome_package/src/lib.rs crates/biome_package/src/node_js_package/mod.rs crates/biome_package/src/node_js_package/package_json.rs crates/biome_package/src/node_js_package/tsconfig_json.rs",
+        "original_workdir": "/workspace/my-biome"
+      },
+      "patch_hunk_counts_match": true
+    },
+    {
+      "recovery_path": "evidence/original-log-search-excerpt.txt",
+      "bytes": 3532,
+      "lines": 20,
+      "sha256": "268e4e8ff53c43d35c700e7e25dda68991e1a221fa28efe90883db2b15a45a1f",
+      "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+      "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "search_excerpt_only_not_complete_logs",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "search_pattern": "test result:|Finished|error:|FAILED",
+        "original_workdir": "/workspace/my-biome",
+        "original_paths": [
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final-lint.log",
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final-narrow-config.log",
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log",
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-generation.log",
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log",
+          ".superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-opt-in-green.log"
+        ]
+      },
+      "not_a_new_test_run": true
+    },
+    {
+      "recovery_path": "evidence/original-review.md",
+      "bytes": 3199,
+      "lines": 33,
+      "sha256": "20e971d4eddf45e37120de148735f1df66353cd5e0723a7730e00e20558813a4",
+      "original_base": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+      "original_head": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_previous_review_response_without_outer_fence",
+      "provenance": {
+        "kind": "previous_assistant_final_response",
+        "agent": "/root/project_a2_review"
+      },
+      "not_a_new_review": true
+    },
+    {
+      "recovery_path": "source/.changeset/perky-pumas-camp.md",
+      "bytes": 225,
+      "lines": 5,
+      "sha256": "9c740e9b83e2bee24a7b8def503e0770304ede664186e161d30710a3cdff7634",
+      "original_path": ".changeset/perky-pumas-camp.md",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "e5cfd483dd5e3bc2a0c0118c44062ba45abf2b24",
+      "original_git_blob_prefix": "e5cfd483dd5",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/Cargo.toml",
+      "bytes": 4134,
+      "lines": 103,
+      "sha256": "28f57e440a0c08c0c13b5f99ec2d710b7bf0b403ca0ce725072875dbcecf801c",
+      "original_path": "crates/biome_configuration/Cargo.toml",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_package/src/node_js_package/mod.rs crates/biome_package/src/lib.rs crates/biome_configuration/Cargo.toml",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "7a6f1bf1244fcf48f3551a5f8efaa6c222380bb4",
+      "original_git_blob_prefix": "7a6f1bf1244",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/src/project_analysis.rs",
+      "bytes": 17689,
+      "lines": 459,
+      "sha256": "d216a46b2f99f80a1fc5e499b8b885dd97b4e79493d3498910090fde8dad5d33",
+      "original_path": "crates/biome_configuration/src/project_analysis.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_configuration/src/project_analysis.rs",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "c93fe148667e2e3cff59c00816b6e5764fd79a04",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "bytes": 499,
+      "lines": 1,
+      "sha256": "50525046e13c886b0edcb8843125509d63c8e29a1ad3561f7e55879b7bd69f8b",
+      "original_path": "crates/biome_configuration/tests/fixtures/default-entries-production/README.md",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "b9bd2a68dd0d0112a18e521f722f2fbc78cdcd28",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "bytes": 53,
+      "lines": 1,
+      "sha256": "f20f8eeb96d9cac3ea0ded012398639c56db90e2681282a8d7d606831296861a",
+      "original_path": "crates/biome_configuration/tests/fixtures/default-entries-production/package.json",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "db5db428da5239ca65915346501cf9235b0d6c95",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "bytes": 50,
+      "lines": 2,
+      "sha256": "5aeadfb82ae23d7ec0ea20a6fe1f7a904d071c983c2447656705c7aa122a4e03",
+      "original_path": "crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "85291361f7d4e124ab4dfba16ef1f5e054141b5e",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "bytes": 23,
+      "lines": 1,
+      "sha256": "3458a3605d43476e96a86f2350d393e8927d7ebfeef59eea59213e4b6b694bdb",
+      "original_path": "crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "8490e23b988579ac9cf44f312093189074bd37be",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_configuration/tests/project_analysis.rs",
+      "bytes": 13164,
+      "lines": 349,
+      "sha256": "6895600a0decc62705a02fd635aa7c586ca527ac5999717d0f0dc86636d238b4",
+      "original_path": "crates/biome_configuration/tests/project_analysis.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_configuration/tests/project_analysis.rs crates/biome_package/tests/project_metadata.rs",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "477f0c33a5118643f0f52cb96d2ed0ca8868add6",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_package/src/lib.rs",
+      "bytes": 2734,
+      "lines": 96,
+      "sha256": "a03189c0a368aca7822255273ad9c0ef1ca4658739945514e95314873884c238",
+      "original_path": "crates/biome_package/src/lib.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_package/src/node_js_package/mod.rs crates/biome_package/src/lib.rs crates/biome_configuration/Cargo.toml",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "ef9743854e7e86aa170118d29cc274bded1f7fcc",
+      "original_git_blob_prefix": "ef9743854e7",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "recovery_path": "source/crates/biome_package/src/node_js_package/mod.rs",
+      "bytes": 4177,
+      "lines": 133,
+      "sha256": "de015a22e4f239b68e78d99786e132cc3d640003598c63624c5af790f92939b5",
+      "original_path": "crates/biome_package/src/node_js_package/mod.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_package/src/node_js_package/mod.rs crates/biome_package/src/lib.rs crates/biome_configuration/Cargo.toml",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "10b6c387394437a57bda11689252952040badf4c",
+      "original_git_blob_prefix": "10b6c387394",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "recovery_path": "source/crates/biome_package/src/node_js_package/project_metadata.rs",
+      "bytes": 15608,
+      "lines": 439,
+      "sha256": "693d8efbf0c2e37ebb2ebd44193dc77136b7999bc8bfd9d54c5bff4a9c8923ec",
+      "original_path": "crates/biome_package/src/node_js_package/project_metadata.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "nl -ba crates/biome_package/src/node_js_package/project_metadata.rs",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "removed nl -ba line-number column"
+      },
+      "git_blob_sha1": "d78930b4df7afbf0bbaa9c44a15e091746024e20",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_package/tests/project_metadata.rs",
+      "bytes": 9735,
+      "lines": 273,
+      "sha256": "5078a582973c4eedf7bd13d9f2798a892c612140b0a514ebb0f260cc560c5a5b",
+      "original_path": "crates/biome_package/tests/project_metadata.rs",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_configuration/tests/project_analysis.rs crates/biome_package/tests/project_metadata.rs",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "c703afcf068520f466028fcd9e82d7b858deb516",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "bytes": 3084,
+      "lines": 107,
+      "sha256": "36326ad98553da53565054c866a16324c7e902039ea0e43b1ec02584e94c114f",
+      "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "9beaed1fe0bd7892281af26eb4818c75b3fb9f62",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "bytes": 10154,
+      "lines": 244,
+      "sha256": "713f70ae25ce2180bcdf8c8ab71dda4b2deac8abd82def69fdfb3ca9f63df8a8",
+      "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "02bfa8edb97bd0390dd9e1fb8472002ab73a0e3b",
+      "original_blob_prefix_matches": null,
+      "original_blob_comparison": "original blob ID unavailable in surviving visible output"
+    },
+    {
+      "recovery_path": "source/xtask/project_analysis/README.md",
+      "bytes": 4893,
+      "lines": 81,
+      "sha256": "2012c07939ab7cbecf34c1c1574d5702fd3edd984273b182911a4b40468376fe",
+      "original_path": "xtask/project_analysis/README.md",
+      "original_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+      "completeness": "complete_file_text",
+      "provenance": {
+        "kind": "surviving_original_tool_output",
+        "command": "cat /workspace/.biome-cloud/knip-design/a2-baseline-tests.md crates/biome_configuration/tests/fixtures/default-entries-production/README.md crates/biome_configuration/tests/fixtures/default-entries-production/package.json crates/biome_configuration/tests/fixtures/default-entries-production/src/index.ts crates/biome_configuration/tests/fixtures/default-entries-production/src/live.ts .changeset/perky-pumas-camp.md xtask/project_analysis/README.md",
+        "original_workdir": "/workspace/my-biome",
+        "transformation": "extracted complete file text from cat output"
+      },
+      "git_blob_sha1": "37b9544e221d2b7beb5e6d6463c2e214ab9bb4fc",
+      "original_git_blob_prefix": "37b9544e221",
+      "original_blob_prefix_matches": true
+    }
+  ],
+  "limitations": [
+    "The original complete review-package output was truncated. These are surviving complete files and per-file diffs, not a copy of that package.",
+    "Only five source files have an independently checkable original abbreviated Git blob ID in the visible historical diff.",
+    "A full tsconfig source transcription failed its retained blob-prefix comparison and was removed. Its complete original per-file diff is retained.",
+    "No code from later fix 65dd354 is included."
+  ]
+}

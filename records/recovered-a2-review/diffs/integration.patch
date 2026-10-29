@@ -1,0 +1,248 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 119f104d79c..34122cb786e 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -301,12 +301,14 @@ dependencies = [
+  "bpaf",
+  "camino",
+  "codspeed-criterion-compat",
++ "indexmap",
+  "insta",
+  "mimalloc",
+  "regex",
+  "rustc-hash 2.1.3",
+  "schemars",
+  "serde",
++ "serde_json",
+  "tests_macros",
+  "tikv-jemallocator",
+ ]
+diff --git a/crates/biome_configuration/Cargo.toml b/crates/biome_configuration/Cargo.toml
+index 9edc0f3b216..7a6f1bf1244 100644
+--- a/crates/biome_configuration/Cargo.toml
++++ b/crates/biome_configuration/Cargo.toml
+@@ -25,7 +25,7 @@ name    = "biome_json"
+ biome_analyze              = { workspace = true, features = ["serde"] }
+ biome_configuration_macros = { workspace = true }
+ biome_console              = { workspace = true }
+-biome_deserialize          = { workspace = true }
++biome_deserialize          = { workspace = true, features = ["indexmap"] }
+ biome_deserialize_macros   = { workspace = true }
+ biome_diagnostics          = { workspace = true }
+ biome_formatter            = { workspace = true, features = ["serde"] }
+@@ -44,6 +44,7 @@ biome_string_case          = { workspace = true }
+ biome_yaml_syntax          = { workspace = true, optional = true }
+ bpaf                       = { workspace = true, optional = true }
+ camino                     = { workspace = true }
++indexmap                   = { workspace = true, features = ["serde"] }
+ regex                      = { workspace = true }
+ rustc-hash                 = { workspace = true }
+ schemars                   = { workspace = true, optional = true }
+@@ -53,6 +54,7 @@ serde                      = { workspace = true, features = ["derive"] }
+ biome_json_parser = { path = "../biome_json_parser" }
+ criterion         = { package = "codspeed-criterion-compat", version = "=5.0.1" }
+ insta             = { workspace = true }
++serde_json        = { workspace = true }
+ tests_macros      = { workspace = true }
+ 
+ [target.'cfg(all(target_family="unix", not(all(target_arch = "aarch64", target_env = "musl"))))'.dev-dependencies]
+diff --git a/crates/biome_configuration/src/lib.rs b/crates/biome_configuration/src/lib.rs
+index 18a3a5c3d9e..3bf49422f19 100644
+--- a/crates/biome_configuration/src/lib.rs
++++ b/crates/biome_configuration/src/lib.rs
+@@ -26,6 +26,8 @@ pub mod json;
+ #[cfg(feature = "lang_md")]
+ pub mod markdown;
+ pub mod max_size;
++pub mod project_analysis;
++pub use project_analysis::ProjectAnalysisConfiguration;
+ mod overrides;
+ pub mod tailwind;
+ pub mod vcs;
+@@ -194,6 +196,11 @@ pub struct Configuration {
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub files: Option<FilesConfiguration>,
+ 
++    /// Declarative project analysis inputs. Disabled by default; native analysis integration is pending.
++    #[cfg_attr(feature = "cli", bpaf(hide, pure(Default::default())))]
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub project_analysis: Option<ProjectAnalysisConfiguration>,
++
+     /// Configures formatting for selected files.
+     #[cfg_attr(feature = "cli", bpaf(external(formatter_configuration), optional))]
+     #[serde(skip_serializing_if = "Option::is_none")]
+diff --git a/crates/biome_package/src/lib.rs b/crates/biome_package/src/lib.rs
+index 84905d83515..ef9743854e7 100644
+--- a/crates/biome_package/src/lib.rs
++++ b/crates/biome_package/src/lib.rs
+@@ -11,8 +11,9 @@ use camino::Utf8Path;
+ pub use license::expression::{RejectReason, SpdxExpression, TrustConfig};
+ pub use license::generated::*;
+ pub use node_js_package::{
+-    Catalogs, CompilerOptions, Dependencies, NodeJsPackage, PackageJson, PackageType, TsConfigJson,
+-    TurboJson, Version,
++    CatalogDeclaration, CatalogMetadata, Catalogs, CompilerOptions, Dependencies, Located,
++    MetadataValue, NodeJsPackage, PackageJson, PackageType, ProjectMetadata, TsConfigJson,
++    TurboJson, Version, read_project_metadata,
+ };
+ 
+ use std::any::TypeId;
+diff --git a/crates/biome_package/src/node_js_package/mod.rs b/crates/biome_package/src/node_js_package/mod.rs
+index f96a75841d9..10b6c387394 100644
+--- a/crates/biome_package/src/node_js_package/mod.rs
++++ b/crates/biome_package/src/node_js_package/mod.rs
+@@ -1,4 +1,9 @@
+ mod package_json;
++mod project_metadata;
++pub use project_metadata::{
++    CatalogDeclaration, CatalogMetadata, Located, MetadataValue, ProjectMetadata,
++    read_project_metadata,
++};
+ mod tsconfig_json;
+ mod turbo_json;
+ 
+diff --git a/crates/biome_package/src/node_js_package/package_json.rs b/crates/biome_package/src/node_js_package/package_json.rs
+index 2bc91f22657..4a0ffdb0f44 100644
+--- a/crates/biome_package/src/node_js_package/package_json.rs
++++ b/crates/biome_package/src/node_js_package/package_json.rs
+@@ -56,6 +56,8 @@ pub struct PackageJson {
+     pub imports: Option<JsonValue>,
+     pub main: Option<Box<str>>,
+     pub types: Option<Box<str>>,
++    /// Project-analysis evidence and diagnostics, separate from legacy resolver diagnostics.
++    pub project_metadata: super::ProjectMetadata,
+ }
+ 
+ static_assertions::assert_impl_all!(PackageJson: Send, Sync);
+@@ -618,7 +620,16 @@ impl Deserializable for PackageJson {
+         value: &impl DeserializableValue,
+         name: &str,
+     ) -> Option<Self> {
+-        value.deserialize(ctx, PackageJsonVisitor, name)
++        let metadata = {
++            let mut metadata_context = biome_deserialize::DefaultDeserializationContext {
++                id: ctx.id(),
++                ..Default::default()
++            };
++            super::ProjectMetadata::deserialize(&mut metadata_context, value, name)
++        };
++        let mut package = value.deserialize(ctx, PackageJsonVisitor, name)?;
++        package.project_metadata = metadata.unwrap_or_default();
++        Some(package)
+     }
+ }
+ 
+diff --git a/crates/biome_package/src/node_js_package/tsconfig_json.rs b/crates/biome_package/src/node_js_package/tsconfig_json.rs
+index 67175ca1e99..7275808a6ee 100644
+--- a/crates/biome_package/src/node_js_package/tsconfig_json.rs
++++ b/crates/biome_package/src/node_js_package/tsconfig_json.rs
+@@ -15,25 +15,59 @@ use camino::{Utf8Path, Utf8PathBuf};
+ use indexmap::IndexMap;
+ use rustc_hash::FxHasher;
+ 
+-#[derive(Clone, Debug, Default, Deserializable)]
+-#[deserializable(unknown_fields = "allow")]
++#[derive(Clone, Debug, Default)]
+ pub struct TsConfigJson {
+     /// Whether this is the caller tsconfig.
+     /// Used for final template variable substitution when all configs are
+     /// extended and merged.
+-    #[deserializable(skip)]
+     pub root: bool,
+ 
+     /// Path to `tsconfig.json`. Contains the `tsconfig.json` filename.
+-    #[deserializable(skip)]
+     pub path: Utf8PathBuf,
+ 
+     pub extends: Option<ExtendsField>,
++    pub files: Option<super::Located<Vec<String>>>,
++    pub include: Option<super::Located<Vec<String>>>,
++    pub exclude: Option<super::Located<Vec<String>>>,
+ 
+     pub compiler_options: CompilerOptions,
+ 
+     /// Project references.
+     pub references: Vec<ProjectReference>,
++
++    /// Original tsconfig values and nested source ranges, before resolver normalization.
++    pub metadata: Option<super::MetadataValue>,
++}
++
++#[derive(Default, Deserializable)]
++#[deserializable(unknown_fields = "allow")]
++struct TsConfigFields {
++    extends: Option<ExtendsField>,
++    compiler_options: CompilerOptions,
++    files: Option<super::Located<Vec<String>>>,
++    include: Option<super::Located<Vec<String>>>,
++    exclude: Option<super::Located<Vec<String>>>,
++    references: Vec<ProjectReference>,
++}
++
++impl Deserializable for TsConfigJson {
++    fn deserialize(
++        ctx: &mut dyn DeserializationContext,
++        value: &impl DeserializableValue,
++        name: &str,
++    ) -> Option<Self> {
++        let fields = TsConfigFields::deserialize(ctx, value, name)?;
++        Some(Self {
++            extends: fields.extends,
++            compiler_options: fields.compiler_options,
++            files: fields.files,
++            include: fields.include,
++            exclude: fields.exclude,
++            references: fields.references,
++            metadata: super::MetadataValue::deserialize(ctx, value, name),
++            ..Self::default()
++        })
++    }
+ }
+ 
+ impl Manifest for TsConfigJson {
+@@ -134,6 +168,21 @@ pub struct CompilerOptions {
+     ///
+     /// The base URL is normalised to an absolute path after parsing.
+     pub base_url: Option<Utf8PathBuf>,
++    pub root_dir: Option<super::Located<String>>,
++    pub out_dir: Option<super::Located<String>>,
++    pub root_dirs: Option<super::Located<Vec<String>>>,
++    pub module: Option<super::Located<String>>,
++    pub module_resolution: Option<super::Located<String>>,
++    pub custom_conditions: Option<super::Located<Vec<String>>>,
++    pub types: Option<super::Located<Vec<String>>>,
++    pub allow_js: Option<super::Located<bool>>,
++    pub resolve_json_module: Option<super::Located<bool>>,
++    pub allow_importing_ts_extensions: Option<super::Located<bool>>,
++    pub resolve_package_json_exports: Option<super::Located<bool>>,
++    pub resolve_package_json_imports: Option<super::Located<bool>>,
++    pub module_suffixes: Option<super::Located<Vec<String>>>,
++    pub no_resolve: Option<super::Located<bool>>,
++    pub preserve_symlinks: Option<super::Located<bool>>,
+ 
+     /// Path aliases.
+     pub paths: Option<CompilerOptionsPathsMap>,
+@@ -186,8 +235,23 @@ impl Deserializable for ExtendsField {
+ }
+ 
+ #[derive(Clone, Debug, Default, Deserializable)]
++#[deserializable(with_validator)]
+ pub struct ProjectReference {
++    #[deserializable(required)]
+     pub path: Utf8PathBuf,
++    #[deserializable(skip)]
++    pub location: Option<biome_text_size::TextRange>,
++}
++impl biome_deserialize::DeserializableValidator for ProjectReference {
++    fn validate(
++        &mut self,
++        _ctx: &mut dyn DeserializationContext,
++        _name: &str,
++        range: biome_text_size::TextRange,
++    ) -> bool {
++        self.location = Some(range);
++        true
++    }
+ }
+ 
+ /// A JSX factory identifier that is normalized during deserialization.

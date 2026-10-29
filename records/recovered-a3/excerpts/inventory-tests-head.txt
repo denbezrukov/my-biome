@@ -1,0 +1,107 @@
+use super::*;
+use crate::test_utils::setup_workspace_and_open_project;
+use biome_fs::MemoryFileSystem;
+
+fn discover_files(files: &[(&str, &str)], configuration: serde_json::Value) -> Inventory {
+    let fs = MemoryFileSystem::default();
+    for (path, source) in files {
+        fs.insert(format!("/project/{path}").into(), *source);
+    }
+    let (service, project) = setup_workspace_and_open_project(fs, "/project");
+    service
+        .discover_inventory(
+            project,
+            &ProjectAnalysisRequest {
+                configuration: serde_json::from_value(configuration).unwrap(),
+                ..Default::default()
+            },
+        )
+        .unwrap()
+}
+
+#[test]
+fn inventory_roots_are_not_candidates() {
+    let inventory = discover_files(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"workspaces":["packages/*"]}"#,
+            ),
+            ("packages/a/package.json", r#"{"private":true}"#),
+            ("packages/a/start.ts", "import './ignored';"),
+            ("packages/a/ignored.ts", "export const used = 1;"),
+            ("candidate.ts", "export const unused = 1;"),
+        ],
+        serde_json::json!({"entry":[],"workspaces":{".":{"entry":[]},"packages/a":{"entry":["start.ts!"]}},"ignore":["**/ignored.ts"]}),
+    );
+    assert_eq!(inventory.workspaces.len(), 2);
+    assert_eq!(inventory.roots.len(), 1);
+    assert_eq!(
+        root_paths(&inventory),
+        ["packages/a/start.ts".into()].into()
+    );
+    assert!(
+        inventory
+            .files
+            .iter()
+            .any(|file| inventory.sources[&file.file].logical_path
+                == Utf8Path::new("candidate.ts")
+                && file.role == FileRole::ReportingCandidate)
+    );
+    assert!(
+        inventory
+            .sources
+            .values()
+            .any(|source| source.logical_path == Utf8Path::new("packages/a/ignored.ts"))
+    );
+}
+
+#[test]
+fn inventory_all_manifest_entry_fields() {
+    let inventory = discover_files(
+        &[
+            (
+                "package.json",
+                r#"{"private":true,"module":"module.ts","browser":"browser.ts","types":"types.d.ts","typings":"typings.d.ts"}"#,
+            ),
+            ("module.ts", "export {};"),
+            ("browser.ts", "export {};"),
+            ("types.d.ts", "export {};"),
+            ("typings.d.ts", "export {};"),
+        ],
+        serde_json::json!({"entry":[]}),
+    );
+    assert_eq!(inventory.roots.len(), 4);
+}
+
+#[test]
+fn inventory_workspace_precedence() {
+    let files = [
+        ("package.json", r#"{"workspaces":["manifest/*"]}"#),
+        ("pnpm-workspace.yaml", "packages:\n  - 'packages/*'\n"),
+        ("manifest/wrong/package.json", "{}"),
+        ("packages/a/package.json", "{}"),
+        ("packages/a/exact.ts", "export {};"),
+        ("packages/a/glob.ts", "export {};"),
+        ("packages/a/candidate.ts", "export {};"),
+        ("root.ts", "export {};"),
+    ];
+    let inventory = discover_files(
+        &files,
+        serde_json::json!({"entry":["root.ts!"],"workspaces":{"packages/*":{"entry":["glob.ts!"],"project":[]},"packages/a":{"entry":["exact.ts!"]}}}),
+    );
+    assert_eq!(inventory.workspaces.len(), 2);
+    assert_eq!(inventory.roots.len(), 1);
+    assert_eq!(
+        root_paths(&inventory),
+        ["packages/a/exact.ts".into()].into()
+    );
+    assert!(
+        inventory
+            .files
+            .iter()
+            .any(|file| inventory.sources[&file.file].logical_path
+                == Utf8Path::new("packages/a/candidate.ts")
+                && file.role == FileRole::ReportingCandidate)
+    );
+}

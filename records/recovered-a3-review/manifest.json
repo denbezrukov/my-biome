@@ -1,0 +1,146 @@
+{
+  "recovery_kind": "exact surviving source transcription from reviewer conversation",
+  "original_repository": "/workspace/my-biome",
+  "original_commit": "52708197fbcac4abe8231e6c36bda61db6ff4ce2",
+  "original_stage": "initial A3 head reviewed before fix commit",
+  "original_commit_binding": "Original read-only review verified git rev-parse HEAD as this SHA; excerpts were read during that review.",
+  "requested_final_fix_commit": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "final_fix_source_recovered": false,
+  "recovered_at": "2026-10-29",
+  "source_provenance": "Visible original review tool outputs, with rg/nl line-number decorations removed; no source was reconstructed from compacted summaries.",
+  "hash_scope": "SHA-256 values describe these recovered artifact bytes, not independently retained hashes of the lost original files.",
+  "artifacts": [
+    {
+      "artifact": "inventory.lines425-455.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 425,
+        "end": 455
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "e9ba191c4ef9bddbe69b0bca8d101b458f4a0ad46ae11486e6dd90f6aaf62fae"
+    },
+    {
+      "artifact": "inventory.lines482-610.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 482,
+        "end": 610
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "9df6a4b73910a9b1eaa8750aaa0619b7d5de14d0a171d4e946d62b5a8e36d361"
+    },
+    {
+      "artifact": "inventory.lines625-705.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 625,
+        "end": 705
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "c6ddb1cde8d63d3960c80b6d66c6a7a8feb3b09b258685ca32a155be14c6b691"
+    },
+    {
+      "artifact": "inventory.lines917-1008.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 917,
+        "end": 1008
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "af12b042291cd1ee21684fed126b3d132fd51003251346dd4e7895ffe7c513af"
+    },
+    {
+      "artifact": "inventory.lines1207-1257.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 1207,
+        "end": 1257
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "58367b28660564b2f5a52ed6fdadefa6507b94db68328f19228dc21d9328e252"
+    },
+    {
+      "artifact": "inventory.lines34-54.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 34,
+        "end": 54
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "96d4d4093b439f674fe6bcdee9a8d2871855c908d05e0d260028c308b6ca4fab"
+    },
+    {
+      "artifact": "inventory.lines611-621.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 611,
+        "end": 621
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "d86a75081c4d657f8ce9e5e8ad0a2d1f69da61d8c89a3fe9642e0e6b61b4bcbd"
+    },
+    {
+      "artifact": "inventory.lines912-916.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 912,
+        "end": 916
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "61134615ca935d4c42c456586d4cb9251e9f12405e8a42ffab0ef933bb793a6c"
+    },
+    {
+      "artifact": "inventory.lines1009-1022.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "original_lines": {
+        "start": 1009,
+        "end": 1022
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "89519857543e4394113b286b86d4b00e23ee304e3ddccfd95a0da4e18ef2df4f"
+    },
+    {
+      "artifact": "tsconfig.lines280-310.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/tsconfig.rs",
+      "original_lines": {
+        "start": 280,
+        "end": 310
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "03f812b97ef5ae14fbe1d483cb7fe5c7f4867452024ae3507479e501308e43b2"
+    },
+    {
+      "artifact": "tsconfig.lines365-385.rs.fragment",
+      "original_path": "crates/biome_service/src/project_analysis/tsconfig.rs",
+      "original_lines": {
+        "start": 365,
+        "end": 385
+      },
+      "completeness": "exact contiguous fragment only",
+      "sha256": "8c6cbd1ac3c58da6fc518b2f999ff199abff300876a3798c2cf7b7b3637d7a2b"
+    },
+    {
+      "artifact": "paths.complete.rs",
+      "original_path": "crates/biome_service/src/project_analysis/paths.rs",
+      "original_lines": {
+        "start": 1,
+        "end": 101
+      },
+      "completeness": "complete original file",
+      "sha256": "f04bba32f03b91b62f3358691c7d2a7690d48e4d2ba0ca69bce362e92a8e3b1c"
+    }
+  ],
+  "missing": [
+    {
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "status": "Full original read compacted; only listed noncontiguous fragments remain exact. No assembled file created."
+    },
+    {
+      "original_path": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "status": "Full original read compacted; no exact test source remains in this reviewer's visible history. No test file created."
+    }
+  ],
+  "excluded_material": "Compacted prose summaries and review conclusions were not converted into source. No af4b612 source was inferred.",
+  "recovery_actions": "Only recovery-directory files were created. No review was rerun, project code executed, main repository changed, children spawned, or source gaps guessed."
+}

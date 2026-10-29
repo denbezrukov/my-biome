@@ -1,0 +1,420 @@
+diff --git a/crates/biome_cli/tests/project_analysis_exit.rs b/crates/biome_cli/tests/project_analysis_exit.rs
+index da385e54991..1b388f79069 100644
+--- a/crates/biome_cli/tests/project_analysis_exit.rs
++++ b/crates/biome_cli/tests/project_analysis_exit.rs
+@@ -383,3 +383,334 @@ fn runtime_failure_with_exhausted_budget_check() {
+ fn runtime_failure_with_exhausted_budget_lint() {
+     runtime_failure_with_diagnostic_budget("lint", "1");
+ }
++
++#[test]
++fn reporter_project_analysis_process_policy_and_destinations() {
++    let project = Project::new(
++        r#"{"projectAnalysis":{"entry":["entry.ts"],"project":["**/*.ts"],"include":["files"]}}"#,
++    );
++    project.write("entry.ts", "console.log('entry');\n");
++    project.write("orphan.ts", "console.log('orphan');\n");
++    for (extra, expected_exit) in [
++        (vec![], 1),
++        (vec!["--max-issues=1"], 0),
++        (vec!["--no-exit-code"], 0),
++        (vec!["--max-issues=invalid", "--no-exit-code"], 2),
++        (vec!["--unknown-option", "--no-exit-code"], 1),
++    ] {
++        let mut args = vec![
++            "analyze",
++            "--report-profile=knip-6.43",
++            "--project-reporter=json",
++        ];
++        args.extend(extra);
++        let actual = project.run(&args);
++        let actual_exit = actual.status.code().unwrap();
++        assert_eq!(
++            actual_exit,
++            expected_exit,
++            "{args:?}: {}",
++            String::from_utf8_lossy(&actual.stderr)
++        );
++        if expected_exit != 2 && !args.contains(&"--unknown-option") {
++            let report: serde_json::Value = serde_json::from_slice(&actual.stdout).unwrap();
++            assert_eq!(report["issues"][0]["file"], "orphan.ts");
++            assert!(String::from_utf8_lossy(&actual.stderr).contains("qualification_eligible"));
++        }
++    }
++    let output = project.run(&[
++        "analyze",
++        "--report-profile=knip-6.43",
++        "--project-reporter=json",
++        "--project-report-file=report.json",
++        "--project-reporter=sarif",
++        "--project-report-file=report.sarif",
++    ]);
++    assert_eq!(output.status.code(), Some(1));
++    for name in [
++        "report.json",
++        "report.sarif",
++        "report.json.coverage.json",
++        "report.sarif.coverage.json",
++    ] {
++        let bytes = std::fs::read(project.0.join(name)).unwrap();
++        let _: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
++    }
++    assert!(output.stdout.is_empty());
++    for args in [
++        vec!["--project-reporter=json", "--project-reporter=sarif"],
++        vec![
++            "--project-reporter=json",
++            "--project-report-file=collision",
++            "--project-reporter=sarif",
++            "--project-report-file=./collision",
++        ],
++        vec![
++            "--project-reporter=json",
++            "--project-report-file=collision",
++            "--project-reporter=sarif",
++            "--project-report-file=collision.coverage.json",
++        ],
++        vec!["--project-reporter=json", "--project-report-file=."],
++    ] {
++        let mut arguments = vec!["analyze", "--report-profile=knip-6.43", "--no-exit-code"];
++        arguments.extend(args);
++        assert_eq!(project.run(&arguments).status.code(), Some(2));
++    }
++    project.write(
++        "custom.js",
++        "require('node:fs').writeFileSync('EXECUTED', 'bad');\n",
++    );
++    let custom = project.run(&[
++        "analyze",
++        "--report-profile=knip-6.43",
++        "--project-reporter=./custom.js",
++    ]);
++    assert_eq!(custom.status.code(), Some(2));
++    assert!(
++        String::from_utf8_lossy(&custom.stderr).contains("Unsupported custom project reporter")
++    );
++    assert!(!project.0.join("EXECUTED").exists());
++}
++
++#[test]
++fn reporter_project_analysis_runtime_failure_survives_hidden_output() {
++    let project = Project::new(
++        r#"{"formatter":{"enabled":false},"assist":{"enabled":false},"linter":{"rules":{"preset":"none"}},"projectAnalysis":{"enabled":true,"entry":[],"project":[]}}"#,
++    );
++    for command in ["check", "lint"] {
++        let output = project.run(&[
++            command,
++            "--report-profile=knip-6.43",
++            "--project-reporter=json",
++            "--max-diagnostics=0",
++            "--max-show-issues=0",
++            "--max-issues=999",
++            "--no-exit-code",
++            "missing.js",
++        ]);
++        assert_eq!(
++            output.status.code(),
++            Some(2),
++            "{}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
++        assert_eq!(report, serde_json::json!({"issues":[]}));
++        let companion = String::from_utf8(output.stderr)
++            .unwrap()
++            .lines()
++            .find_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
++            .unwrap();
++        assert_eq!(companion["coverage"]["status"], "complete");
++        assert_eq!(companion["runtime_failure"], true);
++        assert_eq!(companion["command_exit_code"], 2);
++        assert_eq!(companion["qualification_eligible"], false);
++    }
++}
++
++#[test]
++fn reporter_project_analysis_hints_and_warning_policy() {
++    let project = Project::new(
++        r#"{"projectAnalysis":{"entry":["entry.ts"],"project":["**/*.ts"],"include":["files"],"ignore":["unused/**"],"treatConfigHintsAsErrors":true}}"#,
++    );
++    project.write("entry.ts", "");
++    for (flags, exit) in [
++        (vec![], 1),
++        (vec!["--max-issues=999"], 1),
++        (vec!["--no-exit-code"], 0),
++        (vec!["--configuration-hints=false"], 0),
++    ] {
++        let mut arguments = vec![
++            "analyze",
++            "--report-profile=knip-6.43",
++            "--project-reporter=json",
++        ];
++        arguments.extend(flags);
++        let output = project.run(&arguments);
++        assert_eq!(
++            output.status.code(),
++            Some(exit),
++            "{}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++        assert_eq!(
++            serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
++            serde_json::json!({"issues":[]})
++        );
++    }
++    project.write("biome.json",r#"{"projectAnalysis":{"entry":["entry.ts"],"project":["**/*.ts"],"include":["files"],"rules":{"files":"warn"}}}"#);
++    project.write("orphan.ts", "");
++    for (profile, exit) in [("native", 1), ("knip-6.43", 0)] {
++        let flag = format!("--report-profile={profile}");
++        let output = project.run(&[
++            "analyze",
++            &flag,
++            "--project-reporter=json",
++            "--error-on-warnings",
++        ]);
++        assert_eq!(
++            output.status.code(),
++            Some(exit),
++            "{}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
++fn c4_boundary_companion_failure_preserves_existing_report() {
++    let project = Project::new(r#"{"projectAnalysis":{"entry":[],"project":[]}}"#);
++    project.write("report.json", "previous report\n");
++    std::fs::create_dir(project.0.join("report.json.coverage.json")).unwrap();
++    let output = project.run(&[
++        "analyze",
++        "--report-profile=knip-6.43",
++        "--project-reporter=json",
++        "--project-report-file=report.json",
++    ]);
++    assert_eq!(output.status.code(), Some(2));
++    assert_eq!(
++        std::fs::read_to_string(project.0.join("report.json")).unwrap(),
++        "previous report\n"
++    );
++}
++
++#[test]
++fn c4_boundary_disabled_commands_reject_project_reports() {
++    let project = Project::new(r#"{"projectAnalysis":{"enabled":false}}"#);
++    project.write("entry.ts", "");
++    for command in ["check", "lint"] {
++        let output = project.run(&[command, "--project-reporter=json", "entry.ts"]);
++        assert_eq!(
++            output.status.code(),
++            Some(2),
++            "{command}: {}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++        assert!(String::from_utf8_lossy(&output.stderr).contains("projectAnalysis.enabled"));
++    }
++}
++
++#[test]
++fn reporter_project_analysis_missing_codeowners_is_runtime_failure() {
++    let project = Project::new(r#"{"projectAnalysis":{"entry":[],"project":[]}}"#);
++    let output = project.run(&[
++        "analyze",
++        "--report-profile=knip-6.43",
++        "--project-reporter=codeowners",
++        "--no-exit-code",
++    ]);
++    assert_eq!(output.status.code(), Some(2));
++    assert!(
++        String::from_utf8_lossy(&output.stderr).contains("CODEOWNERS report input is unavailable")
++    );
++    assert!(output.stdout.is_empty());
++}
++
++#[cfg(unix)]
++#[test]
++fn reporter_project_analysis_process_each_pinned_format() {
++    let fixtures: serde_json::Value =
++        serde_json::from_str(include_str!("fixtures/project_reporters/fixtures.json")).unwrap();
++    let goldens: serde_json::Value =
++        serde_json::from_str(include_str!("fixtures/project_reporters/oracle.json")).unwrap();
++    for case in goldens["cases"].as_array().unwrap() {
++        let name = case["id"].as_str().unwrap();
++        let format = case["format"].as_str().unwrap();
++        let files = &fixtures[case["fixture"].as_str().unwrap()];
++        let project = Project::new(files["biome.json"].as_str().unwrap());
++        for (path, text) in files.as_object().unwrap() {
++            let path = project.0.join(path);
++            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
++            std::fs::write(path, text.as_str().unwrap()).unwrap();
++        }
++        let reporter = format!("--project-reporter={format}");
++        let mut arguments = vec![
++            "analyze",
++            "--report-profile=knip-6.43",
++            &reporter,
++            "--project-report-file=_c4_report",
++        ];
++        for argument in case["arguments"].as_array().unwrap() {
++            let argument = argument.as_str().unwrap();
++            arguments.push(if argument == "--reporter-options" {
++                "--project-reporter-options"
++            } else {
++                argument
++            });
++        }
++        arguments.push("--colors=off");
++        let environment = std::collections::BTreeMap::from([
++            ("PATH", std::env::var("PATH").unwrap_or_default()),
++            ("NO_COLOR", "1".to_string()),
++            ("LANG", "C.UTF-8".to_string()),
++            (
++                "TMPDIR",
++                std::env::temp_dir().to_string_lossy().into_owned(),
++            ),
++            (
++                "XDG_CACHE_HOME",
++                project.0.join("cache").to_string_lossy().into_owned(),
++            ),
++        ]);
++        let started = std::time::Instant::now();
++        let output = Command::new(env!("CARGO_BIN_EXE_biome"))
++            .args(&arguments)
++            .current_dir(&project.0)
++            .env_clear()
++            .envs(&environment)
++            .output()
++            .unwrap();
++        let elapsed_ms = started.elapsed().as_millis();
++        let expected_exit = case
++            .get("native_exit_code")
++            .unwrap_or(&case["exit_code"])
++            .as_i64()
++            .unwrap() as i32;
++        assert_eq!(
++            output.status.code(),
++            Some(expected_exit),
++            "{name}: {}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++        let report = std::fs::read_to_string(project.0.join("_c4_report")).ok();
++        let companion = std::fs::read(project.0.join("_c4_report.coverage.json"))
++            .ok()
++            .map(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).unwrap());
++        if let Some(directory) = std::env::var_os("BIOME_PROJECT_PROCESS_CAPTURE_DIR") {
++            let directory = std::path::PathBuf::from(directory);
++            std::fs::create_dir_all(&directory).unwrap();
++            std::fs::write(directory.join(format!("{name}.json")),serde_json::to_vec_pretty(&serde_json::json!({"case":name,"format":format,"arguments":arguments,"environment":environment,"elapsed_ms":elapsed_ms,"cwd":project.0,"executable":env!("CARGO_BIN_EXE_biome"),"stdout":output.stdout,"stderr":output.stderr,"exit_code":output.status.code(),"report":report,"companion":companion})).unwrap()).unwrap();
++        }
++        assert!(output.stdout.is_empty(), "{name}");
++        if name == "codeowners-missing" {
++            assert!(report.is_none());
++            assert!(
++                String::from_utf8_lossy(&output.stderr)
++                    .contains("CODEOWNERS report input is unavailable")
++            );
++            continue;
++        }
++        let actual_report = report.unwrap();
++        let expected_report = case["native_stdout"].as_str().unwrap();
++        if matches!(format, "json" | "codeclimate" | "sarif") {
++            assert_eq!(
++                serde_json::from_str::<serde_json::Value>(&actual_report).unwrap(),
++                serde_json::from_str::<serde_json::Value>(expected_report).unwrap(),
++                "{name}"
++            );
++        } else {
++            assert_eq!(actual_report, expected_report, "{name}");
++        }
++        let companion = companion.unwrap();
++        assert_eq!(companion["issue_total"], case["issue_total"], "{name}");
++        assert_eq!(companion["command_exit_code"], expected_exit, "{name}");
++        assert_eq!(companion["qualification_eligible"], false, "{name}");
++        assert!(
++            String::from_utf8_lossy(&output.stderr)
++                .starts_with(case["native_stderr"].as_str().unwrap()),
++            "{name}"
++        );
++    }
++}
+diff --git a/crates/biome_project_analysis/tests/contracts.rs b/crates/biome_project_analysis/tests/contracts.rs
+index 84725b6a3e6..c63b27beb16 100644
+--- a/crates/biome_project_analysis/tests/contracts.rs
++++ b/crates/biome_project_analysis/tests/contracts.rs
+@@ -191,6 +191,7 @@ fn result_normalization_keeps_source_ranges_and_related_evidence() {
+     let evidence_id = EvidenceId("entry:index.ts:1..5".into());
+     let secondary_id = EvidenceId("entry:index.ts:1..5:secondary".into());
+     let mut first = ProjectAnalysisResult {
++        report_metadata: None,
+         policy: Default::default(),
+         catalogs: Default::default(),
+         cycles: Default::default(),
+@@ -292,8 +293,11 @@ fn every_deferred_plugin_and_public_reporter_has_a_disposition() {
+     for reporter in research["public_reporters"].as_array().unwrap() {
+         assert_eq!(
+             ledger["reporters"][reporter.as_str().unwrap()]["status"],
+-            "untested"
++            "partial"
+         );
++        let entry = &ledger["reporters"][reporter.as_str().unwrap()];
++        assert!(entry["oracle_cases"].as_array().unwrap().len() >= 4);
++        assert_eq!(entry["qualification_eligible"], false);
+     }
+     assert!(ledger["passed"].as_array().unwrap().is_empty());
+     assert!(ledger["failed"].as_array().unwrap().is_empty());
+diff --git a/crates/biome_project_analysis/tests/members.rs b/crates/biome_project_analysis/tests/members.rs
+index fe82299543e..00e8ac6d1b2 100644
+--- a/crates/biome_project_analysis/tests/members.rs
++++ b/crates/biome_project_analysis/tests/members.rs
+@@ -42,6 +42,31 @@ fn duplicate_binding_not_duplicate_spelling() {
+         serde_json::json!([])
+     );
+ }
++
++#[test]
++fn c4_metadata_duplicate_symbols_follow_source_order() {
++    use biome_project_analysis::normalize::normalize_result;
++    let mut snapshot = support::load_case("duplicate_binding");
++    let result = analyze(&snapshot, &Default::default());
++    assert!(
++        result
++            .issues
++            .iter()
++            .any(|issue| issue.kind == IssueKind::Duplicates)
++    );
++    for module in snapshot
++        .modules
++        .values_mut()
++        .filter_map(|module| module.collected.as_mut())
++    {
++        module.exports.reverse();
++        module.declarations.reverse();
++    }
++    assert_eq!(
++        normalize_result(&result),
++        normalize_result(&analyze(&snapshot, &Default::default()))
++    );
++}
+ #[test]
+ fn owned_member_payload_survives_selection_and_id_normalization() {
+     use biome_project_analysis::{
+diff --git a/crates/biome_service/src/project_analysis/members.tests.rs b/crates/biome_service/src/project_analysis/members.tests.rs
+index 1d011852dff..3dbbbb447f3 100644
+--- a/crates/biome_service/src/project_analysis/members.tests.rs
++++ b/crates/biome_service/src/project_analysis/members.tests.rs
+@@ -547,7 +547,14 @@ fn warm_fresh_merge_edits_preserve_member_evidence() {
+         }
+         assert_eq!(
+             normalize_result(&result),
+-            normalize_result(&analyze(&shuffled, &Default::default()))
++            normalize_result(&analyze(&shuffled, &Default::default())),
++            "presentation facts: {:?}",
++            shuffled
++                .modules
++                .values()
++                .filter_map(|module| module.collected.as_ref())
++                .map(|module| (&module.declarations, &module.members))
++                .collect::<Vec<_>>()
+         );
+     }
+ }

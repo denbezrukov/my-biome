@@ -1,0 +1,14 @@
+
+#[test]
+fn inventory_retains_order_sensitive_configuration() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/project/package.json".into(), "{}");
+    let (service, project) = setup_workspace_and_open_project(fs, "/project");
+    let discover = |source: &str| service.discover_inventory(project, &ProjectAnalysisRequest {
+        configuration: serde_json::from_str(source).unwrap(), ..Default::default()
+    }).unwrap();
+    let first = discover(r#"{"paths":{"alias/*":["first/*"],"alias/exact":["second"]},"workspaces":{".":{"paths":{"nested/*":["first/*"],"nested/exact":["second"]}},"packages/*":{}}}"#);
+    let second = discover(r#"{"paths":{"alias/exact":["second"],"alias/*":["first/*"]},"workspaces":{"packages/*":{},".":{"paths":{"nested/exact":["second"],"nested/*":["first/*"]}}}}"#);
+    assert_ne!(first.request, second.request);
+    assert_ne!(first.workspaces[0].configuration, second.workspaces[0].configuration);
+}

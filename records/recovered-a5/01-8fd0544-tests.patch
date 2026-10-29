@@ -1,0 +1,283 @@
+diff --git a/crates/biome_service/src/project_analysis/snapshot.tests.rs b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+index b2943b65ecf..1b1ff262b20 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.tests.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+@@ -432,7 +432,7 @@ fn snapshot_watch_errors_remain_visible_after_wakeup() {
+     let service = Service::new(&fs, true);
+     let workspace = service.server.with_db_state(&service.db);
+     let bridge = ScannerWatcherBridge::new((&service.server.scanner, &workspace));
+-    bridge.analysis_error("lost watch events".into());
++    bridge.analysis_error(None, None, "watcher stopped".into());
+     let snapshot = service.snapshot(&super::ProjectAnalysisRequest::default());
+     let Coverage::Incomplete(gaps) = &snapshot.coverage else {
+         panic!("watch uncertainty lost")
+@@ -968,3 +968,269 @@ fn snapshot_requests_cannot_reopen_closed_or_unknown_state() {
+         ));
+     }
+ }
++
++fn has_watch_gap(snapshot: &AnalysisSnapshot) -> bool {
++    match &snapshot.coverage {
++        Coverage::Complete => false,
++        Coverage::Incomplete(gaps) | Coverage::Failed(gaps) => {
++            gaps.iter().any(|gap| gap.producer == "watcher")
++        }
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_matches_fresh_after_transient_input_failure() {
++    use crate::scanner::{ScannerWatcherBridge, WorkspaceWatcherBridge};
++    for owned in [false, true] {
++        let fs = MemoryFileSystem::default();
++        fs.insert("/project/package.json".into(), "{}");
++        fs.insert("/project/index.ts".into(), vec![255]);
++        let service = Service::new(&fs, owned);
++        let request = super::ProjectAnalysisRequest::default();
++        let workspace = service.server.with_db_state(&service.db);
++        let bridge = ScannerWatcherBridge::new((&service.server.scanner, &workspace));
++        bridge.analysis_input_error(
++            service.project,
++            Utf8Path::new("/project"),
++            "temporary read failure".into(),
++        );
++        assert!(
++            has_watch_gap(&service.snapshot(&request)),
++            "unreadable input is not recovered"
++        );
++        fs.insert("/project/index.ts".into(), "export const recovered = 1;");
++        let recovered = service.snapshot(&request);
++        assert!(
++            !has_watch_gap(&recovered),
++            "successful acquisition must retire transient watch errors"
++        );
++        equivalent(&service, &fs, owned, &request);
++        fs.insert("/project/index.ts".into(), vec![255]);
++        equivalent(&service, &fs, owned, &request);
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_respects_sibling_project_scope() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), vec![255]);
++    fs.insert("/sibling/package.json".into(), "{}");
++    fs.insert("/sibling/index.ts".into(), "export const sibling = 1;");
++    let service = Service::new(&fs, true);
++    let workspace = service.server.with_db_state(&service.db);
++    let sibling = workspace
++        .open_project(OpenProjectParams {
++            path: BiomePath::new("/sibling"),
++            open_uninitialized: true,
++        })
++        .unwrap()
++        .project_key;
++    let request = super::ProjectAnalysisRequest::default();
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "project read failed".into(),
++    );
++    let other = workspace.build_project_snapshot(sibling, &request).unwrap();
++    assert!(
++        !has_watch_gap(&other),
++        "sibling must not inherit another project's error"
++    );
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "sibling acquisition must not retire project error"
++    );
++    fs.insert("/project/index.ts".into(), "export const recovered = 1;");
++    equivalent(&service, &fs, true, &request);
++}
++
++#[test]
++fn snapshot_watch_recovery_requires_full_consumer_scope() {
++    let fs = MemoryFileSystem::default();
++    fs.insert(
++        "/project/package.json".into(),
++        r#"{"workspaces":["packages/*"]}"#,
++    );
++    fs.insert("/project/index.ts".into(), "export const root = 1;");
++    fs.insert("/project/packages/a/package.json".into(), "{}");
++    fs.insert("/project/packages/a/index.ts".into(), "export const a = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "consumer events were lost".into(),
++    );
++    let isolated = super::ProjectAnalysisRequest {
++        isolation: Some(super::AnalysisBoundary {
++            excluded_consumers: vec!["packages/a".into()],
++        }),
++        ..Default::default()
++    };
++    assert!(has_watch_gap(&service.snapshot(&isolated)));
++    let full = super::ProjectAnalysisRequest::default();
++    assert!(
++        !has_watch_gap(&service.snapshot(&full)),
++        "full acquisition must recover its previously excluded consumer"
++    );
++    equivalent(&service, &fs, true, &full);
++}
++
++#[test]
++fn snapshot_watch_recovery_does_not_retire_concurrent_errors() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "old event error".into(),
++    );
++    let barrier = Arc::new(std::sync::Barrier::new(2));
++    *service.db.analysis.before_publish.lock() = Some(barrier.clone());
++    std::thread::scope(|scope| {
++        let build = scope.spawn(|| {
++            service
++                .server
++                .with_db_state(&service.db)
++                .try_build_project_snapshot(
++                    service.project,
++                    &super::ProjectAnalysisRequest::default(),
++                )
++        });
++        barrier.wait();
++        service.db.analysis.record_watch_input_error(
++            service.project,
++            Utf8Path::new("/project"),
++            "new concurrent error".into(),
++        );
++        barrier.wait();
++        assert!(matches!(
++            build.join().unwrap().unwrap(),
++            SnapshotBuildOutcome::Superseded
++        ));
++    });
++    fs.insert("/project/index.ts".into(), vec![255]);
++    let snapshot = service.snapshot(&super::ProjectAnalysisRequest::default());
++    let Coverage::Incomplete(gaps) = &snapshot.coverage else {
++        panic!("concurrent error lost")
++    };
++    for reason in ["old event error", "new concurrent error"] {
++        assert!(gaps.iter().any(|gap| matches!(&gap.reason, biome_project_analysis::coverage::GapReason::UnavailableInput(message) if message == reason)), "failed publication must not retire {reason}");
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_preserves_overlapping_and_external_consumers() {
++    for (other_root, other_file, import) in [
++        (
++            "/project/nested",
++            "/project/nested/value.ts",
++            "import './nested/value';",
++        ),
++        (
++            "/external",
++            "/external/value.ts",
++            "import '/external/value';",
++        ),
++    ] {
++        let fs = MemoryFileSystem::default();
++        fs.insert("/project/package.json".into(), "{}");
++        fs.insert("/project/index.ts".into(), import);
++        fs.insert(format!("{other_root}/package.json").into(), "{}");
++        fs.insert(other_file.into(), vec![255]);
++        let service = Service::new(&fs, true);
++        let workspace = service.server.with_db_state(&service.db);
++        let other = workspace
++            .open_project(OpenProjectParams {
++                path: BiomePath::new(other_root),
++                open_uninitialized: true,
++            })
++            .unwrap()
++            .project_key;
++        service.db.analysis.record_watch_input_error(
++            other,
++            Utf8Path::new(other_file),
++            "overlapping input read failed".into(),
++        );
++        let request = super::ProjectAnalysisRequest::default();
++        assert!(
++            has_watch_gap(&service.snapshot(&request)),
++            "consumed input must retain error from another project"
++        );
++        fs.insert(other_file.into(), "export const recovered = 1;");
++        assert!(!has_watch_gap(&service.snapshot(&request)));
++        fs.insert(other_file.into(), vec![255]);
++        assert!(
++            has_watch_gap(&workspace.build_project_snapshot(other, &request).unwrap()),
++            "recovering one consumer must not retire another's entry"
++        );
++        assert!(
++            !has_watch_gap(&service.snapshot(&request)),
++            "retired history must not reactivate for a recovered project"
++        );
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_preserves_persistent_capability_failures() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    fs.insert("/sibling/package.json".into(), "{}");
++    let service = Service::new(&fs, true);
++    let workspace = service.server.with_db_state(&service.db);
++    let sibling = workspace
++        .open_project(OpenProjectParams {
++            path: BiomePath::new("/sibling"),
++            open_uninitialized: true,
++        })
++        .unwrap()
++        .project_key;
++    service.db.analysis.record_watch_failure(
++        Some(service.project),
++        Some(Utf8Path::new("/project")),
++        "cannot register watch".into(),
++    );
++    let request = super::ProjectAnalysisRequest::default();
++    assert!(has_watch_gap(&service.snapshot(&request)));
++    assert!(
++        !has_watch_gap(&workspace.build_project_snapshot(sibling, &request).unwrap()),
++        "scoped capability failure must not contaminate disjoint sibling"
++    );
++    fs.insert("/project/index.ts".into(), "export const changed = 2;");
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "full reacquisition cannot repair watch registration"
++    );
++    service
++        .db
++        .analysis
++        .record_watch_failure(None, None, "watcher stopped".into());
++    assert!(has_watch_gap(
++        &workspace.build_project_snapshot(sibling, &request).unwrap()
++    ));
++}
++
++#[test]
++fn snapshot_watch_recovery_requires_acquiring_known_external_error_path() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    fs.insert("/external/value.ts".into(), "export const external = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/external/value.ts"),
++        "external event failed".into(),
++    );
++    let request = super::ProjectAnalysisRequest::default();
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "project ownership alone cannot prove an external error was reconciled"
++    );
++    fs.insert("/project/index.ts".into(), "import '/external/value';");
++    assert!(!has_watch_gap(&service.snapshot(&request)));
++    equivalent(&service, &fs, true, &request);
++}

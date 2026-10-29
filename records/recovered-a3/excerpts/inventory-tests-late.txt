@@ -1,0 +1,191 @@
+#[test]
+fn inventory_empty_boundary_and_invalid_selector_do_not_exclude_everything() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/project/package.json".into(), "{}");
+    fs.insert("/project/index.ts".into(), "export {};");
+    let (service, project) = setup_workspace_and_open_project(fs, "/project");
+    let inventory = service
+        .discover_inventory(
+            project,
+            &ProjectAnalysisRequest {
+                isolation: Some(Default::default()),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    assert_eq!(inventory.roots.len(), 1);
+    let (selected, errors) = select_workspaces(
+        Utf8Path::new("/project"),
+        &inventory.workspaces,
+        &["unsupported?".into()],
+    );
+    assert!(selected.is_empty());
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn inventory_project_key_and_root_are_respected() {
+    let fs = MemoryFileSystem::default();
+    fs.insert("/project/package.json".into(), "{}");
+    fs.insert("/project/index.ts".into(), "export {};");
+    fs.insert("/other/package.json".into(), "{}");
+    fs.insert("/other/index.ts".into(), "export {};");
+    let (service, project) = setup_workspace_and_open_project(fs, "/project");
+    assert!(
+        service
+            .discover_inventory(ProjectKey::new(), &ProjectAnalysisRequest::default())
+            .is_err()
+    );
+    let inventory = service
+        .discover_inventory(project, &ProjectAnalysisRequest::default())
+        .unwrap();
+    assert_eq!(inventory.workspaces.len(), 1);
+    assert!(
+        inventory
+            .sources
+            .values()
+            .all(|source| source.canonical_uri.starts_with("file:///project/"))
+    );
+}
+
+#[test]
+fn inventory_reference_mapping_walk_stops_at_complete_mapping() {
+    let inventory = discover_files(
+        &[
+            ("package.json", r#"{"main":"child/dist/value.js"}"#),
+            (
+                "tsconfig.json",
+                r#"{"files":[],"references":[{"path":"child"}]}"#,
+            ),
+            (
+                "child/tsconfig.json",
+                r#"{"files":[],"compilerOptions":{"rootDir":"src","outDir":"dist"},"references":[{"path":"deep"}]}"#,
+            ),
+            ("child/src/value.ts", ""),
+            (
+                "child/deep/tsconfig.json",
+                r#"{"files":[],"compilerOptions":{"rootDir":"src","outDir":"../dist"}}"#,
+            ),
+            ("child/deep/src/value.ts", ""),
+        ],
+        serde_json::json!({"entry":[],"useTsconfigFiles":false}),
+    );
+    assert_eq!(root_paths(&inventory), ["child/src/value.ts".into()].into());
+    assert!(
+        !inventory
+            .gaps
+            .iter()
+            .any(|gap| gap.producer == "source mapping")
+    );
+}
+
+#[test]
+fn inventory_selected_declarations_map_to_sources() {
+    let inventory = discover_files(
+        &[
+            ("package.json", "{}"),
+            (
+                "tsconfig.json",
+                r#"{"files":["dist/value.d.ts"],"compilerOptions":{"rootDir":"src","outDir":"dist"}}"#,
+            ),
+            ("dist/value.d.ts", "export declare const value: number;"),
+            ("src/value.ts", "export const value = 1;"),
+        ],
+        serde_json::json!({"entry":[],"useTsconfigFiles":false}),
+    );
+    assert_eq!(root_paths(&inventory), ["src/value.ts".into()].into());
+    assert_eq!(inventory.roots[0].producer, "tsconfig declaration");
+}
+
+#[cfg(unix)]
+#[test]
+fn inventory_manifest_alias_uses_canonical_identity() {
+    let mut fs = biome_fs::TemporaryFs::new("biome-project-analysis-a3-manifest-alias");
+    let target = fs.create_file("source.ts", "export {};");
+    fs.create_file("package.json", r#"{"main":"alias.ts"}"#);
+    std::os::unix::fs::symlink(target, fs.working_directory.join("alias.ts")).unwrap();
+    let (service, project) = setup_workspace_and_open_project(fs.create_os(), fs.cli_path());
+    let inventory = service
+        .discover_inventory(project, &ProjectAnalysisRequest::default())
+        .unwrap();
+    assert_eq!(root_paths(&inventory), ["source.ts".into()].into());
+}
+
+#[test]
+fn inventory_catalog_fields_fall_back_independently_and_legacy_workspaces_work() {
+    let files = [
+        (
+            "package.json",
+            r#"{"workspaces":{"packages":["packages/*"],"catalog":{"legacy":"1"},"catalogs":{"legacy":{"nested":"2"}}},"catalogs":{"manifest":{"named":"3"}}}"#,
+        ),
+        ("packages/a/package.json", "{}"),
+        (
+            "pnpm-workspace.yaml",
+            "packages: null\ncatalog: null\ncatalogs: {}\n",
+        ),
+    ];
+    let inventory = discover_files(&files, serde_json::json!({"entry":[]}));
+    assert_eq!(inventory.workspaces.len(), 2);
+    let providers = &inventory.workspaces[0].catalogs;
+    assert_eq!(providers.len(), 1);
+    assert_eq!(providers[0].name, "");
+    assert_eq!(providers[0].value.members[0].0, "legacy");
+    assert_eq!(
+        inventory.sources[&providers[0].value.location.file].logical_path,
+        Utf8Path::new("package.json")
+    );
+    assert_eq!(
+        inventory.sources[&providers[0].container.file].logical_path,
+        Utf8Path::new("pnpm-workspace.yaml")
+    );
+}
+
+#[test]
+fn inventory_public_entries_keep_export_protection() {
+    let inventory = discover_files(
+        &[("package.json", "{}"), ("public.ts", "export {};")],
+        serde_json::json!({"entry":[],"publicEntries":["public.ts"]}),
+    );
+    assert_eq!(root_paths(&inventory), ["public.ts".into()].into());
+    assert_eq!(inventory.roots[0].exports, ExportProtection::Protected);
+}
+
+#[cfg(windows)]
+#[test]
+fn inventory_windows_manifest_casing_uses_filesystem_identity() {
+    let mut fixture = biome_fs::TemporaryFs::new("biome-project-analysis-a3-windows-case");
+    fixture.create_file("MixedCase.ts", "export {};");
+    fixture.create_file("package.json", r#"{"main":"mixedcase.ts"}"#);
+    let (service, project) =
+        setup_workspace_and_open_project(fixture.create_os(), fixture.cli_path());
+    let inventory = service
+        .discover_inventory(project, &ProjectAnalysisRequest::default())
+        .unwrap();
+    assert_eq!(root_paths(&inventory), ["MixedCase.ts".into()].into());
+    assert_eq!(inventory.files.len(), 1);
+}
+
+#[test]
+fn inventory_program_selection_keeps_explicit_entry_candidates() {
+    let inventory = discover_files(
+        &[
+            ("package.json", "{}"),
+            ("tsconfig.json", r#"{"files":["program.ts"]}"#),
+            ("program.ts", ""),
+            ("explicit.ts", ""),
+        ],
+        serde_json::json!({"entry":["explicit.ts!"],"useTsconfigFiles":true}),
+    );
+    assert_eq!(
+        root_paths(&inventory),
+        ["program.ts".into(), "explicit.ts".into()].into()
+    );
+    assert_eq!(
+        inventory
+            .files
+            .iter()
+            .filter(|file| file.role == FileRole::ReportingCandidate)
+            .count(),
+        2
+    );
+}

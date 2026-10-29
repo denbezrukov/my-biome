@@ -1,0 +1,10 @@
+python3 - <<'PY'
+import urllib.request,json,pathlib
+p=pathlib.Path('/tmp/knip-a1-reference');p.mkdir(exist_ok=True)
+sha='07121567e60b73d1e640f395028c525a2b1d9778'
+url=f'https://api.github.com/repos/webpro-nl/knip/git/trees/{sha}?recursive=1'
+data=urllib.request.urlopen(url).read();(p/'tree.json').write_bytes(data)
+tree=json.loads(data)['tree']; paths=[v['path'] for v in tree if v['path'].startswith('packages/knip/test/') and v['path'].endswith('.test.ts')]
+(p/'tests.txt').write_text('\n'.join(paths))
+print('\n'.join(paths))
+PY

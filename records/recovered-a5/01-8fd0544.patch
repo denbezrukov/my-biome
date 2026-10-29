@@ -1,0 +1,732 @@
+diff --git a/crates/biome_service/src/project_analysis.rs b/crates/biome_service/src/project_analysis.rs
+index 1d3194127c6..224f8e1abf3 100644
+--- a/crates/biome_service/src/project_analysis.rs
++++ b/crates/biome_service/src/project_analysis.rs
+@@ -57,3 +57,11 @@ impl WorkspaceServerWithDb<'_> {
+         inventory::discover(self, project, request)
+     }
+ }
++
++// Watch paths use the same identity rules as captured acquisition inputs.
++pub(crate) fn canonical_watch_path(
++    fs: &dyn biome_fs::FileSystem,
++    path: &camino::Utf8Path,
++) -> camino::Utf8PathBuf {
++    paths::canonical(fs, path).unwrap_or_else(|_| biome_fs::normalize_path(path))
++}
+diff --git a/crates/biome_service/src/project_analysis/coordinator.rs b/crates/biome_service/src/project_analysis/coordinator.rs
+index 70b5fb51698..bddcca811d2 100644
+--- a/crates/biome_service/src/project_analysis/coordinator.rs
++++ b/crates/biome_service/src/project_analysis/coordinator.rs
+@@ -1,8 +1,12 @@
+ use crate::{projects::ProjectKey, workspace::ServiceNotification};
+-use biome_project_analysis::{coverage::Coverage, model::AnalysisSnapshot};
++use biome_project_analysis::{
++    coverage::{Coverage, CoverageGap, GapReason, TargetDomain},
++    model::{AnalysisSnapshot, FileId},
++};
++use camino::{Utf8Path, Utf8PathBuf};
+ use parking_lot::{Condvar, Mutex};
+ use std::{
+-    collections::{HashMap, HashSet},
++    collections::{BTreeMap, HashMap, HashSet},
+     sync::{
+         Arc,
+         atomic::{AtomicU64, Ordering},
+@@ -46,7 +50,7 @@ pub(crate) struct ProjectAnalysisCoordinator {
+ struct State {
+     generation: u64,
+     pending: usize,
+-    gaps: Vec<biome_project_analysis::coverage::CoverageGap>,
++    gaps: Vec<WatchGap>,
+     projects: HashMap<ProjectKey, ProjectAnalysisState>,
+     requests: HashMap<ProjectKey, String>,
+     interested: HashSet<ProjectKey>,
+@@ -54,6 +58,15 @@ struct State {
+     notification: Option<watch::Sender<ServiceNotification>>,
+ }
+ 
++struct WatchGap {
++    project: Option<ProjectKey>,
++    path: Option<Utf8PathBuf>,
++    generation: u64,
++    persistent: bool,
++    reconciled: HashSet<ProjectKey>,
++    gap: CoverageGap,
++}
++
+ impl Default for ProjectAnalysisCoordinator {
+     fn default() -> Self {
+         static NEXT: AtomicU64 = AtomicU64::new(0);
+@@ -214,10 +227,20 @@ impl ProjectAnalysisCoordinator {
+     }
+ 
+     pub(crate) fn publish(
++        &self,
++        project: ProjectKey,
++        generation: u64,
++        snapshot: Arc<AnalysisSnapshot>,
++    ) -> SnapshotBuildOutcome {
++        self.publish_reconciled(project, generation, snapshot, &[])
++    }
++
++    pub(crate) fn publish_reconciled(
+         &self,
+         project: ProjectKey,
+         generation: u64,
+         mut snapshot: Arc<AnalysisSnapshot>,
++        recovered: &[usize],
+     ) -> SnapshotBuildOutcome {
+         let mut state = self.inner.lock();
+         if state.pending != 0
+@@ -229,6 +252,16 @@ impl ProjectAnalysisCoordinator {
+         {
+             return SnapshotBuildOutcome::Superseded;
+         }
++        // Recovery and publication share the generation check and lock. Superseded
++        // acquisitions cannot retire either older debt or a newly recorded error.
++        for index in recovered {
++            if let Some(entry) = state.gaps.get_mut(*index)
++                && !entry.persistent
++                && entry.generation <= generation
++            {
++                entry.reconciled.insert(project);
++            }
++        }
+         if let Some(ProjectAnalysisState::Completed {
+             snapshot: cached, ..
+         }) = state.projects.get(&project)
+@@ -294,20 +327,86 @@ impl ProjectAnalysisCoordinator {
+             .unwrap_or(ProjectAnalysisState::Closed)
+     }
+ 
+-    pub(crate) fn record_watch_error(&self, reason: String) {
++    pub(crate) fn record_watch_input_error(
++        &self,
++        project: ProjectKey,
++        path: &Utf8Path,
++        reason: String,
++    ) {
++        self.record_watch_gap(Some(project), Some(path), false, reason);
++    }
++
++    pub(crate) fn record_watch_failure(
++        &self,
++        project: Option<ProjectKey>,
++        path: Option<&Utf8Path>,
++        reason: String,
++    ) {
++        self.record_watch_gap(project, path, true, reason);
++    }
++
++    fn record_watch_gap(
++        &self,
++        project: Option<ProjectKey>,
++        path: Option<&Utf8Path>,
++        persistent: bool,
++        reason: String,
++    ) {
+         let _mutation = self.mutation();
+-        self.inner
+-            .lock()
+-            .gaps
+-            .push(biome_project_analysis::coverage::CoverageGap {
++        let mut state = self.inner.lock();
++        let generation = state.generation;
++        state.gaps.push(WatchGap {
++            project,
++            path: path.map(Utf8Path::to_path_buf),
++            generation,
++            persistent,
++            reconciled: HashSet::new(),
++            gap: CoverageGap {
+                 producer: "watcher".into(),
+-                domain: biome_project_analysis::coverage::TargetDomain::Unbounded,
+-                reason: biome_project_analysis::coverage::GapReason::UnavailableInput(reason),
++                domain: TargetDomain::Unbounded,
++                reason: GapReason::UnavailableInput(reason),
+                 location: None,
+-            });
++            },
++        });
+     }
+-    pub(crate) fn gaps(&self) -> Vec<biome_project_analysis::coverage::CoverageGap> {
+-        self.inner.lock().gaps.clone()
++
++    /// A fresh full-scope acquisition can reconcile input operations, but cannot
++    /// repair failed watch registration or a stopped watcher. History already
++    /// reconciled for this project never becomes active coverage again.
++    pub(crate) fn watch_gaps(
++        &self,
++        project: ProjectKey,
++        generation: u64,
++        root: &Utf8Path,
++        inputs: &BTreeMap<Utf8PathBuf, FileId>,
++        can_reconcile: bool,
++    ) -> (Vec<CoverageGap>, Vec<usize>) {
++        let state = self.inner.lock();
++        let mut gaps = Vec::new();
++        let mut recovered = Vec::new();
++        for (index, entry) in state.gaps.iter().enumerate() {
++            if entry.reconciled.contains(&project) {
++                continue;
++            }
++            let covered_path = entry.path.as_ref().is_some_and(|path| {
++                path.starts_with(root)
++                    || root.starts_with(path)
++                    || inputs.keys().any(|input| input.starts_with(path))
++            });
++            let relevant = entry.project == Some(project)
++                || covered_path
++                || (entry.project.is_none() && entry.path.is_none());
++            if !relevant {
++                continue;
++            }
++            if can_reconcile && covered_path && !entry.persistent && entry.generation <= generation
++            {
++                recovered.push(index);
++            } else {
++                gaps.push(entry.gap.clone());
++            }
++        }
++        (gaps, recovered)
+     }
+     fn wake(state: &State) {
+         if let Some(notification) = &state.notification {
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index fbf0d9bc88e..742d626fc13 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -275,7 +275,18 @@ impl WorkspaceServerWithDb<'_> {
+                 }
+                 break;
+             }
+-            capture.inventory.gaps.extend(coordinator.gaps());
++            let can_reconcile = request
++                .isolation
++                .as_ref()
++                .is_none_or(|boundary| boundary.excluded_consumers.is_empty())
++                && !capture
++                    .inventory
++                    .gaps
++                    .iter()
++                    .any(|gap| matches!(gap.reason, GapReason::UnavailableInput(_)));
++            let (watch_gaps, recovered) =
++                coordinator.watch_gaps(project, generation, &root, &capture.paths, can_reconcile);
++            capture.inventory.gaps.extend(watch_gaps);
+             capture
+                 .inventory
+                 .gaps
+@@ -324,7 +335,7 @@ impl WorkspaceServerWithDb<'_> {
+                 barrier.wait();
+                 barrier.wait();
+             }
+-            let outcome = coordinator.publish(project, generation, snapshot);
++            let outcome = coordinator.publish_reconciled(project, generation, snapshot, &recovered);
+             if let SnapshotBuildOutcome::Published(snapshot) = &outcome {
+                 coordinator.remember_inputs(project, snapshot.clone(), pinned);
+             }
+diff --git a/crates/biome_service/src/project_analysis/snapshot.tests.rs b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+index b2943b65ecf..1b1ff262b20 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.tests.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+@@ -432,7 +432,7 @@ fn snapshot_watch_errors_remain_visible_after_wakeup() {
+     let service = Service::new(&fs, true);
+     let workspace = service.server.with_db_state(&service.db);
+     let bridge = ScannerWatcherBridge::new((&service.server.scanner, &workspace));
+-    bridge.analysis_error("lost watch events".into());
++    bridge.analysis_error(None, None, "watcher stopped".into());
+     let snapshot = service.snapshot(&super::ProjectAnalysisRequest::default());
+     let Coverage::Incomplete(gaps) = &snapshot.coverage else {
+         panic!("watch uncertainty lost")
+@@ -968,3 +968,269 @@ fn snapshot_requests_cannot_reopen_closed_or_unknown_state() {
+         ));
+     }
+ }
++
++fn has_watch_gap(snapshot: &AnalysisSnapshot) -> bool {
++    match &snapshot.coverage {
++        Coverage::Complete => false,
++        Coverage::Incomplete(gaps) | Coverage::Failed(gaps) => {
++            gaps.iter().any(|gap| gap.producer == "watcher")
++        }
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_matches_fresh_after_transient_input_failure() {
++    use crate::scanner::{ScannerWatcherBridge, WorkspaceWatcherBridge};
++    for owned in [false, true] {
++        let fs = MemoryFileSystem::default();
++        fs.insert("/project/package.json".into(), "{}");
++        fs.insert("/project/index.ts".into(), vec![255]);
++        let service = Service::new(&fs, owned);
++        let request = super::ProjectAnalysisRequest::default();
++        let workspace = service.server.with_db_state(&service.db);
++        let bridge = ScannerWatcherBridge::new((&service.server.scanner, &workspace));
++        bridge.analysis_input_error(
++            service.project,
++            Utf8Path::new("/project"),
++            "temporary read failure".into(),
++        );
++        assert!(
++            has_watch_gap(&service.snapshot(&request)),
++            "unreadable input is not recovered"
++        );
++        fs.insert("/project/index.ts".into(), "export const recovered = 1;");
++        let recovered = service.snapshot(&request);
++        assert!(
++            !has_watch_gap(&recovered),
++            "successful acquisition must retire transient watch errors"
++        );
++        equivalent(&service, &fs, owned, &request);
++        fs.insert("/project/index.ts".into(), vec![255]);
++        equivalent(&service, &fs, owned, &request);
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_respects_sibling_project_scope() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), vec![255]);
++    fs.insert("/sibling/package.json".into(), "{}");
++    fs.insert("/sibling/index.ts".into(), "export const sibling = 1;");
++    let service = Service::new(&fs, true);
++    let workspace = service.server.with_db_state(&service.db);
++    let sibling = workspace
++        .open_project(OpenProjectParams {
++            path: BiomePath::new("/sibling"),
++            open_uninitialized: true,
++        })
++        .unwrap()
++        .project_key;
++    let request = super::ProjectAnalysisRequest::default();
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "project read failed".into(),
++    );
++    let other = workspace.build_project_snapshot(sibling, &request).unwrap();
++    assert!(
++        !has_watch_gap(&other),
++        "sibling must not inherit another project's error"
++    );
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "sibling acquisition must not retire project error"
++    );
++    fs.insert("/project/index.ts".into(), "export const recovered = 1;");
++    equivalent(&service, &fs, true, &request);
++}
++
++#[test]
++fn snapshot_watch_recovery_requires_full_consumer_scope() {
++    let fs = MemoryFileSystem::default();
++    fs.insert(
++        "/project/package.json".into(),
++        r#"{"workspaces":["packages/*"]}"#,
++    );
++    fs.insert("/project/index.ts".into(), "export const root = 1;");
++    fs.insert("/project/packages/a/package.json".into(), "{}");
++    fs.insert("/project/packages/a/index.ts".into(), "export const a = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "consumer events were lost".into(),
++    );
++    let isolated = super::ProjectAnalysisRequest {
++        isolation: Some(super::AnalysisBoundary {
++            excluded_consumers: vec!["packages/a".into()],
++        }),
++        ..Default::default()
++    };
++    assert!(has_watch_gap(&service.snapshot(&isolated)));
++    let full = super::ProjectAnalysisRequest::default();
++    assert!(
++        !has_watch_gap(&service.snapshot(&full)),
++        "full acquisition must recover its previously excluded consumer"
++    );
++    equivalent(&service, &fs, true, &full);
++}
++
++#[test]
++fn snapshot_watch_recovery_does_not_retire_concurrent_errors() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/project"),
++        "old event error".into(),
++    );
++    let barrier = Arc::new(std::sync::Barrier::new(2));
++    *service.db.analysis.before_publish.lock() = Some(barrier.clone());
++    std::thread::scope(|scope| {
++        let build = scope.spawn(|| {
++            service
++                .server
++                .with_db_state(&service.db)
++                .try_build_project_snapshot(
++                    service.project,
++                    &super::ProjectAnalysisRequest::default(),
++                )
++        });
++        barrier.wait();
++        service.db.analysis.record_watch_input_error(
++            service.project,
++            Utf8Path::new("/project"),
++            "new concurrent error".into(),
++        );
++        barrier.wait();
++        assert!(matches!(
++            build.join().unwrap().unwrap(),
++            SnapshotBuildOutcome::Superseded
++        ));
++    });
++    fs.insert("/project/index.ts".into(), vec![255]);
++    let snapshot = service.snapshot(&super::ProjectAnalysisRequest::default());
++    let Coverage::Incomplete(gaps) = &snapshot.coverage else {
++        panic!("concurrent error lost")
++    };
++    for reason in ["old event error", "new concurrent error"] {
++        assert!(gaps.iter().any(|gap| matches!(&gap.reason, biome_project_analysis::coverage::GapReason::UnavailableInput(message) if message == reason)), "failed publication must not retire {reason}");
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_preserves_overlapping_and_external_consumers() {
++    for (other_root, other_file, import) in [
++        (
++            "/project/nested",
++            "/project/nested/value.ts",
++            "import './nested/value';",
++        ),
++        (
++            "/external",
++            "/external/value.ts",
++            "import '/external/value';",
++        ),
++    ] {
++        let fs = MemoryFileSystem::default();
++        fs.insert("/project/package.json".into(), "{}");
++        fs.insert("/project/index.ts".into(), import);
++        fs.insert(format!("{other_root}/package.json").into(), "{}");
++        fs.insert(other_file.into(), vec![255]);
++        let service = Service::new(&fs, true);
++        let workspace = service.server.with_db_state(&service.db);
++        let other = workspace
++            .open_project(OpenProjectParams {
++                path: BiomePath::new(other_root),
++                open_uninitialized: true,
++            })
++            .unwrap()
++            .project_key;
++        service.db.analysis.record_watch_input_error(
++            other,
++            Utf8Path::new(other_file),
++            "overlapping input read failed".into(),
++        );
++        let request = super::ProjectAnalysisRequest::default();
++        assert!(
++            has_watch_gap(&service.snapshot(&request)),
++            "consumed input must retain error from another project"
++        );
++        fs.insert(other_file.into(), "export const recovered = 1;");
++        assert!(!has_watch_gap(&service.snapshot(&request)));
++        fs.insert(other_file.into(), vec![255]);
++        assert!(
++            has_watch_gap(&workspace.build_project_snapshot(other, &request).unwrap()),
++            "recovering one consumer must not retire another's entry"
++        );
++        assert!(
++            !has_watch_gap(&service.snapshot(&request)),
++            "retired history must not reactivate for a recovered project"
++        );
++    }
++}
++
++#[test]
++fn snapshot_watch_recovery_preserves_persistent_capability_failures() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    fs.insert("/sibling/package.json".into(), "{}");
++    let service = Service::new(&fs, true);
++    let workspace = service.server.with_db_state(&service.db);
++    let sibling = workspace
++        .open_project(OpenProjectParams {
++            path: BiomePath::new("/sibling"),
++            open_uninitialized: true,
++        })
++        .unwrap()
++        .project_key;
++    service.db.analysis.record_watch_failure(
++        Some(service.project),
++        Some(Utf8Path::new("/project")),
++        "cannot register watch".into(),
++    );
++    let request = super::ProjectAnalysisRequest::default();
++    assert!(has_watch_gap(&service.snapshot(&request)));
++    assert!(
++        !has_watch_gap(&workspace.build_project_snapshot(sibling, &request).unwrap()),
++        "scoped capability failure must not contaminate disjoint sibling"
++    );
++    fs.insert("/project/index.ts".into(), "export const changed = 2;");
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "full reacquisition cannot repair watch registration"
++    );
++    service
++        .db
++        .analysis
++        .record_watch_failure(None, None, "watcher stopped".into());
++    assert!(has_watch_gap(
++        &workspace.build_project_snapshot(sibling, &request).unwrap()
++    ));
++}
++
++#[test]
++fn snapshot_watch_recovery_requires_acquiring_known_external_error_path() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    fs.insert("/external/value.ts".into(), "export const external = 1;");
++    let service = Service::new(&fs, true);
++    service.db.analysis.record_watch_input_error(
++        service.project,
++        Utf8Path::new("/external/value.ts"),
++        "external event failed".into(),
++    );
++    let request = super::ProjectAnalysisRequest::default();
++    assert!(
++        has_watch_gap(&service.snapshot(&request)),
++        "project ownership alone cannot prove an external error was reconciled"
++    );
++    fs.insert("/project/index.ts".into(), "import '/external/value';");
++    assert!(!has_watch_gap(&service.snapshot(&request)));
++    equivalent(&service, &fs, true, &request);
++}
+diff --git a/crates/biome_service/src/scanner/watcher.rs b/crates/biome_service/src/scanner/watcher.rs
+index 09dbee8f1ef..3b26b0434b1 100644
+--- a/crates/biome_service/src/scanner/watcher.rs
++++ b/crates/biome_service/src/scanner/watcher.rs
+@@ -220,13 +220,13 @@ impl Watcher {
+                     }
+                     Ok(Err(error)) => {
+                         // TODO: Improve error propagation.
+-                        workspace.analysis_error(error.to_string());
++                        workspace.analysis_error(None, None, error.to_string());
+                         warn!("Watcher error: {error}");
+                         break;
+                     },
+                     Err(_) => {
+                         // TODO: Improve error propagation.
+-                        workspace.analysis_error("Watcher stopped unexpectedly".into());
++                        workspace.analysis_error(None, None, "Watcher stopped unexpectedly".into());
+                         warn!("Watcher stopped unexpectedly");
+                         break;
+                     }
+@@ -269,6 +269,7 @@ impl Watcher {
+             return vec![];
+         };
+ 
++        let error_paths = paths.clone();
+         let result = match event.kind {
+             EventKind::Access(_) => Ok(vec![]),
+             EventKind::Create(create_kind) => match create_kind {
+@@ -315,7 +316,11 @@ impl Watcher {
+         };
+         result.unwrap_or_else(|error| {
+             // TODO: improve error propagation
+-            workspace.analysis_error(error.to_string());
++            for path in &error_paths {
++                if let Some(project) = workspace.find_project_for_path(path) {
++                    workspace.analysis_input_error(project, path, error.to_string());
++                }
++            }
+             warn!("Error processing watch event: {error}");
+             vec![]
+         })
+@@ -336,7 +341,11 @@ impl Watcher {
+                         match workspace.is_ignored(project_key, &scan_kind, &path, None) {
+                             Ok(is_ignored) => (!is_ignored).then_some(path),
+                             Err(error) => {
+-                                workspace.analysis_error(error.to_string());
++                                workspace.analysis_input_error(
++                                    project_key,
++                                    &path,
++                                    error.to_string(),
++                                );
+                                 None
+                             }
+                         }
+@@ -458,7 +467,7 @@ impl Watcher {
+ 
+         if let Err(error) = workspace.index_file(project_key, path) {
+             // TODO: Improve error propagation.
+-            workspace.analysis_error(error.to_string());
++            workspace.analysis_input_error(project_key, path, error.to_string());
+             warn!("Error re-indexing path {path}: {error}");
+         }
+     }
+@@ -470,6 +479,7 @@ impl Watcher {
+         paths: FxHashSet<Utf8PathBuf>,
+     ) {
+         if let Some(mut watcher_paths) = self.watcher.as_mut().map(|w| w.paths_mut()) {
++            let affected_paths: Vec<_> = paths.iter().cloned().collect();
+             for path in paths {
+                 let std_path = path.as_std_path();
+                 if !workspace.insert_watched_folder(path.clone()) {
+@@ -478,14 +488,27 @@ impl Watcher {
+ 
+                 if let Err(error) = watcher_paths.add(std_path, RecursiveMode::NonRecursive) {
+                     // TODO: Improve error propagation.
+-                    workspace.analysis_error(error.to_string());
++                    workspace.analysis_error(
++                        workspace.find_project_for_path(&path),
++                        Some(&path),
++                        error.to_string(),
++                    );
+                     warn!("Error watching path {path}: {error}");
+                 }
+             }
+ 
+             if let Err(error) = watcher_paths.commit() {
+                 // TODO: Improve error propagation.
+-                workspace.analysis_error(error.to_string());
++                if affected_paths.is_empty() {
++                    workspace.analysis_error(None, None, error.to_string());
++                }
++                for path in &affected_paths {
++                    workspace.analysis_error(
++                        workspace.find_project_for_path(path),
++                        Some(path),
++                        error.to_string(),
++                    );
++                }
+                 warn!("Error committing the watched paths: {error}");
+             }
+         }
+@@ -498,7 +521,11 @@ impl Watcher {
+                 if watched_path.starts_with(path.as_std_path()) {
+                     if let Err(error) = watcher_paths.remove(watched_path.as_std_path()) {
+                         // TODO: Improve error propagation.
+-                        workspace.analysis_error(error.to_string());
++                        workspace.analysis_error(
++                            workspace.find_project_for_path(watched_path),
++                            Some(watched_path),
++                            error.to_string(),
++                        );
+                         warn!("Error unwatching path {}: {error}", watched_path);
+                     }
+                     true
+@@ -509,7 +536,11 @@ impl Watcher {
+ 
+             if let Err(error) = watcher_paths.commit() {
+                 // TODO: Improve error propagation.
+-                workspace.analysis_error(error.to_string());
++                workspace.analysis_error(
++                    workspace.find_project_for_path(&path),
++                    Some(&path),
++                    error.to_string(),
++                );
+                 warn!("Error committing the watched paths: {error}");
+             }
+         }
+diff --git a/crates/biome_service/src/scanner/workspace_bridges.rs b/crates/biome_service/src/scanner/workspace_bridges.rs
+index 52c0f3c02f7..ea3871948c5 100644
+--- a/crates/biome_service/src/scanner/workspace_bridges.rs
++++ b/crates/biome_service/src/scanner/workspace_bridges.rs
+@@ -15,7 +15,16 @@ pub(crate) trait WorkspaceScannerBridge: Send + Sync + RefUnwindSafe {
+     fn with_analysis_mutation<R>(&self, operation: impl FnOnce() -> R) -> R {
+         operation()
+     }
+-    fn analysis_error(&self, _reason: String) {}
++    /// Retains watcher capability failures that a source acquisition cannot repair.
++    fn analysis_error(
++        &self,
++        _project: Option<ProjectKey>,
++        _path: Option<&Utf8Path>,
++        _reason: String,
++    ) {
++    }
++    /// Records an input operation that a completed acquisition can reconcile.
++    fn analysis_input_error(&self, _project: ProjectKey, _path: &Utf8Path, _reason: String) {}
+     /// Returns a reference to the [`FileSystem`].
+     fn fs(&self) -> &dyn FileSystem;
+ 
+@@ -138,7 +147,16 @@ pub trait WorkspaceWatcherBridge {
+     fn with_analysis_mutation<R>(&self, operation: impl FnOnce() -> R) -> R {
+         operation()
+     }
+-    fn analysis_error(&self, _reason: String) {}
++    /// Retains watcher capability failures that a source acquisition cannot repair.
++    fn analysis_error(
++        &self,
++        _project: Option<ProjectKey>,
++        _path: Option<&Utf8Path>,
++        _reason: String,
++    ) {
++    }
++    /// Records an input operation that a completed acquisition can reconcile.
++    fn analysis_input_error(&self, _project: ProjectKey, _path: &Utf8Path, _reason: String) {}
+     /// Returns a reference to the [`FileSystem`].
+     fn fs(&self) -> &dyn FileSystem;
+ 
+@@ -244,8 +262,11 @@ where
+     fn with_analysis_mutation<R>(&self, operation: impl FnOnce() -> R) -> R {
+         self.workspace.with_analysis_mutation(operation)
+     }
+-    fn analysis_error(&self, reason: String) {
+-        self.workspace.analysis_error(reason);
++    fn analysis_error(&self, project: Option<ProjectKey>, path: Option<&Utf8Path>, reason: String) {
++        self.workspace.analysis_error(project, path, reason);
++    }
++    fn analysis_input_error(&self, project: ProjectKey, path: &Utf8Path, reason: String) {
++        self.workspace.analysis_input_error(project, path, reason);
+     }
+ 
+     #[inline]
+diff --git a/crates/biome_service/src/workspace/server.rs b/crates/biome_service/src/workspace/server.rs
+index 3379f958a85..a2f3bbd6ab1 100644
+--- a/crates/biome_service/src/workspace/server.rs
++++ b/crates/biome_service/src/workspace/server.rs
+@@ -4463,8 +4463,18 @@ impl WorkspaceScannerBridge for WorkspaceServerWithDb<'_> {
+         let _analysis = self.db_state.analysis.mutation();
+         operation()
+     }
+-    fn analysis_error(&self, reason: String) {
+-        self.db_state.analysis.record_watch_error(reason);
++    fn analysis_error(&self, project: Option<ProjectKey>, path: Option<&Utf8Path>, reason: String) {
++        let path =
++            path.map(|path| crate::project_analysis::canonical_watch_path(self.fs.as_ref(), path));
++        self.db_state
++            .analysis
++            .record_watch_failure(project, path.as_deref(), reason);
++    }
++    fn analysis_input_error(&self, project: ProjectKey, path: &Utf8Path, reason: String) {
++        let path = crate::project_analysis::canonical_watch_path(self.fs.as_ref(), path);
++        self.db_state
++            .analysis
++            .record_watch_input_error(project, &path, reason);
+     }
+ 
+     #[inline]
+@@ -4764,8 +4774,12 @@ impl WorkspaceScannerBridge for LocalWorkspace {
+     fn with_analysis_mutation<R>(&self, operation: impl FnOnce() -> R) -> R {
+         self.as_workspace().with_analysis_mutation(operation)
+     }
+-    fn analysis_error(&self, reason: String) {
+-        self.as_workspace().analysis_error(reason);
++    fn analysis_error(&self, project: Option<ProjectKey>, path: Option<&Utf8Path>, reason: String) {
++        self.as_workspace().analysis_error(project, path, reason);
++    }
++    fn analysis_input_error(&self, project: ProjectKey, path: &Utf8Path, reason: String) {
++        self.as_workspace()
++            .analysis_input_error(project, path, reason);
+     }
+ 
+     #[inline]

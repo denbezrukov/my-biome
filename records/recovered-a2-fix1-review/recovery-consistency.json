@@ -1,0 +1,44 @@
+[
+  {
+    "original_path": "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+    "base_blob_sha1_from_reverse_packet": "7275808a6ee00f134855bc97dcb7e6f9e44530f4",
+    "head_blob_sha1": "4a562b99c926e5fc2f12d3d00d0a428f79cd8513",
+    "original_diff_base_prefix": "7275808a6ee",
+    "original_diff_head_prefix": "4a562b99c92",
+    "head_prefix_matches": true,
+    "packet_context_mismatches": []
+  },
+  {
+    "original_path": "crates/biome_package/tests/project_metadata.rs",
+    "base_blob_sha1_from_reverse_packet": "c703afcf068520f466028fcd9e82d7b858deb516",
+    "head_blob_sha1": "780cb544673b869b95cedff9fe78509359936d2c",
+    "original_diff_base_prefix": "c703afcf068",
+    "original_diff_head_prefix": "780cb544673",
+    "head_prefix_matches": true,
+    "packet_context_mismatches": []
+  },
+  {
+    "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+    "base_blob_sha1_from_reverse_packet": "9beaed1fe0bd7892281af26eb4818c75b3fb9f62",
+    "head_blob_sha1": "5b53b50eb26d3ae3b585c9da6e90700f03431ca9",
+    "original_diff_base_prefix": "9beaed1fe0b",
+    "original_diff_head_prefix": "5b53b50eb26",
+    "head_prefix_matches": true,
+    "packet_context_mismatches": []
+  },
+  {
+    "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+    "base_blob_sha1_from_reverse_packet": null,
+    "head_blob_sha1": "f1b8b1e17192496d4ba36dea0d1b3279aec9d24b",
+    "original_diff_base_prefix": "02bfa8edb97",
+    "original_diff_head_prefix": "f1b8b1e1719",
+    "head_prefix_matches": true,
+    "packet_context_mismatches": [
+      {
+        "head_line": 234,
+        "retained_packet_text": "                            members: {},",
+        "blob_verified_source_text": "                            },"
+      }
+    ]
+  }
+]

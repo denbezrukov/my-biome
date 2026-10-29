@@ -1,0 +1,31 @@
+        &mut result,
+    );
+    result.into_iter().collect()
+}
+fn select(
+    capture: &mut Capture,
+    config: &EffectiveConfig,
+    program: bool,
+    files: &[Utf8PathBuf],
+    visited: &mut BTreeSet<Utf8PathBuf>,
+    result: &mut BTreeMap<Utf8PathBuf, Location>,
+) {
+    if !config.exists || !config.valid || !visited.insert(config.path.clone()) {
+        return;
+    }
+    let base = config.path.parent().unwrap();
+    if let Some(explicit) = &config.files {
+        for path in &explicit.patterns {
+            let path = paths::join(&explicit.base, path);
+            let location = Location {
+                file: explicit.file,
+                range: explicit.range,
+            };
+            if capture.fs.path_is_file(&path) {
+                result.insert(path, location);
+            } else {
+                capture.gap(
+                    "tsconfig files",
+                    format!("Missing program input {path}"),
+                    Some(location),
+                );

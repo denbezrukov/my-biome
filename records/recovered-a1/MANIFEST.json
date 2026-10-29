@@ -1,0 +1,717 @@
+{
+  "recovery_date": "2026-10-29",
+  "agent": "/root/project_a1_implement",
+  "source": "surviving original agent conversation, not current repository contents",
+  "scope": "Recovery only; no recovered command executed, no task rerun, no build/install/publish, no /workspace/my-biome modifications, no children.",
+  "original_base": "6359a9b03670e85b50785d59d10eb087cf89fe3f",
+  "original_initial_commit": "3d051362dd431c1206c97074664f4c91089e15ff",
+  "original_head": "b292e878464503e93cba3f1d47a10be6e5e3dc41",
+  "original_branch": "feat/native-project-analysis",
+  "completeness": "Partial. All 51 committed product paths are accounted for below. No original Git commit object is recreated. Missing byte payloads remain missing.",
+  "chronological_command_excerpt_order": [
+    "commands/010-reference-tree.sh.txt",
+    "commands/020-reference-sources.sh.txt",
+    "commands/030-reference-inventory.sh.txt",
+    "commands/040-oracle-fixtures-and-lock.sh.txt",
+    "commands/080-reviewed-oracle-expectations.sh.txt",
+    "commands/100-clippy-and-test-module-order.sh.txt",
+    "commands/110-artifact-clippy-fix.sh.txt",
+    "commands/140-evidence-identity-fix.sh.txt",
+    "commands/150-reference-title-correction.sh.txt",
+    "commands/160-license-resolution.sh.txt"
+  ],
+  "order_note": "Numbered files preserve relative original tool-call order. They are selected original excerpts, not a complete executable replay. Full source snapshots represent explicitly named original states; do not apply every excerpt to every final snapshot.",
+  "diff_order": [
+    "diffs/initial-Cargo.diff.txt",
+    "diffs/round1-ownership.diff.txt"
+  ],
+  "known_original_hashes": {
+    "knip_source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+    "knip_archive_url": "https://registry.npmjs.org/knip/-/knip-6.43.0.tgz",
+    "knip_archive_bytes": 340467,
+    "knip_archive_sri": "sha512-8l3cCOg/EXoILO0qcSoMra49yQM91+lEIR4fu5Ko8rrArGX8xKdKZiGI9psPiY6rhLmfLERcMfFEByF0wli5CA==",
+    "npm_dependency_lock_sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74",
+    "knip_entry_executable_sha256": "53e4293b8109ecbeb3955ee4ce138d99cb6a2358fa3c547f4e916d6459a36003",
+    "node_executable_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "node_version": "v24.19.0",
+    "corrupted_archive_sha256": "2bd34cddb8a60634499f0804b8fea1bd8ed3b3bf27a00f5f81e54381d7bd3047",
+    "fixture_digests": {
+      "orphan-file": "c7b68fb5910d416904543440c98a1004f9b81962af88966aa0437f5ace4f79d2",
+      "namespace-known-key": "e972963faa977a8898de88ba12de4faeb21152bac2788e6b51e394bcec4424a7",
+      "production-defaults": "55986e52a7c0b2a9071867cf6ac9d1c39158ffb78ad5de44351da134e8ca64f7"
+    }
+  },
+  "recovery_copy_check": {
+    "file": "snapshots/contracts.rs.initial-commit-final.txt",
+    "retained_original_git_blob_prefix": "b416111c945",
+    "git_blob_calculated_from_recovered_copy": "b416111c9455973c0c42499c5e08e54daff9ce2d",
+    "prefix_matches": true,
+    "note": "Only this original source blob prefix was independently checked. Recovery SHA-256 values below identify saved evidence bytes, not an assertion of unknown original hashes."
+  },
+  "task_documents": {
+    "brief": "task-documents/task-A1-brief.original.txt",
+    "initial_report_body_excerpt": "task-documents/task-A1-report.initial-body-excerpt.original.txt",
+    "round1_report_append": "task-documents/task-A1-report.round1-append.original.txt",
+    "limitations": "Initial report body is the exact original writing-command literal before the final SHA/status replacement and generated changed-files list. Later license-report amendment is retained in command 160. Report excerpts are separate from product source evidence."
+  },
+  "products": [
+    {
+      "original_path": "Cargo.toml",
+      "coverage": "exact_original_git_diff",
+      "evidence": [
+        "diffs/initial-Cargo.diff.txt"
+      ],
+      "original_git_blob_before_prefix": "51697ddbc2c",
+      "original_git_blob_after_prefix": "e23e9780875"
+    },
+    {
+      "original_path": "Cargo.lock",
+      "coverage": "exact_original_git_diff",
+      "evidence": [
+        "diffs/initial-Cargo.diff.txt"
+      ],
+      "original_git_blob_before_prefix": "e62d41d2577",
+      "original_git_blob_after_prefix": "119f104d79c"
+    },
+    {
+      "original_path": "crates/biome_project_analysis/Cargo.toml",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/analysis-Cargo.toml.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/lib.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/lib.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/coverage.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/coverage.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/inventory.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/inventory.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/model.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/model.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/normalize.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/normalize.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/options.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/options.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/src/result.rs",
+      "coverage": "intermediate_snapshot_and_exact_later_edit",
+      "evidence": [
+        "snapshots/result.rs.before-evidence-fix.txt",
+        "commands/140-evidence-identity-fix.sh.txt"
+      ],
+      "limitation": "Final source was not synthesized; later original command also edits other files and invokes verification. Do not execute it blindly."
+    },
+    {
+      "original_path": "crates/biome_project_analysis/tests/contracts.rs",
+      "coverage": "full_initial_commit_snapshot_and_exact_final_diff",
+      "evidence": [
+        "snapshots/contracts.rs.initial-commit-final.txt",
+        "diffs/round1-ownership.diff.txt"
+      ],
+      "original_initial_git_blob_prefix": "b416111c945",
+      "original_final_git_blob_prefix": "fc51184f6c0"
+    },
+    {
+      "original_path": "crates/biome_project_analysis/tests/support/mod.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/support-mod.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/tests/fixtures/empty.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/empty.json.final.txt"
+      ]
+    },
+    {
+      "original_path": "crates/biome_project_analysis/tests/fixtures/empty.expected.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/empty.expected.json.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/.gitignore",
+      "coverage": "exact_original_source_literal_in_command",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/Cargo.toml",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/xtask-Cargo.toml.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/README.md",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/README.md.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/compatibility.json",
+      "coverage": "original_generator_with_missing_inputs",
+      "evidence": [
+        "commands/030-reference-inventory.sh.txt"
+      ],
+      "missing_inputs": [
+        "original reference/sources.json",
+        "original reference/inventory.md"
+      ],
+      "limitation": "Complete final JSON was not saved or generated during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/expectations/oracle/orphan-file.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "limitation": "Final JSON byte formatting was not synthesized. Original command also reads pending observations and invokes the oracle."
+    },
+    {
+      "original_path": "xtask/project_analysis/expectations/oracle/namespace-known-key.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "limitation": "Final JSON byte formatting was not synthesized. Original command also reads pending observations and invokes the oracle."
+    },
+    {
+      "original_path": "xtask/project_analysis/expectations/oracle/production-defaults.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/080-reviewed-oracle-expectations.sh.txt"
+      ],
+      "limitation": "Final JSON byte formatting was not synthesized. Original command also reads pending observations and invokes the oracle."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/orphan-file/index.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/orphan-file/knip.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/orphan-file/orphan.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/orphan-file/package.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/namespace-known-key/index.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/namespace-known-key/knip.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/namespace-known-key/opaque.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/namespace-known-key/package.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/namespace-known-key/values.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/production-defaults/knip.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/production-defaults/package.json",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/production-defaults/src/index.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/production-defaults/src/orphan.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/fixtures/production-defaults/src/values.ts",
+      "coverage": "exact_original_generator_all_authored_values_retained",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ],
+      "limitation": "No generated fixture file was synthesized during recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/observations/orphan-file.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/orphan-file.observation.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/observations/namespace-known-key.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/namespace-known-key.observation.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/observations/production-defaults.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/production-defaults.observation.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/observations/corrupt-artifact.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/corrupt-artifact.observation.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/oracle/package.json",
+      "coverage": "exact_original_source_literal_in_command",
+      "evidence": [
+        "commands/040-oracle-fixtures-and-lock.sh.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/oracle/package-lock.json",
+      "coverage": "missing_original_bytes_hash_retained",
+      "evidence": [
+        "snapshots/oracle-identity.json.final.txt"
+      ],
+      "original_sha256": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74",
+      "original_line_count": 927,
+      "limitation": "The full lock was never printed in this agent context. Do not replace it with a newly resolved lock and claim exact recovery."
+    },
+    {
+      "original_path": "xtask/project_analysis/oracle/identity.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/oracle-identity.json.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/oracle/validation.json",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/oracle-validation.json.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/reference/LICENSE.knip",
+      "coverage": "full_final_source_text_from_printed_output",
+      "evidence": [
+        "snapshots/LICENSE.knip.final.txt",
+        "commands/160-license-resolution.sh.txt"
+      ],
+      "provenance_note": "Original print(data.decode()) added one output newline; that print terminator is excluded from the source text snapshot."
+    },
+    {
+      "original_path": "xtask/project_analysis/reference/additional-sources.json",
+      "coverage": "original_generators_with_missing_input_bytes",
+      "evidence": [
+        "commands/020-reference-sources.sh.txt",
+        "commands/030-reference-inventory.sh.txt",
+        "commands/160-license-resolution.sh.txt"
+      ],
+      "limitation": "Original fetched.json and final full JSON were not printed completely. Pinned fetch paths and generation order retained."
+    },
+    {
+      "original_path": "xtask/project_analysis/reference/inventory.md",
+      "coverage": "missing_complete_original_bytes",
+      "evidence": [
+        "commands/030-reference-inventory.sh.txt"
+      ],
+      "original_source_path": "/workspace/.biome-cloud/knip-design/parity-inventory.md",
+      "limitation": "Original copy command retained; complete 190-line document not saved in this recovery bundle. Partial source text existed in the conversation."
+    },
+    {
+      "original_path": "xtask/project_analysis/reference/sources.json",
+      "coverage": "missing_complete_original_bytes",
+      "evidence": [
+        "commands/030-reference-inventory.sh.txt"
+      ],
+      "original_source_path": "/workspace/.biome-cloud/knip-design/sources.json",
+      "limitation": "Original copy command retained; long tool output was truncated, so complete original 602-line JSON is unavailable here."
+    },
+    {
+      "original_path": "xtask/project_analysis/reference/tests.json",
+      "coverage": "original_generators_and_exact_corrections_with_missing_inputs",
+      "evidence": [
+        "commands/010-reference-tree.sh.txt",
+        "commands/020-reference-sources.sh.txt",
+        "commands/030-reference-inventory.sh.txt",
+        "commands/150-reference-title-correction.sh.txt",
+        "diffs/round1-ownership.diff.txt"
+      ],
+      "original_initial_git_blob_prefix": "a07cd5bf773",
+      "original_final_git_blob_prefix": "c1cc14c60b6",
+      "missing_inputs": [
+        "complete original GitHub recursive tree response bytes and its SHA-256",
+        "complete original fetched source metadata"
+      ],
+      "limitation": "No 828-row inventory was guessed or regenerated."
+    },
+    {
+      "original_path": "xtask/project_analysis/src/main.rs",
+      "coverage": "full_final_source_snapshot",
+      "evidence": [
+        "snapshots/main.rs.final.txt"
+      ]
+    },
+    {
+      "original_path": "xtask/project_analysis/src/artifact.rs",
+      "coverage": "intermediate_snapshot_and_exact_later_edits",
+      "evidence": [
+        "snapshots/artifact.rs.before-clippy.txt",
+        "commands/100-clippy-and-test-module-order.sh.txt",
+        "commands/110-artifact-clippy-fix.sh.txt"
+      ],
+      "limitation": "Original just f invocations are recorded; final formatted bytes were not synthesized."
+    },
+    {
+      "original_path": "xtask/project_analysis/src/conformance.rs",
+      "coverage": "intermediate_snapshot_and_exact_later_edit",
+      "evidence": [
+        "snapshots/conformance.rs.before-test-module-move.txt",
+        "commands/100-clippy-and-test-module-order.sh.txt"
+      ],
+      "limitation": "Original just f invocations are recorded; final formatted bytes were not synthesized."
+    }
+  ],
+  "saved_evidence_files": [
+    {
+      "path": "README.md",
+      "bytes": 1514,
+      "sha256": "991bb0ae8a154428da3d33910a088c58bb9e2cb1c07db3cfc88ca077d7ae9f09",
+      "provenance": "new recovery bookkeeping"
+    },
+    {
+      "path": "commands/010-reference-tree.sh.txt",
+      "bytes": 533,
+      "sha256": "fea33c42f3cf2254fac5131c3f6bd12491e8dc831c6875ae0b46f39559650f7b",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/020-reference-sources.sh.txt",
+      "bytes": 2108,
+      "sha256": "56521acb02f39c51780a1abab765a591c685434fe578943afb6bd1e0da2451b4",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/030-reference-inventory.sh.txt",
+      "bytes": 5447,
+      "sha256": "789d1cfb6266b28b0e3cb1a91a807d6c74f93e3fb245b510be36174ebf4972ca",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/040-oracle-fixtures-and-lock.sh.txt",
+      "bytes": 2349,
+      "sha256": "201f63841a1d9bfecc14219fcbbf3958296f3b1bd30a46f24e14c40bdcccfdbc",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/080-reviewed-oracle-expectations.sh.txt",
+      "bytes": 2051,
+      "sha256": "221edcee31743672dd4275f53e7b28cb16f6d8927dc08eafbd2f5ab13aa519c3",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/100-clippy-and-test-module-order.sh.txt",
+      "bytes": 814,
+      "sha256": "87b1132839fedda22645ed6b98b206d5922c9c7117970c03f0be4e47d8963801",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/110-artifact-clippy-fix.sh.txt",
+      "bytes": 591,
+      "sha256": "a4dcbc2202c5b2f0b6899da4c0187e255ef085dc07306daf7b5304835fdeb438",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/140-evidence-identity-fix.sh.txt",
+      "bytes": 3575,
+      "sha256": "9615f693cb4ee6527217cc27c43a20b4916c65ad5285a21bea9ea85d40c9e4e2",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/150-reference-title-correction.sh.txt",
+      "bytes": 725,
+      "sha256": "5026eddab3b2b4131a2ba8ad33b91de43a168a5edb4821bfae6370900aaf1f14",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "commands/160-license-resolution.sh.txt",
+      "bytes": 1621,
+      "sha256": "3d870cc6cf0e1f262316a1dbf6c37c1049cadc819a3d28ed85d8c62e5a9a0ea5",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "diffs/initial-Cargo.diff.txt",
+      "bytes": 5029,
+      "sha256": "3d45f30129c4e9792b8ce7298ccd527fcf81e25249371e29128032888ed5d1a1",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "diffs/round1-ownership.diff.txt",
+      "bytes": 4074,
+      "sha256": "afc22cc295f79b529dc282a921a70342e36302cf3a506be5be4af962df5b751b",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/LICENSE.knip.final.txt",
+      "bytes": 750,
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/README.md.final.txt",
+      "bytes": 4618,
+      "sha256": "74783f096d6b50c3b55c6e362883a1a00b4d16144f6ea93afe54233d5e078499",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/analysis-Cargo.toml.final.txt",
+      "bytes": 448,
+      "sha256": "e717bc4fbce0898f9e9dcc8539a0c8e16604eb0971f8c87e67b63b2a855be6c3",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/artifact.rs.before-clippy.txt",
+      "bytes": 7848,
+      "sha256": "91e31a76f9af19bda37bdec7fd1653897c5e278e365fd8744e2b3597602f91b5",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/conformance.rs.before-test-module-move.txt",
+      "bytes": 10935,
+      "sha256": "f321a6e07e1fe68a18e7752377bdf3d634fe8e6469145724e68c38d7fa763c2a",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/contracts.rs.initial-commit-final.txt",
+      "bytes": 9867,
+      "sha256": "02e079d965bc774fcc2de66ba83c13b7cc5c4d4fe7478b2ff0d56f0668ef021d",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/corrupt-artifact.observation.final.txt",
+      "bytes": 633,
+      "sha256": "ba26190b91538f0d388c7757abcb8c9a428a0b441ec2889a1e05c305df3567b6",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/coverage.rs.final.txt",
+      "bytes": 1224,
+      "sha256": "9532eed21ca766a90eb371c5f74aeb45d7a33bf9eae760837cdd8e43e170a686",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/empty.expected.json.final.txt",
+      "bytes": 74,
+      "sha256": "570d6eb352b98effae4be99883b4a13d303332821dacfb2beedb2f56856c943f",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/empty.json.final.txt",
+      "bytes": 399,
+      "sha256": "a8034f8d4d435abe04ebbea3eb67f54c1cc1c9ad6fbe0c1aff540b6506af8167",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/inventory.rs.final.txt",
+      "bytes": 2163,
+      "sha256": "b9779798e5752035be1018a855df99edcd24d6e86b583057db4f82bd8ffe1e92",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/lib.rs.final.txt",
+      "bytes": 197,
+      "sha256": "a612449283da8c65ff17bff66904cf6dc53a4354e2f29f88ef6ae2e8f8ef881f",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/main.rs.final.txt",
+      "bytes": 1242,
+      "sha256": "0d5418ca449ef725617a48964bc4239cbc0a8729a11f33e8b0006749893f5be2",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/model.rs.final.txt",
+      "bytes": 3709,
+      "sha256": "5e9c83b4564641b9400c59345ded34f869cb10c3b7909be83f57e20c4dc71921",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/namespace-known-key.observation.final.txt",
+      "bytes": 3055,
+      "sha256": "728bec8599818cc9df6630d90eaf2997f531d1721412f48af8e7a3cbb2f400d5",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/normalize.rs.final.txt",
+      "bytes": 4548,
+      "sha256": "3eac231c48fc9fc2f60d87d434fdb8c1004038445b829ff703a58366434f27be",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/options.rs.final.txt",
+      "bytes": 3031,
+      "sha256": "c3a157dc554f1a786de010ddf4cc26cf4cc0cb11c5688f4f01ae134ee5045f20",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/oracle-identity.json.final.txt",
+      "bytes": 290,
+      "sha256": "c3bf1c2a6910a55fc2cc86708959b329323b773566e0194d8dcad83bbc09c3b3",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/oracle-validation.json.final.txt",
+      "bytes": 903,
+      "sha256": "ae111a9db187c0d59bd070e3f84fc55f377c14d49c13b1200343f7a03865e28a",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/orphan-file.observation.final.txt",
+      "bytes": 2907,
+      "sha256": "11b20d1fe14d994702b75a56b038ac02c8fdfae21cce1aa95a258af2a960a1db",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/production-defaults.observation.final.txt",
+      "bytes": 4138,
+      "sha256": "7c0fde73f45a7f2b9feeb1f04bdbb188ca5e1b348d5c402dd98766bbcd81f439",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/result.rs.before-evidence-fix.txt",
+      "bytes": 3063,
+      "sha256": "f5b22f743012498c490fe35ab968f272cccc025e0267a80e452b7bc65c735b84",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/support-mod.rs.final.txt",
+      "bytes": 674,
+      "sha256": "cd6490f37cfc8831d728b16febf44961d790a6ca0f4c80565aed1845aee9c985",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "snapshots/xtask-Cargo.toml.final.txt",
+      "bytes": 453,
+      "sha256": "5caba8155456aacebad9b14959fb265c35da331c5604add8501d27d58125a764",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "task-documents/task-A1-brief.original.txt",
+      "bytes": 13537,
+      "sha256": "728c4ed24b834ffcdd9037637d69c353fa139e53b3f3559410f10bbec39dd06c",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "task-documents/task-A1-report.initial-body-excerpt.original.txt",
+      "bytes": 8981,
+      "sha256": "2208a85a89c8f8c51ad46d2118fda22db23c1782b37ae6175bee84ff1fd22ed6",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    },
+    {
+      "path": "task-documents/task-A1-report.round1-append.original.txt",
+      "bytes": 2205,
+      "sha256": "25e7ee2f85270d91ea391251cfe15c4d1c1b2599af447fb8c79cbef737418892",
+      "provenance": "exact retained original conversation text; see product coverage and chronological records"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+python3 - <<'PY'
+from pathlib import Path
+import json,urllib.request,hashlib,concurrent.futures
+p=Path('/tmp/knip-a1-reference');sha='07121567e60b73d1e640f395028c525a2b1d9778'
+paths=['packages/knip/src/schema/configuration.ts','packages/knip/src/util/cli-arguments.ts','packages/knip/src/util/get-included-issue-types.ts','packages/knip/src/reporters/json.ts','packages/knip/LICENSE','packages/knip/package.json']
+selected=['entry/files','entry/empty-main','entry/package-entry-points-null-subpath','entry/package-entry-points-gitignored','entry/package-entry-bare','entry/include-entry-exports-scripts','exports/basic','exports/duplicate-exports-alias','imports/namespace','imports/namespace-with-nsexports','imports/opaque','namespaces/shadow-false-negative','namespaces/namespace-enumerated','types/enum-members-enumerated','types/skip-exports-analysis','re-exports/ambiguous-barrel','dependencies/basic','dependencies/peer-dependencies-optional-ignored','dependencies/binary-provider-collision','dependencies/declaration-dependencies','dependencies/catalog.package-json','dependencies/catalog.pnpm','imports/circular-dependencies','resolution/url-import-meta-url','resolution/worker-path-join','util/get-inputs-from-scripts','util/get-included-issue-types','util/package-json','ignore/files','ignore/issues','tags-hints/tag-suppresses-members','tags-hints/stale-internal-tag','workspaces/workspace-sibling-undeclared','workspaces/type-only-dev-dependencies']
+paths += ['packages/knip/test/'+s+'.test.ts' for s in selected]
+def fetch(path):
+ url=f'https://raw.githubusercontent.com/webpro-nl/knip/{sha}/{path}'
+ try: data=urllib.request.urlopen(url).read()
+ except Exception as e:return {'path':path,'error':str(e)}
+ (p/path.replace('/','_')).write_bytes(data)
+ return {'path':path,'url':url,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)}
+results=list(concurrent.futures.ThreadPoolExecutor(max_workers=8).map(fetch,paths));(p/'fetched.json').write_text(json.dumps(results,indent=2));print(json.dumps([x for x in results if 'error' in x]));print('Retrieved',len(results),'pinned sources')
+PY

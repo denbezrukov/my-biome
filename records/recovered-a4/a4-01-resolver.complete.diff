@@ -1,0 +1,807 @@
+diff --git a/crates/biome_resolver/src/db.rs b/crates/biome_resolver/src/db.rs
+index 52b6735ed93..6a835c4dc4a 100644
+--- a/crates/biome_resolver/src/db.rs
++++ b/crates/biome_resolver/src/db.rs
+@@ -20,7 +20,7 @@
+ 
+ use biome_db::{Db, ParsedSource};
+ use biome_fs::is_node_modules_path;
+-use biome_package::{Manifest, PackageJson, TsConfigJson};
++use biome_package::{PackageJson, TsConfigJson};
+ use biome_rowan::Language;
+ use camino::{Utf8Path, Utf8PathBuf};
+ use enumflags2::{BitFlags, bitflags};
+@@ -28,7 +28,10 @@ use papaya::{HashMap, HashSet};
+ use salsa::{Durability, Setter};
+ use std::sync::Arc;
+ 
+-use crate::{PathInfo, ResolveError, ResolverFsProxy};
++use crate::resolver_fs_proxy::ResolverManifest;
++use crate::{
++    ManifestDiagnostic, ManifestQuality, ManifestRead, PathInfo, ResolveError, ResolverFsProxy,
++};
+ 
+ /// Provides the path info used by resolver queries.
+ #[salsa::db]
+@@ -267,6 +270,46 @@ impl<'db> ResolverDbAdapter<'db> {
+ }
+ 
+ impl ResolverFsProxy for ResolverDbAdapter<'_> {
++    fn find_package_json_with_quality(
++        &self,
++        search_dir: &Utf8Path,
++    ) -> Result<(Utf8PathBuf, ManifestRead<PackageJson>), ResolveError> {
++        let package = package_json_for_directory(self.db, self.path_data(search_dir))
++            .ok_or(ResolveError::ManifestNotFound)?;
++        let data = package.manifest(self.db);
++        Ok((
++            package.path(self.db).clone(),
++            ManifestRead {
++                manifest: data.manifest(self.db).clone(),
++                quality: data.quality(self.db).clone(),
++            },
++        ))
++    }
++
++    fn read_package_json_with_quality(
++        &self,
++        dir_path: &Utf8Path,
++    ) -> Result<ManifestRead<PackageJson>, ResolveError> {
++        let data = package_json_for_path(self.db, self.path_data(&dir_path.join("package.json")))
++            .ok_or(ResolveError::ErrorLoadingManifest)?;
++        Ok(ManifestRead {
++            manifest: data.manifest(self.db).clone(),
++            quality: data.quality(self.db).clone(),
++        })
++    }
++
++    fn read_tsconfig_json_with_quality(
++        &self,
++        path: &Utf8Path,
++    ) -> Result<ManifestRead<TsConfigJson>, ResolveError> {
++        let data = tsconfig_json_for_path(self.db, self.path_data(path))
++            .ok_or(ResolveError::ErrorLoadingManifest)?;
++        Ok(ManifestRead {
++            manifest: data.manifest(self.db).clone(),
++            quality: data.quality(self.db).clone(),
++        })
++    }
++
+     fn find_package_json(
+         &self,
+         search_dir: &Utf8Path,
+@@ -308,6 +351,8 @@ pub struct PackageJsonData<'db> {
+     #[tracked]
+     #[no_eq]
+     pub manifest: Option<PackageJson>,
++    #[tracked]
++    pub quality: ManifestQuality,
+ }
+ 
+ /// Deserializes a package manifest from an existing parsed source.
+@@ -319,7 +364,10 @@ pub fn package_json_from_source<'db>(
+     db: &'db dyn Db,
+     source: ParsedSource,
+ ) -> PackageJsonData<'db> {
+-    PackageJsonData::new(db, deserialize_manifest(db, source))
++    {
++        let read = deserialize_manifest(db, source);
++        PackageJsonData::new(db, read.manifest, read.quality)
++    }
+ }
+ 
+ /// Returns the package manifest at `path`, or `None` if there is none.
+@@ -343,12 +391,16 @@ pub fn package_json_for_path<'db>(
+     }
+ 
+     let path = path.path(db);
+-    let manifest = path.parent().and_then(|directory| {
++    let read = path.parent().and_then(|directory| {
+         db.resolver_fs()
+-            .read_package_json_in_directory(directory)
++            .read_package_json_with_quality(directory)
+             .ok()
+     });
+-    Some(PackageJsonData::new(db, manifest))
++    let (manifest, quality) = read.map_or_else(
++        || (None, ManifestQuality::default()),
++        |read| (read.manifest, read.quality),
++    );
++    Some(PackageJsonData::new(db, manifest, quality))
+ }
+ 
+ /// The nearest package manifest for a directory.
+@@ -383,6 +435,8 @@ pub struct TsConfigJsonData<'db> {
+     #[tracked]
+     #[no_eq]
+     pub manifest: Option<TsConfigJson>,
++    #[tracked]
++    pub quality: ManifestQuality,
+ }
+ 
+ /// Deserializes a TypeScript configuration from an existing parsed source.
+@@ -394,7 +448,10 @@ pub fn tsconfig_json_from_source<'db>(
+     db: &'db dyn Db,
+     source: ParsedSource,
+ ) -> TsConfigJsonData<'db> {
+-    TsConfigJsonData::new(db, deserialize_manifest(db, source))
++    {
++        let read = deserialize_manifest(db, source);
++        TsConfigJsonData::new(db, read.manifest, read.quality)
++    }
+ }
+ 
+ /// Returns the TypeScript configuration at `path`, or `None` if there is
+@@ -418,21 +475,39 @@ pub fn tsconfig_json_for_path<'db>(
+     }
+ 
+     let path = path.path(db);
+-    let manifest = db.resolver_fs().read_tsconfig_json(path).ok();
+-    Some(TsConfigJsonData::new(db, manifest))
++    let read = db.resolver_fs().read_tsconfig_json_with_quality(path).ok();
++    let (manifest, quality) = read.map_or_else(
++        || (None, ManifestQuality::default()),
++        |read| (read.manifest, read.quality),
++    );
++    Some(TsConfigJsonData::new(db, manifest, quality))
+ }
+ 
+-fn deserialize_manifest<M>(db: &dyn Db, source: ParsedSource) -> Option<M>
++fn deserialize_manifest<M>(db: &dyn Db, source: ParsedSource) -> ManifestRead<M>
+ where
+-    M: Manifest,
++    M: ResolverManifest,
+     M::Language: 'static,
+ {
+-    let root = source
++    let Some(root) = source
+         .parsed(db)
+         .clone()
+-        .into_language_root::<<M::Language as Language>::Root>()?;
+-    let (manifest, _) = M::deserialize_manifest(&root, source.path(db)).consume();
+-    manifest
++        .into_language_root::<<M::Language as Language>::Root>()
++    else {
++        return ManifestRead {
++            manifest: None,
++            quality: ManifestQuality::default(),
++        };
++    };
++    let (manifest, diagnostics) = M::deserialize_manifest(&root, source.path(db)).consume();
++    let mut read = ManifestRead::from_parts(manifest, &diagnostics);
++    read.quality.diagnostics.extend(
++        source
++            .parsed(db)
++            .diagnostics()
++            .iter()
++            .map(ManifestDiagnostic::from_diagnostic),
++    );
++    read
+ }
+ 
+ #[cfg(test)]
+diff --git a/crates/biome_resolver/src/lib.rs b/crates/biome_resolver/src/lib.rs
+index 2e3cf9e0ca9..9c3559e3562 100644
+--- a/crates/biome_resolver/src/lib.rs
++++ b/crates/biome_resolver/src/lib.rs
+@@ -62,6 +62,25 @@ pub fn resolve_with_metadata(
+         return Err(ResolveError::BunBuiltIn);
+     }
+ 
++    if options
++        .source_mappings
++        .iter()
++        .any(|mapping| mapping_capture(&mapping.from, specifier).is_some())
++    {
++        if let Ok((package, _)) = package_specifier_parts(specifier) {
++            match resolve_package_root_impl(package, base_dir, fs, Some(options)) {
++                Ok((path, manifest)) => {
++                    let name = manifest.name.as_ref().map(ToString::to_string);
++                    record_event(options, ResolutionEvent::Package { path, name });
++                }
++                Err(error) => record_event(options, ResolutionEvent::Failure(error)),
++            }
++        }
++        if let Some(mapped) = mapped_source(specifier, fs, options) {
++            return mapped.map(Resolution::other);
++        }
++    }
++
+     if specifier.starts_with('/') {
+         return resolve_absolute_path_with_extension_aliases(
+             Utf8PathBuf::from(specifier),
+@@ -99,6 +118,15 @@ pub fn resolve_package_root(
+     base_dir: &Utf8Path,
+     fs: &dyn ResolverFsProxy,
+ ) -> Result<Utf8PathBuf, ResolveError> {
++    resolve_package_root_impl(specifier, base_dir, fs, None).map(|(path, _)| path)
++}
++
++fn resolve_package_root_impl(
++    specifier: &str,
++    base_dir: &Utf8Path,
++    fs: &dyn ResolverFsProxy,
++    options: Option<&ResolveOptions>,
++) -> Result<(Utf8PathBuf, PackageJson), ResolveError> {
+     let package_name = parse_package_name(specifier)?;
+ 
+     for dir in base_dir.ancestors() {
+@@ -122,8 +150,11 @@ pub fn resolve_package_root(
+             Err(error) => return Err(error),
+         };
+ 
+-        fs.read_package_json_in_directory(&package_path)?;
+-        return Ok(package_path);
++        let manifest = match options {
++            Some(options) => read_package_manifest(fs, &package_path, options)?,
++            None => fs.read_package_json_in_directory(&package_path)?,
++        };
++        return Ok((package_path, manifest));
+     }
+ 
+     Err(ResolveError::NotFound)
+@@ -315,11 +346,14 @@ fn resolve_module(
+     options: &ResolveOptions,
+ ) -> Result<Resolution, ResolveError> {
+     match &options.package_json {
+-        DiscoverableManifest::Auto => match fs.find_package_json(base_dir) {
++        DiscoverableManifest::Auto => match find_package_manifest(fs, base_dir, options) {
+             Ok((package_path, manifest)) => {
+                 resolve_module_with_package_json(specifier, &package_path, &manifest, fs, options)
+             }
+-            Err(_) => resolve_dependency(specifier, base_dir, fs, options).map(Resolution::other),
++            Err(error) => {
++                record_event(options, ResolutionEvent::Failure(error));
++                resolve_dependency(specifier, base_dir, fs, options).map(Resolution::other)
++            }
+         },
+         DiscoverableManifest::Explicit {
+             package_path,
+@@ -350,15 +384,38 @@ fn resolve_module_with_package_json(
+         DiscoverableManifest::Off => Utf8PathBuf::new(),
+     };
+     let tsconfig = match &options.tsconfig {
+-        DiscoverableManifest::Auto => fs
+-            .read_tsconfig_json_in_directory(package_path)
+-            .map(Cow::Owned),
++        DiscoverableManifest::Auto => {
++            read_tsconfig_manifest(fs, &package_path.join("tsconfig.json"), options).map(Cow::Owned)
++        }
+         DiscoverableManifest::Explicit { manifest, .. } => Ok(Cow::Borrowed(*manifest)),
+         DiscoverableManifest::Off => Err(ResolveError::NotFound),
+     };
++    if options.trace.is_some()
++        && let Err(error) = &tsconfig
++        && matches!(
++            fs.path_info(&tsconfig_path),
++            Ok(PathInfo::File | PathInfo::Symlink { .. })
++        )
++    {
++        record_event(options, ResolutionEvent::Failure(*error));
++    }
+     if let Some(resolution) = tsconfig.as_ref().ok().and_then(|tsconfig| {
+         resolve_tsconfig_paths_mapping(specifier, tsconfig, &tsconfig_path, fs, options).ok()
+     }) {
++        if options.trace.is_some()
++            && let Ok((package, _)) = package_specifier_parts(specifier)
++        {
++            match resolve_package_root_impl(package, package_path, fs, Some(options)) {
++                Ok((path, manifest)) => record_event(
++                    options,
++                    ResolutionEvent::Package {
++                        path,
++                        name: manifest.name.as_ref().map(ToString::to_string),
++                    },
++                ),
++                Err(error) => record_event(options, ResolutionEvent::Failure(error)),
++            }
++        }
+         return Ok(Resolution::tsconfig_path_mapping(
+             resolution.path,
+             resolution.can_add_extension,
+@@ -675,10 +732,17 @@ fn resolve_tsconfig_paths_mapping(
+     let mut visited = HashSet::from([tsconfig_cycle_key(fs, root_config_path)]);
+ 
+     while let Some(reference_path) = pending.pop() {
+-        let Ok(config) = fs
+-            .read_tsconfig_json(&reference_path)
+-            .or_else(|_| fs.read_tsconfig_json(&reference_path.join("tsconfig.json")))
+-        else {
++        let config = read_tsconfig_manifest(fs, &reference_path, options).or_else(|_| {
++            read_tsconfig_manifest(fs, &reference_path.join("tsconfig.json"), options)
++        });
++        let Ok(config) = config else {
++            record_event(
++                options,
++                ResolutionEvent::Manifest {
++                    path: reference_path,
++                    quality: ManifestQuality::default(),
++                },
++            );
+             continue;
+         };
+         let config_path = normalize_path(&config.path);
+@@ -727,6 +791,15 @@ fn resolve_target_string(
+     fs: &dyn ResolverFsProxy,
+     options: &ResolveOptions,
+ ) -> Result<Utf8PathBuf, ResolveError> {
++    let target_path = if target.starts_with("./") {
++        normalize_path(&package_path.join(Utf8Path::new(target)))
++    } else {
++        Utf8PathBuf::from(target)
++    };
++    record_event(options, ResolutionEvent::Target(target_path.clone()));
++    if let Some(mapped) = mapped_source(target_path.as_str(), fs, options) {
++        return mapped;
++    }
+     if target.starts_with("./") {
+         let options = options.without_extensions_or_manifests();
+         resolve_relative_path(target, package_path, fs, &options)
+@@ -757,6 +830,10 @@ fn resolve_target_value(
+         JsonValue::Object(targets) => {
+             for (condition, target) in targets.iter() {
+                 if options.condition_names.contains(&condition.as_str()) {
++                    record_event(
++                        options,
++                        ResolutionEvent::Condition(condition.as_str().to_string()),
++                    );
+                     return resolve_target_value(
+                         target,
+                         glob_replacement,
+@@ -877,10 +954,38 @@ fn resolve_package_path(
+         Ok(PathInfo::Symlink {
+             canonicalized_target,
+         }) => Cow::Owned(canonicalized_target),
+-        _ => return Err(ResolveError::NotFound),
++        Err(error) => {
++            record_event(options, ResolutionEvent::Failure(error));
++            return Err(ResolveError::NotFound);
++        }
++        Ok(_) => return Err(ResolveError::NotFound),
+     };
+ 
+-    if let Ok(package_json) = fs.read_package_json_in_directory(&package_path) {
++    record_event(
++        options,
++        ResolutionEvent::Package {
++            path: package_path.to_path_buf(),
++            name: None,
++        },
++    );
++    let manifest = read_package_manifest(fs, &package_path, options);
++    if options.trace.is_some()
++        && let Err(error) = &manifest
++        && matches!(
++            fs.path_info(&package_path.join("package.json")),
++            Ok(PathInfo::File | PathInfo::Symlink { .. })
++        )
++    {
++        record_event(options, ResolutionEvent::Failure(*error));
++    }
++    if let Ok(package_json) = manifest {
++        record_event(
++            options,
++            ResolutionEvent::Package {
++                path: package_path.to_path_buf(),
++                name: package_json.name.as_ref().map(ToString::to_string),
++            },
++        );
+         if package_json.exports.is_some() {
+             return resolve_export(subpath, &package_path, &package_json, fs, options);
+         }
+@@ -888,6 +993,11 @@ fn resolve_package_path(
+         if subpath.is_empty() {
+             if options.resolve_types {
+                 if let Some(target) = &package_json.types {
++                    let target_path = normalize_path(&package_path.join(Utf8Path::new(target)));
++                    record_event(options, ResolutionEvent::Target(target_path.clone()));
++                    if let Some(mapped) = mapped_source(target_path.as_str(), fs, options) {
++                        return mapped;
++                    }
+                     let options = options.without_extensions_or_manifests();
+                     return resolve_relative_path(target, &package_path, fs, &options);
+                 }
+@@ -905,6 +1015,11 @@ fn resolve_package_path(
+                     }
+                 }
+             } else if let Some(target) = &package_json.main {
++                let target_path = normalize_path(&package_path.join(Utf8Path::new(target)));
++                record_event(options, ResolutionEvent::Target(target_path.clone()));
++                if let Some(mapped) = mapped_source(target_path.as_str(), fs, options) {
++                    return mapped;
++                }
+                 let options = options.without_extensions_or_manifests();
+                 return resolve_relative_path(target, &package_path, fs, &options);
+             }
+@@ -1157,6 +1272,10 @@ impl From<Result<Resolution, ResolveError>> for ResolvedSpecifier {
+ /// Options to pass to the resolver.
+ #[derive(Clone)]
+ pub struct ResolveOptions<'a> {
++    /// Exact specifier or absolute target mappings, applied before target existence checks.
++    pub source_mappings: &'a [SourceMapping],
++    /// Optional selection trace. Prefer [`resolve_with_trace`] to collect it.
++    pub trace: Option<&'a std::cell::RefCell<ResolutionTrace>>,
+     /// If `true`, specifiers are assumed to be relative paths. Resolving them
+     /// as a package will still be attempted if resolving as a relative path
+     /// fails.
+@@ -1278,6 +1397,8 @@ impl<'a> ResolveOptions<'a> {
+     /// Returns a new instance with default settings.
+     pub const fn new() -> Self {
+         Self {
++            source_mappings: &[],
++            trace: None,
+             assume_relative: false,
+             condition_names: &[],
+             default_files: &[],
+@@ -1372,6 +1493,8 @@ impl<'a> ResolveOptions<'a> {
+ 
+     fn with_type_roots_and_without_manifests(&self, type_roots: TypeRoots<'a>) -> Self {
+         Self {
++            source_mappings: self.source_mappings,
++            trace: self.trace,
+             assume_relative: self.assume_relative,
+             condition_names: self.condition_names,
+             default_files: self.default_files,
+@@ -1388,6 +1511,8 @@ impl<'a> ResolveOptions<'a> {
+ 
+     fn without_extensions_or_manifests(&self) -> Self {
+         Self {
++            source_mappings: self.source_mappings,
++            trace: self.trace,
+             assume_relative: self.assume_relative,
+             condition_names: self.condition_names,
+             default_files: self.default_files,
+@@ -1546,3 +1671,169 @@ impl ResolvedPath {
+         self.as_path().map(|p| p.as_str().replace('\\', "/"))
+     }
+ }
++
++#[derive(Clone, Debug, Eq, Hash, PartialEq)]
++pub struct SourceMapping {
++    pub from: String,
++    pub to: Utf8PathBuf,
++}
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub enum ResolutionEvent {
++    Manifest {
++        path: Utf8PathBuf,
++        quality: ManifestQuality,
++    },
++    Package {
++        path: Utf8PathBuf,
++        name: Option<String>,
++    },
++    Condition(String),
++    Target(Utf8PathBuf),
++    Mapping(SourceMapping),
++    Failure(ResolveError),
++}
++#[derive(Clone, Debug, Default, Eq, PartialEq)]
++pub struct ResolutionTrace {
++    pub events: Vec<ResolutionEvent>,
++}
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub struct TracedResolution {
++    pub result: Result<Resolution, ResolveError>,
++    pub trace: ResolutionTrace,
++}
++pub fn resolve_with_trace(
++    specifier: &str,
++    base_dir: &Utf8Path,
++    fs: &dyn ResolverFsProxy,
++    options: &ResolveOptions,
++) -> TracedResolution {
++    let trace = std::cell::RefCell::new(ResolutionTrace::default());
++    let options = ResolveOptions {
++        trace: Some(&trace),
++        ..options.clone()
++    };
++    let result = resolve_with_metadata(specifier, base_dir, fs, &options);
++    if let Err(error) = result {
++        record_event(&options, ResolutionEvent::Failure(error));
++    }
++    TracedResolution {
++        result,
++        trace: trace.into_inner(),
++    }
++}
++
++fn record_event(options: &ResolveOptions, event: ResolutionEvent) {
++    if let Some(trace) = options.trace {
++        trace.borrow_mut().events.push(event);
++    }
++}
++
++fn mapped_source(
++    specifier: &str,
++    fs: &dyn ResolverFsProxy,
++    options: &ResolveOptions,
++) -> Option<Result<Utf8PathBuf, ResolveError>> {
++    for mapping in options.source_mappings {
++        let Some(capture) = mapping_capture(&mapping.from, specifier) else {
++            continue;
++        };
++        let target = capture.map_or_else(
++            || mapping.to.clone(),
++            |capture| Utf8PathBuf::from(mapping.to.as_str().replace('*', capture)),
++        );
++        record_event(
++            options,
++            ResolutionEvent::Mapping(SourceMapping {
++                from: specifier.into(),
++                to: target.clone(),
++            }),
++        );
++        let mapped_options = ResolveOptions {
++            source_mappings: &[],
++            ..options.clone()
++        };
++        match resolve_absolute_path_with_extension_aliases(target, fs, &mapped_options) {
++            Ok(path) => return Some(Ok(path)),
++            Err(ResolveError::NotFound) => {
++                record_event(options, ResolutionEvent::Failure(ResolveError::NotFound))
++            }
++            Err(error) => return Some(Err(error)),
++        }
++    }
++    None
++}
++
++fn mapping_capture<'a>(pattern: &str, specifier: &'a str) -> Option<Option<&'a str>> {
++    if pattern == specifier {
++        return Some(None);
++    }
++    let (prefix, suffix) = pattern.split_once('*')?;
++    if suffix.contains('*') || specifier.len() < prefix.len() + suffix.len() {
++        return None;
++    }
++    specifier
++        .strip_prefix(prefix)?
++        .strip_suffix(suffix)
++        .map(Some)
++}
++
++fn find_package_manifest(
++    fs: &dyn ResolverFsProxy,
++    base: &Utf8Path,
++    options: &ResolveOptions,
++) -> Result<(Utf8PathBuf, PackageJson), ResolveError> {
++    if options.trace.is_none() {
++        return fs.find_package_json(base);
++    }
++    let (path, read) = fs.find_package_json_with_quality(base)?;
++    record_event(
++        options,
++        ResolutionEvent::Manifest {
++            path: path.join("package.json"),
++            quality: read.quality,
++        },
++    );
++    Ok((
++        path,
++        read.manifest.ok_or(ResolveError::ErrorLoadingManifest)?,
++    ))
++}
++
++fn read_package_manifest(
++    fs: &dyn ResolverFsProxy,
++    directory: &Utf8Path,
++    options: &ResolveOptions,
++) -> Result<PackageJson, ResolveError> {
++    if options.trace.is_none() {
++        return fs.read_package_json_in_directory(directory);
++    }
++    let read = fs.read_package_json_with_quality(directory)?;
++    let path = directory.join("package.json");
++    record_event(
++        options,
++        ResolutionEvent::Manifest {
++            path,
++            quality: read.quality,
++        },
++    );
++    read.manifest.ok_or(ResolveError::ErrorLoadingManifest)
++}
++
++fn read_tsconfig_manifest(
++    fs: &dyn ResolverFsProxy,
++    path: &Utf8Path,
++    options: &ResolveOptions,
++) -> Result<TsConfigJson, ResolveError> {
++    if options.trace.is_none() {
++        return fs.read_tsconfig_json(path);
++    }
++    let read = fs.read_tsconfig_json_with_quality(path)?;
++    record_event(
++        options,
++        ResolutionEvent::Manifest {
++            path: path.to_path_buf(),
++            quality: read.quality,
++        },
++    );
++    read.manifest.ok_or(ResolveError::ErrorLoadingManifest)
++}
+diff --git a/crates/biome_resolver/src/resolver_fs_proxy.rs b/crates/biome_resolver/src/resolver_fs_proxy.rs
+index 15aa237a7d6..db7d0fe9072 100644
+--- a/crates/biome_resolver/src/resolver_fs_proxy.rs
++++ b/crates/biome_resolver/src/resolver_fs_proxy.rs
+@@ -1,5 +1,7 @@
++use biome_diagnostics::{Diagnostic, Error, PrintDescription, Severity};
+ use biome_fs::{FileSystem, FsErrorKind, PathKind, expand_symbolic_link};
+ use biome_package::{Manifest, PackageJson, TsConfigJson};
++use biome_rowan::TextRange;
+ use camino::{Utf8Path, Utf8PathBuf};
+ 
+ use crate::errors::ResolveError;
+@@ -29,6 +31,44 @@ impl PathInfo {
+ /// a way that we can utilise our module graph as a FS proxy instead of always
+ /// performing ad-hoc FS I/O.
+ pub trait ResolverFsProxy {
++    /// Returns quality from the same read that produces the manifest.
++    /// Proxies implementing only legacy reads cannot establish parse validity.
++    fn find_package_json_with_quality(
++        &self,
++        search_dir: &Utf8Path,
++    ) -> Result<(Utf8PathBuf, ManifestRead<PackageJson>), ResolveError> {
++        self.find_package_json(search_dir).map(|(path, manifest)| {
++            (
++                path,
++                ManifestRead {
++                    manifest: Some(manifest),
++                    quality: ManifestQuality::default(),
++                },
++            )
++        })
++    }
++
++    fn read_package_json_with_quality(
++        &self,
++        dir_path: &Utf8Path,
++    ) -> Result<ManifestRead<PackageJson>, ResolveError> {
++        self.read_package_json_in_directory(dir_path)
++            .map(|manifest| ManifestRead {
++                manifest: Some(manifest),
++                quality: ManifestQuality::default(),
++            })
++    }
++
++    fn read_tsconfig_json_with_quality(
++        &self,
++        path: &Utf8Path,
++    ) -> Result<ManifestRead<TsConfigJson>, ResolveError> {
++        self.read_tsconfig_json(path).map(|manifest| ManifestRead {
++            manifest: Some(manifest),
++            quality: ManifestQuality::default(),
++        })
++    }
++
+     /// Finds the `package.json` in `search_dir` or one of its parents.
+     ///
+     /// Returns both the parsed `PackageJson` structure as well as the path of
+@@ -70,6 +110,40 @@ pub trait FsWithResolverProxy: FileSystem + ResolverFsProxy {}
+ impl<Fs: FileSystem> FsWithResolverProxy for Fs {}
+ 
+ impl<Fs: FileSystem> ResolverFsProxy for Fs {
++    fn find_package_json_with_quality(
++        &self,
++        search_dir: &Utf8Path,
++    ) -> Result<(Utf8PathBuf, ManifestRead<PackageJson>), ResolveError> {
++        let found = self
++            .auto_search_files(search_dir, &["package.json"])
++            .ok_or(ResolveError::NotFound)?;
++        let read = self.read_package_json_with_quality(&found.directory_path)?;
++        Ok((found.directory_path, read))
++    }
++
++    fn read_package_json_with_quality(
++        &self,
++        dir_path: &Utf8Path,
++    ) -> Result<ManifestRead<PackageJson>, ResolveError> {
++        let (manifest, diagnostics) =
++            PackageJson::read_manifest(self, &dir_path.join("package.json")).consume();
++        if manifest.is_none() && self.path_info(&dir_path.join("package.json")).is_err() {
++            return Err(ResolveError::ErrorLoadingManifest);
++        }
++        Ok(ManifestRead::from_parts(manifest, &diagnostics))
++    }
++
++    fn read_tsconfig_json_with_quality(
++        &self,
++        path: &Utf8Path,
++    ) -> Result<ManifestRead<TsConfigJson>, ResolveError> {
++        let (manifest, diagnostics) = TsConfigJson::read_manifest(self, path).consume();
++        if manifest.is_none() && self.path_info(path).is_err() {
++            return Err(ResolveError::ErrorLoadingManifest);
++        }
++        Ok(ManifestRead::from_parts(manifest, &diagnostics))
++    }
++
+     fn find_package_json(
+         &self,
+         search_dir: &Utf8Path,
+@@ -118,3 +192,85 @@ impl<Fs: FileSystem> ResolverFsProxy for Fs {
+         }
+     }
+ }
++
++/// Owned diagnostics attached to the manifest value from the same parse.
++#[derive(Clone, Debug)]
++pub struct ManifestRead<M> {
++    pub manifest: Option<M>,
++    pub quality: ManifestQuality,
++}
++
++#[derive(Clone, Debug, Default, Eq, PartialEq)]
++pub struct ManifestQuality {
++    pub known: bool,
++    pub diagnostics: Vec<ManifestDiagnostic>,
++}
++
++impl ManifestQuality {
++    pub fn has_errors(&self) -> bool {
++        self.diagnostics
++            .iter()
++            .any(|diagnostic| diagnostic.severity >= Severity::Error)
++    }
++}
++
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub struct ManifestDiagnostic {
++    pub severity: Severity,
++    pub message: String,
++    pub range: Option<TextRange>,
++}
++
++impl ManifestDiagnostic {
++    pub(crate) fn from_diagnostic(diagnostic: &impl Diagnostic) -> Self {
++        Self {
++            severity: diagnostic.severity(),
++            message: PrintDescription(diagnostic).to_string(),
++            range: diagnostic.location().span,
++        }
++    }
++}
++
++pub(crate) trait ResolverManifest: Manifest {
++    fn metadata_diagnostics(&self) -> &[biome_diagnostics::serde::Diagnostic];
++}
++
++impl ResolverManifest for PackageJson {
++    fn metadata_diagnostics(&self) -> &[biome_diagnostics::serde::Diagnostic] {
++        &self.project_metadata.diagnostics
++    }
++}
++
++impl ResolverManifest for TsConfigJson {
++    fn metadata_diagnostics(&self) -> &[biome_diagnostics::serde::Diagnostic] {
++        &self.metadata_diagnostics
++    }
++}
++
++impl<M> ManifestRead<M> {
++    pub(crate) fn from_parts(manifest: Option<M>, diagnostics: &[Error]) -> Self
++    where
++        M: ResolverManifest,
++    {
++        let mut quality = ManifestQuality {
++            known: true,
++            diagnostics: diagnostics
++                .iter()
++                .map(|diagnostic| ManifestDiagnostic {
++                    severity: diagnostic.severity(),
++                    message: PrintDescription(diagnostic).to_string(),
++                    range: diagnostic.location().span,
++                })
++                .collect(),
++        };
++        if let Some(manifest) = &manifest {
++            quality.diagnostics.extend(
++                manifest
++                    .metadata_diagnostics()
++                    .iter()
++                    .map(ManifestDiagnostic::from_diagnostic),
++            );
++        }
++        Self { manifest, quality }
++    }
++}

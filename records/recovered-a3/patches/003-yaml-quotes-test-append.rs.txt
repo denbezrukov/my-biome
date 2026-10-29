@@ -1,0 +1,10 @@
+
+#[test]
+fn workspace_metadata_preserves_escaped_quote_boundaries() {
+    let metadata = read_workspace_metadata("catalog:\n  dep: '''quoted'''\n");
+    assert!(metadata.diagnostics.is_empty());
+    assert_eq!(
+        metadata.fields["catalog"].members["dep"].value.as_string().unwrap().as_str(),
+        "'quoted'"
+    );
+}

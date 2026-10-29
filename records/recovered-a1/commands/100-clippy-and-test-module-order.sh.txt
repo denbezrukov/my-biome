@@ -1,0 +1,9 @@
+python3 - <<'PY'
+from pathlib import Path
+p=Path('crates/biome_project_analysis/src/normalize.rs');s=p.read_text().replace('.map(str::to_owned)\n                    .unwrap_or_else(|| format!("<unmapped:{id}>"))','.map_or_else(|| format!("<unmapped:{id}>"), str::to_owned)');p.write_text(s)
+for file,start,end in [('xtask/project_analysis/src/artifact.rs','#[cfg(test)]','impl std::fmt::Display'),('xtask/project_analysis/src/conformance.rs','#[cfg(test)]','use crate::artifact')]:
+ p=Path(file);s=p.read_text();i=s.index(start);j=s.index(end);tests=s[i:j];s=s[:i]+s[j:]+'\n'+tests;p.write_text(s)
+PY
+source /workspace/.biome-cloud/activate.sh
+just f > .superpowers/sdd/native-project-analysis-2026-10-26/a1-format-final.log 2>&1
+just l > .superpowers/sdd/native-project-analysis-2026-10-26/a1-lint-final.log 2>&1

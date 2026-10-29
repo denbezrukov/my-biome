@@ -1,0 +1,7 @@
+python3 - <<'PY'
+from pathlib import Path
+p=Path('xtask/project_analysis/src/artifact.rs');s=p.read_text().replace('let archive = artifact\n        .map(std::path::Path::to_path_buf)\n        .unwrap_or_else(|| root.join("cache/knip-6.43.0.tgz"));','let archive = artifact.map_or_else(|| root.join("cache/knip-6.43.0.tgz"), std::path::Path::to_path_buf);');p.write_text(s)
+PY
+source /workspace/.biome-cloud/activate.sh
+just f > .superpowers/sdd/native-project-analysis-2026-10-26/a1-format-final2.log 2>&1
+just l > .superpowers/sdd/native-project-analysis-2026-10-26/a1-lint-final2.log 2>&1

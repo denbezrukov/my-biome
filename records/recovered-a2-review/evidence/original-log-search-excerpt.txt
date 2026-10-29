@@ -1,0 +1,20 @@
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-generation.log:33:    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 23s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-generation.log:46:    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-opt-in-green.log:2:    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-opt-in-green.log:16:test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:31:    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.23s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:201:test result: ok. 165 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:213:test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:228:test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:234:test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:248:test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:267:test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-package-contracts.log:274:test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log:20:    Finished `test` profile [unoptimized + debuginfo] target(s) in 59.12s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log:51:test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log:67:test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log:116:test result: ok. 42 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.08s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final2-config.log:123:test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final-narrow-config.log:20:    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.63s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final-narrow-config.log:35:test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+.superpowers/sdd/native-project-analysis-2026-10-26/a2-logs/a2-final-lint.log:51:    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 05s

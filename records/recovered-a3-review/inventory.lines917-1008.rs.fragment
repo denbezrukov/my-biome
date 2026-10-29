@@ -1,0 +1,92 @@
+fn mapped_patterns(
+    capture: &mut Capture,
+    target: &Utf8Path,
+    package: &Package,
+    config: &ProjectAnalysisConfiguration,
+) -> Vec<String> {
+    let mut pairs = package.config.mappings.clone();
+    if let Some(mappings) = &config.source_mappings {
+        pairs.extend(mappings.iter().map(|mapping| {
+            (
+                paths::join(&package.path, &mapping.output),
+                paths::join(&package.path, &mapping.source),
+            )
+        }));
+    }
+    if pairs.is_empty() {
+        let source = if capture.fs.path_is_dir(&package.path.join("src")) {
+            package.path.join("src")
+        } else {
+            package.path.clone()
+        };
+        pairs.push((source.clone(), source));
+    }
+    pairs.sort();
+    pairs.dedup();
+    let depth = pairs
+        .iter()
+        .filter(|(output, _)| target.starts_with(output))
+        .map(|(output, _)| output.components().count())
+        .max();
+    let matches: Vec<_> = pairs
+        .iter()
+        .filter(|(output, _)| {
+            target.starts_with(output) && Some(output.components().count()) == depth
+        })
+        .collect();
+    if matches.len() > 1 {
+        capture.gap(
+            "source mapping",
+            format!("Ambiguous output directory for {target}"),
+            None,
+        );
+    }
+    if matches.is_empty() {
+        return vec![target.to_string()];
+    }
+    matches
+        .into_iter()
+        .map(|(output, source)| {
+            if output == source {
+                target.to_string()
+            } else {
+                paths::source_pattern(&source.join(target.strip_prefix(output).unwrap()))
+            }
+        })
+        .collect()
+}
+fn add_root(
+    capture: &mut Capture,
+    path: &Utf8Path,
+    workspace: WorkspaceId,
+    producer: &str,
+    location: Option<Location>,
+    role: RootRole,
+    exports: ExportProtection,
+) {
+    let file = capture.capture(path);
+    if let Some(record) = capture
+        .inventory
+        .files
+        .iter_mut()
+        .find(|record| record.file == file)
+    {
+        record.role = FileRole::ReportingCandidate;
+    } else {
+        capture.inventory.files.push(FileRecord {
+            file,
+            workspace,
+            role: FileRole::ReportingCandidate,
+            aliases: vec![relative(&capture.root, path)],
+            program: false,
+        });
+    }
+    capture.inventory.roots.push(Root {
+        file,
+        workspace,
+        producer: producer.into(),
+        location,
+        role,
+        exports,
+    });
+}

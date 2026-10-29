@@ -1,0 +1,51 @@
+fn gitignores(capture: &mut Capture) -> Vec<ignore::gitignore::Gitignore> {
+    let mut result = Vec::new();
+    let files: Vec<_> = capture
+        .paths
+        .iter()
+        .filter(|(path, _)| path.file_name() == Some(".gitignore"))
+        .map(|(path, file)| (path.clone(), *file))
+        .collect();
+    for (path, file) in files {
+        let mut builder = ignore::gitignore::GitignoreBuilder::new(path.parent().unwrap());
+        if let Some(text) = capture.text(file) {
+            let lines: Vec<_> = text.lines().map(str::to_owned).collect();
+            for line in lines {
+                if let Err(error) = builder.add_line(Some(path.as_std_path().to_path_buf()), &line)
+                {
+                    capture.gap(
+                        "gitignore",
+                        error.to_string(),
+                        Some(Location {
+                            file,
+                            range: TextRange::default(),
+                        }),
+                    );
+                }
+            }
+        }
+        match builder.build() {
+            Ok(ignore) => result.push(ignore),
+            Err(error) => capture.gap("gitignore", error.to_string(), None),
+        }
+    }
+    result
+}
+fn ignored(ignores: &[ignore::gitignore::Gitignore], path: &Utf8Path) -> bool {
+    let mut ignored = false;
+    for ignore in ignores {
+        if !path.starts_with(ignore.path()) {
+            continue;
+        }
+        let matched = ignore.matched_path_or_any_parents(path, false);
+        if !matched.is_none() {
+            ignored = matched.is_ignore();
+        }
+    }
+    ignored
+}
+
+/// Resolves report selectors without changing the inventory or its coverage.
+/// Positive selectors form a union, then all negative selectors are subtracted.
+pub fn select_workspaces(
+    root: &Utf8Path,

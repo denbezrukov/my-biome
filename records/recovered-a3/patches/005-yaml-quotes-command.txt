@@ -1,0 +1,5 @@
+python3 - <<'PY'
+p='crates/biome_package/src/node_js_package/workspace_metadata.rs'
+s=open(p).read().replace('raw.trim_matches(\'\\\'\').replace("\'\'", "\'")','raw.strip_prefix(\'\\\'\').and_then(|value| value.strip_suffix(\'\\\'\')).unwrap_or(&raw).replace("\'\'", "\'")')
+open(p,'w').write(s)
+PY

@@ -1,0 +1,21 @@
+                    path.clone(),
+                    Location {
+                        file: includes.file,
+                        range: includes.range,
+                    },
+                );
+            }
+        }
+    }
+    if program {
+        for reference in &config.references {
+            if reference
+                .parent()
+                .is_some_and(|parent| parent != base && parent.starts_with(base))
+            {
+                let referenced = load(capture, reference, &mut BTreeSet::new(), true);
+                select(capture, &referenced, program, files, visited, result);
+            }
+        }
+    }
+}

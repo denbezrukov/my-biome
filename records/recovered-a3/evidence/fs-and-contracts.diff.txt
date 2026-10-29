@@ -1,0 +1,106 @@
+diff --git a/crates/biome_fs/src/fs.rs b/crates/biome_fs/src/fs.rs
+index 32ef8846ac7..e28164560e0 100644
+--- a/crates/biome_fs/src/fs.rs
++++ b/crates/biome_fs/src/fs.rs
+@@ -312,6 +312,15 @@ pub trait FileSystem: Send + Sync + RefUnwindSafe {
+     /// Returns the resolution of a symbolic link.
+     fn read_link(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf>;
+ 
++    /// Returns the existing path's filesystem identity, resolving aliases without global case folding.
++    /// Missing and unreadable paths return their I/O error; unsupported virtual filesystems return Unsupported.
++    fn canonicalize_path(&self, _path: &Utf8Path) -> io::Result<Utf8PathBuf> {
++        Err(io::Error::new(
++            io::ErrorKind::Unsupported,
++            "filesystem does not provide canonical paths",
++        ))
++    }
++
+     fn get_changed_files(&self, base: &str) -> io::Result<Vec<String>>;
+ 
+     fn get_staged_files(&self) -> io::Result<Vec<String>>;
+@@ -530,6 +539,10 @@ where
+     fn read_link(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+         T::read_link(self, path)
+     }
++
++    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
++        T::canonicalize_path(self, path)
++    }
+ }
+ 
+ #[derive(Debug, Diagnostic, Deserialize, Serialize)]
+diff --git a/crates/biome_fs/src/fs/memory.rs b/crates/biome_fs/src/fs/memory.rs
+index 681647be75a..1ad9fe5c53d 100644
+--- a/crates/biome_fs/src/fs/memory.rs
++++ b/crates/biome_fs/src/fs/memory.rs
+@@ -245,6 +245,18 @@ impl FileSystem for MemoryFileSystem {
+         Ok(cb())
+     }
+ 
++    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
++        let path = crate::normalize_path(path);
++        if self.path_kind(&path).is_ok() {
++            Ok(path)
++        } else {
++            Err(io::Error::new(
++                io::ErrorKind::NotFound,
++                format!("path {path} does not exist in memory filesystem"),
++            ))
++        }
++    }
++
+     fn read_link(&self, _path: &Utf8Path) -> io::Result<Utf8PathBuf> {
+         Err(io::Error::new(
+             io::ErrorKind::Unsupported,
+diff --git a/crates/biome_fs/src/fs/os.rs b/crates/biome_fs/src/fs/os.rs
+index c238806e5d1..d0186820ff0 100644
+--- a/crates/biome_fs/src/fs/os.rs
++++ b/crates/biome_fs/src/fs/os.rs
+@@ -97,6 +97,10 @@ impl FileSystem for OsFileSystem {
+         path.read_link_utf8()
+     }
+ 
++    fn canonicalize_path(&self, path: &Utf8Path) -> io::Result<Utf8PathBuf> {
++        path.canonicalize_utf8()
++    }
++
+     fn get_changed_files(&self, base: &str) -> io::Result<Vec<String>> {
+         let output = Command::new("git")
+             .arg("diff")
+diff --git a/crates/biome_project_analysis/tests/contracts.rs b/crates/biome_project_analysis/tests/contracts.rs
+index fc51184f6c0..169ace8ff8c 100644
+--- a/crates/biome_project_analysis/tests/contracts.rs
++++ b/crates/biome_project_analysis/tests/contracts.rs
+@@ -104,6 +104,8 @@ fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract()
+         file: FileId(2),
+         workspace: WorkspaceId(4),
+         role: FileRole::Context,
++        aliases: vec![],
++        program: false,
+     });
+     first.inventory.workspaces.push(WorkspaceRecord {
+         workspace: WorkspaceId(4),
+@@ -111,6 +113,11 @@ fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract()
+         manifest: FileId(2),
+         declaration_locations: vec![],
+         metadata_diagnostics: vec![],
++        name: None,
++        metadata: vec![],
++        catalogs: vec![],
++        dependency_uses: vec![],
++        configuration: serde_json::Value::Null,
+     });
+     first.coverage = Coverage::Incomplete(vec![CoverageGap {
+         producer: "dynamic import".into(),
+@@ -172,6 +179,11 @@ fn result_normalization_keeps_source_ranges_and_related_evidence() {
+         manifest: FileId(1),
+         declaration_locations: vec![location],
+         metadata_diagnostics: vec![],
++        name: None,
++        metadata: vec![],
++        catalogs: vec![],
++        dependency_uses: vec![],
++        configuration: serde_json::Value::Null,
+     };
+     let evidence_id = EvidenceId("entry:index.ts:1..5".into());
+     let secondary_id = EvidenceId("entry:index.ts:1..5:secondary".into());

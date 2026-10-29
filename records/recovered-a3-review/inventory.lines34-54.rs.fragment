@@ -1,0 +1,21 @@
+    pub root: Utf8PathBuf,
+    pub inventory: Inventory,
+    pub paths: BTreeMap<Utf8PathBuf, FileId>,
+}
+impl Capture<'_> {
+    pub(super) fn gap(
+        &mut self,
+        producer: &str,
+        message: impl Into<String>,
+        location: Option<Location>,
+    ) {
+        self.inventory.gaps.push(CoverageGap {
+            producer: producer.into(),
+            domain: TargetDomain::Unbounded,
+            reason: GapReason::UnavailableInput(message.into()),
+            location,
+        });
+    }
+    pub(super) fn capture(&mut self, path: &Utf8Path) -> FileId {
+        let canonical = paths::canonical(self.fs, path).unwrap_or_else(|error| {
+            self.gap("path identity", error, None);

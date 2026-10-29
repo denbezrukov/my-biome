@@ -1,0 +1,135 @@
+
+#[test]
+fn inventory_review_production_entry_groups_keep_development_exclusions() {
+    let files = [("package.json", "{}"), ("main.ts", ""), ("dev.ts", "import './main';")];
+    for entry in [serde_json::json!(["dev.ts", "*.ts!"]), serde_json::json!(["*.ts!", "dev.ts"])] {
+        for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+            let inventory = discover_mode(&files, serde_json::json!({"entry":entry,"project":[]}), mode);
+            let expected = if mode == AnalysisMode::Default { ["main.ts".into(), "dev.ts".into()].into() } else { ["main.ts".into()].into() };
+            assert_eq!(root_paths(&inventory), expected, "{mode:?}, {entry}");
+            let dev = inventory.files.iter().find(|file| inventory.sources[&file.file].logical_path == Utf8Path::new("dev.ts")).unwrap();
+            assert_eq!(dev.role, if mode == AnalysisMode::Default { FileRole::ReportingCandidate } else { FileRole::Context });
+            assert!(matches!(&inventory.sources[&dev.file].content, SourceContent::Available { text, .. } if text.contains("import")));
+        }
+    }
+}
+
+#[test]
+fn inventory_review_production_projects_exclude_development_entries() {
+    let files = [("package.json", "{}"), ("main.ts", ""), ("test.ts", "import './main';"), ("candidate.ts", "")];
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        let inventory = discover_mode(&files, serde_json::json!({"entry":["main.ts!", "test.ts"]}), mode);
+        for file in &inventory.files {
+            let path = &inventory.sources[&file.file].logical_path;
+            let expected = if mode != AnalysisMode::Default && path == Utf8Path::new("test.ts") { FileRole::Context } else { FileRole::ReportingCandidate };
+            assert_eq!(file.role, expected, "{mode:?}, {path}");
+        }
+        assert_eq!(inventory.files.len(), 3);
+    }
+}
+
+#[test]
+fn inventory_review_sibling_tsconfig_references_keep_boundaries_and_cycles() {
+    let files = [
+        ("package.json", "{}"),
+        ("app/tsconfig.json", r#"{"files":[],"references":[{"path":"./tsconfig.app.json"},{"path":"../outside/tsconfig.json"}]}"#),
+        ("app/tsconfig.app.json", r#"{"files":["program.ts","types.d.ts"],"compilerOptions":{"rootDir":".","outDir":"build"},"references":[{"path":"./tsconfig.json"}]}"#),
+        ("outside/tsconfig.json", r#"{"files":["dependency.ts"],"compilerOptions":{"rootDir":".","outDir":"build"}}"#),
+        ("app/program.ts", ""), ("app/types.d.ts", ""), ("outside/dependency.ts", ""),
+    ];
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        let inventory = discover_mode(&files, serde_json::json!({"entry":[],"tsconfig":"app/tsconfig.json","useTsconfigFiles":true}), mode);
+        assert_eq!(root_paths(&inventory), ["app/program.ts".into(), "app/types.d.ts".into()].into());
+        assert_eq!(inventory.roots.len(), 2);
+        let outside = inventory.files.iter().find(|file| inventory.sources[&file.file].logical_path == Utf8Path::new("outside/dependency.ts")).unwrap();
+        assert_eq!(outside.role, FileRole::Context);
+        let declarations = inventory.roots.iter().find(|root| root.producer == "tsconfig declaration").unwrap();
+        assert_eq!(inventory.sources[&declarations.location.unwrap().file].logical_path, Utf8Path::new("app/tsconfig.app.json"));
+    }
+    let inventory = discover_files(&files, serde_json::json!({"entry":[],"tsconfig":"app/tsconfig.json","useTsconfigFiles":false}));
+    assert!(inventory.roots.is_empty());
+}
+
+#[cfg(unix)]
+#[test]
+fn inventory_review_tsconfig_aliases_use_canonical_identity_and_program_protection() {
+    let mut fixture = biome_fs::TemporaryFs::new("biome-a3-review-tsconfig-aliases");
+    fixture.create_file("package.json", "{}");
+    fixture.create_file("tsconfig.json", r#"{"files":["alias.d.ts","real.d.ts","alias.ts","real.ts"]}"#);
+    let declaration = fixture.create_file("real.d.ts", "export declare const value: number;");
+    let program = fixture.create_file("real.ts", "export const value = 1;");
+    std::os::unix::fs::symlink(declaration, fixture.working_directory.join("alias.d.ts")).unwrap();
+    std::os::unix::fs::symlink(program, fixture.working_directory.join("alias.ts")).unwrap();
+    let (service, project) = setup_workspace_and_open_project(fixture.create_os(), fixture.cli_path());
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        for program in [false, true] {
+            let inventory = service.discover_inventory(project, &ProjectAnalysisRequest { mode, configuration:serde_json::from_value(serde_json::json!({"entry":[],"useTsconfigFiles":program})).unwrap(), ..Default::default() }).unwrap();
+            assert!(!inventory.gaps.iter().any(|gap| gap.producer == "tsconfig declaration"), "{:?}", inventory.gaps);
+            assert_eq!(root_paths(&inventory), if program { ["real.d.ts".into(), "real.ts".into()].into() } else { ["real.d.ts".into()].into() });
+            assert_eq!(inventory.roots.len(), if program { 2 } else { 1 });
+            assert_eq!(inventory.files.len(), 2);
+            let record = inventory.files.iter().find(|file| inventory.sources[&file.file].logical_path == Utf8Path::new("real.ts")).unwrap();
+            assert_eq!(record.program, program);
+            assert!(record.aliases.contains(&"alias.ts".into()));
+            for root in &inventory.roots {
+                assert_eq!(root.exports, if root.producer == "tsconfig declaration" { ExportProtection::IncludeWhenRequested } else { ExportProtection::Unprotected });
+                let location = root.location.unwrap();
+                let SourceContent::Available { text, .. } = &inventory.sources[&location.file].content else { panic!("missing config source") };
+                assert!(text[usize::from(location.range.start())..usize::from(location.range.end())].contains("alias"));
+            }
+        }
+    }
+}
+
+#[cfg(windows)]
+#[test]
+fn inventory_review_tsconfig_casing_uses_canonical_identity() {
+    let mut fixture = biome_fs::TemporaryFs::new("biome-a3-review-tsconfig-casing");
+    fixture.create_file("package.json", "{}");
+    fixture.create_file("tsconfig.json", r#"{"files":["mixedcase.d.ts","mixedcase.ts"]}"#);
+    fixture.create_file("MixedCase.d.ts", "");
+    fixture.create_file("MixedCase.ts", "");
+    let (service, project) = setup_workspace_and_open_project(fixture.create_os(), fixture.cli_path());
+    let inventory = service.discover_inventory(project, &ProjectAnalysisRequest { configuration:serde_json::from_value(serde_json::json!({"entry":[],"useTsconfigFiles":true})).unwrap(), ..Default::default() }).unwrap();
+    assert_eq!(root_paths(&inventory), ["MixedCase.d.ts".into(), "MixedCase.ts".into()].into());
+    assert!(inventory.files.iter().any(|file| file.program && inventory.sources[&file.file].logical_path == Utf8Path::new("MixedCase.ts")));
+    assert!(inventory.gaps.is_empty(), "{:?}", inventory.gaps);
+}
+
+#[test]
+fn inventory_review_ignored_declarations_remain_context_without_missing_gaps() {
+    let files = [
+        ("package.json", "{}"),
+        ("tsconfig.json", r#"{"files":["ignored.d.ts","dist/hidden.d.ts","visible.d.ts"],"compilerOptions":{"rootDir":"src","outDir":"dist"}}"#),
+        (".gitignore", "ignored.d.ts\nsrc/hidden.ts\n"),
+        ("ignored.d.ts", "export type Hidden = number;"), ("dist/hidden.d.ts", ""), ("src/hidden.ts", ""), ("visible.d.ts", ""),
+    ];
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        for program in [false, true] {
+            let inventory = discover_mode(&files, serde_json::json!({"entry":[],"useTsconfigFiles":program}), mode);
+            assert_eq!(root_paths(&inventory), ["visible.d.ts".into()].into());
+            assert!(inventory.gaps.is_empty(), "{:?}", inventory.gaps);
+            for path in ["ignored.d.ts", "src/hidden.ts"] {
+                let record = inventory.files.iter().find(|file| inventory.sources[&file.file].logical_path == Utf8Path::new(path)).unwrap();
+                assert_eq!(record.role, FileRole::Context);
+            }
+        }
+    }
+}
+
+#[test]
+fn inventory_review_manifest_missing_evidence_excludes_intentional_filtering() {
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        let inventory = discover_mode(&[
+            ("package.json", r#"{"main":"ignored.ts","module":"missing.ts","browser":"dist/mapped.js"}"#),
+            ("tsconfig.json", r#"{"files":[],"compilerOptions":{"rootDir":"src","outDir":"dist"}}"#),
+            (".gitignore", "ignored.ts\nsrc/mapped.ts\n"),
+            ("ignored.ts", "export {};"), ("src/mapped.ts", "export {};"),
+        ], serde_json::json!({"entry":[]}), mode);
+        assert!(inventory.roots.is_empty());
+        let missing: Vec<_> = inventory.gaps.iter().filter(|gap| gap.producer == "manifest entry").collect();
+        assert_eq!(missing.len(), 1, "{missing:?}");
+        assert!(matches!(&missing[0].reason, GapReason::UnavailableInput(message) if message == "Missing entry missing.ts"));
+        assert!(inventory.files.iter().all(|file| file.role == FileRole::Context));
+    }
+}

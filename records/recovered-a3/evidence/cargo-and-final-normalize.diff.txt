@@ -1,0 +1,70 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 34122cb786e..4c228560a1c 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2018,6 +2018,7 @@ dependencies = [
+  "biome_package",
+  "biome_parser",
+  "biome_plugin_loader",
++ "biome_project_analysis",
+  "biome_project_layout",
+  "biome_resolver",
+  "biome_rowan",
+@@ -2050,11 +2051,13 @@ dependencies = [
+  "schemars",
+  "serde",
+  "serde_json",
++ "sha2",
+  "smallvec",
+  "static_assertions",
+  "tikv-jemallocator",
+  "tokio",
+  "tracing",
++ "url",
+  "web-time",
+ ]
+ 
+diff --git a/crates/biome_project_analysis/src/normalize.rs b/crates/biome_project_analysis/src/normalize.rs
+index 75f169c3319..ddc13510d38 100644
+--- a/crates/biome_project_analysis/src/normalize.rs
++++ b/crates/biome_project_analysis/src/normalize.rs
+@@ -91,8 +91,14 @@ fn walk(
+             }
+         }
+         Value::Object(entries) => {
++            let metadata = entries.contains_key("location")
++                && entries.contains_key("members")
++                && entries.contains_key("elements");
+             for (key, entry) in entries {
+-                walk(entry, key, files, spaces);
++                // Raw metadata keys can resemble ID fields; only its typed locations contain IDs.
++                if !metadata || key != "value" {
++                    walk(entry, key, files, spaces);
++                }
+             }
+         }
+         Value::Array(entries) => {
+diff --git a/crates/biome_service/Cargo.toml b/crates/biome_service/Cargo.toml
+index ccd3f42b612..a904d49725e 100644
+--- a/crates/biome_service/Cargo.toml
++++ b/crates/biome_service/Cargo.toml
+@@ -72,6 +72,7 @@ biome_module_graph       = { workspace = true, features = ["serde"], optional =
+ biome_package            = { workspace = true }
+ biome_parser             = { workspace = true }
+ biome_plugin_loader      = { workspace = true, optional = true }
++biome_project_analysis   = { workspace = true }
+ biome_project_layout     = { workspace = true }
+ biome_resolver           = { workspace = true }
+ biome_rowan              = { workspace = true, features = ["serde"] }
+@@ -100,9 +101,11 @@ salsa                    = { workspace = true }
+ schemars                 = { workspace = true, optional = true }
+ serde                    = { workspace = true, features = ["derive"] }
+ serde_json               = { workspace = true, features = ["raw_value"] }
++sha2                     = "0.10.9"
+ smallvec                 = { workspace = true, features = ["serde"] }
+ tokio                    = { workspace = true, features = ["sync"] }
+ tracing                  = { workspace = true, features = ["attributes", "log"] }
++url                      = { workspace = true }
+ web-time                 = { workspace = true }
+ 
+ [dev-dependencies]

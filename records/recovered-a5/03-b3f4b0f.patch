@@ -1,0 +1,151 @@
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index e6eb70d934f..dcafa49c415 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -146,7 +146,8 @@ impl WorkspaceServerWithDb<'_> {
+                     .filter(|path| !paths::is_source(path))
+                     .cloned(),
+             );
+-            let mut attempted = BTreeSet::new();
++            // Indexing uses the package location; captured identity may follow a file symlink.
++            let mut attempted = BTreeMap::new();
+             let mut modules = BTreeMap::new();
+             for pass in 0..128 {
+                 if pass == 127 {
+@@ -175,10 +176,11 @@ impl WorkspaceServerWithDb<'_> {
+                     let epoch = workspace.db_state.scanner_epoch();
+                     let scanner = acquisition.with_db_state(epoch.view());
+                     for path in manifests.into_iter().chain(sources) {
+-                        if !attempted.insert(path.clone()) {
++                        if attempted.contains_key(&path) {
+                             continue;
+                         }
+                         let file = capture.capture(&path);
++                        attempted.insert(path.clone(), file);
+                         if let Err(error) =
+                             scanner.index_file(key, path.clone(), IndexTrigger::InitialScan)
+                         {
+@@ -196,8 +198,7 @@ impl WorkspaceServerWithDb<'_> {
+                 let mut collected = Vec::new();
+                 {
+                     let db = workspace.get_db();
+-                    for path in &attempted {
+-                        let file = capture.paths[path];
++                    for (path, &file) in &attempted {
+                         if paths::is_source(path) {
+                             match db.get_parsed_source(path) {
+                                 Some(parsed) if parsed.has_errors(&*db) => capture.gap(
+@@ -276,7 +277,7 @@ impl WorkspaceServerWithDb<'_> {
+                                     },
+                                 );
+                             }
+-                            if !attempted.contains(&target) {
++                            if !attempted.contains_key(&target) {
+                                 pending.insert(target);
+                             }
+                         }
+diff --git a/crates/biome_service/src/project_analysis/snapshot.tests.rs b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+index 4c3fa829cf6..272b3950c10 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.tests.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+@@ -160,6 +160,13 @@ impl Service {
+     fn new(fs: &MemoryFileSystem, owned: bool) -> Self {
+         let fs: Arc<dyn biome_resolver::FsWithResolverProxy> =
+             Arc::new(MemoryFileSystem::from_files(fs.files.0.clone()));
++        Self::with_fs(fs, Utf8Path::new("/project"), owned)
++    }
++    fn with_fs(
++        fs: Arc<dyn biome_resolver::FsWithResolverProxy>,
++        root: &Utf8Path,
++        owned: bool,
++    ) -> Self {
+         let db = if owned {
+             DbState::lsp(fs.clone())
+         } else {
+@@ -172,7 +179,7 @@ impl Service {
+         let project = server
+             .with_db_state(&db)
+             .open_project(OpenProjectParams {
+-                path: BiomePath::new("/project"),
++                path: BiomePath::new(root),
+                 open_uninitialized: true,
+             })
+             .unwrap()
+@@ -1485,3 +1492,77 @@ fn snapshot_obsolete_request_cannot_publish_or_recover() {
+         ProjectAnalysisState::Completed { .. }
+     ));
+ }
++
++#[cfg(unix)]
++#[test]
++fn snapshot_symlinked_governing_manifest_retains_package_location_and_identity() {
++    for owned in [false, true] {
++        let mut fixture = biome_fs::TemporaryFs::new("biome-a5-snapshot-symlinked-manifest");
++        fixture.create_file("project/package.json", r#"{"type":"module"}"#);
++        fixture.create_file("project/index.ts", "import '../external/index.js';");
++        let script = fixture.create_file("external/index.js", "with ({}) {}");
++        let manifest = fixture.create_file("metadata/shared.json", r#"{"type":"commonjs"}"#);
++        let alias = fixture.working_directory.join("external/package.json");
++        std::os::unix::fs::symlink(&manifest, &alias).unwrap();
++        let root = fixture.working_directory.join("project");
++        let service = Service::with_fs(Arc::new(fixture.create_os()), &root, owned);
++        let request = super::ProjectAnalysisRequest::default();
++        let first = service.snapshot(&request);
++        assert_script_acquired(&first, script.as_str());
++        let manifest_uri = url::Url::from_file_path(&manifest).unwrap().to_string();
++        let captured: Vec<_> = first
++            .sources
++            .values()
++            .filter(|source| source.canonical_uri == manifest_uri)
++            .collect();
++        assert_eq!(
++            captured.len(),
++            1,
++            "manifest aliases share one captured identity"
++        );
++        assert_eq!(captured[0].logical_path, manifest);
++        assert!(
++            matches!(&captured[0].content, SourceContent::Available { text, .. } if text == r#"{"type":"commonjs"}"#)
++        );
++        assert!(
++            !first
++                .sources
++                .values()
++                .any(|source| source.logical_path == alias)
++        );
++        assert!(Arc::ptr_eq(&first, &service.snapshot(&request)));
++        let fresh =
++            Service::with_fs(Arc::new(fixture.create_os()), &root, owned).snapshot(&request);
++        assert_eq!(normalize_snapshot(&first), normalize_snapshot(&fresh));
++        assert_ne!(first.revision, fresh.revision);
++
++        std::fs::write(&manifest, r#"{"type":"module"}"#).unwrap();
++        let changed = service.snapshot(&request);
++        let (file, _) = changed
++            .sources
++            .iter()
++            .find(|(_, source)| source.logical_path == script)
++            .unwrap();
++        assert!(
++            changed
++                .inventory
++                .gaps
++                .iter()
++                .any(|gap| gap.producer == "parser"
++                    && gap
++                        .location
++                        .as_ref()
++                        .is_some_and(|location| location.file == *file)),
++            "changed target bytes must change the governing parser mode"
++        );
++        assert_ne!(first.revision, changed.revision);
++        let fresh =
++            Service::with_fs(Arc::new(fixture.create_os()), &root, owned).snapshot(&request);
++        assert_eq!(normalize_snapshot(&changed), normalize_snapshot(&fresh));
++        assert_ne!(changed.revision, fresh.revision);
++        assert!(
++            matches!(&captured[0].content, SourceContent::Available { text, .. } if text == r#"{"type":"commonjs"}"#),
++            "old captured text stays immutable"
++        );
++    }
++}

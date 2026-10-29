@@ -1,0 +1,196 @@
+            || path.file_name() == Some(".gitignore")
+        {
+            let file = capture.capture(path);
+            aliases_by_file
+                .entry(file)
+                .or_default()
+                .push(relative(&root, path));
+        }
+    }
+    let mut manifests = BTreeMap::new();
+    for path in discovered
+        .iter()
+        .filter(|p| p.file_name() == Some("package.json"))
+    {
+        let file = capture.capture(path);
+        let Some(text) = capture.text(file) else {
+            continue;
+        };
+        let parsed = biome_json_parser::parse_json(text, Default::default());
+        let metadata = read_project_metadata(&parsed.tree());
+        let parser_diagnostics: Vec<_> = parsed
+            .diagnostics()
+            .iter()
+            .cloned()
+            .map(biome_diagnostics::serde::Diagnostic::new)
+            .collect();
+        let mut diagnostics = capture.diagnostics(file, &parser_diagnostics);
+        diagnostics.extend(capture.diagnostics(file, &metadata.diagnostics));
+        diagnostics.extend(capture.diagnostics(file, &metadata.catalogs.diagnostics));
+        if parsed.has_errors() {
+            continue;
+        }
+        manifests.insert(
+            path.parent().unwrap().to_path_buf(),
+            (file, metadata, diagnostics),
+        );
+    }
+    let pnpm_path = root.join("pnpm-workspace.yaml");
+    let yarn_path = root.join(".yarnrc.yml");
+    let yaml = if fs.path_exists(&pnpm_path) {
+        Some(load_yaml(&mut capture, &pnpm_path))
+    } else if fs.path_exists(&yarn_path) {
+        Some(load_yaml(&mut capture, &yarn_path))
+    } else {
+        None
+    };
+    let manifest_patterns = manifests
+        .get(&root)
+        .and_then(|(_, metadata, _)| metadata.fields.get("workspaces"))
+        .map(|value| value.members.get("packages").unwrap_or(value));
+    let membership = if fs.path_exists(&pnpm_path) {
+        yaml.as_ref()
+            .and_then(|(_, yaml)| {
+                yaml.fields
+                    .get("packages")
+                    .filter(|value| !value.value.is_null())
+            })
+            .or(manifest_patterns)
+    } else {
+        manifest_patterns
+    };
+    let patterns = capture.patterns(
+        &membership.map(strings).unwrap_or_default(),
+        request.mode,
+        false,
+        "workspace membership",
+    );
+    let configured: Vec<_> = request
+        .configuration
+        .workspaces
+        .as_ref()
+        .map(|map| map.keys().cloned().collect())
+        .unwrap_or_default();
+    let configured_patterns =
+        capture.patterns(&configured, request.mode, false, "workspace settings");
+    let mut packages = Vec::new();
+    for (path, (file, metadata, diagnostics)) in manifests {
+        let relative = relative(&root, &path);
+        if path != root && !patterns.matches(&relative) && !configured_patterns.matches(&relative) {
+            continue;
+        }
+        let settings = workspace_settings(&request.configuration, &relative);
+        let tsconfig_path = request
+            .configuration
+            .tsconfig
+            .as_ref()
+            .and_then(|v| v.0.first())
+            .map(|v| paths::join(&path, v))
+            .unwrap_or_else(|| path.join("tsconfig.json"));
+        if request
+            .configuration
+            .tsconfig
+            .as_ref()
+            .is_some_and(|v| v.0.len() > 1)
+        {
+            capture.gap(
+                "tsconfig",
+                "Multiple initial tsconfig paths are unsupported.",
+                None,
+            );
+        }
+        let config = tsconfig::load(
+            &mut capture,
+            &tsconfig_path,
+            &mut BTreeSet::new(),
+            request.configuration.tsconfig.is_some(),
+        );
+        packages.push(Package {
+            path,
+            file,
+            metadata,
+            diagnostics,
+            settings,
+            config,
+        });
+    }
+    let mut canonical_owners = BTreeMap::new();
+    for (index, package) in packages.iter().enumerate() {
+        let workspace = WorkspaceId(index as u32);
+        let canonical =
+            paths::canonical(fs, &package.path).unwrap_or_else(|_| package.path.clone());
+        if canonical_owners.insert(canonical, workspace).is_some() {
+            capture.gap(
+                "workspace ownership",
+                "Duplicate ownership through workspace aliases.",
+                Some(Location {
+                    file: package.file,
+                    range: TextRange::default(),
+                }),
+            );
+        }
+        let name = package
+            .metadata
+            .fields
+            .get("name")
+            .and_then(string)
+            .map(str::to_owned);
+        capture.inventory.workspaces.push(WorkspaceRecord {
+            workspace,
+            path: relative(&root, &package.path),
+            manifest: package.file,
+            declaration_locations: Vec::new(),
+            metadata_diagnostics: package.diagnostics.clone(),
+            name,
+            metadata: package
+                .metadata
+                .fields
+                .iter()
+                .map(|(key, value)| (key.clone(), owned(value, package.file)))
+                .collect(),
+            catalogs: Vec::new(),
+            dependency_uses: Vec::new(),
+            configuration: serde_json::to_value(&package.settings).unwrap(),
+        });
+    }
+    let mut excluded = BTreeSet::new();
+    if let Some(boundary) = &request.isolation
+        && !boundary.excluded_consumers.is_empty()
+    {
+        let (selected, errors) = select_workspaces(
+            &capture.root,
+            &capture.inventory.workspaces,
+            &boundary.excluded_consumers,
+        );
+        excluded.extend(selected);
+        for error in errors {
+            capture.gap("analysis boundary", error, None);
+        }
+    }
+    if let Some(ignored) = &request.configuration.ignore_workspaces {
+        let (patterns, errors) = Patterns::new(&ignored.0, request.mode, false);
+        for error in errors {
+            capture.gap("ignored workspaces", error, None);
+        }
+        excluded.extend(
+            capture
+                .inventory
+                .workspaces
+                .iter()
+                .filter(|w| patterns.matches(&w.path))
+                .map(|w| w.workspace),
+        );
+    }
+    for workspace in &excluded {
+        capture.gap(
+            "analysis boundary",
+            format!(
+                "Excluded consumer {}",
+                capture.inventory.workspaces[workspace.0 as usize].path
+            ),
+            None,
+        );
+    }
+    let gitignore = gitignores(&mut capture);
+    let source_paths: Vec<_> = capture
+        .paths

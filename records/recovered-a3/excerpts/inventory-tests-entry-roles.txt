@@ -1,0 +1,28 @@
+fn inventory_entry_roles_and_negated_production_patterns() {
+    let files = [
+        ("package.json", "{}"),
+        ("prod.ts", ""),
+        ("dev.ts", ""),
+        ("excluded.ts", ""),
+    ];
+    let config = serde_json::json!({"entry":["*.ts!","!excluded.ts!","dev.ts"],"project":[]});
+    let default = discover_mode(&files, config.clone(), AnalysisMode::Default);
+    assert_eq!(
+        root_paths(&default),
+        ["prod.ts", "dev.ts", "excluded.ts"]
+            .map(str::to_string)
+            .into()
+    );
+    let development = default
+        .roots
+        .iter()
+        .find(|root| default.sources[&root.file].logical_path == Utf8Path::new("dev.ts"))
+        .unwrap();
+    assert_eq!(development.role, RootRole::Default);
+    for mode in [AnalysisMode::Production, AnalysisMode::Strict] {
+        let production = discover_mode(&files, config.clone(), mode);
+        assert_eq!(root_paths(&production), ["prod.ts".into()].into());
+    }
+}
+
+#[test]

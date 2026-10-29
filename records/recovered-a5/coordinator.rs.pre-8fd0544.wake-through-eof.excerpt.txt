@@ -1,0 +1,37 @@
+    fn wake(state: &State) {
+        if let Some(notification) = &state.notification {
+            for (project_key, status) in &state.projects {
+                if !state.interested.contains(project_key) {
+                    continue;
+                }
+                let revision = if let ProjectAnalysisState::Completed { snapshot, .. } = status {
+                    Some(Arc::new(snapshot.revision.clone()))
+                } else {
+                    None
+                };
+                notification.send_replace(ServiceNotification::ProjectAnalysisReady {
+                    project_key: *project_key,
+                    generation: state.generation,
+                    revision,
+                });
+            }
+        }
+    }
+}
+
+pub(crate) struct Mutation<'a>(&'a ProjectAnalysisCoordinator);
+impl Drop for Mutation<'_> {
+    fn drop(&mut self) {
+        let mut state = self.0.inner.lock();
+        state.pending -= 1;
+        Self::finish(&self.0.settled, &state);
+    }
+}
+impl Mutation<'_> {
+    fn finish(settled: &Condvar, state: &State) {
+        if state.pending == 0 {
+            settled.notify_all();
+        }
+        ProjectAnalysisCoordinator::wake(state);
+    }
+}

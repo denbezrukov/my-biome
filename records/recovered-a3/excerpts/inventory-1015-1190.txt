@@ -1,0 +1,176 @@
+    let metadata = capture
+        .text(file)
+        .map(read_workspace_metadata)
+        .unwrap_or_default();
+    capture.diagnostics(file, &metadata.diagnostics);
+    (file, metadata)
+}
+fn owned(value: &MetadataValue, file: FileId) -> MetadataValueRecord {
+    MetadataValueRecord {
+        value: json_value(value),
+        location: Location {
+            file,
+            range: value.range,
+        },
+        members: value
+            .members
+            .iter()
+            .map(|(key, value)| (key.clone(), owned(value, file)))
+            .collect(),
+        elements: value
+            .elements
+            .iter()
+            .map(|value| owned(value, file))
+            .collect(),
+    }
+}
+fn retain_dependencies(capture: &mut Capture, workspace: WorkspaceId, package: &Package) {
+    for (field, kind) in [
+        ("dependencies", DependencyKind::Production),
+        ("devDependencies", DependencyKind::Development),
+        ("peerDependencies", DependencyKind::Peer),
+        ("optionalDependencies", DependencyKind::Optional),
+        ("resolutions", DependencyKind::Catalog),
+    ] {
+        if let Some(values) = package.metadata.fields.get(field) {
+            for (name, value) in &values.members {
+                let optional = package
+                    .metadata
+                    .fields
+                    .get("peerDependenciesMeta")
+                    .and_then(|v| v.members.get(name))
+                    .and_then(|v| v.members.get("optional"))
+                    .is_some_and(|v| v.value.as_bool() == Some(true));
+                let location = Location {
+                    file: package.file,
+                    range: value.range,
+                };
+                capture.inventory.declarations.push(DependencyDeclaration {
+                    package: name.clone(),
+                    workspace,
+                    location,
+                    kind: if kind == DependencyKind::Peer && optional {
+                        DependencyKind::OptionalPeer
+                    } else {
+                        kind
+                    },
+                    specifier: string(value).unwrap_or_default().into(),
+                    field: field.into(),
+                });
+                capture.inventory.workspaces[workspace.0 as usize]
+                    .declaration_locations
+                    .push(location);
+            }
+        }
+    }
+    if let Some(overrides) = package
+        .metadata
+        .fields
+        .get("pnpm")
+        .and_then(|value| value.members.get("overrides"))
+    {
+        retain_overrides(
+            capture,
+            workspace,
+            package.file,
+            "pnpm.overrides",
+            overrides,
+        );
+    }
+    if let Some(imports) = &package.metadata.imports {
+        for (key, value) in &imports.members {
+            if !key.starts_with('#') {
+                continue;
+            }
+            for (specifier, range) in leaves(value) {
+                if specifier.starts_with(['.', '!', '#']) {
+                    continue;
+                }
+                let dependency_package = package_name(specifier);
+                capture.inventory.workspaces[workspace.0 as usize]
+                    .dependency_uses
+                    .push(ManifestDependencyUse {
+                        package: dependency_package,
+                        specifier: specifier.into(),
+                        producer: "manifest imports".into(),
+                        location: Some(Location {
+                            file: package.file,
+                            range,
+                        }),
+                    });
+            }
+        }
+    }
+}
+fn package_name(specifier: &str) -> String {
+    specifier
+        .split('/')
+        .take(if specifier.starts_with('@') { 2 } else { 1 })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+fn is_bare_dependency(package: &Package, specifier: &str) -> bool {
+    !specifier.starts_with('.')
+        && [
+            "dependencies",
+            "devDependencies",
+            "peerDependencies",
+            "optionalDependencies",
+        ]
+        .iter()
+        .any(|field| {
+            package
+                .metadata
+                .fields
+                .get(*field)
+                .is_some_and(|value| value.members.contains_key(&package_name(specifier)))
+        })
+}
+fn retain_catalogs(
+    capture: &mut Capture,
+    index: usize,
+    package: &Package,
+    yaml: Option<&(FileId, WorkspaceMetadata)>,
+) {
+    let container = yaml.map(|(file, _)| *file).unwrap_or(package.file);
+    if let Some((file, yaml)) = yaml
+        && let Some(overrides) = yaml.fields.get("overrides")
+    {
+        retain_overrides(
+            capture,
+            WorkspaceId(index as u32),
+            *file,
+            "overrides",
+            overrides,
+        );
+    }
+    for key in ["catalog", "catalogs"] {
+        let provider = yaml
+            .and_then(|(file, yaml)| {
+                yaml.fields
+                    .get(key)
+                    .filter(|v| !v.value.is_null())
+                    .map(|value| (*file, value))
+            })
+            .or_else(|| {
+                package
+                    .metadata
+                    .fields
+                    .get(key)
+                    .filter(|v| !v.value.is_null())
+                    .map(|v| (package.file, v))
+            })
+            .or_else(|| {
+                package
+                    .metadata
+                    .fields
+                    .get("workspaces")
+                    .and_then(|v| v.members.get(key))
+                    .filter(|v| !v.value.is_null())
+                    .map(|v| (package.file, v))
+            });
+        if let Some((file, value)) = provider {
+            let catalogs: Vec<_> = if key == "catalog" {
+                vec![("", value)]
+            } else {
+                value

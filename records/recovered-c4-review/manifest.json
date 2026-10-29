@@ -1,0 +1,100 @@
+{
+  "recovery_only": true,
+  "agent": "/root/project_c4_review",
+  "original_base_commit": "12bf926317b7032e2ddc46124bf277b8409bf5fd",
+  "original_target_commit": "d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b",
+  "historical_checkout": "/workspace/my-biome",
+  "historical_checkout_status": "Retained review output confirmed target HEAD and no tracked modifications; seven untracked documents were excluded.",
+  "authenticated_binding": {
+    "path": "../recovered-c4/original-final-commit-binding.transcribed.json",
+    "expected_sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b",
+    "observed_sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b",
+    "matches": true
+  },
+  "artifacts": [
+    {
+      "path": "four-test-files.12bf926-d574a1a.diff",
+      "sha256": "59a156c269fd5ac94d088e39ad4b1988d2157170dd41d5f80905ba1115b1361a",
+      "bytes": 17119,
+      "lines": 420,
+      "kind": "complete scoped Git diff for four files; not complete source files",
+      "provenance": "Exact retained untruncated tool output from git --no-pager diff --no-ext-diff --no-textconv BASE TARGET -- the four paths listed below, transcribed without executing its contents.",
+      "validation": "git apply --numstat parsed the stored patch without applying it: 331/0, 5/1, 25/0 and 8/1 added/deleted lines respectively. Historical whole-file hashes below are reference values, not claimed verification of this diff.",
+      "original_files": [
+        {
+          "path": "crates/biome_cli/tests/project_analysis_exit.rs",
+          "target_sha256": "621f63b5166074b19f56696863fbe830735b073c7d75c28f13f6e145977a3cad",
+          "target_bytes": 26838,
+          "old_git_blob_prefix": "da385e54991",
+          "new_git_blob_prefix": "1b388f79069"
+        },
+        {
+          "path": "crates/biome_project_analysis/tests/contracts.rs",
+          "target_sha256": "3d09a5863610177584b5f5a64fd29ac72385dc3d7633140871b7ee607bdb2612",
+          "target_bytes": 14581,
+          "old_git_blob_prefix": "84725b6a3e6",
+          "new_git_blob_prefix": "c63b27beb16"
+        },
+        {
+          "path": "crates/biome_project_analysis/tests/members.rs",
+          "target_sha256": "5ef044c92f0400bbc76b6dbfa3c63122009df573bc6fbabe73cc5cc346d679e2",
+          "target_bytes": 7217,
+          "old_git_blob_prefix": "fe82299543e",
+          "new_git_blob_prefix": "00e8ac6d1b2"
+        },
+        {
+          "path": "crates/biome_service/src/project_analysis/members.tests.rs",
+          "target_sha256": "66c006449a7e72b9ab23c4632171f25871becc38e919229f89a862de93cd0337",
+          "target_bytes": 27799,
+          "old_git_blob_prefix": "1d011852dff",
+          "new_git_blob_prefix": "3dbbbb447f3"
+        }
+      ]
+    },
+    {
+      "path": "runner-project-analysis.lines397-596.rs.fragment",
+      "sha256": "19775688bc77e2cec32197938f3ec98aa596048469f1fc375c93ee597833c8c6",
+      "bytes": 7419,
+      "lines": 200,
+      "original_path": "crates/biome_cli/src/runner/project_analysis.rs",
+      "original_line_start": 397,
+      "original_line_end": 596,
+      "kind": "partial source fragment; original lines 1-396 absent",
+      "provenance": "Retained untruncated rg -n -A110 -B5 'fn output_identity|fn write_reports' tool output. Removed only rg line-number/separator prefixes. Includes destination preparation, report writing and trailing test module.",
+      "target_whole_file_sha256": "6c0c6dc01e475f49499ac2e8d3c4be4ff8d74dfd461f23cef9a8dd258ad5c66d",
+      "target_whole_file_bytes": 21142,
+      "whole_file_hash_verified": false
+    },
+    {
+      "path": "lint_help.snap",
+      "sha256": "547484f1986a04ae07925f94f6d3fb8b290a91676db3a173a45836c272dc9f58",
+      "bytes": 16382,
+      "lines": 244,
+      "original_path": "crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap",
+      "kind": "complete original source file",
+      "provenance": "Complete retained cat output. Its batched response included a truncation in the subsequent check_help head output, but lint_help itself was retained in full. Transcription SHA-256 and bytes match the authenticated target binding.",
+      "whole_file_hash_verified": true
+    },
+    {
+      "path": "check_help.lines291-549.snap.fragment",
+      "sha256": "342439a4dc09180ec12bc11a6fb2af8d023e8713f192d6c51458a825c6054e85",
+      "bytes": 20072,
+      "lines": 259,
+      "original_path": "crates/biome_cli/tests/snapshots/main_cases_help/check_help.snap",
+      "original_line_start": 291,
+      "original_line_end": 549,
+      "kind": "partial source fragment; original lines 1-290 not included",
+      "provenance": "Exact retained untruncated tail -n +291 tool output. Earlier head output had a truncation and was not used to fill this fragment.",
+      "target_whole_file_sha256": "10c6f1d3f18157bb63e2a5064bb68aa725b42022fa6ab789a356c634f7436aaf",
+      "target_whole_file_bytes": 43712,
+      "whole_file_hash_verified": false
+    }
+  ],
+  "remaining_context": {
+    "unrecoverable_from_summaries": "The earlier full 44-file review reads, initial review-package diff, reporter implementations, engine report metadata, fixtures/oracle and harness source survive primarily as review summaries, not exact bytes. No code was synthesized from those summaries.",
+    "generated_workspace_ts": "Original 498180-byte file was read completely during review, but the exact reads are no longer retained in this context. Only the hash binding and summary remain. Regeneration would be a separate future operation.",
+    "cargo_lock": "Original 179936-byte lockfile was read completely during review, but exact reads are no longer retained in this context. Only the hash binding and summary remain.",
+    "other_retained_excerpts": "Some unchanged command declarations, console implementation excerpts, reporting-document excerpts, requirements and approved-design text remain in the review transcript. They were not synthesized into full product files. The saved artifact inventory above is exhaustive for this recovery directory."
+  },
+  "safety": "Only recovery-directory files were created or edited. No recovered source or commands were executed, no project build or test was run, no product repository was modified, and no child agents were spawned."
+}

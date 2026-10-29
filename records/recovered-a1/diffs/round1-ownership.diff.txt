@@ -1,0 +1,112 @@
+diff --git a/crates/biome_project_analysis/tests/contracts.rs b/crates/biome_project_analysis/tests/contracts.rs
+index b416111c945..fc51184f6c0 100644
+--- a/crates/biome_project_analysis/tests/contracts.rs
++++ b/crates/biome_project_analysis/tests/contracts.rs
+@@ -274,3 +274,36 @@ fn every_deferred_plugin_and_public_reporter_has_a_disposition() {
+     assert!(ledger["failed"].as_array().unwrap().is_empty());
+     assert!(!ledger["unsupported"].as_array().unwrap().is_empty());
+ }
++
++#[test]
++fn native_language_fixtures_have_native_owners() {
++    let inventory: serde_json::Value = serde_json::from_str(include_str!(
++        "../../../xtask/project_analysis/reference/tests.json"
++    ))
++    .unwrap();
++    let groups = inventory["groups"].as_array().unwrap();
++    for (fixture, owner) in [
++        ("commonjs-tsconfig", "B2"),
++        ("commonjs", "B2"),
++        ("custom-elements", "B2"),
++        ("js-only", "B1"),
++        ("jsdoc-exports", "B2"),
++        ("jsdoc-import-tag", "B2"),
++        ("jsdoc", "B5"),
++        ("jsx", "B2"),
++        ("tagged-template-literal", "B2"),
++    ] {
++        let path = format!("packages/knip/test/language/{fixture}.test.ts");
++        let group = groups.iter().find(|group| group["path"] == path).unwrap();
++        assert_eq!(group["owner"], owner, "{path}");
++        assert_eq!(group["status"], "untested", "{path}");
++    }
++    let deferred = groups
++        .iter()
++        .find(|group| {
++            group["path"] == "packages/knip/test/language/svelte-script-jsdoc-import.test.ts"
++        })
++        .unwrap();
++    assert_eq!(deferred["owner"], "deferred extensions");
++    assert_eq!(deferred["status"], "unsupported");
++}
+diff --git a/xtask/project_analysis/reference/tests.json b/xtask/project_analysis/reference/tests.json
+index a07cd5bf773..c1cc14c60b6 100644
+--- a/xtask/project_analysis/reference/tests.json
++++ b/xtask/project_analysis/reference/tests.json
+@@ -1188,49 +1188,49 @@
+     {
+       "path": "packages/knip/test/language/commonjs-tsconfig.test.ts",
+       "git_blob": "6a3a4d69a72b4c94400cd6ae34df6284e44f5461",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/commonjs.test.ts",
+       "git_blob": "261f89fc4665eae42cddfab1278daf5e550142f3",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/custom-elements.test.ts",
+       "git_blob": "1cee17068ce9444864f03c28e7f32c259ff49820",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/js-only.test.ts",
+       "git_blob": "631e3bcd09edba2be6f219f8f685aebc18cfc0ff",
+-      "owner": "deferred plugins",
++      "owner": "B1",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/jsdoc-exports.test.ts",
+       "git_blob": "fcdd43b84ed8dc392fecc187f687193c12a050a0",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/jsdoc-import-tag.test.ts",
+       "git_blob": "7f5c6a49ef3243a1d0babcdd1f57c76ee9640477",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/jsdoc.test.ts",
+       "git_blob": "c7b2975b1385fbf32af11303a65df6cdf5317485",
+-      "owner": "deferred plugins",
++      "owner": "B5",
+       "status": "untested"
+     },
+     {
+       "path": "packages/knip/test/language/jsx.test.ts",
+       "git_blob": "273def8725fe6fd6ec04793d60ca85d55d801f93",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {
+@@ -1242,7 +1242,7 @@
+     {
+       "path": "packages/knip/test/language/tagged-template-literal.test.ts",
+       "git_blob": "f7def5940f4665df078d7f7a16a896a9a17a8764",
+-      "owner": "deferred plugins",
++      "owner": "B2",
+       "status": "untested"
+     },
+     {

@@ -1,0 +1,19 @@
+
+#[cfg(unix)]
+#[test]
+fn inventory_review_declaration_alias_retains_configured_classification() {
+    let mut fixture = biome_fs::TemporaryFs::new("biome-a3-review-declaration-classification");
+    fixture.create_file("package.json", "{}");
+    fixture.create_file("tsconfig.json", r#"{"files":["definition.d.ts"]}"#);
+    let target = fixture.create_file("source.ts", "export declare const value: number;");
+    std::os::unix::fs::symlink(target, fixture.working_directory.join("definition.d.ts")).unwrap();
+    let (service, project) = setup_workspace_and_open_project(fixture.create_os(), fixture.cli_path());
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        let inventory = service.discover_inventory(project, &ProjectAnalysisRequest { mode, configuration:serde_json::from_value(serde_json::json!({"entry":[],"useTsconfigFiles":false})).unwrap(), ..Default::default() }).unwrap();
+        assert_eq!(root_paths(&inventory), ["source.ts".into()].into());
+        assert_eq!(inventory.roots[0].producer, "tsconfig declaration");
+        assert_eq!(inventory.roots[0].exports, ExportProtection::IncludeWhenRequested);
+        assert_eq!(inventory.roots[0].role, RootRole::Production);
+        assert!(inventory.gaps.is_empty(), "{:?}", inventory.gaps);
+    }
+}

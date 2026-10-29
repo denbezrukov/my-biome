@@ -1,0 +1,12 @@
+python3 - <<'PY'
+from pathlib import Path
+import json,re
+p=Path('xtask/project_analysis/reference/tests.json');d=json.loads(p.read_text())
+pattern=re.compile(r'''(?:test|it)\(\s*(['"`])((?:\\.|(?!\1)[\s\S])*?)\1''')
+for item in d['selected_semantics']:
+ text=(Path('/tmp/knip-a1-reference')/item['path'].replace('/','_')).read_text()
+ item['test_names']=[m.group(2) for m in pattern.finditer(text)]
+assert next(x for x in d['selected_semantics'] if x['path'].endswith('namespace-with-nsexports.test.ts'))['test_names']==["Don't ignore namespace re-export by entry file (nsExports)"]
+p.write_text(json.dumps(d,indent=2)+'\n')
+print('Exact quoted test titles verified, including apostrophes and embedded quote characters.')
+PY

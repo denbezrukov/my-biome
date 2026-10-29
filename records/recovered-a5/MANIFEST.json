@@ -1,0 +1,206 @@
+{
+  "recovery_date_utc": "2026-10-29",
+  "agent": "/root/project_a5_implement",
+  "recovery_directory": "/workspace/.biome-cloud/native-recovery/recovered-a5",
+  "original_repository": "/workspace/my-biome",
+  "original_branch": "feat/native-project-analysis",
+  "whole_A5_base": "3c28dae197840dd6adee956e7d884531a073f7cc",
+  "last_implemented_head": "b3f4b0f077050576c5c6fe874c87dfa353f10048",
+  "scope": "Recovery only from retained conversation text. No original commands executed, no build/install/test/publish, no read or write of current /workspace/my-biome.",
+  "patch_order": [
+    {
+      "order": 0,
+      "base": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "head": "0391575c57f9b8529b60d8d91b9dece07a2e5159",
+      "title": "feat(project): publish completed analysis snapshots",
+      "complete_patch_available": false,
+      "note": "Initial 18-file implementation was compacted before the surviving detailed history. Only summaries and later source reads/excerpts survive."
+    },
+    {
+      "order": 1,
+      "base": "0391575c57f9b8529b60d8d91b9dece07a2e5159",
+      "head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "title": "fix(project): reconcile scoped watch errors after acquisition",
+      "complete_patch_available": true,
+      "patch": "01-8fd0544.patch",
+      "original_stats": {
+        "files": 7,
+        "insertions": 483,
+        "deletions": 33
+      }
+    },
+    {
+      "order": 2,
+      "base": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "head": "39046be22c3cb915dc8981b164e707a53cf75469",
+      "title": "fix(project): preserve acquisition semantics and request ownership",
+      "complete_patch_available": true,
+      "patch": "02-39046be.patch",
+      "original_stats": {
+        "files": 3,
+        "insertions": 385,
+        "deletions": 47
+      }
+    },
+    {
+      "order": 3,
+      "base": "39046be22c3cb915dc8981b164e707a53cf75469",
+      "head": "b3f4b0f077050576c5c6fe874c87dfa353f10048",
+      "title": "fix(project): retain identities for symlinked manifests",
+      "complete_patch_available": true,
+      "patch": "03-b3f4b0f.patch",
+      "original_stats": {
+        "files": 2,
+        "insertions": 88,
+        "deletions": 6
+      }
+    }
+  ],
+  "artifacts": {
+    "01-8fd0544-production.patch": {
+      "kind": "complete per-file diffs for 6 production files",
+      "source": "Retained functions.exec tool-output chunks 9a7f72 and 415a80, final formatted correction diff before commit 8fd0544. No baseline file bodies inferred.",
+      "sha256": "0fa747f2ff840d7e0283168e5a625f10d22cfeba3eb56cf3b3b01c318c63bda2",
+      "bytes": 18773
+    },
+    "01-8fd0544-tests.patch": {
+      "kind": "complete per-file diff",
+      "source": "Retained functions.exec tool-output chunk facd77, final formatted snapshot.tests.rs correction diff before commit 8fd0544.",
+      "sha256": "6462d0ab735c2b6f9b9fd524ce5511da74702d85dc0dfab09f6c0a2ad3c2fa3b",
+      "bytes": 11465
+    },
+    "01-8fd0544.patch": {
+      "kind": "complete 7-file correction diff, exact-block concatenation",
+      "source": "Concatenated the two retained parts, inserting the test file block before scanner/watcher.rs to retain original Git file order. Every hunk is unchanged. Requires original 0391575 baseline.",
+      "sha256": "bafebbbbb7add203ed93285d06a5305fa15a5b897bc6e987790f58e231c4f42a",
+      "bytes": 30238
+    },
+    "02-39046be-production.patch": {
+      "kind": "complete per-file diffs for 2 production files",
+      "source": "Retained functions.exec tool-output chunk e6f734, final formatted coordinator.rs and snapshot.rs diffs before commit 39046be.",
+      "sha256": "9459df608716e2fd163a4d9a3316d35a21e510637f23649eda261b15e3c14959",
+      "bytes": 13886
+    },
+    "02-39046be-tests.patch": {
+      "kind": "complete per-file diff",
+      "source": "Retained functions.exec tool-output chunk ee147d, final formatted snapshot.tests.rs diff before commit 39046be.",
+      "sha256": "bce62a0b72c70db483911538fab760fdfb3d7a50be191d13431e9bafcde9ac24",
+      "bytes": 13525
+    },
+    "02-39046be.patch": {
+      "kind": "complete 3-file correction diff, exact-block concatenation",
+      "source": "Concatenated retained production and test diffs in original Git file order. Requires 8fd0544 baseline.",
+      "sha256": "a2f468722a79cb7f70132ebf9d8c95641e7c6ad4fe400094dcb08eb3077540e5",
+      "bytes": 27411
+    },
+    "03-b3f4b0f.patch": {
+      "kind": "complete 2-file correction diff",
+      "source": "Retained functions.exec tool-output chunk 006266, final formatted snapshot.rs and snapshot.tests.rs diff before commit b3f4b0f.",
+      "sha256": "32c308c2f1aaa487ab6974713e342fa47a06e530c02acaba585857374ac8e8c3",
+      "bytes": 7090
+    },
+    "snapshot.rs.at-39046be.txt": {
+      "kind": "complete source file",
+      "original_path": "crates/biome_service/src/project_analysis/snapshot.rs",
+      "observed_head": "39046be22c3cb915dc8981b164e707a53cf75469",
+      "source": "Retained functions.exec tool-output chunk 4864e6, complete cat output read at start of fix round 2. Exact transcription independently matches retained original Git blob prefix e6eb70d934f.",
+      "sha256": "a20e6c726507f8841a816bec3ec8d0f1c5678e13114ca9c7fefe7eff7869e381",
+      "bytes": 19937,
+      "recovered_git_blob_sha1": "e6eb70d934faa2ec28aec6efd727641d6d33c3ca"
+    },
+    "pinned_fs.rs.at-b3f4b0f.txt": {
+      "kind": "complete source file",
+      "original_path": "crates/biome_service/src/project_analysis/pinned_fs.rs",
+      "observed_head": "39046be22c3cb915dc8981b164e707a53cf75469",
+      "also_valid_at_head": "b3f4b0f077050576c5c6fe874c87dfa353f10048",
+      "source": "Retained functions.exec tool-output chunk d1aa9d, complete cat output at start of fix round 2. File unchanged by the exact b3f4b0f diff. Original blob hash was not printed; current artifact hash is recovery-only.",
+      "sha256": "cd1b2c7208cfcbcac56b75871b907d82c8e51e069d4348ade6ecc449817f1e31",
+      "bytes": 6506,
+      "recovered_git_blob_sha1": "8d6f38371734321284f4554b7110c42b4de267d3"
+    },
+    "paths.rs.at-8fd0544.txt": {
+      "kind": "complete supporting source file, from A3 rather than an A5 changed file",
+      "original_path": "crates/biome_service/src/project_analysis/paths.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "source": "Retained functions.exec tool-output chunk 035721, complete cat paths.rs output during fix round 1. Original blob hash unavailable.",
+      "sha256": "932675842aa66a46a526e6a25b1f01712acb84a86db84907539d0e09313eeea9",
+      "bytes": 3720,
+      "recovered_git_blob_sha1": "2940032e497cfbadbf599cb480979c1e92879ad3"
+    },
+    "inventory.rs.at-39046be.lines-1-130.excerpt.txt": {
+      "kind": "partial source excerpt; ends inside patterns method",
+      "original_path": "crates/biome_service/src/project_analysis/inventory.rs",
+      "observed_head": "39046be22c3cb915dc8981b164e707a53cf75469",
+      "source": "Retained functions.exec tool-output chunk 4864e6, sed -n 1,130p. No missing suffix supplied.",
+      "sha256": "68acb4b2bb491321629c50aa370109781c05dea0b372f723b301e91497fe240d",
+      "bytes": 4395
+    },
+    "coordinator.rs.pre-8fd0544.lines-1-225.excerpt.txt": {
+      "kind": "partial source excerpt; intermediate unformatted correction worktree, not committed source",
+      "original_path": "crates/biome_service/src/project_analysis/coordinator.rs",
+      "base": "0391575c57f9b8529b60d8d91b9dece07a2e5159",
+      "source": "Retained functions.exec tool-output chunk 694a12, sed -n 1,225p before recovery correction formatting. Includes first portion through mutation method; do not treat as final-byte committed source.",
+      "sha256": "c9950a5ab62fd57d82bf622cb347bf1542f902bfe2163b9b5d08fa109c6efc3d",
+      "bytes": 7121
+    },
+    "coordinator.rs.at-8fd0544.publish-through-state.excerpt.txt": {
+      "kind": "partial source excerpt, contiguous methods publish through state",
+      "original_path": "crates/biome_service/src/project_analysis/coordinator.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "source": "Retained functions.exec tool-output chunk 16c016 during review round 1; extracted publish through state from the printed lines 100-330.",
+      "sha256": "3f385e33a779f65b10c1ca52f280c1348c4e74c19c8cf8ec70d085f16cb83ec0",
+      "bytes": 3298
+    },
+    "coordinator.rs.pre-8fd0544.wake-through-eof.excerpt.txt": {
+      "kind": "partial source excerpt, wake method through EOF",
+      "original_path": "crates/biome_service/src/project_analysis/coordinator.rs",
+      "base": "0391575c57f9b8529b60d8d91b9dece07a2e5159",
+      "source": "Retained functions.exec tool-output chunk 5aa589, tail of recovery correction before formatting. No gap filled between other coordinator excerpts.",
+      "sha256": "25381bc805ca2390b1e83ae252adbb6cab86ffcdce1aa6def144d74c5753ca94",
+      "bytes": 1199
+    },
+    "grumpy-doodles-chew.md.at-0391575.txt": {
+      "kind": "complete changeset text",
+      "original_path": ".changeset/grumpy-doodles-chew.md",
+      "source": "Retained functions.exec tool-output chunk 0ab44b, cat of unchanged original A5 changeset.",
+      "sha256": "bdff4ec469ff287c05607ff9c680581ed7f8aabfab0fc1e80fe3c81fe6608ada",
+      "bytes": 297,
+      "recovered_git_blob_sha1": "c5eb505b3ddb490ae7489d84a8393c28da075a02"
+    },
+    "patch-transcription-check.json": {
+      "kind": "recovery metadata, not original project text",
+      "source": "Recovery-only parsing of saved diff hunk lengths and addition/deletion totals; no patches applied and no recovered commands run.",
+      "sha256": "b8549f842b388851c7161736656cfa70d04f2cd047f9bdd0b8279553702c9176",
+      "bytes": 534
+    }
+  },
+  "completeness": {
+    "whole_A5_recoverable_from_this_bundle_alone": false,
+    "exact_full_initial_0391575_patch_available": false,
+    "complete_source_files": [
+      "snapshot.rs at 39046be",
+      "pinned_fs.rs",
+      "supporting A3 paths.rs",
+      "changeset"
+    ],
+    "missing_initial_A5_source": [
+      "crates/biome_project_analysis/src/facts.rs additions",
+      "crates/biome_project_analysis/src/lib.rs additions",
+      "crates/biome_project_analysis/src/model.rs additions",
+      "crates/biome_service/src/db/state.rs mutation/finalizer changes",
+      "crates/biome_service/src/module_graph.rs acquisition/fact changes",
+      "crates/biome_service/src/project_analysis.rs baseline",
+      "crates/biome_service/src/project_analysis/owned_facts.rs",
+      "crates/biome_service/src/project_analysis/inventory.rs A5 baseline changes beyond saved excerpt",
+      "crates/biome_service/src/project_analysis/snapshot.tests.rs initial 971-line baseline beyond diff contexts",
+      "crates/biome_service/src/scanner/watcher.rs initial A5 barrier changes",
+      "crates/biome_service/src/scanner/workspace_bridges.rs initial A5 changes",
+      "crates/biome_service/src/workspace.rs notification/API changes",
+      "crates/biome_service/src/workspace/server.rs initial acquisition/overlay/mutation helpers",
+      "crates/biome_lsp/src/session.rs Ready compatibility changes"
+    ],
+    "partial_coordinator": "Intermediate prefix and committed middle and pre-format suffix retained separately; correction diffs contain remaining changed methods. No assembled full coordinator is claimed.",
+    "hash_caveat": "Original SHA-256 verification files were mentioned and their OK output retained, but their original digest values were not printed. SHA-256 values in this manifest hash the recovered artifacts now. Original abbreviated Git blob IDs remain in diff headers. Complete snapshot source matches its original blob prefix.",
+    "history_caveat": "Earlier initial implementation turns were compacted to summary. Summaries were used only to identify gaps and commit provenance, never to fabricate source."
+  }
+}

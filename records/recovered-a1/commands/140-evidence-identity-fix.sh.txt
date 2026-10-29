@@ -1,0 +1,21 @@
+python3 - <<'PY'
+from pathlib import Path
+p=Path('crates/biome_project_analysis/src/result.rs');s=p.read_text().replace('pub related_evidence: Vec<u32>','pub related_evidence: Vec<EvidenceId>').replace('pub nodes: BTreeMap<u32, Evidence>','pub nodes: BTreeMap<EvidenceId, Evidence>').replace('pub related: Vec<u32>','pub related: Vec<EvidenceId>');needle='#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]\npub struct EvidenceGraph';s=s.replace(needle,'''/// A producer-qualified logical path and range, with a role suffix when needed.
+/// Evidence identities are stable across snapshots and must not embed local numeric IDs.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+pub struct EvidenceId(pub String);
+
+''' + needle);p.write_text(s)
+p=Path('crates/biome_project_analysis/src/normalize.rs');s=p.read_text();a=s.index('    let mut evidence_ids');b=s.index('    value\n}',a);s=s[:a]+'    walk(&mut value, "", &files, &spaces);\n'+s[b:];s=s.replace('    evidence: &BTreeMap<String, Value>,\n','').replace(', files, spaces, evidence)',', files, spaces)');a=s.index('        Value::Object(entries) if key == "nodes" => {');b=s.index('        Value::Object(entries) => {',a);s=s[:a]+'''        Value::Object(entries) if key == "nodes" => {
+            for node in entries.values_mut() {
+                walk(node, "", files, spaces);
+            }
+        }
+'''+s[b:];s=s.replace('                        "related" | "related_evidence" => *entry = mapped(entry, evidence),\n','');p.write_text(s)
+p=Path('crates/biome_project_analysis/tests/contracts.rs');s=p.read_text();start=s.index('fn result_normalization_keeps_source_ranges_and_related_evidence()');end=s.index('\n#[test]',start);part=s[start:end];part=part.replace('    let mut first = ProjectAnalysisResult {','    let evidence_id = EvidenceId("entry:index.ts:1..5".into());\n    let secondary_id = EvidenceId("entry:index.ts:1..5:secondary".into());\n    let mut first = ProjectAnalysisResult {');part=part.replace('related_evidence: vec![9]','related_evidence: vec![evidence_id.clone()]').replace('                9,\n','                evidence_id.clone(),\n');part=part.replace('    first.evidence.nodes = [(4, first.evidence.nodes[&9].clone())].into();\n    first.issues[0].related_evidence = vec![4];\n    assert_eq!(normalized, normalize_result(&first));\n','');part=part.replace('normalized["evidence"]["nodes"][0]','normalized["evidence"]["nodes"][&evidence_id.0]');part=part.replace('loops.evidence.nodes[&4]','loops.evidence.nodes[&evidence_id]').replace('left.related = vec![4]','left.related = vec![evidence_id.clone()]').replace('right.related = vec![7]','right.related = vec![secondary_id.clone()]').replace('[(4, left), (7, right)]','[(evidence_id.clone(), left), (secondary_id.clone(), right)]').replace('get_mut(&4).unwrap().related = vec![7]','get_mut(&evidence_id).unwrap().related = vec![secondary_id.clone()]').replace('get_mut(&7).unwrap().related = vec![4]','get_mut(&secondary_id).unwrap().related = vec![evidence_id.clone()]');s=s[:start]+part+s[end:];p.write_text(s)
+PY
+source /workspace/.biome-cloud/activate.sh
+cargo test -p biome_project_analysis --test contracts result_normalization
+cargo test --offline -p biome_project_analysis -p xtask_project_analysis > .superpowers/sdd/native-project-analysis-2026-10-26/a1-green-evidence-final.log 2>&1
+just f > .superpowers/sdd/native-project-analysis-2026-10-26/a1-format-evidence-final.log 2>&1
+just l > .superpowers/sdd/native-project-analysis-2026-10-26/a1-lint-evidence-final.log 2>&1

@@ -1,0 +1,25 @@
+
+#[test]
+fn normalization_preserves_raw_metadata_and_configuration_keys() {
+    use biome_project_analysis::{model::{AnalysisSnapshot, FileId, SourceContent, SourceRecord}, normalize::normalize_snapshot};
+    let mut snapshot: AnalysisSnapshot = serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
+    let raw = json!({"file":7,"workspaces":{"packages/*":{"entry":[]}},"sources":{"literal":1}});
+    snapshot.inventory.request = raw.clone();
+    snapshot.sources.insert(FileId(7), SourceRecord {
+        logical_path:"package.json".into(),canonical_uri:"file:///project/package.json".into(),
+        content:SourceContent::Available{digest:"a".repeat(64),text:"{}".into()},
+    });
+    snapshot.inventory.workspaces.push(serde_json::from_value(json!({
+        "workspace":3,"path":".","manifest":7,"declaration_locations":[],"metadata_diagnostics":[],
+        "configuration":raw,"metadata":[["imports",{"value":raw,"location":{"file":7,"range":[0,2]},"members":[],"elements":[]}]],
+        "catalogs":[{"name":"","container":{"file":7,"range":[0,2]},"value":{"value":raw,"location":{"file":7,"range":[0,2]},"members":[],"elements":[]}}]
+    })).unwrap());
+    let normalized = normalize_snapshot(&snapshot);
+    assert_eq!(normalized["inventory"]["request"], raw);
+    let workspace = &normalized["inventory"]["workspaces"][0];
+    assert_eq!(workspace["configuration"], raw);
+    assert_eq!(workspace["metadata"][0][1]["value"], raw);
+    assert_eq!(workspace["metadata"][0][1]["location"]["file"], "package.json");
+    assert_eq!(workspace["catalogs"][0]["value"]["value"], raw);
+    assert_eq!(workspace["catalogs"][0]["value"]["location"]["file"], "package.json");
+}

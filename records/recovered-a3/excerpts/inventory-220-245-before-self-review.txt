@@ -1,0 +1,26 @@
+        }
+    }
+    drop(aliases);
+    let mut capture = Capture {
+        fs,
+        root: root.clone(),
+        inventory: Inventory::default(),
+        paths: BTreeMap::new(),
+    };
+    if let Err(error) = root_identity {
+        capture.gap("project identity", error, None);
+    }
+    capture.inventory.request = serde_json::json!({"configuration": request.configuration, "mode": request.mode, "excludedConsumers":request.isolation.as_ref().map(|scope| &scope.excluded_consumers)});
+    for error in traversal.errors.into_inner().unwrap() {
+        capture.gap("filesystem traversal", error, None);
+    }
+    for path in &discovered {
+        if paths::is_source(path)
+            || matches!(path.extension(), Some("json" | "jsonc" | "yaml" | "yml"))
+            || path.file_name() == Some(".gitignore")
+        {
+            capture.capture(path);
+        }
+    }
+    let mut manifests = BTreeMap::new();
+    for path in discovered

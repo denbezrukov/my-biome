@@ -1,0 +1,100 @@
+    pub(crate) fn publish(
+        &self,
+        project: ProjectKey,
+        generation: u64,
+        snapshot: Arc<AnalysisSnapshot>,
+    ) -> SnapshotBuildOutcome {
+        self.publish_reconciled(project, generation, snapshot, &[])
+    }
+
+    pub(crate) fn publish_reconciled(
+        &self,
+        project: ProjectKey,
+        generation: u64,
+        mut snapshot: Arc<AnalysisSnapshot>,
+        recovered: &[usize],
+    ) -> SnapshotBuildOutcome {
+        let mut state = self.inner.lock();
+        if state.pending != 0
+            || state.generation != generation
+            || matches!(
+                state.projects.get(&project),
+                None | Some(ProjectAnalysisState::Closed)
+            )
+        {
+            return SnapshotBuildOutcome::Superseded;
+        }
+        // Recovery and publication share the generation check and lock. Superseded
+        // acquisitions cannot retire either older debt or a newly recorded error.
+        for index in recovered {
+            if let Some(entry) = state.gaps.get_mut(*index)
+                && !entry.persistent
+                && entry.generation <= generation
+            {
+                entry.reconciled.insert(project);
+            }
+        }
+        if let Some(ProjectAnalysisState::Completed {
+            snapshot: cached, ..
+        }) = state.projects.get(&project)
+        {
+            if cached.revision == snapshot.revision {
+                return SnapshotBuildOutcome::Published(cached.clone());
+            }
+            state.generation += 1;
+            let next = state.generation;
+            for (key, status) in &mut state.projects {
+                if *key != project && !matches!(status, ProjectAnalysisState::Closed) {
+                    *status = ProjectAnalysisState::Dirty { generation: next };
+                }
+            }
+            state.cached_inputs.clear();
+            Arc::make_mut(&mut snapshot).revision.epoch = state.generation;
+        }
+        let generation = state.generation;
+        state.projects.insert(
+            project,
+            ProjectAnalysisState::Completed {
+                generation,
+                snapshot: snapshot.clone(),
+            },
+        );
+        Self::wake(&state);
+        SnapshotBuildOutcome::Published(snapshot)
+    }
+
+    pub(crate) fn fail(
+        &self,
+        project: ProjectKey,
+        generation: u64,
+        coverage: Coverage,
+    ) -> SnapshotBuildOutcome {
+        let mut state = self.inner.lock();
+        if state.pending != 0
+            || state.generation != generation
+            || matches!(
+                state.projects.get(&project),
+                None | Some(ProjectAnalysisState::Closed)
+            )
+        {
+            return SnapshotBuildOutcome::Superseded;
+        }
+        state.projects.insert(
+            project,
+            ProjectAnalysisState::Failed {
+                generation,
+                coverage: coverage.clone(),
+            },
+        );
+        Self::wake(&state);
+        SnapshotBuildOutcome::Failed(coverage)
+    }
+
+    pub(crate) fn state(&self, project: ProjectKey) -> ProjectAnalysisState {
+        self.inner
+            .lock()
+            .projects
+            .get(&project)
+            .cloned()
+            .unwrap_or(ProjectAnalysisState::Closed)
+    }

@@ -1,0 +1,31 @@
+                "Excluded consumer {}",
+                capture.inventory.workspaces[workspace.0 as usize].path
+            ),
+            None,
+        );
+    }
+    let gitignore = gitignores(&mut capture);
+    let source_paths: Vec<_> = capture
+        .paths
+        .keys()
+        .filter(|path| paths::is_source(path))
+        .cloned()
+        .collect();
+    let project_patterns: Vec<_> = packages
+        .iter()
+        .map(|package| {
+            capture.patterns(
+                &package.settings.project_patterns(),
+                request.mode,
+                true,
+                "project",
+            )
+        })
+        .collect();
+    for path in &source_paths {
+        if let Some(owner) = owner(&packages, path) {
+            let workspace = WorkspaceId(owner as u32);
+            if excluded.contains(&workspace) {
+                continue;
+            }
+            let package = &packages[owner];

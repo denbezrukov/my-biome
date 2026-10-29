@@ -1,0 +1,81 @@
+                    file.program = true;
+                }
+            }
+        }
+        let entries = manifest_entries(&package.metadata);
+        let hidden = hidden_exports(&package.metadata, &entries);
+        for (specifier, range) in &entries {
+            let target = paths::join(&package.path, &paths::expand_export(specifier));
+            let target = paths::canonical(fs, &target).unwrap_or_else(|error| {
+                capture.gap("path identity", error, None);
+                target
+            });
+            let target_owner = owner(&packages, &target).unwrap_or(index);
+            let mapped = mapped_patterns(
+                &mut capture,
+                &target,
+                &packages[target_owner],
+                &request.configuration,
+            );
+            let patterns = capture.patterns(&mapped, request.mode, false, "manifest entry");
+            let mut matched = Vec::new();
+            for path in &source_paths {
+                if !patterns.matches(path) || ignored(&gitignore, path) {
+                    continue;
+                }
+                let hidden = hidden.iter().any(|hidden| {
+                    let target = paths::join(&package.path, &paths::expand_export(hidden));
+                    let mapped = mapped_patterns(
+                        &mut capture,
+                        &target,
+                        &packages[target_owner],
+                        &request.configuration,
+                    );
+                    capture
+                        .patterns(&mapped, request.mode, false, "null exports")
+                        .matches(path)
+                });
+                if hidden {
+                    continue;
+                }
+                let Some(file_owner) = owner(&packages, path) else {
+                    continue;
+                };
+                if excluded.contains(&WorkspaceId(file_owner as u32)) {
+                    continue;
+                }
+                matched.push(path.clone());
+                add_root(
+                    &mut capture,
+                    path,
+                    WorkspaceId(file_owner as u32),
+                    "manifest entry",
+                    Some(Location {
+                        file: package.file,
+                        range: *range,
+                    }),
+                    RootRole::Production,
+                    ExportProtection::IncludeWhenRequested,
+                );
+            }
+            if matched.is_empty()
+                && !specifier.contains('*')
+                && !is_bare_dependency(package, specifier)
+            {
+                capture.gap(
+                    "manifest entry",
+                    format!("Missing entry {specifier}"),
+                    Some(Location {
+                        file: package.file,
+                        range: *range,
+                    }),
+                );
+            }
+            if !specifier.contains('*') && matched.len() > 1 {
+                capture.gap(
+                    "source mapping",
+                    format!("Ambiguous source mapping for {specifier}"),
+                    Some(Location {
+                        file: package.file,
+                        range: *range,
+                    }),

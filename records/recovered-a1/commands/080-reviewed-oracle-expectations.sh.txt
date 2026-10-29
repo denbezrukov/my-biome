@@ -1,0 +1,24 @@
+python3 - <<'PY'
+from pathlib import Path
+import json
+root=Path('xtask/project_analysis');out=root/'expectations/oracle';out.mkdir(parents=True,exist_ok=True)
+def item(kind,path,name,line=None,col=None,pos=None,namespace=None):
+ details={'name':name}
+ if line is not None:details.update(line=line,col=col,pos=pos)
+ if namespace is not None:details['namespace']=namespace
+ return {'kind':kind,'path':path,'symbol':name,'severity':'error','location':{'line':line,'col':col,'pos':pos},'details':details}
+base=['binaries','catalog','catalogReferences','dependencies','devDependencies','duplicates','enumMembers','exports','files','namespaceMembers','optionalPeerDependencies','types','unlisted','unresolved']
+cases={
+ 'orphan-file':([item('files','orphan.ts','orphan.ts')],base),
+ 'namespace-known-key':([item('exports','values.ts','unused',2,14,36,'ns')],base),
+ 'production-defaults':([item('exports','src/values.ts','unused',2,14,36),item('dependencies','package.json','unused-production',5,6,79),item('files','src/orphan.ts','src/orphan.ts')],[k for k in base if k not in ['devDependencies','catalog','catalogReferences']])}
+for name,(issues,enabled) in cases.items():
+ normalized={'issues':issues,'enabled_issue_kinds':enabled,'coverage':None,'gaps':None,'capabilities':None,'evidence':None,'unavailable':'The Knip JSON reporter does not expose coverage, capabilities or the evidence graph.'}
+ expected={'exit_code':1,'stderr':'','normalized':normalized};(out/(name+'.json')).write_text(json.dumps(expected,indent=2)+'\n')
+ pending=json.loads((root/'observations'/(name+'.pending.json')).read_text());assert pending['normalized']==normalized,name
+print('Reviewed three independently constructed expectations against raw observations.')
+PY
+source /workspace/.biome-cloud/activate.sh
+cargo run -p xtask_project_analysis -- conformance --case orphan-file --oracle-only
+cargo run -p xtask_project_analysis -- conformance --case namespace-known-key --oracle-only
+cargo run -p xtask_project_analysis -- conformance --case production-defaults --oracle-only

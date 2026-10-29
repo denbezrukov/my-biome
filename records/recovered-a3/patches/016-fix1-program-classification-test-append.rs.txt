@@ -1,0 +1,24 @@
+
+#[cfg(unix)]
+#[test]
+fn inventory_review_program_alias_does_not_invent_declaration_classification() {
+    let mut fixture = biome_fs::TemporaryFs::new("biome-a3-review-program-classification");
+    fixture.create_file("package.json", "{}");
+    fixture.create_file("tsconfig.json", r#"{"files":["program.ts"]}"#);
+    let target = fixture.create_file("definition.d.ts", "export declare const value: number;");
+    std::os::unix::fs::symlink(target, fixture.working_directory.join("program.ts")).unwrap();
+    let (service, project) = setup_workspace_and_open_project(fixture.create_os(), fixture.cli_path());
+    for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+        for program in [false, true] {
+            let inventory = service.discover_inventory(project, &ProjectAnalysisRequest { mode, configuration:serde_json::from_value(serde_json::json!({"entry":[],"useTsconfigFiles":program})).unwrap(), ..Default::default() }).unwrap();
+            assert_eq!(inventory.roots.len(), usize::from(program));
+            assert_eq!(inventory.files[0].program, program);
+            if program {
+                assert_eq!(inventory.roots[0].producer, "tsconfig program");
+                assert_eq!(inventory.roots[0].exports, ExportProtection::Unprotected);
+                assert_eq!(inventory.roots[0].role, RootRole::Both);
+            }
+            assert!(inventory.gaps.is_empty(), "{:?}", inventory.gaps);
+        }
+    }
+}

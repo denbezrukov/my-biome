@@ -1,0 +1,184 @@
+fn manifest_entries(metadata: &ProjectMetadata) -> Vec<(String, TextRange)> {
+    let mut entries = Vec::new();
+    for key in ["main", "module", "browser", "bin", "types", "typings"] {
+        if let Some(value) = metadata.fields.get(key) {
+            if key == "bin" {
+                entries.extend(
+                    leaves(value)
+                        .into_iter()
+                        .filter(|(value, _)| !value.is_empty())
+                        .map(|(value, range)| (value.to_string(), range)),
+                );
+            } else if let Some(text) = string(value).filter(|text| !text.is_empty()) {
+                entries.push((text.to_string(), value.range));
+            }
+        }
+    }
+    if let Some(exports) = metadata.fields.get("exports") {
+        entries.extend(
+            leaves(exports)
+                .into_iter()
+                .filter(|(value, _)| *value != "./*" && !value.trim().is_empty())
+                .map(|(value, range)| (value.to_string(), range)),
+        );
+    }
+    if let Some(imports) = &metadata.imports {
+        for (key, value) in &imports.members {
+            if key.starts_with('#') {
+                entries.extend(
+                    leaves(value)
+                        .into_iter()
+                        .filter(|(value, _)| value.starts_with('.') && !value.contains('*'))
+                        .map(|(value, range)| (value.to_string(), range)),
+                );
+            }
+        }
+    }
+    entries
+}
+fn hidden_exports(metadata: &ProjectMetadata, entries: &[(String, TextRange)]) -> Vec<String> {
+    let Some(exports) = metadata.fields.get("exports") else {
+        return Vec::new();
+    };
+    let mut result = Vec::new();
+    for (hidden, value) in &exports.members {
+        if !value.value.is_null() || hidden == "." {
+            continue;
+        }
+        for (key, target) in &exports.members {
+            let Some((prefix, suffix)) = key.split_once('*') else {
+                continue;
+            };
+            let replacement = if let Some((head, tail)) = hidden.split_once('*') {
+                if !head.starts_with(prefix)
+                    || (head.len() <= prefix.len() && hidden.len() <= key.len())
+                {
+                    continue;
+                }
+                if let Some(tail) = tail.strip_suffix(suffix) {
+                    format!("{}*{}", &head[prefix.len()..], tail)
+                } else if suffix.ends_with(tail) {
+                    format!("{}*", &head[prefix.len()..])
+                } else {
+                    continue;
+                }
+            } else {
+                let Some(middle) = hidden
+                    .strip_prefix(prefix)
+                    .and_then(|v| v.strip_suffix(suffix))
+                else {
+                    continue;
+                };
+                middle.to_string()
+            };
+            for (target, _) in leaves(target) {
+                if !target.contains('*') {
+                    continue;
+                }
+                let hidden = target.replace('*', &replacement);
+                let (pattern, _) = Patterns::new(
+                    &[paths::expand_export(&hidden)],
+                    AnalysisMode::Default,
+                    false,
+                );
+                if !entries.iter().any(|(entry, _)| {
+                    !entry.contains('*')
+                        && pattern.matches(Utf8Path::new(entry.trim_start_matches("./")))
+                }) {
+                    result.push(hidden);
+                }
+            }
+        }
+    }
+    result
+}
+fn mapped_patterns(
+    capture: &mut Capture,
+    target: &Utf8Path,
+    package: &Package,
+    config: &ProjectAnalysisConfiguration,
+) -> Vec<String> {
+    let mut pairs = package.config.mappings.clone();
+    if let Some(mappings) = &config.source_mappings {
+        pairs.extend(mappings.iter().map(|mapping| {
+            (
+                paths::join(&package.path, &mapping.output),
+                paths::join(&package.path, &mapping.source),
+            )
+        }));
+    }
+    if pairs.is_empty() {
+        let source = if capture.fs.path_is_dir(&package.path.join("src")) {
+            package.path.join("src")
+        } else {
+            package.path.clone()
+        };
+        pairs.push((source.clone(), source));
+    }
+    pairs.sort();
+    pairs.dedup();
+    let depth = pairs
+        .iter()
+        .filter(|(output, _)| target.starts_with(output))
+        .map(|(output, _)| output.components().count())
+        .max();
+    let matches: Vec<_> = pairs
+        .iter()
+        .filter(|(output, _)| {
+            target.starts_with(output) && Some(output.components().count()) == depth
+        })
+        .collect();
+    if matches.len() > 1 {
+        capture.gap(
+            "source mapping",
+            format!("Ambiguous output directory for {target}"),
+            None,
+        );
+    }
+    if matches.is_empty() {
+        return vec![target.to_string()];
+    }
+    matches
+        .into_iter()
+        .map(|(output, source)| {
+            if output == source {
+                target.to_string()
+            } else {
+                paths::source_pattern(&source.join(target.strip_prefix(output).unwrap()))
+            }
+        })
+        .collect()
+}
+fn add_root(
+    capture: &mut Capture,
+    path: &Utf8Path,
+    workspace: WorkspaceId,
+    producer: &str,
+    location: Option<Location>,
+    role: RootRole,
+    exports: ExportProtection,
+) {
+    let file = capture.capture(path);
+    if let Some(record) = capture
+        .inventory
+        .files
+        .iter_mut()
+        .find(|record| record.file == file)
+    {
+        record.role = FileRole::ReportingCandidate;
+    } else {
+        capture.inventory.files.push(FileRecord {
+            file,
+            workspace,
+            role: FileRole::ReportingCandidate,
+            aliases: vec![relative(&capture.root, path)],
+            program: false,
+        });
+    }
+    capture.inventory.roots.push(Root {
+        file,
+        workspace,
+        producer: producer.into(),
+        location,
+        role,
+        exports,

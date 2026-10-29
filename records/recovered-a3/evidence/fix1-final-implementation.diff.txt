@@ -1,0 +1,109 @@
+diff --git a/crates/biome_service/src/project_analysis/inventory.rs b/crates/biome_service/src/project_analysis/inventory.rs
+index d849b315b40..f9484f09d08 100644
+--- a/crates/biome_service/src/project_analysis/inventory.rs
++++ b/crates/biome_service/src/project_analysis/inventory.rs
+@@ -438,12 +438,19 @@ pub(super) fn discover(
+     let project_patterns: Vec<_> = packages
+         .iter()
+         .map(|package| {
+-            capture.patterns(
+-                &package.settings.project_patterns(),
+-                request.mode,
+-                true,
+-                "project",
+-            )
++            let mut values = package.settings.project_patterns();
++            if request.mode != AnalysisMode::Default {
++                let entries = package.settings.entry_patterns();
++                if values.is_empty() {
++                    values = entries;
++                } else {
++                    values.extend(entries.into_iter().filter(|value| {
++                        !biome_configuration::project_analysis::ProjectPattern::new(value)
++                            .production
++                    }));
++                }
++            }
++            capture.patterns(&values, request.mode, true, "project")
+         })
+         .collect();
+     for path in &source_paths {
+@@ -566,10 +573,18 @@ pub(super) fn discover(
+             &source_paths,
+         );
+         for (path, location) in selected {
++            let declaration = paths::is_declaration(&path);
++            let path = match paths::canonical(fs, &path) {
++                Ok(path) => path,
++                Err(error) => {
++                    capture.gap("path identity", error, Some(location));
++                    continue;
++                }
++            };
+             if owner(&packages, &path) != Some(index) {
+                 continue;
+             }
+-            if paths::is_declaration(&path) {
++            if declaration {
+                 let mapped = mapped_patterns(&mut capture, &path, package, &request.configuration);
+                 let patterns =
+                     capture.patterns(&mapped, request.mode, false, "tsconfig declaration");
+@@ -594,6 +609,9 @@ pub(super) fn discover(
+                     );
+                 }
+                 for source in matches {
++                    if ignored(&gitignore, source) {
++                        continue;
++                    }
+                     add_root(
+                         &mut capture,
+                         source,
+@@ -644,7 +662,11 @@ pub(super) fn discover(
+             let patterns = capture.patterns(&mapped, request.mode, false, "manifest entry");
+             let mut matched = Vec::new();
+             for path in &source_paths {
+-                if !patterns.matches(path) || ignored(&gitignore, path) {
++                if !patterns.matches(path) {
++                    continue;
++                }
++                matched.push(path.clone());
++                if ignored(&gitignore, path) {
+                     continue;
+                 }
+                 let hidden = hidden.iter().any(|hidden| {
+@@ -668,7 +690,6 @@ pub(super) fn discover(
+                 if excluded.contains(&WorkspaceId(file_owner as u32)) {
+                     continue;
+                 }
+-                matched.push(path.clone());
+                 add_root(
+                     &mut capture,
+                     path,
+diff --git a/crates/biome_service/src/project_analysis/paths.rs b/crates/biome_service/src/project_analysis/paths.rs
+index d9350e8c4b3..2940032e497 100644
+--- a/crates/biome_service/src/project_analysis/paths.rs
++++ b/crates/biome_service/src/project_analysis/paths.rs
+@@ -70,6 +70,10 @@ impl Patterns {
+                 Err(error) => errors.push(format!("Unsupported pattern {value}: {error}")),
+             }
+         }
++        if marked {
++            // Entry/project discovery applies exclusions last; workspace policies retain sequence.
++            patterns.sort_by_key(|(_, negative)| *negative);
++        }
+         (Self(patterns), errors)
+     }
+     pub(super) fn matches(&self, path: &Utf8Path) -> bool {
+diff --git a/crates/biome_service/src/project_analysis/tsconfig.rs b/crates/biome_service/src/project_analysis/tsconfig.rs
+index c4a72fc7560..36a13aaba17 100644
+--- a/crates/biome_service/src/project_analysis/tsconfig.rs
++++ b/crates/biome_service/src/project_analysis/tsconfig.rs
+@@ -375,7 +375,7 @@ fn select(
+         for reference in &config.references {
+             if reference
+                 .parent()
+-                .is_some_and(|parent| parent != base && parent.starts_with(base))
++                .is_some_and(|parent| parent.starts_with(base))
+             {
+                 let referenced = load(capture, reference, &mut BTreeSet::new(), true);
+                 select(capture, &referenced, program, files, visited, result);

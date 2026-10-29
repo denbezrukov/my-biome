@@ -1,0 +1,326 @@
+diff --git a/crates/biome_service/src/project_analysis/coordinator.rs b/crates/biome_service/src/project_analysis/coordinator.rs
+index bddcca811d2..0f4ffe4ddbf 100644
+--- a/crates/biome_service/src/project_analysis/coordinator.rs
++++ b/crates/biome_service/src/project_analysis/coordinator.rs
+@@ -38,12 +38,19 @@ pub(crate) enum SnapshotBuildOutcome {
+     Failed(Coverage),
+ }
+ 
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) struct RequestToken(u64);
++
+ pub(crate) struct ProjectAnalysisCoordinator {
+     pub(crate) session_id: String,
+     inner: Mutex<State>,
+     settled: Condvar,
+     #[cfg(test)]
+     pub(crate) before_publish: Mutex<Option<Arc<std::sync::Barrier>>>,
++    #[cfg(test)]
++    pub(crate) settlement_started: Mutex<Option<std::sync::mpsc::Sender<()>>>,
++    #[cfg(test)]
++    pub(crate) after_settlement: Mutex<Option<Arc<std::sync::Barrier>>>,
+ }
+ 
+ #[derive(Default)]
+@@ -52,7 +59,8 @@ struct State {
+     pending: usize,
+     gaps: Vec<WatchGap>,
+     projects: HashMap<ProjectKey, ProjectAnalysisState>,
+-    requests: HashMap<ProjectKey, String>,
++    requests: HashMap<ProjectKey, (String, RequestToken)>,
++    next_request: u64,
+     interested: HashSet<ProjectKey>,
+     cached_inputs: HashMap<ProjectKey, (Arc<AnalysisSnapshot>, Arc<super::pinned_fs::PinnedFs>)>,
+     notification: Option<watch::Sender<ServiceNotification>>,
+@@ -84,6 +92,10 @@ impl Default for ProjectAnalysisCoordinator {
+             settled: Condvar::new(),
+             #[cfg(test)]
+             before_publish: Mutex::default(),
++            #[cfg(test)]
++            settlement_started: Mutex::default(),
++            #[cfg(test)]
++            after_settlement: Mutex::default(),
+         }
+     }
+ }
+@@ -120,7 +132,13 @@ impl ProjectAnalysisCoordinator {
+             .extend(projects.iter().copied());
+     }
+ 
+-    pub(crate) fn begin_request(&self, project: ProjectKey, identity: String) {
++    /// Consecutive identical requests share a token; a replacement invalidates
++    /// every earlier token, even if a later request restores the same identity.
++    pub(crate) fn begin_request(
++        &self,
++        project: ProjectKey,
++        identity: String,
++    ) -> Option<RequestToken> {
+         let mut state = self.inner.lock();
+         let first = state.interested.insert(project);
+         if first {
+@@ -130,13 +148,12 @@ impl ProjectAnalysisCoordinator {
+             state.projects.get(&project),
+             None | Some(ProjectAnalysisState::Closed)
+         ) {
+-            return;
++            return None;
+         }
+-        if state
+-            .requests
+-            .get(&project)
+-            .is_some_and(|current| *current != identity)
+-        {
++        if let Some((current, token)) = state.requests.get(&project) {
++            if *current == identity {
++                return Some(*token);
++            }
+             state.generation += 1;
+             let generation = state.generation;
+             state
+@@ -145,13 +162,22 @@ impl ProjectAnalysisCoordinator {
+             state.cached_inputs.remove(&project);
+             Self::wake(&state);
+         }
+-        state.requests.insert(project, identity);
++        state.next_request += 1;
++        let token = RequestToken(state.next_request);
++        state.requests.insert(project, (identity, token));
++        Some(token)
+     }
+ 
+     /// Observed external changes invalidate a completion before replacement acquisition.
+-    pub(crate) fn reacquire(&self, project: ProjectKey, generation: u64) -> Option<u64> {
++    pub(crate) fn reacquire(
++        &self,
++        project: ProjectKey,
++        request: RequestToken,
++        generation: u64,
++    ) -> Option<u64> {
+         let mut state = self.inner.lock();
+         if state.pending != 0
++            || !Self::current_request(&state, project, request)
+             || state.generation != generation
+             || matches!(
+                 state.projects.get(&project),
+@@ -180,19 +206,28 @@ impl ProjectAnalysisCoordinator {
+     pub(crate) fn cached(
+         &self,
+         project: ProjectKey,
++        request: RequestToken,
+         config_digest: &str,
+     ) -> Option<Arc<AnalysisSnapshot>> {
+-        let (snapshot, inputs) = self.inner.lock().cached_inputs.get(&project)?.clone();
++        let (snapshot, inputs) = {
++            let state = self.inner.lock();
++            if !Self::current_request(&state, project, request) {
++                return None;
++            }
++            state.cached_inputs.get(&project)?.clone()
++        };
+         (snapshot.revision.config_digest == config_digest && inputs.unchanged()).then_some(snapshot)
+     }
+     pub(super) fn remember_inputs(
+         &self,
+         project: ProjectKey,
++        request: RequestToken,
+         snapshot: Arc<AnalysisSnapshot>,
+         inputs: Arc<super::pinned_fs::PinnedFs>,
+     ) {
+         let mut state = self.inner.lock();
+-        if matches!(state.projects.get(&project), Some(ProjectAnalysisState::Completed { snapshot: current, .. }) if current.revision == snapshot.revision)
++        if Self::current_request(&state, project, request)
++            && matches!(state.projects.get(&project), Some(ProjectAnalysisState::Completed { snapshot: current, .. }) if current.revision == snapshot.revision)
+         {
+             state.cached_inputs.insert(project, (snapshot, inputs));
+         }
+@@ -202,12 +237,32 @@ impl ProjectAnalysisCoordinator {
+         self.inner.lock().generation
+     }
+ 
+-    pub(crate) fn wait_until_settled(&self) -> u64 {
++    pub(crate) fn wait_until_settled(
++        &self,
++        project: ProjectKey,
++        request: RequestToken,
++    ) -> Option<u64> {
++        #[cfg(test)]
++        let barrier = self.after_settlement.lock().take();
+         let mut state = self.inner.lock();
++        #[cfg(test)]
++        if state.pending != 0
++            && let Some(sender) = self.settlement_started.lock().as_ref()
++        {
++            sender.send(()).unwrap();
++        }
+         while state.pending != 0 {
+             self.settled.wait(&mut state);
+         }
+-        state.generation
++        let generation =
++            Self::current_request(&state, project, request).then_some(state.generation);
++        drop(state);
++        #[cfg(test)]
++        if let Some(barrier) = barrier {
++            barrier.wait();
++            barrier.wait();
++        }
++        generation
+     }
+ 
+     /// Nested operations remain pending until every guard, including epoch finalization, ends.
+@@ -229,21 +284,24 @@ impl ProjectAnalysisCoordinator {
+     pub(crate) fn publish(
+         &self,
+         project: ProjectKey,
++        request: RequestToken,
+         generation: u64,
+         snapshot: Arc<AnalysisSnapshot>,
+     ) -> SnapshotBuildOutcome {
+-        self.publish_reconciled(project, generation, snapshot, &[])
++        self.publish_reconciled(project, request, generation, snapshot, &[])
+     }
+ 
+     pub(crate) fn publish_reconciled(
+         &self,
+         project: ProjectKey,
++        request: RequestToken,
+         generation: u64,
+         mut snapshot: Arc<AnalysisSnapshot>,
+         recovered: &[usize],
+     ) -> SnapshotBuildOutcome {
+         let mut state = self.inner.lock();
+         if state.pending != 0
++            || !Self::current_request(&state, project, request)
+             || state.generation != generation
+             || matches!(
+                 state.projects.get(&project),
+@@ -252,7 +310,7 @@ impl ProjectAnalysisCoordinator {
+         {
+             return SnapshotBuildOutcome::Superseded;
+         }
+-        // Recovery and publication share the generation check and lock. Superseded
++        // Recovery and publication share request/generation checks and the lock. Superseded
+         // acquisitions cannot retire either older debt or a newly recorded error.
+         for index in recovered {
+             if let Some(entry) = state.gaps.get_mut(*index)
+@@ -294,11 +352,13 @@ impl ProjectAnalysisCoordinator {
+     pub(crate) fn fail(
+         &self,
+         project: ProjectKey,
++        request: RequestToken,
+         generation: u64,
+         coverage: Coverage,
+     ) -> SnapshotBuildOutcome {
+         let mut state = self.inner.lock();
+         if state.pending != 0
++            || !Self::current_request(&state, project, request)
+             || state.generation != generation
+             || matches!(
+                 state.projects.get(&project),
+@@ -408,6 +468,13 @@ impl ProjectAnalysisCoordinator {
+         }
+         (gaps, recovered)
+     }
++    fn current_request(state: &State, project: ProjectKey, request: RequestToken) -> bool {
++        state
++            .requests
++            .get(&project)
++            .is_some_and(|(_, current)| *current == request)
++    }
++
+     fn wake(state: &State) {
+         if let Some(notification) = &state.notification {
+             for (project_key, status) in &state.projects {
+diff --git a/crates/biome_service/src/project_analysis/snapshot.rs b/crates/biome_service/src/project_analysis/snapshot.rs
+index 742d626fc13..e6eb70d934f 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.rs
+@@ -12,6 +12,7 @@ use crate::{
+     workspace::WorkspaceServerWithDb,
+ };
+ use biome_configuration::project_analysis::WorkspaceAnalysisConfiguration;
++use biome_fs::{BiomePath, FileSystem};
+ use biome_module_graph::{
+     ModuleDb, ModuleInfoKind, ProjectResolutionContext, ProjectResolutionPurpose,
+     project_dependencies,
+@@ -70,8 +71,12 @@ impl WorkspaceServerWithDb<'_> {
+         request: &ProjectAnalysisRequest,
+     ) -> Result<SnapshotBuildOutcome, WorkspaceError> {
+         let coordinator = &self.db_state.analysis;
+-        coordinator.begin_request(project, digest(request));
+-        let mut generation = coordinator.wait_until_settled();
++        let Some(token) = coordinator.begin_request(project, digest(request)) else {
++            return Ok(SnapshotBuildOutcome::Superseded);
++        };
++        let Some(mut generation) = coordinator.wait_until_settled(project, token) else {
++            return Ok(SnapshotBuildOutcome::Superseded);
++        };
+         let result: Result<SnapshotBuildOutcome, WorkspaceError> = (|| {
+             let root = self
+                 .project_get_path(project)
+@@ -100,12 +105,12 @@ impl WorkspaceServerWithDb<'_> {
+                 &discovery.inventory,
+                 self.analysis_settings_identity(project)?,
+             ));
+-            if let Some(cached) = coordinator.cached(project, &config_digest)
++            if let Some(cached) = coordinator.cached(project, token, &config_digest)
+                 && pinned.unchanged()
+             {
+-                return Ok(coordinator.publish(project, generation, cached));
++                return Ok(coordinator.publish(project, token, generation, cached));
+             }
+-            let Some(current_generation) = coordinator.reacquire(project, generation) else {
++            let Some(current_generation) = coordinator.reacquire(project, token, generation) else {
+                 return Ok(SnapshotBuildOutcome::Superseded);
+             };
+             generation = current_generation;
+@@ -149,13 +154,27 @@ impl WorkspaceServerWithDb<'_> {
+                         "acquisition",
+                         "Dependency acquisition did not reach a fixed point.",
+                     )]);
+-                    return Ok(coordinator.fail(project, generation, coverage));
++                    return Ok(coordinator.fail(project, token, generation, coverage));
+                 }
++                // Parser source selection reads ProjectLayout, so every batch must
++                // index governing manifests before sources, including new dependencies.
++                let mut batch = std::mem::take(&mut pending);
++                let manifests: Vec<_> = batch
++                    .iter()
++                    .filter(|path| paths::is_source(path))
++                    .flat_map(|path| path.parent().into_iter().flat_map(Utf8Path::ancestors))
++                    .map(|directory| directory.join("package.json"))
++                    .filter(|path| pinned.path_is_file(path))
++                    .collect();
++                batch.extend(manifests);
++                let (manifests, sources): (Vec<_>, Vec<_>) = batch
++                    .into_iter()
++                    .partition(|path| BiomePath::new(path.clone()).is_manifest());
+                 let workspace = acquisition.as_workspace();
+                 {
+                     let epoch = workspace.db_state.scanner_epoch();
+                     let scanner = acquisition.with_db_state(epoch.view());
+-                    for path in std::mem::take(&mut pending) {
++                    for path in manifests.into_iter().chain(sources) {
+                         if !attempted.insert(path.clone()) {
+                             continue;
+                         }
+@@ -335,15 +354,16 @@ impl WorkspaceServerWithDb<'_> {
+                 barrier.wait();
+                 barrier.wait();
+             }
+-            let outcome = coordinator.publish_reconciled(project, generation, snapshot, &recovered);
++            let outcome =
++                coordinator.publish_reconciled(project, token, generation, snapshot, &recovered);
+             if let SnapshotBuildOutcome::Published(snapshot) = &outcome {
+-                coordinator.remember_inputs(project, snapshot.clone(), pinned);
++                coordinator.remember_inputs(project, token, snapshot.clone(), pinned);
+             }
+             Ok(outcome)
+         })();
+         if let Err(error) = &result {
+             let coverage = Coverage::Failed(vec![gap("acquisition", &error.to_string())]);
+-            coordinator.fail(project, generation, coverage);
++            coordinator.fail(project, token, generation, coverage);
+         }
+         result
+     }

@@ -1,0 +1,129 @@
+                .inventory
+                .files
+                .iter_mut()
+                .filter(|f| f.workspace == workspace)
+            {
+                file.role = FileRole::Context;
+            }
+        }
+        let entry_values = package.settings.entry_patterns();
+        let entry_patterns = capture.patterns(&entry_values, request.mode, true, "entry");
+        let production_entries =
+            capture.patterns(&entry_values, AnalysisMode::Production, true, "entry");
+        for value in &entry_values {
+            let pattern = biome_configuration::project_analysis::ProjectPattern::new(value);
+            if pattern.negated
+                || pattern.pattern.contains(['*', '{', '?', '['])
+                || (request.mode != AnalysisMode::Default && !pattern.production)
+            {
+                continue;
+            }
+            let path = paths::join(&package.path, &pattern.pattern);
+            if !fs.path_is_file(&path) {
+                capture.gap("entry", format!("Missing entry {path}"), None);
+            } else if !paths::is_source(&path) {
+                let file = capture.capture(&path);
+                capture.inventory.gaps.push(CoverageGap {
+                    producer: "entry".into(),
+                    domain: TargetDomain::Unbounded,
+                    reason: GapReason::Capability(format!("Unsupported entry format {path}")),
+                    location: Some(Location {
+                        file,
+                        range: TextRange::default(),
+                    }),
+                });
+            }
+        }
+        for alias in &discovered {
+            if paths::is_source(alias)
+                && owner(&packages, alias) == Some(index)
+                && entry_patterns.matches(&relative(&package.path, alias))
+                && let Ok(path) = paths::canonical(fs, alias)
+            {
+                let target_workspace =
+                    owner(&packages, &path).map_or(workspace, |owner| WorkspaceId(owner as u32));
+                if !excluded.contains(&target_workspace) {
+                    let role = if production_entries.matches(&relative(&package.path, alias)) {
+                        RootRole::Production
+                    } else {
+                        RootRole::Default
+                    };
+                    add_root(
+                        &mut capture,
+                        &path,
+                        target_workspace,
+                        "configuration entry",
+                        None,
+                        role,
+                        ExportProtection::IncludeWhenRequested,
+                    );
+                }
+            }
+        }
+        if let Some(public) = &request.configuration.public_entries {
+            let patterns = capture.patterns(&public.0, request.mode, false, "public entry");
+            for path in &source_paths {
+                if owner(&packages, path) == Some(index)
+                    && patterns.matches(&relative(&package.path, path))
+                {
+                    add_root(
+                        &mut capture,
+                        path,
+                        workspace,
+                        "public entry",
+                        None,
+                        RootRole::Both,
+                        ExportProtection::Protected,
+                    );
+                }
+            }
+        }
+        let selected = tsconfig::selected_files(
+            &mut capture,
+            &package.config,
+            request.configuration.use_tsconfig_files.unwrap_or(false),
+            &source_paths,
+        );
+        for (path, location) in selected {
+            if owner(&packages, &path) != Some(index) {
+                continue;
+            }
+            if paths::is_declaration(&path) {
+                let mapped = mapped_patterns(&mut capture, &path, package, &request.configuration);
+                let patterns =
+                    capture.patterns(&mapped, request.mode, false, "tsconfig declaration");
+                let matches: Vec<_> = source_paths
+                    .iter()
+                    .filter(|candidate| {
+                        patterns.matches(candidate) && owner(&packages, candidate) == Some(index)
+                    })
+                    .collect();
+                if matches.len() > 1 {
+                    capture.gap(
+                        "source mapping",
+                        format!("Ambiguous declaration mapping for {path}"),
+                        Some(location),
+                    );
+                }
+                if matches.is_empty() {
+                    capture.gap(
+                        "tsconfig declaration",
+                        format!("Missing declaration source for {path}"),
+                        Some(location),
+                    );
+                }
+                for source in matches {
+                    add_root(
+                        &mut capture,
+                        source,
+                        workspace,
+                        "tsconfig declaration",
+                        Some(location),
+                        RootRole::Production,
+                        ExportProtection::IncludeWhenRequested,
+                    );
+                }
+            } else if request.configuration.use_tsconfig_files == Some(true)
+                && !ignored(&gitignore, &path)
+            {
+                add_root(

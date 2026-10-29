@@ -1,0 +1,506 @@
+diff --git a/crates/biome_module_graph/src/db/queries.rs b/crates/biome_module_graph/src/db/queries.rs
+index b82ae96f767..b735a2267d2 100644
+--- a/crates/biome_module_graph/src/db/queries.rs
++++ b/crates/biome_module_graph/src/db/queries.rs
+@@ -10,6 +10,8 @@
+ 
+ mod css;
+ mod dependencies;
++mod project_exports;
++pub use project_exports::*;
+ mod js_scc;
+ mod type_inference;
+ 
+@@ -19,7 +21,10 @@ use biome_jsdoc_comment::JsdocComment;
+ 
+ pub use crate::db::type_inference::InferredModuleTypes;
+ pub use css::*;
+-pub use dependencies::module_dependencies;
++pub use dependencies::{
++    ProjectDependencyResolution, ProjectResolvedOccurrence, module_dependencies,
++    project_dependencies,
++};
+ pub(crate) use dependencies::{css_dependencies, html_dependencies, js_dependencies};
+ pub use js_scc::*;
+ pub use type_inference::*;
+diff --git a/crates/biome_module_graph/src/js_module_info.rs b/crates/biome_module_graph/src/js_module_info.rs
+index 1a4bdbd9d11..5334fffba7c 100644
+--- a/crates/biome_module_graph/src/js_module_info.rs
++++ b/crates/biome_module_graph/src/js_module_info.rs
+@@ -14,7 +14,7 @@ use biome_js_type_info::{
+     ImportSymbol, RawTypeData, RawTypeId, TypeId, TypeReference, resolved::InferredLocalTypeId,
+ };
+ use biome_resolver::ResolvedSpecifier;
+-use biome_rowan::{Text, TextRange};
++use biome_rowan::{AstNode, Text, TextRange};
+ use indexmap::IndexMap;
+ use rustc_hash::FxHashMap;
+ use std::collections::BTreeSet;
+@@ -196,6 +196,7 @@ pub(crate) fn is_named_type_declaration(declaration_kind: JsDeclarationKind) ->
+ 
+ #[derive(Debug)]
+ pub struct JsModuleInfoInner {
++    pub project_facts: crate::ProjectModuleFacts,
+     /// Map of all static imports found in the module.
+     ///
+     /// Maps each local imported name to a [JsImport]. Resolve its specifier with
+@@ -342,6 +343,8 @@ impl JsImportKind {
+ 
+ #[derive(Clone, Debug, Eq, PartialEq)]
+ pub struct JsImportPath {
++    pub range: TextRange,
++    pub specifier_range: TextRange,
+     pub specifier: Text,
+     pub phase: JsImportPhase,
+     pub kind: JsImportKind,
+@@ -363,6 +366,16 @@ impl JsImportPath {
+ static_assertions::assert_impl_all!(JsModuleInfo: Send, Sync);
+ 
+ impl JsModuleInfoInner {
++    /// Finds the exact source occurrence without reading the aggregate summary.
++    pub fn get_import_occurrence_by_js_node(
++        &self,
++        node: &AnyJsImportLike,
++    ) -> Option<&JsImportPath> {
++        self.import_paths
++            .iter()
++            .find(|import| import.range == node.range())
++    }
++
+     /// Returns the information about a given import by its syntax node.
+     pub fn get_import_path_by_js_node(&self, node: &AnyJsImportLike) -> Option<&JsImportPath> {
+         let specifier_text = node.inner_string_text()?;
+diff --git a/crates/biome_module_graph/src/js_module_info/collector.rs b/crates/biome_module_graph/src/js_module_info/collector.rs
+index 3457ffbcea4..175496b41b4 100644
+--- a/crates/biome_module_graph/src/js_module_info/collector.rs
++++ b/crates/biome_module_graph/src/js_module_info/collector.rs
+@@ -47,6 +47,7 @@ fn merge_import_paths(previous: &JsImportPath, current: &mut JsImportPath) {
+ /// [`JsModuleInfoBag`], and finally the [`JsModuleInfo`] itself.
+ pub(super) struct JsModuleInfoCollector {
+     semantic_model: Arc<SemanticModel>,
++    pub(super) project_facts: crate::ProjectModuleFacts,
+ 
+     pub(super) bindings: Vec<JsBindingData>,
+ 
+@@ -143,6 +144,7 @@ impl JsModuleInfoCollector {
+ 
+         Self {
+             semantic_model,
++            project_facts: crate::ProjectModuleFacts::default(),
+             bindings,
+             function_parameters: FxHashMap::default(),
+             variable_declarations: FxHashMap::default(),
+@@ -334,8 +336,16 @@ impl JsModuleInfoCollector {
+         self.blanket_reexports.push(reexport);
+     }
+ 
+-    pub fn register_static_import_path(&mut self, specifier: TokenText, phase: JsImportPhase) {
++    pub fn register_static_import_path(
++        &mut self,
++        specifier: TokenText,
++        phase: JsImportPhase,
++        range: TextRange,
++        specifier_range: TextRange,
++    ) {
+         let import_path = JsImportPath {
++            range,
++            specifier_range,
+             specifier: specifier.clone().into(),
+             phase,
+             kind: JsImportKind::Static,
+@@ -344,8 +354,16 @@ impl JsModuleInfoCollector {
+             .insert_with(specifier.into(), import_path, merge_import_paths);
+     }
+ 
+-    pub fn register_dynamic_import_path(&mut self, specifier: TokenText, phase: JsImportPhase) {
++    pub fn register_dynamic_import_path(
++        &mut self,
++        specifier: TokenText,
++        phase: JsImportPhase,
++        range: TextRange,
++        specifier_range: TextRange,
++    ) {
+         let import_path = JsImportPath {
++            range,
++            specifier_range,
+             specifier: specifier.clone().into(),
+             phase,
+             kind: JsImportKind::Dynamic,
+@@ -1020,6 +1038,7 @@ impl JsModuleInfo {
+         );
+ 
+         Self(Arc::new(JsModuleInfoInner {
++            project_facts: collector.project_facts,
+             static_imports: Imports(collector.static_imports),
+             import_paths: collector.import_paths,
+             exports: Exports(finalised.exports),
+diff --git a/crates/biome_module_graph/src/js_module_info/visitor.rs b/crates/biome_module_graph/src/js_module_info/visitor.rs
+index d07104506b7..0ed95533e30 100644
+--- a/crates/biome_module_graph/src/js_module_info/visitor.rs
++++ b/crates/biome_module_graph/src/js_module_info/visitor.rs
+@@ -24,6 +24,7 @@ pub(crate) struct JsModuleVisitor {
+     file_path: Utf8PathBuf,
+     semantic_model: std::sync::Arc<biome_js_semantic::SemanticModel>,
+     inference_mode: TypeInferenceMode,
++    parse_status: crate::ProjectParseStatus,
+ }
+ 
+ impl JsModuleVisitor {
+@@ -32,22 +33,34 @@ impl JsModuleVisitor {
+         file_path: Utf8PathBuf,
+         semantic_model: std::sync::Arc<biome_js_semantic::SemanticModel>,
+         inference_mode: TypeInferenceMode,
++        parse_status: crate::ProjectParseStatus,
+     ) -> Self {
+         Self {
+             root,
+             file_path,
+             semantic_model,
+             inference_mode,
++            parse_status,
+         }
+     }
+ 
+     pub fn collect_info(mut self) -> JsModuleInfo {
+         let mut collector = JsModuleInfoCollector::new(self.semantic_model.clone());
++        collector.project_facts = crate::ProjectModuleFacts::from_semantic(
++            &self.semantic_model,
++            &self.file_path,
++            self.parse_status,
++        );
+ 
+         let iter = self.root.syntax().preorder();
+         for event in iter {
+             match event {
+                 WalkEvent::Enter(node) => {
++                    collector.project_facts.enter_node(
++                        &node,
++                        &self.semantic_model,
++                        &self.file_path,
++                    );
+                     if let Some(import) = AnyJsImportLike::cast_ref(&node) {
+                         self.visit_import(import, &mut collector);
+                     } else if let Some(export) = JsExport::cast_ref(&node) {
+@@ -62,6 +75,7 @@ impl JsModuleVisitor {
+             }
+         }
+ 
++        collector.project_facts.finish();
+         JsModuleInfo::new(collector, self.semantic_model, self.inference_mode)
+     }
+ 
+@@ -109,6 +123,10 @@ impl JsModuleVisitor {
+             return;
+         };
+ 
++        let range = node.range();
++        let specifier_range = node
++            .module_name_token()
++            .map_or(range, |token| token.text_trimmed_range());
+         match node {
+             AnyJsImportLike::JsModuleSource(source) => {
+                 // TODO: support defer or source imports
+@@ -118,12 +136,14 @@ impl JsModuleVisitor {
+                     JsImportPhase::Default
+                 };
+ 
+-                collector.register_static_import_path(specifier, phase);
++                collector.register_static_import_path(specifier, phase, range, specifier_range);
+             }
+             AnyJsImportLike::JsCallExpression(_) | AnyJsImportLike::JsImportCallExpression(_) => {
+                 collector.register_dynamic_import_path(
+                     specifier,
+                     JsImportPhase::Default, // TODO: support defer or source imports
++                    range,
++                    specifier_range,
+                 );
+             }
+         }
+diff --git a/crates/biome_module_graph/src/lib.rs b/crates/biome_module_graph/src/lib.rs
+index 8c597a97804..18b438eefeb 100644
+--- a/crates/biome_module_graph/src/lib.rs
++++ b/crates/biome_module_graph/src/lib.rs
+@@ -12,7 +12,9 @@ mod html_module_info;
+ mod import_path_map;
+ pub mod js_module_info;
+ mod module_graph;
++mod project_facts;
+ mod resolution;
++pub use project_facts::*;
+ mod traverse;
+ pub mod type_inference;
+ 
+@@ -54,9 +56,19 @@ pub use js_module_info::{
+ pub use module_graph::{
+     ModuleDependencies, ModuleInfo, ModuleInfoKind, SUPPORTED_EXTENSIONS, SerializedModuleInfo,
+     resolve_css_module, resolve_html_module, resolve_js_module,
+-    resolve_js_module_with_inference_mode, resolve_prepared_html_module,
++    resolve_js_module_with_inference_mode, resolve_js_module_with_project_facts,
++    resolve_prepared_html_module,
+ };
+ pub use resolution::{
+     ResolutionMode, ResolutionRequest, resolve_module_import, resolve_module_request,
+     resolve_specifier,
+ };
++
++pub use db::queries::{
++    ProjectDependencyResolution, ProjectExportResolution, ProjectResolvedOccurrence,
++    project_dependencies, resolve_project_export,
++};
++pub use resolution::{
++    ProjectResolution, ProjectResolutionContext, ProjectResolutionProfile,
++    ProjectResolutionPurpose, resolve_project_specifier,
++};
+diff --git a/crates/biome_module_graph/src/module_graph.rs b/crates/biome_module_graph/src/module_graph.rs
+index c56ae67799d..f098c1edd0d 100644
+--- a/crates/biome_module_graph/src/module_graph.rs
++++ b/crates/biome_module_graph/src/module_graph.rs
+@@ -58,7 +58,33 @@ pub fn resolve_js_module_with_inference_mode(
+     semantic_model: std::sync::Arc<biome_js_semantic::SemanticModel>,
+     inference_mode: TypeInferenceMode,
+ ) -> (JsModuleInfo, ModuleDependencies, Vec<ModuleDiagnostic>) {
+-    let visitor = JsModuleVisitor::new(root, path.to_path_buf(), semantic_model, inference_mode);
++    resolve_js_module_with_project_facts(
++        db,
++        root,
++        path,
++        semantic_model,
++        inference_mode,
++        crate::ProjectParseStatus::Unknown,
++    )
++}
++
++/// Collects syntax facts using parse validity supplied by the parser's caller.
++/// Legacy collection leaves validity unknown and cannot prove ambient exemption.
++pub fn resolve_js_module_with_project_facts(
++    db: &dyn ResolverDb,
++    root: AnyJsRoot,
++    path: &BiomePath,
++    semantic_model: std::sync::Arc<biome_js_semantic::SemanticModel>,
++    inference_mode: TypeInferenceMode,
++    parse_status: crate::ProjectParseStatus,
++) -> (JsModuleInfo, ModuleDependencies, Vec<ModuleDiagnostic>) {
++    let visitor = JsModuleVisitor::new(
++        root,
++        path.to_path_buf(),
++        semantic_model,
++        inference_mode,
++        parse_status,
++    );
+     let module_info = visitor.collect_info();
+     let dependencies = js_dependencies(db, path, &module_info);
+     let diagnostics = module_info.diagnostics().to_vec();
+diff --git a/crates/biome_module_graph/tests/spec_tests.rs b/crates/biome_module_graph/tests/spec_tests.rs
+index 6196997c060..1e22d2c330e 100644
+--- a/crates/biome_module_graph/tests/spec_tests.rs
++++ b/crates/biome_module_graph/tests/spec_tests.rs
+@@ -785,3 +785,6 @@ fn binding_range_by_name(db: &dyn ModuleDb, module: ModuleInfo, name: &str) -> T
+         .syntax()
+         .text_trimmed_range()
+ }
++
++#[path = "spec_tests/project.test.rs"]
++mod project;
+diff --git a/crates/biome_module_graph/tests/spec_tests/support.rs b/crates/biome_module_graph/tests/spec_tests/support.rs
+index b19b2367d60..572cd04636d 100644
+--- a/crates/biome_module_graph/tests/spec_tests/support.rs
++++ b/crates/biome_module_graph/tests/spec_tests/support.rs
+@@ -7,7 +7,8 @@ use biome_fs::{BiomePath, MemoryFileSystem, OsFileSystem};
+ use biome_languages::css::{CssEmbeddingKind, EmbeddingHtmlKind, EmbeddingStyleApplicability};
+ use biome_languages::{CssFileSource, DocumentFileSource, HtmlFileSource, JsonFileSource};
+ use biome_module_graph::{
+-    ModuleInfoKind, resolve_css_module, resolve_html_module, resolve_js_module,
++    ModuleInfoKind, ProjectParseStatus, TypeInferenceMode, resolve_css_module, resolve_html_module,
++    resolve_js_module_with_project_facts,
+ };
+ use biome_parser::AnyParse;
+ use biome_resolver::FsWithResolverProxy;
+@@ -54,7 +55,19 @@ pub fn add_js_modules(
+     infer_types: bool,
+ ) {
+     for (path, root, semantic_model) in get_added_js_paths(fs, paths) {
+-        let (info, _, _) = resolve_js_module(&*db, root, path, semantic_model, infer_types);
++        let inference_mode = if infer_types {
++            TypeInferenceMode::RawTypesOnly
++        } else {
++            TypeInferenceMode::Disabled
++        };
++        let (info, _, _) = resolve_js_module_with_project_facts(
++            &*db,
++            root,
++            path,
++            semantic_model,
++            inference_mode,
++            ProjectParseStatus::Valid,
++        );
+         db.update_or_insert_module(path.as_path().to_path_buf(), ModuleInfoKind::Js(info));
+     }
+ }
+diff --git a/crates/biome_resolver/tests/spec_tests.rs b/crates/biome_resolver/tests/spec_tests.rs
+index 18003f731d3..477339692f5 100644
+--- a/crates/biome_resolver/tests/spec_tests.rs
++++ b/crates/biome_resolver/tests/spec_tests.rs
+@@ -1207,3 +1207,163 @@ fn test_resolve_exports_pattern_specificity() {
+             .unwrap()
+     );
+ }
++
++#[test]
++fn resolution_project_profiles() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/app/package.json".into(), r#"{"name":"app"}"#);
++    fs.insert("/app/node_modules/pkg/package.json".into(), r#"{"name":"pkg","exports":{"types":"./types.d.ts","require":"./require.js","import":"./import.js","default":"./default.js"}}"#);
++    for name in ["types.d.ts", "require.js", "import.js", "default.js"] {
++        fs.insert(format!("/app/node_modules/pkg/{name}").into(), "");
++    }
++    let options = ResolveOptions {
++        condition_names: &["import", "require", "node", "default"],
++        extensions: &["ts", "js"],
++        ..Default::default()
++    };
++    let runtime = resolve_with_trace("pkg", Utf8Path::new("/app"), &fs, &options);
++    assert_eq!(
++        runtime.result.unwrap().into_path(),
++        Utf8Path::new("/app/node_modules/pkg/require.js")
++    );
++    assert!(
++        runtime
++            .trace
++            .events
++            .iter()
++            .any(|event| matches!(event, ResolutionEvent::Condition(name) if name == "require"))
++    );
++    assert!(runtime.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Package { path, .. } if path == Utf8Path::new("/app/node_modules/pkg"))));
++    let declaration = resolve_with_trace(
++        "pkg",
++        Utf8Path::new("/app"),
++        &fs,
++        &ResolveOptions {
++            condition_names: &["types", "import", "require", "node", "default"],
++            ..options.clone()
++        },
++    );
++    assert_eq!(
++        declaration.result.unwrap().into_path(),
++        Utf8Path::new("/app/node_modules/pkg/types.d.ts")
++    );
++    fs.insert(
++        "/app/node_modules/pkg/package.json".into(),
++        r#"{"name":"pkg","exports":{"default":"./missing.js","require":"./require.js"}}"#,
++    );
++    fs.insert("/app/src/pkg.ts".into(), "");
++    let mappings = [SourceMapping {
++        from: "/app/node_modules/pkg/missing.js".into(),
++        to: "/app/src/pkg.ts".into(),
++    }];
++    let mapped = resolve_with_trace(
++        "pkg",
++        Utf8Path::new("/app"),
++        &fs,
++        &ResolveOptions {
++            source_mappings: &mappings,
++            ..options
++        },
++    );
++    assert_eq!(
++        mapped.result.unwrap().into_path(),
++        Utf8Path::new("/app/src/pkg.ts")
++    );
++    assert!(mapped.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Target(path) if path == Utf8Path::new("/app/node_modules/pkg/missing.js"))));
++}
++
++#[test]
++fn resolution_legacy_unchanged() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/app/package.json".into(), "{}");
++    fs.insert(
++        "/app/node_modules/pkg/package.json".into(),
++        r#"{"exports":{"require":"./require.js","types":"./types.d.ts","import":"./import.js"}}"#,
++    );
++    for name in ["types.d.ts", "require.js", "import.js"] {
++        fs.insert(format!("/app/node_modules/pkg/{name}").into(), "");
++    }
++    let options = ResolveOptions {
++        condition_names: &["types", "import", "default"],
++        resolve_types: true,
++        ..Default::default()
++    };
++    assert_eq!(
++        resolve("pkg", Utf8Path::new("/app"), &fs, &options).unwrap(),
++        Utf8Path::new("/app/node_modules/pkg/types.d.ts")
++    );
++}
++
++#[test]
++fn resolution_project_mapping_provenance_and_errors() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/app/package.json".into(), "{}");
++    fs.insert(
++        "/app/node_modules/pkg/package.json".into(),
++        r#"{"name":"installed-pkg","main":"./dist.js"}"#,
++    );
++    fs.insert("/app/source.ts".into(), "");
++    let mappings = [SourceMapping {
++        from: "pkg".into(),
++        to: "/app/source.ts".into(),
++    }];
++    let outcome = resolve_with_trace(
++        "pkg",
++        Utf8Path::new("/app"),
++        &fs,
++        &ResolveOptions {
++            source_mappings: &mappings,
++            ..Default::default()
++        },
++    );
++    assert_eq!(
++        outcome.result.unwrap().into_path(),
++        Utf8Path::new("/app/source.ts")
++    );
++    assert!(outcome.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Package { path, name: Some(name) } if path == Utf8Path::new("/app/node_modules/pkg") && name == "installed-pkg")));
++}
++
++#[test]
++fn resolution_project_partial_manifest_quality() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/app/package.json".into(), "{}");
++    fs.insert(
++        "/app/node_modules/pkg/package.json".into(),
++        r#"{"name":false,"main":"./index.js"}"#,
++    );
++    fs.insert("/app/node_modules/pkg/index.js".into(), "");
++    let result = resolve_with_trace(
++        "pkg",
++        Utf8Path::new("/app"),
++        &fs,
++        &ResolveOptions::default(),
++    );
++    assert!(result.trace.events.iter().any(
++        |event| matches!(event, ResolutionEvent::Manifest { quality, .. } if quality.has_errors())
++    ));
++    assert!(result.result.is_ok());
++    fs.insert(
++        "/app/node_modules/pkg/package.json".into(),
++        r#"{"main":"./index.js"}"#,
++    );
++    fs.insert(
++        "/app/tsconfig.json".into(),
++        r#"{"compilerOptions":{"paths":{"alias":false}}}"#,
++    );
++    let result = resolve_with_trace(
++        "pkg",
++        Utf8Path::new("/app"),
++        &fs,
++        &ResolveOptions::default(),
++    );
++    assert!(result.trace.events.iter().any(|event| matches!(event, ResolutionEvent::Manifest { path, quality } if path.ends_with("tsconfig.json") && quality.has_errors())));
++    assert!(
++        resolve(
++            "pkg",
++            Utf8Path::new("/app"),
++            &fs,
++            &ResolveOptions::default()
++        )
++        .is_ok()
++    );
++}

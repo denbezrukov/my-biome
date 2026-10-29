@@ -1,0 +1,215 @@
+{
+  "recovery_kind": "exact retained conversation text; no repository or recovered-command execution",
+  "agent": "/root/project_a4_implement",
+  "original_base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "original_heads": [
+    "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "3c28dae197840dd6adee956e7d884531a073f7cc"
+  ],
+  "original_branch": "feat/native-project-analysis",
+  "original_commits_available_in_recovery": false,
+  "completeness": "PARTIAL A4 reconstruction evidence; complete four-file fix1 diff survives. Original initial implementation tool calls before compaction survive only as summary, not exact patches. Source excerpt gaps must not be filled from that summary.",
+  "chronology": [
+    "original A4 pre-lint excerpt",
+    "a4-final-lint.original.apply_patch.txt (historical patch, then historical formatter)",
+    "original A4 final source excerpts and two complete per-file diff groups",
+    "a4-changeset-trim.original-command.NOT-EXECUTED.txt -> c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+    "fix1-01-production.complete.diff then fix1-02-tests.complete.diff -> 3c28dae197840dd6adee956e7d884531a073f7cc"
+  ],
+  "known_gaps": [
+    "project_facts.rs original final lines 431-489 are not retained as one final-source excerpt. Pre-lint lines 438-492 and exact lint patch survive; fix1 diff includes old-line context 430-436. Original line 437 is not visible in retained exact sources. Do not guess it.",
+    "project.test.rs original final lines 276-277 are not included in retained sed excerpts. Do not invent their contents.",
+    "No original Git commit objects/tree objects recovered; hashes here identify extracted evidence, not authenticated original full commits.",
+    "No full historical logs or final task report copied; only original success/failure summaries and tool snippets remain in conversation. This recovery does not rerun or revalidate historical tests."
+  ],
+  "entries": [
+    {
+      "file": "a4-project_exports.complete.rs",
+      "original_path": "crates/biome_module_graph/src/db/queries/project_exports.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat tool output",
+      "provenance": "Original functions.exec cat project_exports.rs / resolution.rs / dependencies.rs, before c86455 commit; unchanged by fix1.",
+      "bytes": 5995,
+      "line_count": 157,
+      "sha256": "3d1ff171e22d04b038a5d1a01120f808b6d1c5ee08be9730a538468adb61a97c",
+      "git_blob_sha1": "296abb96c49dfde3f32ec5e5e3b20447f47693e5"
+    },
+    {
+      "file": "fix1-01-production.complete.diff",
+      "original_paths": [
+        "crates/biome_module_graph/src/project_facts.rs",
+        "crates/biome_resolver/src/lib.rs"
+      ],
+      "base": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "head": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "completeness": "complete final diff for these two files; first of two retained final fix diff outputs",
+      "provenance": "Original final self-review git diff output after fix1-format-final; no later source edits.",
+      "bytes": 19264,
+      "line_count": 461,
+      "sha256": "cd6d0550a81deeacb7d04dcc981e4beec1ae843e34e2785998383e742a47a678",
+      "git_blob_sha1": "95a13b34a504b9811cdf46e7c21ba2bc46c8709a",
+      "hunk_count_validation_errors": []
+    },
+    {
+      "file": "fix1-02-tests.complete.diff",
+      "base": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "head": "3c28dae197840dd6adee956e7d884531a073f7cc",
+      "completeness": "complete final diff for two test files; second of two final fix diff outputs",
+      "provenance": "Original final self-review git diff output; follows fix1-01-production.complete.diff in retained output order.",
+      "bytes": 12677,
+      "line_count": 371,
+      "sha256": "1aa123070de1a5a4c1c61f5ef83d3f7c1fdd11bdc5e38347c9cdf3438cf1a4f3",
+      "git_blob_sha1": "f77889dee856d76d5a50124265af20f3e50e3002",
+      "hunk_count_validation_errors": []
+    },
+    {
+      "file": "a4-01-resolver.complete.diff",
+      "base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+      "head": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete original final diff for resolver db.rs, lib.rs, resolver_fs_proxy.rs",
+      "provenance": "Retained original self-review git diff output; patch sections/order preserved.",
+      "bytes": 29176,
+      "line_count": 807,
+      "sha256": "323a0e44ab21c6954bb6a07823d51e77e1a300bea89e611922bb3da31f8c39f0",
+      "git_blob_sha1": "6048dcf33422bf8bb1b60703d98c5eb887e0ad34",
+      "hunk_count_validation_errors": []
+    },
+    {
+      "file": "a4-project_facts.lines-1-430.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 1-430 only",
+      "provenance": "Retained sed -n '1,430p' output after original mechanical lint fixes.",
+      "bytes": 14585,
+      "line_count": 430,
+      "sha256": "24bda72371b89875c09f3d20f58074587b4594bb1b3d19d6db7e63d5ad8b3d94",
+      "git_blob_sha1": "76285a729586569cd58f34e6577e27a994474afd"
+    },
+    {
+      "file": "a4-project_facts.lines-490-1034.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 490-1034; overlap with next excerpt at 1034",
+      "provenance": "Retained sed -n '490,1034p' output after original mechanical lint fixes.",
+      "bytes": 21749,
+      "line_count": 545,
+      "sha256": "f2785952cf7233ec763eaa13b90b2bcc0b4be1b2fa300077bbc0866ba49134a6",
+      "git_blob_sha1": "6e0fa920f955220694ff367e4287ca37844a1a42"
+    },
+    {
+      "file": "a4-project_facts.lines-1034-end.partial.rs",
+      "original_path": "crates/biome_module_graph/src/project_facts.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, lines 1034 through EOF (original file 1636 lines)",
+      "provenance": "Retained sed -n '1034,1660p' output after original mechanical lint fixes.",
+      "bytes": 21436,
+      "line_count": 603,
+      "sha256": "7c0ce1e644535fc52dcbc3ee15b881701115ce7ae91d5c49b787a54e50187835",
+      "git_blob_sha1": "b73648669c34514828491354ccfc863807155a2d"
+    },
+    {
+      "file": "a4-project_facts.prelint-lines-438-492.partial.rs",
+      "completeness": "partial excerpt of pre-lint source; NOT final c864 source",
+      "provenance": "Original sed -n '438,492p;626,643p;1030,1052p;1103,1122p;1208,1264p;1300,1342p'; only first range extracted verbatim.",
+      "bytes": 2269,
+      "line_count": 55,
+      "sha256": "8560bc2b1b48ae61f57815e51cd0cf7581a348544ccc525f9aa7d378ee1e66a4",
+      "git_blob_sha1": "f145a979d2ad17d962b77c89a3b0de3da40487b1"
+    },
+    {
+      "file": "a4-final-lint.original.apply_patch.txt",
+      "completeness": "complete exact original tool patch input; not executed in recovery",
+      "provenance": "Original tools.apply_patch after first just l failure; chronological predecessor to c864 source and fix1 diffs. Original just f followed it; formatting output is not replayed.",
+      "bytes": 3016,
+      "line_count": 63,
+      "sha256": "2210f217a303f87b60b40bbb179613e674452323f86e06ce1a2dba6cafbe1321",
+      "git_blob_sha1": "cb948bc1d902826d149337af7cb0009fbf8f032a"
+    },
+    {
+      "file": "a4-02-graph-and-resolver-tests.complete.diff",
+      "base": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+      "head": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete original final diff for the nine listed files; dependencies/resolution/new files captured separately",
+      "provenance": "Retained original self-review git diff output following original resolver diff read; patch section order preserved.",
+      "bytes": 19449,
+      "line_count": 506,
+      "sha256": "dfe522a2fa0e5b130b783aff0d5d51ffcd2265259bceda1c7acfc477ae1ccd9e",
+      "git_blob_sha1": "a811294a643d3d6e56312e0ce98a93feaf72e4f4",
+      "hunk_count_validation_errors": []
+    },
+    {
+      "file": "a4-resolution.complete.rs",
+      "original_path": "crates/biome_module_graph/src/resolution.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat output",
+      "provenance": "Original cat project_exports.rs, resolution.rs, dependencies.rs output; no later changes to this file in A4/fix1.",
+      "bytes": 10813,
+      "line_count": 311,
+      "sha256": "b9a9aa06e27fe1c352e5289535b83cf01f77b36ec5ffc122c3304f60bcc3124c",
+      "git_blob_sha1": "9bad059770e92296f9ff2e56891d1a8c92ab7e83"
+    },
+    {
+      "file": "a4-dependencies.complete.rs",
+      "original_path": "crates/biome_module_graph/src/db/queries/dependencies.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "complete source from retained cat output",
+      "provenance": "Original cat project_exports.rs, resolution.rs, dependencies.rs output; no later changes to this file in A4/fix1.",
+      "bytes": 4562,
+      "line_count": 142,
+      "sha256": "84d0d4bd393b58a4e561c44d182e52f4bfabb2ab37651bf3474d259689b18347",
+      "git_blob_sha1": "1bde59843f9c09427dc6f87bd4f2451007520cc6"
+    },
+    {
+      "file": "a4-project-test.lines-1-275.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt; lines 1-275 only, closing delimiter not included",
+      "provenance": "Original sed -n '1,275p' final self-review output.",
+      "bytes": 8885,
+      "line_count": 275,
+      "sha256": "54c76c5a836671c126d4209b9a80a2d61bdaac3cad06e969d6840fad16436e5d",
+      "git_blob_sha1": "26a42e5a4ec15e0ebeb6f5dddc3ecbebb5e8cdfb"
+    },
+    {
+      "file": "a4-project-test.lines-278-586.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, 278-586",
+      "provenance": "Original sed -n '278,586p' final self-review output.",
+      "bytes": 10314,
+      "line_count": 309,
+      "sha256": "ec695bfbf6a235f2d0adf56513d28287aadf32df693a2de612baad93d0db2083",
+      "git_blob_sha1": "94a1939d83e618bb2598d55d61c41893b11a9039"
+    },
+    {
+      "file": "a4-project-test.lines-587-end.partial.rs",
+      "original_path": "crates/biome_module_graph/tests/spec_tests/project.test.rs",
+      "state": "c86455d85ecaacb6d76a3d09691882fd9a7ac1d9",
+      "completeness": "partial exact excerpt, 587 through EOF (820)",
+      "provenance": "Original sed -n '587,840p' final self-review output.",
+      "bytes": 8239,
+      "line_count": 234,
+      "sha256": "a654473c802bf87d443b69f4f49f15b0f0caa8e35eafddf8c258549c7dbe780a",
+      "git_blob_sha1": "918cb1eb9e483b71e4837c57dfcc9b88407c90f9"
+    },
+    {
+      "file": "a4-changeset.pretrim.exact.md",
+      "original_path": ".changeset/vast-points-move.md",
+      "completeness": "complete pre-commit cat output body, including two trailing blank lines; NOT final trimmed bytes",
+      "provenance": "Original cat .changeset/vast-points-move.md output immediately before staging revealed trailing blank lines.",
+      "bytes": 200,
+      "line_count": 7,
+      "sha256": "790f9c971851c417181f7e64b52ab0e87b140439babe53cc9d96e58cdf7e0b73",
+      "git_blob_sha1": "53fedf86f476ee8b01b8c780cced04ca20bd39e2"
+    },
+    {
+      "file": "a4-changeset-trim.original-command.NOT-EXECUTED.txt",
+      "completeness": "exact historical tool command text; inert evidence, NOT executed during recovery",
+      "provenance": "Original tools.exec_command call removing trailing blank lines and creating c86455d85ec.",
+      "bytes": 289,
+      "line_count": 8,
+      "sha256": "a19733b1cbff1b5bcb6fc7a8aa7fd415cfc7627e2f9ab37c90b545df810c4d41",
+      "git_blob_sha1": "2c6387a2bbbc736136fe9e03e5b299c553fc623f"
+    }
+  ]
+}

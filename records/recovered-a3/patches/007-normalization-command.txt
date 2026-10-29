@@ -1,0 +1,25 @@
+python3 - <<'PY'
+p='crates/biome_project_analysis/src/normalize.rs'
+s=open(p).read().replace('''    match value {
+        Value::Number(_)''','''    if matches!(key, "request" | "configuration") {
+        return;
+    }
+    match value {
+        Value::Number(_)''',1)
+s=s.replace('''        Value::Object(entries) => {
+            for (key, entry) in entries {
+                walk(entry, key, files, spaces);
+            }
+        }''','''        Value::Object(entries) => {
+            let metadata = entries.contains_key("location")
+                && entries.contains_key("members")
+                && entries.contains_key("elements");
+            for (key, entry) in entries {
+                // Raw metadata keys can resemble ID fields; only its typed locations contain IDs.
+                if !metadata || key != "value" {
+                    walk(entry, key, files, spaces);
+                }
+            }
+        }''',1)
+open(p,'w').write(s)
+PY

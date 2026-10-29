@@ -1,0 +1,366 @@
+diff --git a/crates/biome_service/src/project_analysis/snapshot.tests.rs b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+index 1b1ff262b20..4c3fa829cf6 100644
+--- a/crates/biome_service/src/project_analysis/snapshot.tests.rs
++++ b/crates/biome_service/src/project_analysis/snapshot.tests.rs
+@@ -30,13 +30,23 @@ fn snapshot_waits_for_epoch_finalization() {
+     let generation = coordinator.generation();
+     let epoch = coordinator.mutation();
+     assert!(matches!(
+-        coordinator.publish(project, generation, snapshot(generation)),
++        coordinator.publish(
++            project,
++            request_token(&coordinator, project),
++            generation,
++            snapshot(generation)
++        ),
+         SnapshotBuildOutcome::Superseded
+     ));
+     drop(epoch);
+     let generation = coordinator.generation();
+     assert!(matches!(
+-        coordinator.publish(project, generation, snapshot(generation)),
++        coordinator.publish(
++            project,
++            request_token(&coordinator, project),
++            generation,
++            snapshot(generation)
++        ),
+         SnapshotBuildOutcome::Published(_)
+     ));
+ }
+@@ -48,7 +58,12 @@ fn snapshot_rejects_mixed_roots_and_modules() {
+     coordinator.open(project);
+     let generation = coordinator.generation();
+     drop(coordinator.mutation());
+-    let outcome = coordinator.publish(project, generation, snapshot(generation));
++    let outcome = coordinator.publish(
++        project,
++        request_token(&coordinator, project),
++        generation,
++        snapshot(generation),
++    );
+     assert!(matches!(outcome, SnapshotBuildOutcome::Superseded));
+ }
+ 
+@@ -63,8 +78,18 @@ fn snapshot_completion_state_survives_coalescing() {
+     coordinator.open(b);
+     coordinator.observe(&[a, b]);
+     let generation = coordinator.generation();
+-    coordinator.publish(a, generation, snapshot(generation));
+-    coordinator.publish(b, generation, snapshot(generation));
++    coordinator.publish(
++        a,
++        request_token(&coordinator, a),
++        generation,
++        snapshot(generation),
++    );
++    coordinator.publish(
++        b,
++        request_token(&coordinator, b),
++        generation,
++        snapshot(generation),
++    );
+     assert!(matches!(
+         &*receiver.borrow_and_update(),
+         ServiceNotification::ProjectAnalysisReady {
+@@ -350,18 +375,22 @@ fn scanner_epoch_snapshot_publication_requires_finalization() {
+     let epoch = service.db.scanner_epoch();
+     let generation = service.db.analysis.generation();
+     assert!(matches!(
+-        service
+-            .db
+-            .analysis
+-            .publish(service.project, generation, snapshot(generation)),
++        service.db.analysis.publish(
++            service.project,
++            request_token(&service.db.analysis, service.project),
++            generation,
++            snapshot(generation)
++        ),
+         SnapshotBuildOutcome::Superseded
+     ));
+     drop(epoch);
+     assert!(matches!(
+-        service
+-            .db
+-            .analysis
+-            .publish(service.project, generation, snapshot(generation)),
++        service.db.analysis.publish(
++            service.project,
++            request_token(&service.db.analysis, service.project),
++            generation,
++            snapshot(generation)
++        ),
+         SnapshotBuildOutcome::Published(_)
+     ));
+ }
+@@ -415,10 +444,12 @@ fn snapshot_watch_operation_remains_pending_until_dependencies_finish() {
+     bridge.with_analysis_mutation(|| {
+         let generation = service.db.analysis.generation();
+         assert!(matches!(
+-            service
+-                .db
+-                .analysis
+-                .publish(service.project, generation, snapshot(generation)),
++            service.db.analysis.publish(
++                service.project,
++                request_token(&service.db.analysis, service.project),
++                generation,
++                snapshot(generation)
++            ),
+             SnapshotBuildOutcome::Superseded
+         ));
+     });
+@@ -535,7 +566,12 @@ fn snapshot_failed_state_is_durable() {
+     coordinator.open(project);
+     let coverage = Coverage::Failed(Vec::new());
+     assert!(matches!(
+-        coordinator.fail(project, coordinator.generation(), coverage.clone()),
++        coordinator.fail(
++            project,
++            request_token(&coordinator, project),
++            coordinator.generation(),
++            coverage.clone()
++        ),
+         SnapshotBuildOutcome::Failed(_)
+     ));
+     assert!(
+@@ -941,7 +977,7 @@ fn snapshot_unrequested_projects_preserve_legacy_notifications() {
+         coordinator.state(project),
+         ProjectAnalysisState::Dirty { .. }
+     ));
+-    coordinator.begin_request(project, "request".into());
++    let _ = coordinator.begin_request(project, "request".into());
+     assert!(receiver.has_changed().unwrap());
+     receiver.borrow_and_update();
+     coordinator.close(project);
+@@ -960,8 +996,8 @@ fn snapshot_requests_cannot_reopen_closed_or_unknown_state() {
+             coordinator.open(project);
+             coordinator.close(project);
+         }
+-        coordinator.begin_request(project, "first".into());
+-        coordinator.begin_request(project, "second".into());
++        let _ = coordinator.begin_request(project, "first".into());
++        let _ = coordinator.begin_request(project, "second".into());
+         assert!(matches!(
+             coordinator.state(project),
+             ProjectAnalysisState::Closed
+@@ -1234,3 +1270,218 @@ fn snapshot_watch_recovery_requires_acquiring_known_external_error_path() {
+     assert!(!has_watch_gap(&service.snapshot(&request)));
+     equivalent(&service, &fs, true, &request);
+ }
++
++fn assert_script_acquired(snapshot: &AnalysisSnapshot, path: &str) {
++    let (file, _) = snapshot
++        .sources
++        .iter()
++        .find(|(_, source)| source.logical_path.as_str() == path)
++        .unwrap();
++    assert!(
++        snapshot.modules.contains_key(file),
++        "script must be collected: {path}"
++    );
++    assert!(
++        !snapshot
++            .inventory
++            .gaps
++            .iter()
++            .any(|gap| gap.producer == "parser"
++                && gap
++                    .location
++                    .as_ref()
++                    .is_some_and(|location| location.file == *file)),
++        "governing CommonJS manifest must select script parsing: {path}"
++    );
++}
++
++#[test]
++fn snapshot_governing_manifest_precedes_root_source() {
++    for owned in [false, true] {
++        let fs = MemoryFileSystem::default();
++        fs.insert("/project/package.json".into(), r#"{"type":"commonjs"}"#);
++        fs.insert("/project/index.js".into(), "with ({}) {}");
++        let service = Service::new(&fs, owned);
++        assert_script_acquired(&service.snapshot(&Default::default()), "index.js");
++    }
++}
++
++#[test]
++fn snapshot_governing_manifest_uses_nearest_initial_package() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), r#"{"type":"module"}"#);
++    fs.insert("/project/index.ts".into(), "import './nested/index.js';");
++    fs.insert(
++        "/project/nested/package.json".into(),
++        r#"{"type":"commonjs"}"#,
++    );
++    fs.insert("/project/nested/index.js".into(), "with ({}) {}");
++    let service = Service::new(&fs, true);
++    assert_script_acquired(&service.snapshot(&Default::default()), "nested/index.js");
++}
++
++#[test]
++fn snapshot_governing_manifest_precedes_new_dependency() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), r#"{"type":"module"}"#);
++    fs.insert("/project/index.ts".into(), "import 'library';");
++    fs.insert(
++        "/node_modules/library/package.json".into(),
++        r#"{"type":"module","main":"nested/index.js"}"#,
++    );
++    fs.insert(
++        "/node_modules/library/nested/package.json".into(),
++        r#"{"type":"commonjs"}"#,
++    );
++    fs.insert(
++        "/node_modules/library/nested/index.js".into(),
++        "with ({}) {}",
++    );
++    let service = Service::new(&fs, true);
++    let snapshot = service.snapshot(&Default::default());
++    let path = snapshot
++        .sources
++        .values()
++        .find(|source| {
++            source
++                .logical_path
++                .as_str()
++                .ends_with("library/nested/index.js")
++        })
++        .unwrap()
++        .logical_path
++        .clone();
++    assert_script_acquired(&snapshot, path.as_str());
++    equivalent(&service, &fs, true, &Default::default());
++}
++
++#[test]
++fn snapshot_waiting_request_cannot_replace_its_successor() {
++    let fs = MemoryFileSystem::default();
++    fs.insert("/project/package.json".into(), "{}");
++    fs.insert("/project/index.ts".into(), "export const value = 1;");
++    let service = Service::new(&fs, true);
++    let mutation = service.db.analysis.mutation();
++    let (started, waiting) = std::sync::mpsc::channel();
++    *service.db.analysis.settlement_started.lock() = Some(started);
++    let barrier = Arc::new(std::sync::Barrier::new(2));
++    *service.db.analysis.after_settlement.lock() = Some(barrier.clone());
++    std::thread::scope(|scope| {
++        let old = scope.spawn(|| {
++            service
++                .server
++                .with_db_state(&service.db)
++                .try_build_project_snapshot(service.project, &Default::default())
++        });
++        waiting.recv().unwrap();
++        let current = scope.spawn(|| {
++            service.snapshot(&super::ProjectAnalysisRequest {
++                mode: biome_project_analysis::options::AnalysisMode::Production,
++                ..Default::default()
++            })
++        });
++        waiting.recv().unwrap();
++        drop(mutation);
++        barrier.wait();
++        let current = current.join().unwrap();
++        barrier.wait();
++        assert!(
++            matches!(
++                old.join().unwrap().unwrap(),
++                SnapshotBuildOutcome::Superseded
++            ),
++            "older waiter must not adopt the replacement request's generation"
++        );
++        assert!(
++            matches!(service.db.analysis.state(service.project), ProjectAnalysisState::Completed { snapshot, .. } if snapshot.revision == current.revision)
++        );
++    });
++}
++
++fn request_token(
++    coordinator: &ProjectAnalysisCoordinator,
++    project: ProjectKey,
++) -> super::coordinator::RequestToken {
++    coordinator.begin_request(project, "test".into()).unwrap()
++}
++
++#[test]
++fn snapshot_obsolete_request_cannot_reacquire_or_fail() {
++    let coordinator = ProjectAnalysisCoordinator::default();
++    let project = ProjectKey::new();
++    coordinator.open(project);
++    let old = coordinator.begin_request(project, "A".into()).unwrap();
++    assert_eq!(old, coordinator.begin_request(project, "A".into()).unwrap());
++    coordinator.begin_request(project, "B".into()).unwrap();
++    let current = coordinator.begin_request(project, "A".into()).unwrap();
++    assert_ne!(old, current, "A to B to A cannot revive the old A token");
++    let generation = coordinator.generation();
++    assert_eq!(coordinator.reacquire(project, old, generation), None);
++    assert!(matches!(
++        coordinator.fail(project, old, generation, Coverage::Failed(Vec::new())),
++        SnapshotBuildOutcome::Superseded
++    ));
++    assert!(matches!(
++        coordinator.state(project),
++        ProjectAnalysisState::Dirty { .. }
++    ));
++    assert!(matches!(
++        coordinator.publish(project, current, generation, snapshot(generation)),
++        SnapshotBuildOutcome::Published(_)
++    ));
++}
++
++#[test]
++fn snapshot_obsolete_request_cannot_publish_or_recover() {
++    let coordinator = ProjectAnalysisCoordinator::default();
++    let project = ProjectKey::new();
++    coordinator.open(project);
++    coordinator.record_watch_input_error(project, Utf8Path::new("/project"), "unreconciled".into());
++    let old = coordinator.begin_request(project, "A".into()).unwrap();
++    let current = coordinator.begin_request(project, "B".into()).unwrap();
++    let generation = coordinator.generation();
++    let (_, recovered) = coordinator.watch_gaps(
++        project,
++        generation,
++        Utf8Path::new("/project"),
++        &Default::default(),
++        true,
++    );
++    assert_eq!(recovered.len(), 1);
++    assert!(matches!(
++        coordinator.publish_reconciled(project, old, generation, snapshot(generation), &recovered),
++        SnapshotBuildOutcome::Superseded
++    ));
++    assert_eq!(
++        coordinator
++            .watch_gaps(
++                project,
++                generation,
++                Utf8Path::new("/project"),
++                &Default::default(),
++                false
++            )
++            .0
++            .len(),
++        1
++    );
++    assert!(matches!(
++        coordinator.publish(project, current, generation, snapshot(generation)),
++        SnapshotBuildOutcome::Published(_)
++    ));
++    assert!(
++        matches!(
++            coordinator.publish(project, old, generation, snapshot(generation)),
++            SnapshotBuildOutcome::Superseded
++        ),
++        "obsolete cache publication must be rejected too"
++    );
++    assert!(matches!(
++        coordinator.fail(project, old, generation, Coverage::Failed(Vec::new())),
++        SnapshotBuildOutcome::Superseded
++    ));
++    assert!(matches!(
++        coordinator.state(project),
++        ProjectAnalysisState::Completed { .. }
++    ));
++}

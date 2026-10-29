@@ -1,0 +1,31 @@
+                .as_ref()
+                .is_some_and(|name| pattern.is_raw_match(name))
+    };
+    let selected = workspaces
+        .iter()
+        .filter(|workspace| {
+            (!has_positive || positive.iter().any(|pattern| matches(pattern, workspace)))
+                && !negative.iter().any(|pattern| matches(pattern, workspace))
+        })
+        .map(|workspace| workspace.workspace)
+        .collect();
+    (selected, errors)
+}
+
+#[cfg(test)]
+#[path = "inventory.tests.rs"]
+mod tests;
+
+fn json_value(value: &MetadataValue) -> serde_json::Value {
+    if let Some(text) = string(value) {
+        serde_json::Value::String(text.into())
+    } else if let Some(value) = value.value.as_bool() {
+        value.into()
+    } else if let Some(value) = value.value.as_number() {
+        serde_json::json!(value)
+    } else if value.value.as_array().is_some() {
+        serde_json::Value::Array(value.elements.iter().map(json_value).collect())
+    } else if value.value.as_object().is_some() {
+        serde_json::Value::Object(
+            value
+                .members

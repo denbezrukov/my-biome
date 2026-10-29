@@ -1,0 +1,105 @@
+use biome_configuration::project_analysis::ProjectPattern;
+use biome_fs::{FileSystem, normalize_path};
+use biome_glob::NormalizedGlob;
+use biome_project_analysis::options::AnalysisMode;
+use camino::{Utf8Path, Utf8PathBuf};
+
+pub(super) fn join(base: &Utf8Path, path: &str) -> Utf8PathBuf {
+    normalize_path(&base.join(path.replace('\\', "/")))
+}
+
+pub(super) fn canonical(fs: &dyn FileSystem, path: &Utf8Path) -> Result<Utf8PathBuf, String> {
+    let path = normalize_path(path);
+    for ancestor in path.ancestors() {
+        match fs.canonicalize_path(ancestor) {
+            Ok(canonical) => {
+                return Ok(normalize_path(
+                    &canonical.join(path.strip_prefix(ancestor).unwrap()),
+                ));
+            }
+            Err(error)
+                if error.kind() == std::io::ErrorKind::NotFound
+                    && !fs.path_is_symlink(ancestor) => {}
+            Err(error) => return Err(format!("Cannot identify {path}: {error}")),
+        }
+    }
+    Err(format!("No existing ancestor for {path}"))
+}
+
+fn glob_path(value: &str) -> String {
+    let value = value.replace('\\', "/");
+    if let Some(value) = value.strip_prefix("//?/UNC/") {
+        format!("//{value}")
+    } else {
+        value.strip_prefix("//?/").unwrap_or(&value).to_string()
+    }
+}
+
+pub(super) fn is_source(path: &Utf8Path) -> bool {
+    matches!(
+        path.extension(),
+        Some("js" | "jsx" | "mjs" | "cjs" | "ts" | "tsx" | "mts" | "cts")
+    )
+}
+
+pub(super) fn is_declaration(path: &Utf8Path) -> bool {
+    [".d.ts", ".d.mts", ".d.cts"]
+        .iter()
+        .any(|suffix| path.as_str().ends_with(suffix))
+}
+
+pub(super) struct Patterns(Vec<(NormalizedGlob, bool)>);
+impl Patterns {
+    pub(super) fn new(values: &[String], mode: AnalysisMode, marked: bool) -> (Self, Vec<String>) {
+        let mut patterns = Vec::new();
+        let mut errors = Vec::new();
+        for value in values {
+            let parsed = ProjectPattern::new(value);
+            if marked && mode == AnalysisMode::Default && parsed.negated && parsed.production {
+                continue;
+            }
+            let negative =
+                parsed.negated || (marked && mode != AnalysisMode::Default && !parsed.production);
+            let pattern = if marked {
+                parsed.pattern
+            } else {
+                value.trim_start_matches('!').to_string()
+            };
+            match glob_path(&pattern).parse::<NormalizedGlob>() {
+                Ok(glob) => patterns.push((glob, negative)),
+                Err(error) => errors.push(format!("Unsupported pattern {value}: {error}")),
+            }
+        }
+        if marked {
+            // Entry/project discovery applies exclusions last; workspace policies retain sequence.
+            patterns.sort_by_key(|(_, negative)| *negative);
+        }
+        (Self(patterns), errors)
+    }
+    pub(super) fn matches(&self, path: &Utf8Path) -> bool {
+        self.0
+            .iter()
+            .rev()
+            .find(|(pattern, _)| pattern.is_raw_match(glob_path(path.as_str())))
+            .is_some_and(|(_, negative)| !negative)
+    }
+}
+
+pub(super) fn expand_export(pattern: &str) -> String {
+    if let Some(prefix) = pattern.strip_suffix("/*") {
+        return format!("{prefix}/**");
+    }
+    pattern
+        .replacen("/*.", "/**/*.", 1)
+        .replacen("/*/", "/**/", 1)
+}
+
+pub(super) fn source_pattern(pattern: &Utf8Path) -> String {
+    let value = pattern.as_str();
+    for extension in [".d.ts", ".d.mts", ".d.cts", ".js", ".jsx", ".mjs", ".cjs"] {
+        if let Some(stem) = value.strip_suffix(extension) {
+            return format!("{stem}.{{ts,tsx,mts,cts,js,jsx,mjs,cjs}}");
+        }
+    }
+    value.to_string()
+}

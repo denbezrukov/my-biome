@@ -1,0 +1,614 @@
+{
+  "recovery_status": "PARTIAL_EXACT_TEXT_ONLY",
+  "recovery_agent": "/root/project_a3_implement",
+  "recovery_date": "2026-10-29",
+  "source": "Retained original agent conversation tool inputs and decoded text outputs. Earlier implementation context was compacted; summary statements were not used to synthesize missing code.",
+  "original_branch": "feat/native-project-analysis",
+  "original_base": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+  "original_initial_head": "52708197fbcac4abe8231e6c36bda61db6ff4ce2",
+  "original_fix1_base": "52708197fbcac4abe8231e6c36bda61db6ff4ce2",
+  "original_fix1_head": "af4b6125c3db4cb82953be7d2e4440c398b39add",
+  "original_commit_subjects": [
+    "feat(project): discover workspace inventory and analysis roots",
+    "fix(project): preserve discovery exclusions and tsconfig identity"
+  ],
+  "safety_and_scope": [
+    "No reads or writes of /workspace/my-biome during this recovery.",
+    "No recovered command was executed.",
+    "No code was assembled, formatted, built, tested, installed, committed, or published during recovery.",
+    "All output is under this recovery directory.",
+    "Patch command files are inert excerpts, not a replay script."
+  ],
+  "ordering": {
+    "patches": "001 through017 preserve the relative order of original visible edits; initial implementation patches before001 are unavailable.",
+    "formatting_not_recovered": "Original just f runs occurred after001,005,007,009 and017; final formatted full files are not inferred from unformatted append/replace inputs. Source snapshots and diffs reflect their individually documented points in time.",
+    "overlap": "Source excerpts overlap and sometimes represent different intermediate states. They must not be blindly concatenated. Final fix1 implementation diff is a separate verification artifact, not another edit to apply after014/017."
+  },
+  "known_missing": [
+    "Complete original service inventory.rs: owner implementation, add_root closing/load_yaml opening, retain_catalogs tail, json_value tail, retain_overrides, retain_configured_uses are not fully present in retained exact reads.",
+    "Most of initial inventory.tests.rs, including root_paths/discover_mode helper implementations and many initial fixtures. The complete fix1 append inputs survive, but depend on missing earlier helpers/source.",
+    "Exact registration edits to biome_package/src/lib.rs, biome_package/src/node_js_package/mod.rs, biome_service/src/lib.rs, biome_service/src/workspace.rs were not printed in retained source/diff outputs. Their existence is known from original commit statistics and summary only.",
+    "Initial full-file creation commands before the retained self-review phase and their complete patch ordering.",
+    "Original git objects/commit metadata, full final source blobs for files without complete snapshots, and full test/build logs. Hashes of excerpts identify recovery artifacts, not original complete files."
+  ],
+  "original_blob_evidence": {
+    "paths.rs": {
+      "initial": "d9350e8c4b3",
+      "fix1": "2940032e497"
+    },
+    "tsconfig.rs": {
+      "initial": "c4a72fc7560",
+      "fix1": "36a13aaba17"
+    },
+    "inventory.rs": {
+      "initial": "d849b315b40",
+      "fix1": "f9484f09d08"
+    },
+    "normalize.rs": {
+      "base": "75f169c3319",
+      "initial_and_fix1": "ddc13510d38"
+    },
+    "fs.rs": {
+      "base": "32ef8846ac7",
+      "initial_and_fix1": "e28164560e0"
+    },
+    "fs/memory.rs": {
+      "base": "681647be75a",
+      "initial_and_fix1": "1ad9fe5c53d"
+    },
+    "fs/os.rs": {
+      "base": "c238806e5d1",
+      "initial_and_fix1": "d0186820ff0"
+    },
+    "Cargo.lock": {
+      "base": "34122cb786e",
+      "initial_and_fix1": "4c228560a1c"
+    },
+    "service/Cargo.toml": {
+      "base": "ccd3f42b612",
+      "initial_and_fix1": "a904d49725e"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "evidence/cargo-and-final-normalize.diff.txt",
+      "original_target": "Cargo.lock; service Cargo.toml; engine normalize.rs",
+      "completeness": "exact printed staged diffs at initial A3 final state",
+      "provenance": "cb5e83",
+      "bytes": 2730,
+      "lines": 70,
+      "sha256": "7b621b9cf194a3c622e7d23f15fa3fe4da2ec0f55ae77353afae7e016eed3e20",
+      "git_blob_sha1_of_recovered_text": "e1c0c4a42937dabfcf14fc608046e8584c05bbee",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "evidence/fix1-final-implementation.diff.txt",
+      "original_target": "inventory.rs; paths.rs; tsconfig.rs",
+      "completeness": "exact final fix1 implementation diffs; test-file diff not printed",
+      "provenance": "3e9f53",
+      "bytes": 4861,
+      "lines": 109,
+      "sha256": "f0d300b29af4471f4eec33191143a9fc29381fe8a7366488b839e07a97a81d87",
+      "git_blob_sha1_of_recovered_text": "957d55018354906e5ca0427276cb3bf762b18f90",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "evidence/fs-and-contracts.diff.txt",
+      "original_target": "multiple: biome_fs and engine contracts",
+      "completeness": "exact complete printed diffs; contracts diff is intermediate, before patch006/009",
+      "provenance": "7b9271 visible original tool output",
+      "bytes": 4251,
+      "lines": 106,
+      "sha256": "38f6f4d724355c3ecfc4c6904b953b938d80f253fc13e085e1734973ed1b49f7",
+      "git_blob_sha1_of_recovered_text": "14935a5e04b00158be5ce9b5c116a7b8b4f3c9c7",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "evidence/original-commit-outputs.txt",
+      "original_target": "original git output",
+      "completeness": "concatenated exact excerpts from separate original commit/rev-parse/status outputs; not a current git check",
+      "provenance": "78607c,d48894,8f4402,3ff7fa",
+      "bytes": 1075,
+      "lines": 18,
+      "sha256": "6a504deab16dec64617f7012660e8a460eb5873dfbe4db2580a9dc33d19eb366",
+      "git_blob_sha1_of_recovered_text": "0e01c16f9f1ddef2e9e0dc4e60b5c5f6f15b65ca",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "evidence/original-final-test-output-excerpts.txt",
+      "original_target": "original test outputs",
+      "completeness": "concatenated exact excerpts from separate original test-log reads; not current test verification",
+      "provenance": "2fa477,3e9f53",
+      "bytes": 432,
+      "lines": 4,
+      "sha256": "563572f7b2b2a7b4631323f3543bcbb1a2039f8da33a397c1e857036010368f4",
+      "git_blob_sha1_of_recovered_text": "1a741f0554ae1444cc065a2078a9cc919a9052a1",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-001-220.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial lines1-220 from intermediate source; ends inside discovery",
+      "provenance": "40225f",
+      "bytes": 7281,
+      "lines": 220,
+      "sha256": "d945b9088e6e34ccb0ac4c76c562c79abd3e5f8f616529500d7560b332a9f125",
+      "git_blob_sha1_of_recovered_text": "75d145f3cd2180cf11525e1107bbb3561569dd15",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-1015-1190.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial lines1015-1190; starts inside load_yaml and ends inside retain_catalogs",
+      "provenance": "a07806",
+      "bytes": 5874,
+      "lines": 176,
+      "sha256": "84c135aa26ec55a4e12c8ad3196b4b573b64ddb018b2e035a1f3baa7a25ba7c5",
+      "git_blob_sha1_of_recovered_text": "f24c249ef2cc7500c3aacc97a042fb1ac984c86d",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-1210-1310.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial lines1210-1310 after test-module movement; select_workspaces ending in separate excerpt",
+      "provenance": "cb0558",
+      "bytes": 3701,
+      "lines": 101,
+      "sha256": "8a9a3e0b890e9301df4d5e06bfa902d8a4d8bd86bef3a32314029e7b76d5f9b6",
+      "git_blob_sha1_of_recovered_text": "0fe601db86d3bfddc206c815f845141558ad22d5",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-1280-1310-before-test-module-move.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial earlier lines1280-1310; obsolete test-module position and incomplete json_value",
+      "provenance": "6c0950",
+      "bytes": 1075,
+      "lines": 31,
+      "sha256": "17b75717f126a86745ab35ccbb821a18b8c1548a3203fd8070f505be0e57b0e9",
+      "git_blob_sha1_of_recovered_text": "eade472e43c28fb18fbc91666f7dd90b413755ce",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-220-245-before-self-review.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial overlapping lines220-245 before patch001",
+      "provenance": "6c0950",
+      "bytes": 941,
+      "lines": 26,
+      "sha256": "7f2adeb78b80e28958c2b3b3b9322c71358cf45da93a62c4caff65bc77085f24",
+      "git_blob_sha1_of_recovered_text": "e5bf34f47b6b95d6788c7c5b80c3b15bade9c7cb",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-240-435-after-self-review.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial overlapping lines240-435 after patch001, before lint/ordered-input patches",
+      "provenance": "a07806",
+      "bytes": 6698,
+      "lines": 196,
+      "sha256": "549d2c0fb2913aa96e022e980c1336cf912bc6100cb947291aae7dd50a963ef1",
+      "git_blob_sha1_of_recovered_text": "1e3131b7ed43942644c02f1a25905a24f6396d3e",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-430-710-at-52708197fbc.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial lines430-710 at initial A3 committed head; ends before retain_catalogs call",
+      "provenance": "e2aa22",
+      "bytes": 11104,
+      "lines": 281,
+      "sha256": "3acb9dbfcf1c0ad2b98da8cd6f67c365316d5819ae9bcde7f90ca694fb75e0ce",
+      "git_blob_sha1_of_recovered_text": "e6bcd799dcfecb6c993a843a3c5737222dd5a249",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-end-discover-and-relative.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "partial exact substring from original650-750 read; owner body missing",
+      "provenance": "40225f",
+      "bytes": 1078,
+      "lines": 37,
+      "sha256": "dbd9feace8279b7ab5a5610155ecab31e57d9d1eb84f02cfea66526e231d79f8",
+      "git_blob_sha1_of_recovered_text": "3c4d09d88826a17b2fa876a55189c96739a2cddb",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-manifest-and-mapping-through-partial-add-root.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "exact function block from810-1010 read; ends inside add_root",
+      "provenance": "40225f",
+      "bytes": 6094,
+      "lines": 184,
+      "sha256": "efbb489e6a43015268086af165f2019aadc643fe3716a6e974dec91204ddd4b1",
+      "git_blob_sha1_of_recovered_text": "0d3519a1ef4eefc35fa017c896b59726c795fe2e",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-tests-capture.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "completeness": "exact complete test extracted from790-850 read; noncontiguous with other excerpts",
+      "provenance": "06be3a",
+      "bytes": 1638,
+      "lines": 40,
+      "sha256": "ed348962c271dfc9382828f2a7a13d80b12d8972d74930bddafe68148bd5d06a",
+      "git_blob_sha1_of_recovered_text": "6fc3bdff21e05be158bbdb03434ff62d577cf8c4",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-tests-entry-roles.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "completeness": "exact function substring; leading test attribute not printed, trailing next-test attribute included",
+      "provenance": "1a2b07",
+      "bytes": 971,
+      "lines": 28,
+      "sha256": "bed6dd357f680b06d5995e807b5e1be3c8daa52e4fb3a46706843b8ef584087b",
+      "git_blob_sha1_of_recovered_text": "96dd15fb32a66f74706256ae2b0fc572a17fc261",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-tests-head.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "completeness": "exact prefix ending after complete workspace_precedence test; remainder missing",
+      "provenance": "1a2b07",
+      "bytes": 3624,
+      "lines": 107,
+      "sha256": "226df378937b5f67f55c18cb5eab4bccafca655c07a1f81edd314716cbb18dcd",
+      "git_blob_sha1_of_recovered_text": "2c19b1635ca43c3284ebd920518361816f743c83",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-tests-late.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.tests.rs",
+      "completeness": "exact contiguous complete-test substring from890-1095 read; omitted incomplete boundary tests",
+      "provenance": "cb0558",
+      "bytes": 6887,
+      "lines": 191,
+      "sha256": "e06bb9f9d40891fad68d9c90e06b097d1cbd185de85cca3c9679046188482c6f",
+      "git_blob_sha1_of_recovered_text": "1c720c02586c7cf1665941c93d4a0316867c48b3",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "excerpts/inventory-workspace-settings-before-self-review.txt",
+      "original_target": "crates/biome_service/src/project_analysis/inventory.rs",
+      "completeness": "exact function block extracted from749-810 read before patch001",
+      "provenance": "6c0950",
+      "bytes": 2093,
+      "lines": 57,
+      "sha256": "4df26208e5e5165506592a961c2d001eff1d0f668cdf7831594a58032ff8b51b",
+      "git_blob_sha1_of_recovered_text": "77fdcaacf68d83bd8d1cd6a7832465d185c4f4b4",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/canonical_path.rs",
+      "original_target": "crates/biome_fs/tests/canonical_path.rs",
+      "completeness": "complete final A3 file as printed; not changed in fix1",
+      "provenance": "e18f05",
+      "bytes": 2656,
+      "lines": 80,
+      "sha256": "d886e5f48351f5c64955ba1708441b581e1839215244e3f1636876b3bec73416",
+      "git_blob_sha1_of_recovered_text": "0b58c16d17e6fcf0c887544885c988f9f7802cd5",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/engine-inventory.rs",
+      "original_target": "crates/biome_project_analysis/src/inventory.rs",
+      "completeness": "complete intermediate A3 file before ordered JSON-string fields",
+      "provenance": "b738d5",
+      "bytes": 3773,
+      "lines": 138,
+      "sha256": "2474157e2417976d2948ce168976f767fab2b77735850b59aa186718c3455d8d",
+      "git_blob_sha1_of_recovered_text": "2f1e5a1c4631332802d3c154cd25e3805352eba2",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/normalize.rs",
+      "original_target": "crates/biome_project_analysis/src/normalize.rs",
+      "completeness": "complete pre-A3-change file; later patches/diff separate",
+      "provenance": "06be3a",
+      "bytes": 4548,
+      "lines": 136,
+      "sha256": "3eac231c48fc9fc2f60d87d434fdb8c1004038445b829ff703a58366434f27be",
+      "git_blob_sha1_of_recovered_text": "75f169c3319763df28ff314163bb66938fd9125c",
+      "original_blob_prefix_if_available": "75f169c3319",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "path": "full-source/paths.rs",
+      "original_target": "crates/biome_service/src/project_analysis/paths.rs",
+      "completeness": "complete historical file at initial A3 head; fix1 change is separate",
+      "provenance": "061ccb; corroborated by e2aa22 and diff 3e9f53",
+      "bytes": 3529,
+      "lines": 101,
+      "sha256": "f04bba32f03b91b62f3358691c7d2a7690d48e4d2ba0ca69bce362e92a8e3b1c",
+      "git_blob_sha1_of_recovered_text": "d9350e8c4b34c02342b6c9be735d92aefbe39832",
+      "original_blob_prefix_if_available": "d9350e8c4b3",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "path": "full-source/project_analysis-interface.rs",
+      "original_target": "crates/biome_service/src/project_analysis.rs",
+      "completeness": "complete intermediate A3 file before serde derives",
+      "provenance": "e18f05",
+      "bytes": 1599,
+      "lines": 47,
+      "sha256": "0fd899a967e8f59a4852b993d571aab400c968bb55af3f4279a974276703e31a",
+      "git_blob_sha1_of_recovered_text": "4a199a90d7b1094dd9754f0a414bd83f2b2e12c9",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/tsconfig.rs",
+      "original_target": "crates/biome_service/src/project_analysis/tsconfig.rs",
+      "completeness": "complete historical file at initial A3 head; fix1 change is separate",
+      "provenance": "2955d0; diff 3e9f53",
+      "bytes": 12308,
+      "lines": 385,
+      "sha256": "d28cb1c31393fc09708c07b7ed53d98eeca0527d5a8f6b0d050c7078639c4038",
+      "git_blob_sha1_of_recovered_text": "c4a72fc7560519e8c76dff2a0a20424d4311c495",
+      "original_blob_prefix_if_available": "c4a72fc7560",
+      "original_blob_prefix_matches": true
+    },
+    {
+      "path": "full-source/upset-animals-turn.md",
+      "original_target": ".changeset/upset-animals-turn.md",
+      "completeness": "complete final changeset text",
+      "provenance": "508cb0",
+      "bytes": 272,
+      "lines": 5,
+      "sha256": "59160cea97ede98ccec5a5fed55bc3c19dbd73108bc13bf5da19c05cb051e0ac",
+      "git_blob_sha1_of_recovered_text": "59eb986613dedd1a7cea34df76035b085b851eba",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/workspace_metadata.rs",
+      "original_target": "crates/biome_package/src/node_js_package/workspace_metadata.rs",
+      "completeness": "complete intermediate reader before lint and quote corrections",
+      "provenance": "c3fd82",
+      "bytes": 9381,
+      "lines": 244,
+      "sha256": "c05e3053d37eac65a620a68fdaeffe94f738b5af8e05280c22c1f4ba40801a82",
+      "git_blob_sha1_of_recovered_text": "7563b2ddf6772f5e6a34c21fda1d07c20b6a3533",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "full-source/workspace_metadata.tests.rs",
+      "original_target": "crates/biome_package/tests/workspace_metadata.rs",
+      "completeness": "complete earlier two-test file; later quoted-scalar test separate",
+      "provenance": "eb4dcd",
+      "bytes": 1302,
+      "lines": 41,
+      "sha256": "d8001d11d31d1744ccdd109b51ab9d8ef42a7cf525c229dfb52b030e13c0522b",
+      "git_blob_sha1_of_recovered_text": "ec25ade0fe00871b4535f5a77966f57fb1b2fec4",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/001-self-review-inventory-command.txt",
+      "original_target": "inventory.rs",
+      "completeness": "exact original tool-input excerpt, self-review identity reuse, program-role ordering, workspace settings and test-module movement; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 3000,
+      "lines": 40,
+      "sha256": "4ae972623e93a07af20f1ea6260117e0dfbc6f7e0e9f6fc1bddd04841d89e2de",
+      "git_blob_sha1_of_recovered_text": "9e46705f747151a900f593d683bd625aa90f5879",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/002-yaml-lint-command.txt",
+      "original_target": "workspace_metadata.rs",
+      "completeness": "exact original tool-input excerpt, YAML lint changes; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1201,
+      "lines": 11,
+      "sha256": "07c3513ceed85c289598343fa2cb872a8d6dc3291a377915ed7dd1277e3f50b7",
+      "git_blob_sha1_of_recovered_text": "6730175f724a8c3e52b1734881f4f0849365cf4e",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/003-yaml-quotes-test-append.rs.txt",
+      "original_target": "workspace_metadata tests",
+      "completeness": "exact original tool-input excerpt, quoted-boundary test append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 326,
+      "lines": 10,
+      "sha256": "88b78ee440bedfb141ae561f60d619ce3f7e181858571f1fa3b9eb0388cb4946",
+      "git_blob_sha1_of_recovered_text": "36e3149e23f1ee5462ca62da26c690e9b69eb1b1",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/004-service-lint-command.txt",
+      "original_target": "inventory.rs",
+      "completeness": "exact original tool-input excerpt, service lint changes; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1307,
+      "lines": 21,
+      "sha256": "607df155a9547352fc308b213d9916894667b243e3a67ab78d232c84554245a1",
+      "git_blob_sha1_of_recovered_text": "3f12de904746ea73f88c882c68224bbfdb6a22e8",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/005-yaml-quotes-command.txt",
+      "original_target": "workspace_metadata.rs",
+      "completeness": "exact original tool-input excerpt, quoted-boundary decoding correction; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 299,
+      "lines": 5,
+      "sha256": "a1957ebe372a91c2bf923c74b325f1e02e6424896b99f866f7a852520275d30f",
+      "git_blob_sha1_of_recovered_text": "bbdcd19aa85b84b3d07ea0146350956d9b90712b",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/006-normalization-test-append.rs.txt",
+      "original_target": "engine contracts",
+      "completeness": "exact original tool-input excerpt, raw metadata/config normalization regression append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1701,
+      "lines": 25,
+      "sha256": "a4d2c9b5e076a1dc0d1f1d72b9e014c3704501378fe491fd644d8f20a70def94",
+      "git_blob_sha1_of_recovered_text": "2d4bde7c5c124e176f43c7be2604a425e856528b",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/007-normalization-command.txt",
+      "original_target": "normalize.rs",
+      "completeness": "exact original tool-input excerpt, initial opaque normalization correction, later narrowed by009; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 955,
+      "lines": 25,
+      "sha256": "898a810db24de49b07a9a961bce9936d10e06147f1ebdb781413d5253e7bad66",
+      "git_blob_sha1_of_recovered_text": "f8c6dad3e39f701ba75b3c075562b6994c49f123",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/008-ordered-config-test-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, ordered effective configuration RED test append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 945,
+      "lines": 14,
+      "sha256": "0cec75f86f9f616f813f6ffb17bff5487e8db8b9ec9ce66ce7a54fb5dc38f71e",
+      "git_blob_sha1_of_recovered_text": "203a4505d1a27950d36297696dce86b6ccfa32c4",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/009-ordered-config-command.txt",
+      "original_target": "engine inventory, service interface/inventory/tests, normalize, contracts",
+      "completeness": "exact original tool-input excerpt, ordered JSON-string representation and recovery assertions; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 3346,
+      "lines": 15,
+      "sha256": "d1088d7504be5d2e3e9f999549aefddddb7b059b0e27fb83a9815c52822f15aa",
+      "git_blob_sha1_of_recovered_text": "8d995b2c04869b7cbdb005dfd11a8ca08697d4f4",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/010-fix1-initial-tests-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, initial fix1 regression append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 9211,
+      "lines": 135,
+      "sha256": "aa03ab6aeaf39092900bad4d39ebcd878cb71980d21df0cbe6eb9f0134471c1f",
+      "git_blob_sha1_of_recovered_text": "1e37c2b10ab456bb9807e1b7b38ea9ada858abcf",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/011-fix1-alias-only-command.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, alias-only fixture correction; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 232,
+      "lines": 3,
+      "sha256": "a98b6e5c8b42c1a2a7f6eee963b2336c1e5d6523ec54a124f55925f0edd4a280",
+      "git_blob_sha1_of_recovered_text": "816e33a5b585b8ed3126d923e196b6f0cf6ce955",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/012-fix1-program-alias-test-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, program-only alias regression append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 949,
+      "lines": 15,
+      "sha256": "6494aa095ded3ddef7b6f7f108469694c8d9f20e2d9a14ab8c99ca6e610a4f4b",
+      "git_blob_sha1_of_recovered_text": "4393b4d1d48f8f35db1e3e527527c92a2206ff09",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/013-fix1-pattern-controls-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, pattern ordering and workspace re-inclusion controls; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1365,
+      "lines": 23,
+      "sha256": "4dc8fa23b1bfda6cff869d922b63804c03c92247525e502e012d6b660e8b5bb9",
+      "git_blob_sha1_of_recovered_text": "67939754d7aa74e5ea9181f011e3bc4862b01c26",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/014-fix1-implementation-command.txt",
+      "original_target": "inventory.rs, paths.rs, tsconfig.rs",
+      "completeness": "exact original tool-input excerpt, initial fix1 implementation; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 2714,
+      "lines": 58,
+      "sha256": "ca257c6bff155a72c758d19fd49ca45ff9afe9ce4c72688e3b5670e7f9292e4c",
+      "git_blob_sha1_of_recovered_text": "62eec7a4f4067d1f4d7c2b3af66944271d5f82ea",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/015-fix1-declaration-classification-test-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, declaration classification regression append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1311,
+      "lines": 19,
+      "sha256": "2fd07e752a7babb0e6bf114b2acd2e57cf31b87502379be84c17484ced47c580",
+      "git_blob_sha1_of_recovered_text": "6e1a575a66d2ee9b23fec186f63ae06f3bd5a0db",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/016-fix1-program-classification-test-append.rs.txt",
+      "original_target": "inventory.tests.rs",
+      "completeness": "exact original tool-input excerpt, inverse program classification regression append; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 1468,
+      "lines": 24,
+      "sha256": "c995ff8619e0cb0e431f5d8af23a1f9332ef4d30f3a57d87265a3f93ad978035",
+      "git_blob_sha1_of_recovered_text": "c0fe5a9b5b299d4af12f35646a1128ff434f0977",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    },
+    {
+      "path": "patches/017-fix1-classification-command.txt",
+      "original_target": "inventory.rs",
+      "completeness": "exact original tool-input excerpt, preserve configured declaration classification before canonical identity; saved as inert text, not executed",
+      "provenance": "retained agent tool input; numeric prefix preserves relative edit order",
+      "bytes": 496,
+      "lines": 8,
+      "sha256": "d0aa75409a7cdaf1b0c4c761df75ad8915fd5af10768521b12e946fe4a8f16dc",
+      "git_blob_sha1_of_recovered_text": "4826860a29ce49fc96154a573675494befbf55eb",
+      "original_blob_prefix_if_available": null,
+      "original_blob_prefix_matches": null
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+use super::{
+    ProjectAnalysisRequest,
+    paths::{self, Patterns},
+    tsconfig,
+};
+use crate::{WorkspaceError, projects::ProjectKey, scanner::WorkspaceScannerBridge};
+use biome_configuration::project_analysis::{
+    ProjectAnalysisConfiguration, WorkspaceAnalysisConfiguration,
+};
+use biome_diagnostics::{Diagnostic as _, Error};
+use biome_fs::{BiomePath, PathInterner, TraversalContext};
+use biome_package::{
+    MetadataValue, ProjectMetadata, WorkspaceMetadata, read_project_metadata,
+    read_workspace_metadata,
+};
+use biome_project_analysis::{
+    coverage::{CoverageGap, GapReason, TargetDomain},
+    inventory::*,
+    model::{FileId, Location, SourceContent, SourceRecord, WorkspaceId},
+    options::AnalysisMode,
+};
+use biome_rowan::TextRange;
+use camino::{Utf8Path, Utf8PathBuf};
+use papaya::{HashSet, HashSetRef, LocalGuard};
+use sha2::{Digest, Sha256};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    hash::RandomState,
+    sync::Mutex,
+};
+
+pub(super) struct Capture<'a> {
+    pub fs: &'a dyn biome_resolver::FsWithResolverProxy,
+    pub root: Utf8PathBuf,
+    pub inventory: Inventory,
+    pub paths: BTreeMap<Utf8PathBuf, FileId>,
+}
+impl Capture<'_> {
+    pub(super) fn gap(
+        &mut self,
+        producer: &str,
+        message: impl Into<String>,
+        location: Option<Location>,
+    ) {
+        self.inventory.gaps.push(CoverageGap {
+            producer: producer.into(),
+            domain: TargetDomain::Unbounded,
+            reason: GapReason::UnavailableInput(message.into()),
+            location,
+        });
+    }
+    pub(super) fn capture(&mut self, path: &Utf8Path) -> FileId {
+        let canonical = paths::canonical(self.fs, path).unwrap_or_else(|error| {
+            self.gap("path identity", error, None);
+            path.to_path_buf()
+        });
+        if let Some(file) = self.paths.get(&canonical) {
+            return *file;
+        }
+        let file = FileId(self.paths.len() as u32);
+        self.paths.insert(canonical.clone(), file);
+        let logical_path = canonical
+            .strip_prefix(&self.root)
+            .unwrap_or(&canonical)
+            .to_path_buf();
+        let content = match self.fs.read_file_from_path(&canonical) {
+            Ok(text) => SourceContent::Available {
+                digest: format!("{:x}", Sha256::digest(text.as_bytes())),
+                text,
+            },
+            Err(error) => {
+                self.gap(
+                    "source",
+                    error.to_string(),
+                    Some(Location {
+                        file,
+                        range: TextRange::default(),
+                    }),
+                );
+                SourceContent::Unavailable {
+                    reason: error.to_string(),
+                    fallback: logical_path.clone(),
+                }
+            }
+        };
+        let canonical_uri = url::Url::from_file_path(canonical.as_std_path())
+            .map(|url| url.to_string())
+            .unwrap_or_else(|_| canonical.to_string());
+        self.inventory.sources.insert(
+            file,
+            SourceRecord {
+                logical_path,
+                canonical_uri,
+                content,
+            },
+        );
+        file
+    }
+    pub(super) fn text(&self, file: FileId) -> Option<&str> {
+        match &self.inventory.sources[&file].content {
+            SourceContent::Available { text, .. } => Some(text),
+            SourceContent::Unavailable { .. } => None,
+        }
+    }
+    pub(super) fn diagnostics(
+        &mut self,
+        file: FileId,
+        diagnostics: &[biome_diagnostics::serde::Diagnostic],
+    ) -> Vec<MetadataDiagnostic> {
+        diagnostics
+            .iter()
+            .map(|diagnostic| {
+                let location = Location {
+                    file,
+                    range: diagnostic.location().span.unwrap_or_default(),
+                };
+                let message = biome_diagnostics::PrintDescription(diagnostic).to_string();
+                self.gap("metadata", message.clone(), Some(location));
+                MetadataDiagnostic { location, message }
+            })
+            .collect()
+    }
+    pub(super) fn patterns(
+        &mut self,
+        values: &[String],
+        mode: AnalysisMode,
+        marked: bool,
+        producer: &str,
+    ) -> Patterns {
+        let (patterns, errors) = Patterns::new(values, mode, marked);
+        for error in errors {
+            self.gap(producer, error, None);
+        }
+        patterns
+    }
+}
+
+struct DiscoveryPaths {
+    interner: PathInterner,
+    paths: HashSet<BiomePath>,
+    aliases: Mutex<BTreeSet<Utf8PathBuf>>,
+    errors: Mutex<Vec<String>>,
+}
+impl TraversalContext for DiscoveryPaths {
+    fn interner(&self) -> &PathInterner {
+        &self.interner
+    }
+    fn evaluated_paths(&self) -> HashSetRef<'_, BiomePath, RandomState, LocalGuard<'_>> {
+        self.paths.pin()
+    }
+    fn push_diagnostic(&self, error: Error) {
+        self.errors
+            .lock()
+            .unwrap()
+            .push(biome_diagnostics::PrintDescription(&error).to_string());
+    }
+    fn can_handle(&self, path: &BiomePath) -> bool {
+        let accepted = !path
+            .components()
+            .any(|part| matches!(part.as_str(), "node_modules" | ".git"));
+        if accepted {
+            self.aliases.lock().unwrap().insert(path.to_path_buf());
+        }
+        accepted
+    }
+    fn handle_path(&self, path: BiomePath) {
+        self.store_path(path);
+    }
+    fn store_path(&self, path: BiomePath) {
+        self.paths.pin().insert(path);
+    }
+}
+
+struct Package {
+    path: Utf8PathBuf,
+    file: FileId,
+    metadata: ProjectMetadata,
+    diagnostics: Vec<MetadataDiagnostic>,
+    settings: WorkspaceAnalysisConfiguration,
+    config: tsconfig::EffectiveConfig,
+}
+
+pub(super) fn discover(
+    service: &(impl WorkspaceScannerBridge + crate::Workspace),
+    project: ProjectKey,
+    request: &ProjectAnalysisRequest,
+) -> Result<Inventory, WorkspaceError> {
+    let root = service
+        .get_project_path(project)
+        .ok_or_else(WorkspaceError::no_project)?;
+    let fs = crate::Workspace::fs(service);
+    let root_identity = paths::canonical(fs, &root);
+    let root = root_identity.as_ref().unwrap_or(&root).clone();
+    let traversal = DiscoveryPaths {
+        interner: PathInterner::new().0,
+        paths: HashSet::new(),
+        aliases: Mutex::new(BTreeSet::new()),
+        errors: Mutex::new(Vec::new()),
+    };
+    fs.traversal(Box::new(|scope| scope.evaluate(&traversal, root.clone())));
+    let mut discovered: BTreeSet<Utf8PathBuf> = traversal
+        .paths
+        .pin()
+        .iter()
+        .map(|p| p.to_path_buf())
+        .collect();
+    let aliases = traversal.aliases.lock().unwrap();
+    discovered.extend(aliases.iter().filter(|path| fs.path_is_file(path)).cloned());
+    let canonical_files: Vec<_> = discovered.iter().cloned().collect();
+    for alias in aliases
+        .iter()
+        .filter(|path| fs.path_is_dir(path) && fs.path_is_symlink(path))
+    {
+        if let Ok(target) = paths::canonical(fs, alias) {
+            for path in &canonical_files {
+                if let Ok(relative) = path.strip_prefix(&target) {
+                    discovered.insert(alias.join(relative));
+                }
+            }
+        }

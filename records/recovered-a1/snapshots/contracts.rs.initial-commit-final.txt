@@ -1,0 +1,276 @@
+use biome_project_analysis::{
+    coverage::CapabilityStatus,
+    options::{AnalysisMode, AnalysisOptions},
+    result::IssueKind,
+};
+use serde_json::json;
+
+mod support;
+
+#[test]
+fn all_issue_keys_have_explicit_disposition() {
+    let expected = [
+        "files",
+        "dependencies",
+        "devDependencies",
+        "optionalPeerDependencies",
+        "unlisted",
+        "binaries",
+        "unresolved",
+        "exports",
+        "types",
+        "nsExports",
+        "nsTypes",
+        "duplicates",
+        "enumMembers",
+        "namespaceMembers",
+        "catalog",
+        "catalogReferences",
+        "cycles",
+    ];
+    let ledger: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../xtask/project_analysis/compatibility.json"
+    ))
+    .unwrap();
+    assert_eq!(IssueKind::ALL.len(), expected.len());
+    for (kind, key) in IssueKind::ALL.into_iter().zip(expected) {
+        assert_eq!(serde_json::to_value(kind).unwrap(), json!(key));
+        assert_eq!(ledger["issues"][key]["status"], json!("untested"));
+        assert!(
+            ledger["issues"][key]["owner"]
+                .as_str()
+                .unwrap()
+                .starts_with('B')
+        );
+    }
+    assert_eq!(ledger["issues"].as_object().unwrap().len(), expected.len());
+    assert_eq!(
+        serde_json::to_value(CapabilityStatus::Unsupported).unwrap(),
+        json!("unsupported")
+    );
+}
+
+#[test]
+fn default_and_production_issue_selection_are_explicit() {
+    let options = AnalysisOptions::default();
+    for kind in [IssueKind::NsExports, IssueKind::NsTypes, IssueKind::Cycles] {
+        assert!(!options.includes(kind));
+    }
+    assert!(options.includes(IssueKind::DevDependencies));
+    let production = AnalysisOptions {
+        mode: AnalysisMode::Production,
+        ..options
+    };
+    for kind in [
+        IssueKind::DevDependencies,
+        IssueKind::Catalog,
+        IssueKind::CatalogReferences,
+    ] {
+        assert!(!production.includes(kind));
+    }
+    assert!(!production.configuration_hints_enabled());
+}
+
+#[test]
+fn owned_fixture_loading_does_not_pretend_to_run_an_engine() {
+    let loaded = support::run_case("empty");
+    assert_eq!(loaded["stage"], "model-only");
+    assert!(loaded.get("issues").is_none());
+    assert_eq!(support::expected_case("empty")["status"], "untested");
+}
+
+#[test]
+fn normalization_remaps_local_ids_but_retains_semantics_and_freshness_contract() {
+    use biome_project_analysis::{
+        coverage::{Coverage, CoverageGap, GapReason, TargetDomain},
+        inventory::{FileRecord, FileRole, WorkspaceRecord},
+        model::{AnalysisSnapshot, FileId, SourceContent, SourceRecord, WorkspaceId},
+        normalize::normalize_snapshot,
+    };
+    let mut first: AnalysisSnapshot =
+        serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
+    first.sources.insert(
+        FileId(2),
+        SourceRecord {
+            logical_path: "src/index.ts".into(),
+            canonical_uri: "file:///project/src/index.ts".into(),
+            content: SourceContent::Available {
+                digest: "a".repeat(64),
+                text: "export {};".into(),
+            },
+        },
+    );
+    first.inventory.files.push(FileRecord {
+        file: FileId(2),
+        workspace: WorkspaceId(4),
+        role: FileRole::Context,
+    });
+    first.inventory.workspaces.push(WorkspaceRecord {
+        workspace: WorkspaceId(4),
+        path: ".".into(),
+        manifest: FileId(2),
+        declaration_locations: vec![],
+        metadata_diagnostics: vec![],
+    });
+    first.coverage = Coverage::Incomplete(vec![CoverageGap {
+        producer: "dynamic import".into(),
+        domain: TargetDomain::Bounded {
+            files: vec![FileId(2)],
+            workspaces: vec![WorkspaceId(4)],
+            packages: vec![],
+        },
+        reason: GapReason::DynamicReference("computed".into()),
+        location: None,
+    }]);
+    let mut second = first.clone();
+    second.revision.session_id = "different session".into();
+    second.revision.epoch += 1;
+    second.sources = [(FileId(7), first.sources[&FileId(2)].clone())].into();
+    second.inventory.files[0].file = FileId(7);
+    second.inventory.files[0].workspace = WorkspaceId(9);
+    second.inventory.workspaces[0].workspace = WorkspaceId(9);
+    second.inventory.workspaces[0].manifest = FileId(7);
+    if let Coverage::Incomplete(gaps) = &mut second.coverage {
+        gaps[0].domain = TargetDomain::Bounded {
+            files: vec![FileId(7)],
+            workspaces: vec![WorkspaceId(9)],
+            packages: vec![],
+        };
+    }
+    assert_ne!(first.revision, second.revision);
+    assert_eq!(normalize_snapshot(&first), normalize_snapshot(&second));
+    second.revision.input_digest = "b".repeat(64);
+    assert_ne!(normalize_snapshot(&first), normalize_snapshot(&second));
+}
+
+#[test]
+fn explicitly_enabled_cycles_warn() {
+    use biome_diagnostics::Severity;
+    let options = AnalysisOptions {
+        enabled_issues: [IssueKind::Cycles].into(),
+        ..AnalysisOptions::default()
+    };
+    assert_eq!(options.severity(IssueKind::Cycles), Some(Severity::Warning));
+}
+
+#[test]
+fn result_normalization_keeps_source_ranges_and_related_evidence() {
+    use biome_diagnostics::Severity;
+    use biome_project_analysis::{
+        coverage::Coverage, model::*, normalize::normalize_result, result::*,
+    };
+    use biome_text_size::TextRange;
+    let snapshot: AnalysisSnapshot =
+        serde_json::from_value(support::run_case("empty")["snapshot"].clone()).unwrap();
+    let location = Location {
+        file: FileId(1),
+        range: TextRange::new(1.into(), 5.into()),
+    };
+    let workspace = biome_project_analysis::inventory::WorkspaceRecord {
+        workspace: WorkspaceId(1),
+        path: ".".into(),
+        manifest: FileId(1),
+        declaration_locations: vec![location],
+        metadata_diagnostics: vec![],
+    };
+    let evidence_id = EvidenceId("entry:index.ts:1..5".into());
+    let secondary_id = EvidenceId("entry:index.ts:1..5:secondary".into());
+    let mut first = ProjectAnalysisResult {
+        revision: snapshot.revision,
+        context: AnalysisContext {
+            mode: AnalysisMode::Default,
+            profile_id: "test".into(),
+            semantic_options_digest: "c".repeat(64),
+            scope: vec![WorkspaceId(1)],
+        },
+        sources: [(
+            FileId(1),
+            SourceRecord {
+                logical_path: "index.ts".into(),
+                canonical_uri: "file:///project/index.ts".into(),
+                content: SourceContent::Unavailable {
+                    reason: "permission denied".into(),
+                    fallback: "index.ts".into(),
+                },
+            },
+        )]
+        .into(),
+        workspaces: [(WorkspaceId(1), workspace)].into(),
+        coverage: Coverage::Complete,
+        capabilities: [(IssueKind::Files, CapabilityStatus::Untested)].into(),
+        issues: vec![ProjectIssue {
+            kind: IssueKind::Files,
+            severity: Severity::Warning,
+            identity: "index.ts".into(),
+            symbol: None,
+            location,
+            workspace: WorkspaceId(1),
+            related_evidence: vec![evidence_id.clone()],
+            eligible_fixes: vec![],
+        }],
+        hints: vec![],
+        evidence: EvidenceGraph {
+            nodes: [(
+                evidence_id.clone(),
+                Evidence {
+                    producer: "entry".into(),
+                    location: Some(location),
+                    workspace: WorkspaceId(1),
+                    explanation: "config root".into(),
+                    related: vec![],
+                },
+            )]
+            .into(),
+        },
+    };
+    let normalized = normalize_result(&first);
+    assert_eq!(
+        normalized["sources"]["index.ts"]["content"]["reason"],
+        "permission denied"
+    );
+    assert_eq!(normalized["issues"][0]["location"]["range"], json!([1, 5]));
+    assert_eq!(
+        normalized["evidence"]["nodes"][&evidence_id.0]["location"]["file"],
+        "index.ts"
+    );
+    let mut loops = first.clone();
+    let mut left = loops.evidence.nodes[&evidence_id].clone();
+    left.related = vec![evidence_id.clone()];
+    let mut right = left.clone();
+    right.related = vec![secondary_id.clone()];
+    loops.evidence.nodes = [(evidence_id.clone(), left), (secondary_id.clone(), right)].into();
+    let mut cross = loops.clone();
+    cross.evidence.nodes.get_mut(&evidence_id).unwrap().related = vec![secondary_id.clone()];
+    cross.evidence.nodes.get_mut(&secondary_id).unwrap().related = vec![evidence_id.clone()];
+    assert_ne!(normalize_result(&loops), normalize_result(&cross));
+    first.context.semantic_options_digest = "d".repeat(64);
+    assert_ne!(normalized, normalize_result(&first));
+}
+
+#[test]
+fn every_deferred_plugin_and_public_reporter_has_a_disposition() {
+    let ledger: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../xtask/project_analysis/compatibility.json"
+    ))
+    .unwrap();
+    let research: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../xtask/project_analysis/reference/sources.json"
+    ))
+    .unwrap();
+    for plugin in research["plugin_names"].as_array().unwrap() {
+        assert_eq!(
+            ledger["plugins"][plugin.as_str().unwrap()]["status"],
+            "unsupported"
+        );
+    }
+    assert_eq!(ledger["plugins"].as_object().unwrap().len(), 198);
+    for reporter in research["public_reporters"].as_array().unwrap() {
+        assert_eq!(
+            ledger["reporters"][reporter.as_str().unwrap()]["status"],
+            "untested"
+        );
+    }
+    assert!(ledger["passed"].as_array().unwrap().is_empty());
+    assert!(ledger["failed"].as_array().unwrap().is_empty());
+    assert!(!ledger["unsupported"].as_array().unwrap().is_empty());
+}

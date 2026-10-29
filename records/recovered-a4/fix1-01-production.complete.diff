@@ -1,0 +1,461 @@
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index aaeec90614d..10e023fa4d3 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -9,7 +9,7 @@ use biome_js_syntax::{
+     JsShorthandPropertyObjectMember, JsStaticMemberAssignment, JsStaticMemberExpression,
+     JsSyntaxKind, JsSyntaxNode, JsVariableDeclarator,
+ };
+-use biome_rowan::{AstNode, Text};
++use biome_rowan::{AstNode, Text, TokenText};
+ use camino::Utf8Path;
+ 
+ use crate::ImportPathMap;
+@@ -80,6 +80,7 @@ pub enum ProjectImportSyntax {
+     Import,
+     Require,
+     DynamicImport,
++    ImportType,
+     Reexport,
+     RequireResolve,
+     ImportMetaResolve,
+@@ -96,6 +97,19 @@ pub struct ProjectImportOccurrence {
+     pub type_only: bool,
+     pub optional: bool,
+     pub bindings: Vec<ProjectImportBinding>,
++    /// Inline type-import selection, separate from local import bindings.
++    pub type_usage: Option<ProjectImportTypeUse>,
++}
++
++/// A type import selects a target without introducing a local binding.
++/// An empty qualifier denotes the whole module namespace.
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub struct ProjectImportTypeUse {
++    pub kind: ProjectUseKind,
++    pub namespace: ProjectSymbolNamespace,
++    pub qualifier: Vec<String>,
++    /// The qualifier including its leading dot, or the whole import type when unqualified.
++    pub range: TextRange,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+@@ -335,6 +349,9 @@ impl ProjectModuleFacts {
+         if let Some(import) = AnyJsImportLike::cast_ref(node) {
+             self.collect_import(&import, model);
+         }
++        if let Some(import) = biome_js_syntax::TsImportType::cast_ref(node) {
++            self.collect_import_type(&import);
++        }
+         if let Some(call) = JsCallExpression::cast_ref(node) {
+             self.collect_call(&call, model, path);
+         }
+@@ -354,6 +371,78 @@ impl ProjectModuleFacts {
+         });
+     }
+ 
++    fn collect_import_type(&mut self, import: &biome_js_syntax::TsImportType) -> Option<()> {
++        let argument = import.arguments().ok()?.argument().ok()?;
++        let Some(literal) = argument.as_ts_string_literal_type() else {
++            self.unknown(
++                import.range(),
++                ProjectUnknownKind::ModuleSpecifier,
++                "nonliteral import type",
++            );
++            return None;
++        };
++        let token = literal.literal_token().ok()?;
++        let Some(specifier) = decoded_string(biome_js_syntax::inner_string_text(&token)) else {
++            self.unknown(
++                import.range(),
++                ProjectUnknownKind::ModuleSpecifier,
++                "unsupported import-type specifier escape",
++            );
++            return None;
++        };
++        let mut qualifier = Vec::new();
++        let range = if let Some(clause) = import.qualifier_clause() {
++            let mut name = clause.right().ok()?;
++            loop {
++                match name {
++                    biome_js_syntax::AnyTsName::TsQualifiedName(qualified) => {
++                        qualifier.push(
++                            biome_js_syntax::unescape_js_identifier(
++                                &qualified.right().ok()?.to_trimmed_string(),
++                            )
++                            .into_owned(),
++                        );
++                        name = qualified.left().ok()?;
++                    }
++                    biome_js_syntax::AnyTsName::JsReferenceIdentifier(name) => {
++                        qualifier.push(
++                            biome_js_syntax::unescape_js_identifier(&name.to_trimmed_string())
++                                .into_owned(),
++                        );
++                        break;
++                    }
++                }
++            }
++            qualifier.reverse();
++            clause.range()
++        } else {
++            import.range()
++        };
++        let (kind, namespace) = if import.typeof_token().is_some() {
++            (ProjectUseKind::TypeQuery, ProjectSymbolNamespace::Value)
++        } else {
++            (ProjectUseKind::Type, ProjectSymbolNamespace::Type)
++        };
++        self.imports.push(
++            specifier.into(),
++            ProjectImportOccurrence {
++                range: import.range(),
++                specifier_range: token.text_trimmed_range(),
++                syntax: ProjectImportSyntax::ImportType,
++                type_only: true,
++                optional: false,
++                bindings: Vec::new(),
++                type_usage: Some(ProjectImportTypeUse {
++                    kind,
++                    namespace,
++                    qualifier,
++                    range,
++                }),
++            },
++        );
++        Some(())
++    }
++
+     fn collect_import(&mut self, import: &AnyJsImportLike, model: &SemanticModel) -> Option<()> {
+         if import.is_in_ts_module_declaration() {
+             return None;
+@@ -389,6 +478,7 @@ impl ProjectModuleFacts {
+                             type_only: import_equals.type_token().is_some(),
+                             optional: false,
+                             bindings,
++                            type_usage: None,
+                         },
+                     );
+                     return Some(());
+@@ -430,7 +520,14 @@ impl ProjectModuleFacts {
+                 .all_bindings()
+                 .filter(|binding| range.contains_range(binding.range()) && binding.is_imported())
+             {
+-                let imported = imported_name(&binding);
++                let Some(imported) = imported_name(&binding) else {
++                    self.unknown(
++                        binding.range(),
++                        ProjectUnknownKind::Declaration,
++                        "unsupported imported-name escape",
++                    );
++                    continue;
++                };
+                 for declaration in self
+                     .declarations
+                     .iter()
+@@ -460,12 +557,15 @@ impl ProjectModuleFacts {
+                     .ancestors()
+                     .find_map(biome_js_syntax::JsObjectBindingPatternProperty::cast)
+                 {
+-                    property
+-                        .member()
+-                        .ok()?
+-                        .to_trimmed_string()
+-                        .trim_matches(['\'', '"'])
+-                        .to_string()
++                    let Some(name) = literal_member_name(&property.member().ok()?) else {
++                        self.unknown.push(ProjectUnknownFact {
++                            range: property.range(),
++                            kind: ProjectUnknownKind::Declaration,
++                            reason: "unsupported CommonJS imported name".into(),
++                        });
++                        continue;
++                    };
++                    name
+                 } else if id.range() != declaration.id.range {
+                     declaration.name.clone()
+                 } else if let Some(member) = import
+@@ -493,6 +593,7 @@ impl ProjectModuleFacts {
+                 type_only,
+                 optional: false,
+                 bindings,
++                type_usage: None,
+             },
+         );
+         Some(())
+@@ -517,7 +618,11 @@ impl ProjectModuleFacts {
+         match export.export_clause().ok()? {
+             AnyJsExportClause::JsExportNamedClause(clause) => {
+                 for specifier in clause.specifiers().into_iter().flatten() {
+-                    let name = specifier.exported_name().ok()?.to_string();
++                    let name = match &specifier {
++                        biome_js_syntax::AnyJsExportNamedSpecifier::JsExportNamedSpecifier(specifier) => specifier.exported_name().ok()?.inner_string_text().ok()?,
++                        biome_js_syntax::AnyJsExportNamedSpecifier::JsExportNamedShorthandSpecifier(specifier) => specifier.name().ok()?.value_token().ok()?.token_text_trimmed(),
++                    };
++                    let name = self.export_name(name, specifier.range())?;
+                     let local = specifier.local_name().ok()?;
+                     for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                         if namespace == ProjectSymbolNamespace::Value
+@@ -552,17 +657,19 @@ impl ProjectModuleFacts {
+                     .ok()?
+                     .to_string();
+                 for specifier in clause.specifiers().into_iter().flatten() {
+-                    let symbol = specifier
+-                        .source_name()
+-                        .ok()?
+-                        .inner_string_text()
+-                        .ok()?
+-                        .to_string();
+-                    let name = specifier
++                    let symbol = self.export_name(
++                        specifier.source_name().ok()?.inner_string_text().ok()?,
++                        specifier.range(),
++                    )?;
++                    let name = if let Some(name) = specifier
+                         .export_as()
+                         .and_then(|alias| alias.exported_name().ok())
+                         .and_then(|name| name.inner_string_text().ok())
+-                        .map_or_else(|| symbol.clone(), |name| name.to_string());
++                    {
++                        self.export_name(name, specifier.range())?
++                    } else {
++                        symbol.clone()
++                    };
+                     for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                         if namespace == ProjectSymbolNamespace::Value
+                             && (clause.type_token().is_some() || specifier.type_token().is_some())
+@@ -590,11 +697,15 @@ impl ProjectModuleFacts {
+                     .inner_string_text()
+                     .ok()?
+                     .to_string();
+-                let name = clause
++                let name = if let Some(name) = clause
+                     .export_as()
+                     .and_then(|alias| alias.exported_name().ok())
+                     .and_then(|name| name.inner_string_text().ok())
+-                    .map(|name| name.to_string());
++                {
++                    Some(self.export_name(name, clause.range())?)
++                } else {
++                    None
++                };
+                 for namespace in [ProjectSymbolNamespace::Value, ProjectSymbolNamespace::Type] {
+                     if namespace == ProjectSymbolNamespace::Value && clause.type_token().is_some() {
+                         continue;
+@@ -760,6 +871,19 @@ impl ProjectModuleFacts {
+         Some(())
+     }
+ 
++    fn export_name(&mut self, text: TokenText, range: TextRange) -> Option<String> {
++        let name = decoded_string(text);
++        if name.is_none() {
++            self.has_static_exports = true;
++            self.unknown(
++                range,
++                ProjectUnknownKind::Exports,
++                "unsupported exported-name escape",
++            );
++        }
++        name
++    }
++
+     fn export_local(
+         &mut self,
+         name: String,
+@@ -775,7 +899,11 @@ impl ProjectModuleFacts {
+             .and_then(|binding| {
+                 let import = binding.syntax().ancestors().find_map(JsImport::cast)?;
+                 let specifier = import.source_text().ok()?.to_string();
+-                let symbol = imported_name(&binding);
++                let Some(symbol) = imported_name(&binding) else {
++                    return Some(ProjectExportTarget::Unknown(
++                        "unsupported imported-name escape".into(),
++                    ));
++                };
+                 Some(if symbol == "*" {
+                     ProjectExportTarget::Namespace {
+                         specifier,
+@@ -972,6 +1100,7 @@ impl ProjectModuleFacts {
+                     type_only: false,
+                     optional: false,
+                     bindings: Vec::new(),
++                    type_usage: None,
+                 },
+             );
+         } else {
+@@ -1002,6 +1131,7 @@ impl ProjectModuleFacts {
+                     type_only: false,
+                     optional,
+                     bindings: Vec::new(),
++                    type_usage: None,
+                 },
+             );
+         } else {
+@@ -1087,9 +1217,16 @@ impl ProjectModuleFacts {
+                             );
+                             continue;
+                         }
+-                        let name = name.to_trimmed_string();
++                        let Some(name) = literal_member_name(&name) else {
++                            self.unknown(
++                                property.range(),
++                                ProjectUnknownKind::Exports,
++                                "unsupported CommonJS exported name",
++                            );
++                            continue;
++                        };
+                         self.commonjs_export(
+-                            name.trim_matches(['\'', '"']).into(),
++                            name,
+                             property.value().ok()?,
+                             property.range(),
+                             model,
+@@ -1239,24 +1376,24 @@ fn identity(
+     }
+ }
+ 
+-fn imported_name(binding: &Binding) -> String {
++fn imported_name(binding: &Binding) -> Option<String> {
+     if binding
+         .syntax()
+         .ancestors()
+         .any(|node| JsNamespaceImportSpecifier::can_cast(node.kind()))
+     {
+-        return "*".into();
++        return Some("*".into());
+     }
+     binding
+         .syntax()
+         .ancestors()
+         .find_map(AnyJsNamedImportSpecifier::cast)
+         .map_or_else(
+-            || "default".into(),
++            || Some("default".into()),
+             |specifier| {
+                 specifier.imported_name().map_or_else(
+-                    || binding.syntax().text_trimmed().to_string(),
+-                    |token| token.text_trimmed().trim_matches(['\'', '"']).to_string(),
++                    || Some(binding.syntax().text_trimmed().to_string()),
++                    |token| decoded_string(biome_js_syntax::inner_string_text(&token)),
+                 )
+             },
+         )
+@@ -1294,8 +1431,10 @@ fn binding_for_name(
+                     },
+                 ) => namespace_ty.or(ty),
+                 _ => None,
+-            }?;
+-            return model.binding_by_id(id);
++            };
++            if let Some(id) = id {
++                return model.binding_by_id(id);
++            }
+         }
+         scope = scope.parent()?;
+     }
+@@ -1345,14 +1484,58 @@ fn namespace_access(node: &JsSyntaxNode) -> ProjectNamespaceAccess {
+     ProjectNamespaceAccess::Escape
+ }
+ 
++fn literal_member_name(name: &biome_js_syntax::AnyJsObjectMemberName) -> Option<String> {
++    let token = name.as_js_literal_member_name()?.value().ok()?;
++    decoded_string(biome_js_syntax::inner_string_text(&token))
++}
++
+ fn literal_string(expression: &AnyJsExpression) -> Option<String> {
+-    let value = expression.as_static_value()?;
+-    matches!(
+-        value,
+-        biome_js_syntax::static_value::StaticValue::String(_)
+-            | biome_js_syntax::static_value::StaticValue::EmptyString(_)
+-    )
+-    .then(|| value.text().to_string())
++    match expression.as_static_value()? {
++        biome_js_syntax::static_value::StaticValue::String(token) => {
++            decoded_string(biome_js_syntax::inner_string_text(&token))
++        }
++        biome_js_syntax::static_value::StaticValue::EmptyString(_) => Some(String::new()),
++        _ => None,
++    }
++}
++
++/// Decodes scalar string values; unsupported UTF-16 and legacy escapes remain unknown.
++fn decoded_string(text: TokenText) -> Option<String> {
++    let mut chars = text.chars().peekable();
++    while let Some(character) = chars.next() {
++        if character != '\\' {
++            continue;
++        }
++        match chars.next()? {
++            '0' if chars.peek().is_some_and(char::is_ascii_digit) => return None,
++            '1'..='9' => return None,
++            'u' if chars.next_if_eq(&'{').is_some() => {
++                let mut value = 0u32;
++                let mut digits = 0usize;
++                loop {
++                    let digit = chars.next()?;
++                    if digit == '}' {
++                        break;
++                    }
++                    value = value.checked_mul(16)?.checked_add(digit.to_digit(16)?)?;
++                    digits += 1;
++                }
++                if digits == 0 {
++                    return None;
++                }
++                char::from_u32(value)?;
++            }
++            escape @ ('u' | 'x') => {
++                let mut value = 0u32;
++                for _ in 0..if escape == 'u' { 4 } else { 2 } {
++                    value = value * 16 + chars.next()?.to_digit(16)?;
++                }
++                char::from_u32(value)?;
++            }
++            _ => {}
++        }
++    }
++    Some(biome_js_syntax::unescape_js_string(text).to_string())
+ }
+ 
+ fn member_expression(expression: &AnyJsExpression) -> Option<(AnyJsExpression, String)> {
+@@ -1549,7 +1732,7 @@ fn node_import(expression: &AnyJsExpression, model: &SemanticModel) -> Option<(S
+             if let Some(import) = binding.syntax().ancestors().find_map(JsImport::cast) {
+                 (
+                     import.source_text().ok()?.to_string(),
+-                    imported_name(&binding),
++                    imported_name(&binding)?,
+                 )
+             } else {
+                 let init = initializer(&binding)?;
+@@ -1571,7 +1754,7 @@ fn node_import(expression: &AnyJsExpression, model: &SemanticModel) -> Option<(S
+                     .ancestors()
+                     .find_map(biome_js_syntax::JsObjectBindingPatternProperty::cast)
+                 {
+-                    property.member().ok()?.to_trimmed_string()
++                    literal_member_name(&property.member().ok()?)?
+                 } else {
+                     binding.syntax().text_trimmed().to_string()
+                 };
+diff --git a/crates/biome_resolver/src/lib.rs b/crates/biome_resolver/src/lib.rs
+index 9c3559e3562..fa5ad8610ef 100644
+--- a/crates/biome_resolver/src/lib.rs
++++ b/crates/biome_resolver/src/lib.rs
+@@ -218,10 +218,17 @@ pub fn package_specifier_parts(specifier: &str) -> Result<(&str, &str), ResolveE
+ 
+ /// Resolves the given absolute `path` with the extension aliases specified in the options.
+ fn resolve_absolute_path_with_extension_aliases(
+-    path: Utf8PathBuf,
++    mut path: Utf8PathBuf,
+     fs: &dyn ResolverFsProxy,
+     options: &ResolveOptions,
+ ) -> Result<Utf8PathBuf, ResolveError> {
++    if !options.source_mappings.is_empty() {
++        path = normalize_owned_absolute_path(path);
++        record_event(options, ResolutionEvent::Target(path.clone()));
++        if let Some(mapped) = mapped_source(path.as_str(), fs, options) {
++            return mapped;
++        }
++    }
+     // Skip if no extension is in the path.
+     let Some(extension) = path.extension() else {
+         return resolve_absolute_path(path, fs, options);

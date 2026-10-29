@@ -1,0 +1,34 @@
+python3 - <<'PY'
+from pathlib import Path
+import json,shutil,re,hashlib
+root=Path('xtask/project_analysis');src=Path('/workspace/.biome-cloud/knip-design');tmp=Path('/tmp/knip-a1-reference')
+shutil.copyfile(src/'sources.json',root/'reference/sources.json');shutil.copyfile(src/'parity-inventory.md',root/'reference/inventory.md')
+sources=json.loads((src/'sources.json').read_text());sha='07121567e60b73d1e640f395028c525a2b1d9778'
+owners={'files':'B1','exports':'B2','types':'B2','nsExports':'B3','nsTypes':'B3','enumMembers':'B3','namespaceMembers':'B3','duplicates':'B3','dependencies':'B5','devDependencies':'B5','optionalPeerDependencies':'B5','unlisted':'B5','binaries':'B5','unresolved':'B6','catalog':'B6','catalogReferences':'B6','cycles':'B6'}
+def row(owner,status='untested',**kw):return {'owner':owner,'status':status,**kw}
+rootkeys='$schema rules entry project paths ignore ignoreFiles ignoreBinaries ignoreGlobalBinaries ignoreDependencies ignoreMembers ignoreUnresolved ignoreExportsUsedInFile ignoreIssues cycles ignoreWorkspaces includeEntryExports compilers asyncCompilers tags treatConfigHintsAsErrors treatTagHintsAsErrors preprocessor preprocessorOptions include exclude workspaces'.split()
+workspacekeys='entry project paths ignore ignoreFiles ignoreBinaries ignoreGlobalBinaries ignoreDependencies ignoreMembers ignoreUnresolved ignoreExportsUsedInFile ignoreIssues includeEntryExports'.split()
+unsupported={'compilers','asyncCompilers','preprocessor','preprocessorOptions'}
+flags=re.findall(r'`(--[^`]+)`',(src/'parity-inventory.md').read_text().split('All parsed CLI flags')[1].split('- Repeat/comma')[0]);flags=[s for flag in flags for s in flag.split('/')]
+ledger={'profile':'knip-6.43.0-native-core','source_commit':sha,'native_engine':'not implemented','issues':{key:row(owners[key]) for key in sources['issue_types']},'root_configuration':{key:row('deferred extensions' if key in unsupported else 'B7','unsupported' if key in unsupported else 'untested') for key in rootkeys},'workspace_configuration':{key:row('B7') for key in workspacekeys},'cli':{key:row('D1','unsupported' if key.startswith('--preprocessor') or key in ['--reporter-options','--performance-fn'] else 'untested') for key in flags},'reporters':{key:row('C4') for key in sources['public_reporters']},'fix_families':{key:row('D2' if key in ['dependencies','catalog','files'] else 'D3') for key in ['dependencies','exports','types','catalog','files']},'plugins':{key:row('deferred plugins','unsupported',configuration_scopes=['root','workspace']) for key in sources['plugin_names']},'extensions':{key:row('deferred extensions','unsupported') for key in ['executableConfiguration','customCompilers','customReporters','preprocessors','nonJsPreprocessing','jsApi']},'passed':[],'failed':[],'untested':['orphan-file','namespace-known-key','production-defaults'],'unsupported': ['executable-configuration','framework-plugins','custom-compiler','custom-reporter','preprocessor','non-js-preprocessing','js-api']}
+(root/'compatibility.json').write_text(json.dumps(ledger,indent=2)+'\n')
+tree=json.loads((tmp/'tree.json').read_text());tests=[t for t in tree['tree'] if t['path'].startswith('packages/knip/test/') and t['path'].endswith('.test.ts')]
+groups={'entry':'B1','infra':'B1','exports':'B2','re-exports':'B2','imports':'B2','namespaces':'B3','types':'B2','dependencies':'B5','resolution':'B6','workspaces':'B5','ignore':'B7','ignore-exports-used-in-file':'B7','tags-hints':'B7','graph-explorer':'B2','cli':'C4','fix':'D2','session':'A5','util':'B7','e2e':'D4'}
+rows=[]
+for t in tests:
+ path=t['path'];group=path.split('/')[3];status='unsupported' if group in ['plugins','plugin-config','compilers'] or any(s in path for s in ['custom-compiler','from-plugin','svelte','compilers','plugin-','preprocessor']) else 'untested'
+ owner=groups.get(group,'deferred plugins');owner='deferred extensions' if status=='unsupported' and group!='plugins' else owner
+ if 'catalog' in path or 'cycles' in path or 'circular-dependencies' in path:owner='B6'
+ elif 'namespace' in path or 'enum-members' in path or 'duplicate-exports' in path:owner='B3'
+ elif any(s in path for s in ['get-inputs-from-scripts','util/scripts','util/npx','util/npm-exec','binary-policy','worker-path','url-import-meta','module-register']):owner='B4'
+ rows.append({'path':path,'git_blob':t['sha'],'owner':owner,'status':status})
+fetched=json.loads((tmp/'fetched.json').read_text());details=[]
+for entry in fetched:
+ path=entry['path']
+ if '/test/' not in path:continue
+ text=(tmp/path.replace('/','_')).read_text()
+ details.append({**entry,'owner':next(r['owner'] for r in rows if r['path']==path),'status':'untested','test_names':re.findall(r"(?:test|it)\(\s*['\"]([^'\"]+)",text),'negative_assertions':[l.strip() for l in text.splitlines() if 'assert(!' in l or 'undefined' in l or 'notEqual' in l or 'false' in l or ': 0,' in l]})
+(root/'reference/tests.json').write_text(json.dumps({'source_commit':sha,'tree_sha256':hashlib.sha256((tmp/'tree.json').read_bytes()).hexdigest(),'scope':'Test-path inventory; unported groups have not been executed. Selected test titles and negative assertions are source research, not native coverage.','groups':rows,'selected_semantics':details},indent=2)+'\n')
+(root/'reference/additional-sources.json').write_text(json.dumps({'source_commit':sha,'sources':fetched},indent=2)+'\n')
+shutil.copyfile(tmp/'packages_knip_LICENSE',root/'reference/LICENSE.knip')
+PY

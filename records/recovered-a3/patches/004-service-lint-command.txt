@@ -1,0 +1,21 @@
+python3 - <<'PY'
+p='crates/biome_service/src/project_analysis/inventory.rs'
+s=open(p).read().replace('''.map(|url| url.to_string())
+            .unwrap_or_else(|_| canonical.to_string())''','''.map_or_else(|_| canonical.to_string(), |url| url.to_string())''')
+s=s.replace('''.map(|v| paths::join(&path, v))
+            .unwrap_or_else(|| path.join("tsconfig.json"))''','''.map_or_else(|| path.join("tsconfig.json"), |v| paths::join(&path, v))''')
+s=s.replace('''.map(|owner| WorkspaceId(owner as u32))
+                        .unwrap_or(workspace)''','''.map_or(workspace, |owner| WorkspaceId(owner as u32))''')
+s=s.replace('''                && entry_patterns.matches(&relative(&package.path, alias))
+            {
+                if let Ok(path) = paths::canonical(fs, alias) {''','''                && entry_patterns.matches(&relative(&package.path, alias))
+                && let Ok(path) = paths::canonical(fs, alias) {''',1)
+s=s.replace('''                }
+            }
+        }
+        if let Some(public)''','''            }
+        }
+        if let Some(public)''',1)
+s=s.replace('yaml.map(|(file, _)| *file).unwrap_or(package.file)','yaml.map_or(package.file, |(file, _)| *file)').replace('&[dependency.workspace.clone()]','std::slice::from_ref(&dependency.workspace)')
+open(p,'w').write(s)
+PY

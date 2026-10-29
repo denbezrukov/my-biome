@@ -1,0 +1,34 @@
+cat > xtask/project_analysis/oracle/package.json <<'EOF'
+{
+  "name": "biome-project-analysis-oracle",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": { "knip": "6.43.0" },
+  "engines": { "node": "^20.19.0 || >=22.12.0" }
+}
+EOF
+cat > xtask/project_analysis/.gitignore <<'EOF'
+/cache/
+/oracle/node_modules/
+/observations/*.pending.json
+EOF
+python3 - <<'PY'
+from pathlib import Path
+import urllib.request,hashlib,base64,json
+root=Path('xtask/project_analysis');p=root/'cache';p.mkdir(exist_ok=True)
+data=urllib.request.urlopen('https://registry.npmjs.org/knip/-/knip-6.43.0.tgz').read()
+expected='sha512-8l3cCOg/EXoILO0qcSoMra49yQM91+lEIR4fu5Ko8rrArGX8xKdKZiGI9psPiY6rhLmfLERcMfFEByF0wli5CA=='
+observed='sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode()
+assert observed==expected
+(p/'knip-6.43.0.tgz').write_bytes(data)
+print('Verified actual downloaded artifact:',len(data),'bytes;',observed)
+fixtures={
+'orphan-file':{'package.json':{'name':'orphan-file','private':True},'knip.json':{'entry':['index.ts'],'project':['**/*.ts']},'index.ts':'export {};\n','orphan.ts':'export const orphan = 1;\n'},
+'namespace-known-key':{'package.json':{'name':'namespace-known-key','private':True},'knip.json':{'entry':['index.ts'],'project':['**/*.ts']},'index.ts':"import * as ns from './values';\nimport * as opaque from './opaque';\nconsole.log(ns.used, ns, opaque);\n",'values.ts':'export const used = 1;\nexport const unused = 2;\n','opaque.ts':'export const protectedByOpaqueUse = 3;\n'},
+'production-defaults':{'package.json':{'name':'production-defaults','private':True,'dependencies':{'unused-production':'1.0.0'},'devDependencies':{'unused-development':'1.0.0'},'catalog':{'unused-catalog':'1.0.0'}},'knip.json':{},'src/index.ts':"import { used } from './values';\nconsole.log(used);\nexport const protectedEntry = 1;\n",'src/values.ts':'export const used = 1;\nexport const unused = 2;\n','src/orphan.ts':'export const orphan = 1;\n'}}
+for name,files in fixtures.items():
+ for path,data in files.items():
+  target=root/'fixtures'/name/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(json.dumps(data,indent=2)+'\n' if isinstance(data,dict) else data)
+PY
+source /workspace/.biome-cloud/activate.sh
+npm install --package-lock-only --ignore-scripts --no-audit --no-fund --prefix xtask/project_analysis/oracle

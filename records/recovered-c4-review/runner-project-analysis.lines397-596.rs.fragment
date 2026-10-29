@@ -1,0 +1,200 @@
+fn output_identity(fs: &dyn FileSystem, path: &Utf8Path) -> Utf8PathBuf {
+    let path = biome_fs::normalize_path(&fs.working_directory().unwrap_or_default().join(path));
+    if let Ok(canonical) = fs.canonicalize_path(&path) {
+        return canonical;
+    }
+    let mut ancestor = path.as_path();
+    while let Some(parent) = ancestor.parent() {
+        if let Ok(canonical) = fs.canonicalize_path(parent)
+            && let Ok(suffix) = path.strip_prefix(parent)
+        {
+            return canonical.join(suffix);
+        }
+        ancestor = parent;
+    }
+    path
+}
+fn companion_path(path: &Utf8Path) -> Utf8PathBuf {
+    format!("{path}.coverage.json").into()
+}
+
+fn prepare_reports(
+    reports: &mut [ProjectReportDestination],
+    fs: &dyn FileSystem,
+    cli: &crate::cli_options::CliOptions,
+) -> Result<(), CliDiagnostic> {
+    if reports.is_empty() {
+        return Ok(());
+    }
+    let stdout = reports
+        .iter()
+        .filter(|report| report.path.is_none())
+        .count();
+    if stdout > 1
+        || stdout > 0
+            && cli
+                .cli_reporter
+                .iter()
+                .any(|report| report.destination.is_none())
+    {
+        return Err(CliDiagnostic::project_failure(
+            "Project machine output requires one stdout report. Assign independent --project-report-file and --reporter-file destinations.",
+        ));
+    }
+    let mut destinations = std::collections::BTreeSet::new();
+    for path in reports
+        .iter()
+        .filter_map(|report| report.path.as_ref())
+        .flat_map(|path| [path.clone(), companion_path(path)])
+        .chain(
+            cli.cli_reporter
+                .iter()
+                .filter_map(|report| report.destination.clone()),
+        )
+    {
+        if fs.path_is_dir(&fs.working_directory().unwrap_or_default().join(&path)) {
+            return Err(CliDiagnostic::project_failure(format!(
+                "Project report destination is a directory: {path}"
+            )));
+        }
+        if !destinations.insert(output_identity(fs, &path)) {
+            return Err(CliDiagnostic::project_failure(format!(
+                "Project report destination collision: {path}"
+            )));
+        }
+    }
+    let mut inputs: std::collections::BTreeMap<Utf8PathBuf, Option<ProjectReportInput>> =
+        Default::default();
+    for report in reports {
+        report.request.error_on_warnings = cli.error_on_warnings;
+        if let Some(path) = report.request.ownership_path()? {
+            let identity = output_identity(fs, Utf8Path::new(&path));
+            if destinations.contains(&identity) {
+                return Err(CliDiagnostic::project_failure(format!(
+                    "Report output would overwrite ownership input: {path}"
+                )));
+            }
+            let input = if let Some(input) = inputs.get(&identity) {
+                input.clone()
+            } else {
+                let absolute = fs.working_directory().unwrap_or_default().join(&path);
+                let input = if fs.path_exists(&absolute) {
+                    Some(ProjectReportInput {
+                        path: path.clone(),
+                        text: fs.read_file_from_path(&absolute).map_err(|error| {
+                            CliDiagnostic::from(biome_service::WorkspaceError::from(error))
+                                .into_project_failure()
+                        })?,
+                    })
+                } else {
+                    None
+                };
+                inputs.insert(identity, input.clone());
+                input
+            };
+            if report.request.format == "codeowners" && input.is_none() {
+                return Err(CliDiagnostic::project_failure(format!(
+                    "CODEOWNERS report input is unavailable: {path}"
+                )));
+            }
+            report.request.codeowners = input;
+        }
+    }
+    Ok(())
+}
+
+impl ProjectCompletion {
+    pub fn write_reports(
+        &self,
+        fs: &dyn FileSystem,
+        console: &mut dyn Console,
+        runtime_failure: bool,
+        local_failure: bool,
+    ) -> Result<(), CliDiagnostic> {
+        let rendered = self
+            .reports
+            .iter()
+            .map(|destination| {
+                render_project_report(&self.result, &destination.request)
+                    .map(|report| (destination, report))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        for (destination, mut report) in rendered {
+            report.companion["runtime_failure"] = serde_json::json!(runtime_failure);
+            report.companion["command_exit_code"] = serde_json::json!(if runtime_failure {
+                2
+            } else if local_failure {
+                report.exit_code.max(1)
+            } else {
+                report.exit_code
+            });
+            let companion = serde_json::to_string(&report.companion)
+                .map_err(|error| CliDiagnostic::project_failure(error.to_string()))?
+                + "\n";
+            if let Some(path) = &destination.path {
+                for (path, output) in [
+                    (companion_path(path), companion),
+                    (path.clone(), report.output),
+                ] {
+                    let mut file = fs
+                        .open_with_options(&path, OpenOptions::default().write(true).create(true))
+                        .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
+                    file.set_content(output.as_bytes())
+                        .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
+                }
+            } else {
+                console.print_raw(LogLevel::Log, &report.output);
+                console.print_raw(LogLevel::Error, &companion);
+            }
+            if !report.stderr.is_empty() {
+                console.print_raw(LogLevel::Error, &report.stderr);
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use biome_configuration::{
+        Configuration, ConfigurationSourceEntry, project_analysis::ProjectAnalysisConfiguration,
+    };
+
+    #[test]
+    fn configured_mode_and_explicit_default_remain_distinct() {
+        let source = ConfigurationSource {
+            root: Some(ConfigurationSourceEntry {
+                configuration: Some(Configuration {
+                    project_analysis: Some(ProjectAnalysisConfiguration {
+                        mode: Some(ProjectAnalysisMode::Production),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
+                file_path: None,
+                file_source: None,
+            }),
+            ..Default::default()
+        };
+        for (mode, expected) in [
+            (None, AnalysisMode::Production),
+            (Some("default"), AnalysisMode::Default),
+            (Some("strict"), AnalysisMode::Strict),
+        ] {
+            let phase = ProjectPhase::new(
+                &source,
+                &ProjectAnalysisOptions {
+                    mode: mode.map(str::to_string),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+            assert_eq!(phase.request.mode, expected);
+            assert_eq!(
+                phase.request.analysis_options(&Default::default()).mode,
+                expected
+            );
+        }
+    }
+}

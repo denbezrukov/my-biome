@@ -1,0 +1,57 @@
+fn workspace_settings(
+    config: &ProjectAnalysisConfiguration,
+    path: &Utf8Path,
+) -> WorkspaceAnalysisConfiguration {
+    if let Some(workspaces) = &config.workspaces {
+        let mut matching: Vec<_> = workspaces
+            .iter()
+            .filter(|(pattern, _)| {
+                pattern
+                    .replace('\\', "/")
+                    .parse::<biome_glob::NormalizedGlob>()
+                    .is_ok_and(|pattern| pattern.is_raw_match(path))
+            })
+            .collect();
+        matching.sort_by(|(left, _), (right, _)| {
+            let left: Vec<_> = left.split('/').collect();
+            let right: Vec<_> = right.split('/').collect();
+            left.len().cmp(&right.len()).then_with(|| {
+                left.iter()
+                    .zip(&right)
+                    .map(|(l, r)| (!l.contains('*')).cmp(&!r.contains('*')))
+                    .find(|order| !order.is_eq())
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+        });
+        matching
+            .last()
+            .map(|(_, settings)| (*settings).clone())
+            .unwrap_or_default()
+    } else if path == Utf8Path::new(".") {
+        serde_json::from_value::<WorkspaceAnalysisConfiguration>(serde_json::json!({"entry":config.entry,"project":config.project,"paths":config.paths,"ignore":config.ignore,"ignoreFiles":config.ignore_files,"includeEntryExports":config.include_entry_exports})).unwrap()
+    } else {
+        WorkspaceAnalysisConfiguration::default()
+    }
+}
+fn string(value: &MetadataValue) -> Option<&str> {
+    value.value.as_string().map(|value| value.as_str())
+}
+fn strings(value: &MetadataValue) -> Vec<String> {
+    value
+        .elements
+        .iter()
+        .filter_map(string)
+        .map(str::to_owned)
+        .collect()
+}
+fn leaves(value: &MetadataValue) -> Vec<(&str, TextRange)> {
+    if let Some(value_string) = string(value) {
+        return vec![(value_string, value.range)];
+    }
+    value
+        .members
+        .values()
+        .chain(value.elements.iter())
+        .flat_map(leaves)
+        .collect()
+}

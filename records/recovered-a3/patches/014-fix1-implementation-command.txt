@@ -1,0 +1,58 @@
+python3 - <<'PY'
+p='crates/biome_service/src/project_analysis/paths.rs';s=open(p).read().replace('''        (Self(patterns), errors)
+''','''        if marked {
+            // Entry/project discovery applies exclusions last; workspace policies retain sequence.
+            patterns.sort_by_key(|(_, negative)| *negative);
+        }
+        (Self(patterns), errors)
+''',1);open(p,'w').write(s)
+p='crates/biome_service/src/project_analysis/tsconfig.rs';s=open(p).read().replace('parent != base && parent.starts_with(base)','parent.starts_with(base)');open(p,'w').write(s)
+p='crates/biome_service/src/project_analysis/inventory.rs';s=open(p).read()
+s=s.replace('''            capture.patterns(
+                &package.settings.project_patterns(),
+                request.mode,
+                true,
+                "project",
+            )''','''            let mut values = package.settings.project_patterns();
+            if request.mode != AnalysisMode::Default {
+                let entries = package.settings.entry_patterns();
+                if values.is_empty() {
+                    values = entries;
+                } else {
+                    values.extend(entries.into_iter().filter(|value| {
+                        !biome_configuration::project_analysis::ProjectPattern::new(value).production
+                    }));
+                }
+            }
+            capture.patterns(&values, request.mode, true, "project")''',1)
+s=s.replace('''        for (path, location) in selected {
+            if owner''','''        for (path, location) in selected {
+            let path = match paths::canonical(fs, &path) {
+                Ok(path) => path,
+                Err(error) => {
+                    capture.gap("path identity", error, Some(location));
+                    continue;
+                }
+            };
+            if owner''',1)
+s=s.replace('''                for source in matches {
+                    add_root(''','''                for source in matches {
+                    if ignored(&gitignore, source) {
+                        continue;
+                    }
+                    add_root(''',1)
+s=s.replace('''                if !patterns.matches(path) || ignored(&gitignore, path) {
+                    continue;
+                }
+                let hidden =''','''                if !patterns.matches(path) {
+                    continue;
+                }
+                matched.push(path.clone());
+                if ignored(&gitignore, path) {
+                    continue;
+                }
+                let hidden =''',1)
+s=s.replace('''                matched.push(path.clone());
+                add_root(''','''                add_root(''',1)
+open(p,'w').write(s)
+PY

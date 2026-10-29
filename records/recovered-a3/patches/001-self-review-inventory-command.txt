@@ -1,0 +1,40 @@
+python3 - <<'PY'
+p='crates/biome_service/src/project_analysis/inventory.rs'
+s=open(p).read().replace('    for path in &discovered {\n        if paths::is_source(path)', '    let mut aliases_by_file: BTreeMap<FileId, Vec<Utf8PathBuf>> = BTreeMap::new();\n    for path in &discovered {\n        if paths::is_source(path)',1).replace('            capture.capture(path);\n        }\n    }\n    let mut manifests', '            let file = capture.capture(path);\n            aliases_by_file.entry(file).or_default().push(relative(&root, path));\n        }\n    }\n    let mut manifests',1)
+a='''    let project_patterns: Vec<_> = packages.iter().map(|package| capture.patterns(
+        &package.settings.project_patterns(), request.mode, true, "project",
+    )).collect();
+'''
+pos=s.index('    for path in &source_paths {');s=s[:pos]+a+s[pos:]
+a='''            let project_patterns = capture.patterns(
+                &package.settings.project_patterns(),
+                request.mode,
+                true,
+                "project",
+            );
+            let candidate = project_patterns.matches(&relative_path) && !ignored(&gitignore, path);'''
+s=s.replace(a,'''            let candidate = project_patterns[owner].matches(&relative_path) && !ignored(&gitignore, path);''')
+a='''            let aliases = discovered
+                .iter()
+                .filter(|alias| paths::canonical(fs, alias).ok().as_ref() == Some(path))
+                .map(|p| relative(&root, p))
+                .collect();'''
+s=s.replace(a,'            let aliases = aliases_by_file.remove(&file).unwrap_or_default();')
+a='''        if request.configuration.use_tsconfig_files == Some(true) && package.config.exists {
+            for file in capture
+                .inventory
+                .files
+                .iter_mut()
+                .filter(|f| f.workspace == workspace)
+            {
+                file.role = FileRole::Context;
+            }
+        }
+'''
+assert s.count(a)==1;s=s.replace(a,'');s=s.replace('        let entry_values = package.settings.entry_patterns();',a+'        let entry_values = package.settings.entry_patterns();',1)
+a='''        serde_json::from_value::<WorkspaceAnalysisConfiguration>(serde_json::json!({"entry":config.entry,"project":config.project,"paths":config.paths,"ignore":config.ignore,"ignoreFiles":config.ignore_files,"includeEntryExports":config.include_entry_exports})).unwrap()'''
+fields=['entry','project','paths','ignore','ignore_files','ignore_binaries','ignore_global_binaries','ignore_dependencies','ignore_members','ignore_unresolved','ignore_exports_used_in_file','ignore_issues','include_entry_exports']
+s=s.replace(a,'        WorkspaceAnalysisConfiguration {\n'+''.join('            '+f+': config.'+f+('.clone()' if f not in ['ignore_global_binaries','include_entry_exports'] else '')+',\n' for f in fields)+'        }')
+a='#[cfg(test)]\n#[path = "inventory.tests.rs"]\nmod tests;\n';assert s.count(a)==1;s=s.replace(a,'');s+='\n'+a
+open(p,'w').write(s)
+PY

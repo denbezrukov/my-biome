@@ -1,0 +1,23 @@
+
+#[test]
+fn inventory_review_entry_and_project_negations_override_positive_patterns() {
+    for values in [serde_json::json!(["!excluded.ts", "*.ts!"]), serde_json::json!(["*.ts!", "!excluded.ts"])] {
+        for mode in [AnalysisMode::Default, AnalysisMode::Production, AnalysisMode::Strict] {
+            let inventory = discover_mode(&[("package.json", "{}"), ("main.ts", ""), ("excluded.ts", "")], serde_json::json!({"entry":values,"project":values}), mode);
+            assert_eq!(root_paths(&inventory), ["main.ts".into()].into(), "{mode:?}: {values}");
+            let excluded = inventory.files.iter().find(|file| inventory.sources[&file.file].logical_path == Utf8Path::new("excluded.ts")).unwrap();
+            assert_eq!(excluded.role, FileRole::Context);
+        }
+    }
+}
+
+#[test]
+fn inventory_review_workspace_patterns_keep_ordered_reinclusion() {
+    let inventory = discover_files(&[
+        ("package.json", r#"{"workspaces":["packages/*"]}"#),
+        ("packages/a/package.json", "{}"), ("packages/a/index.ts", ""),
+        ("packages/b/package.json", "{}"), ("packages/b/index.ts", ""),
+    ], serde_json::json!({"ignoreWorkspaces":["packages/*", "!packages/a"]}));
+    assert_eq!(root_paths(&inventory), ["packages/a/index.ts".into()].into());
+    assert_eq!(inventory.gaps.iter().filter(|gap| gap.producer == "analysis boundary").count(), 1);
+}

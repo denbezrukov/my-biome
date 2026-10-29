@@ -1,0 +1,11 @@
+python3 - <<'PY'
+p='crates/biome_package/src/node_js_package/workspace_metadata.rs'
+s=open(p).read().replace('if let Some(packages) = result.fields.get("packages") {\n        if !matches!', 'if let Some(packages) = result.fields.get("packages")\n        && (!matches!',1).replace('.any(|v| v.value.as_string().is_none())\n        {','.any(|v| v.value.as_string().is_none()))\n        {',1).replace('"Workspace packages must be a sequence of strings.",\n            );\n        }\n    }','"Workspace packages must be a sequence of strings.",\n            );\n    }',1)
+s=s.replace('''                        .map(|n| read_node(&n, diagnostics))
+                        .unwrap_or_else(|| MetadataValue {''','''                        .map_or_else(|| MetadataValue {''',1).replace('''                            elements: Vec::new(),
+                        });''','''                            elements: Vec::new(),
+                        }, |n| read_node(&n, diagnostics));''',1)
+s=s.replace('''.map(JsonValue::Number)
+                        .unwrap_or_else(|| JsonValue::String(value.into()))''','''.map_or_else(|| JsonValue::String(value.into()), JsonValue::Number)''',1)
+open(p,'w').write(s)
+PY

@@ -1,0 +1,16 @@
+python3 - <<'PY'
+from pathlib import Path
+import urllib.request,json,hashlib
+url='https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/LICENSE'
+data=urllib.request.urlopen(url).read();print(data.decode());assert b'ISC' in data and b'Copyright' in data
+Path('xtask/project_analysis/reference/LICENSE.knip').write_bytes(data)
+p=Path('xtask/project_analysis/reference/additional-sources.json');d=json.loads(p.read_text());d['sources'].append({'path':'LICENSE','url':url,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'note':'Resolved target of packages/knip/LICENSE symlink; this notice is retained in LICENSE.knip.'});p.write_text(json.dumps(d,indent=2)+'\n')
+p=Path('.superpowers/sdd/native-project-analysis-2026-10-26/task-A1-report.md');s=p.read_text().replace('Test-title extraction was also corrected to retain apostrophes/embedded quotes exactly.','Test-title extraction was also corrected to retain apostrophes/embedded quotes exactly. Final staged review resolved the upstream package LICENSE symlink to the pinned repository root ISC notice and added its hash; the retained notice is actual license text.');p.write_text(s)
+PY
+set -e
+source /workspace/.biome-cloud/activate.sh
+just f > .superpowers/sdd/native-project-analysis-2026-10-26/a1-format-commit.log 2>&1
+just l > .superpowers/sdd/native-project-analysis-2026-10-26/a1-lint-commit.log 2>&1
+git add xtask/project_analysis/reference/LICENSE.knip xtask/project_analysis/reference/additional-sources.json
+git diff --cached --check
+git commit -m "test(project): establish native analysis conformance contracts"

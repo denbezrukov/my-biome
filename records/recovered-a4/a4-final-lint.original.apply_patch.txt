@@ -1,0 +1,63 @@
+*** Begin Patch
+*** Update File: /workspace/my-biome/crates/biome_module_graph/src/project_facts.rs
+@@
+-        } else if syntax == ProjectImportSyntax::Require {
+-            if let Some(declarator) = import
++        } else if syntax == ProjectImportSyntax::Require
++            && let Some(declarator) = import
+@@
+-            }
+         }
+         self.imports.push(
+@@
+-                    .map(|binding| identity(path, binding.range(), ProjectSymbolNamespace::Value))
+-                    .unwrap_or_else(|| {
+-                        identity(path, expression.range(), ProjectSymbolNamespace::Value)
+-                    });
++                    .map_or_else(
++                        || identity(path, expression.range(), ProjectSymbolNamespace::Value),
++                        |binding| identity(path, binding.range(), ProjectSymbolNamespace::Value),
++                    );
+@@
+-            } else if let Some(member) = JsComputedMemberAssignment::cast_ref(left.syntax()) {
++            } else {
++                let member = JsComputedMemberAssignment::cast_ref(left.syntax())?;
+@@
+-            } else {
+-                return None;
+             };
+@@
+-                            target: id.map(ProjectExportTarget::Local).unwrap_or(
++                            target: id.map_or(
+@@
+                                 ),
++                                ProjectExportTarget::Local,
+@@
+-            .map(|binding| identity(path, binding.range(), ProjectSymbolNamespace::Value))
+-            .unwrap_or_else(|| identity(path, expression.range(), ProjectSymbolNamespace::Value));
++            .map_or_else(
++                || identity(path, expression.range(), ProjectSymbolNamespace::Value),
++                |binding| identity(path, binding.range(), ProjectSymbolNamespace::Value),
++            );
+@@
+-        .map(|specifier| {
++        .map_or_else(|| "default".into(), |specifier| {
+@@
+-                .map(|token| token.text_trimmed().trim_matches(['\'', '"']).to_string())
+-                .unwrap_or_else(|| binding.syntax().text_trimmed().to_string())
++                .map_or_else(|| binding.syntax().text_trimmed().to_string(), |token| token.text_trimmed().trim_matches(['\'', '"']).to_string())
+         })
+-        .unwrap_or_else(|| "default".into())
+@@
+-            .map(|name| ProjectNamespaceAccess::Known(name.to_trimmed_string()))
+-            .unwrap_or(ProjectNamespaceAccess::Computed);
++            .map_or(ProjectNamespaceAccess::Computed, |name| ProjectNamespaceAccess::Known(name.to_trimmed_string()));
+@@
+-            .map(|name| ProjectNamespaceAccess::Known(name.to_trimmed_string()))
+-            .unwrap_or(ProjectNamespaceAccess::Computed);
++            .map_or(ProjectNamespaceAccess::Computed, |name| ProjectNamespaceAccess::Known(name.to_trimmed_string()));
+@@
+-            .map(ProjectNamespaceAccess::Known)
+-            .unwrap_or(ProjectNamespaceAccess::Computed);
++            .map_or(ProjectNamespaceAccess::Computed, ProjectNamespaceAccess::Known);
+*** End Patch

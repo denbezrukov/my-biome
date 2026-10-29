@@ -1,0 +1,120 @@
+{
+  "task": "Recovery only of A2 review fix round 1; no new review.",
+  "base_commit": "4b06788c9d7291e07899fcaa4e753f4e946afc7a",
+  "head_commit": "65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+  "scope": "Four changed files, all recovered in full; original full fix review packet also recovered.",
+  "recovery_directory": "/workspace/.biome-cloud/native-recovery/recovered-a2-fix1-review",
+  "persistent_functions_store_check": {
+    "read0": "undefined",
+    "read1": "undefined",
+    "read2": "undefined",
+    "read3": "undefined",
+    "raw_prior_tool_records_available": false
+  },
+  "files": [
+    {
+      "saved_path": "stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/.superpowers/sdd/native-project-analysis-2026-10-26/task-A2-fix1-review-package.txt",
+      "original_path": ".superpowers/sdd/native-project-analysis-2026-10-26/task-A2-fix1-review-package.txt",
+      "stage": "HEAD 65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "completeness": "complete file",
+      "bytes": 15024,
+      "lines": 381,
+      "sha256": "b0b97df383650d69013955b682afdab189cf644566370c3784254672e427a6f1",
+      "git_blob_sha1": "0925a7e7d3f7894df9d5c824c37edcc2c26e02d9",
+      "historical_git_blob_prefix": null,
+      "historical_git_blob_prefix_matches": null,
+      "provenance": {
+        "original_workspace": "/workspace/my-biome",
+        "source": "Exact retained reviewer tool-output text; transcribed from conversation history, not reconstructed from behavioral summaries.",
+        "original_read_command": "cat .superpowers/sdd/native-project-analysis-2026-10-26/task-A2-brief.md .superpowers/sdd/native-project-analysis-2026-10-26/task-A2-review-1.md .superpowers/sdd/native-project-analysis-2026-10-26/task-A2-report.md .superpowers/sdd/native-project-analysis-2026-10-26/task-A2-fix1-review-package.txt",
+        "original_tool_output_chunk": "929093",
+        "display_completeness": "Combined output was truncated earlier, before the fix-package section; complete fix-package section remains visible."
+      }
+    },
+    {
+      "saved_path": "stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "original_path": "crates/biome_package/src/node_js_package/tsconfig_json.rs",
+      "stage": "HEAD 65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "completeness": "complete file",
+      "bytes": 21155,
+      "lines": 621,
+      "sha256": "1f2896532e5fc47ed600f641896e6b36a6b48d7d816c14eb658c2ec35ff367ff",
+      "git_blob_sha1": "4a562b99c926e5fc2f12d3d00d0a428f79cd8513",
+      "historical_git_blob_prefix": "4a562b99c92",
+      "historical_git_blob_prefix_matches": true,
+      "provenance": {
+        "original_workspace": "/workspace/my-biome",
+        "source": "Exact retained reviewer tool-output text; transcribed from conversation history, not reconstructed from behavioral summaries.",
+        "original_read_command": "cat crates/biome_package/src/node_js_package/tsconfig_json.rs"
+      }
+    },
+    {
+      "saved_path": "stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/project_metadata.rs",
+      "original_path": "crates/biome_package/tests/project_metadata.rs",
+      "stage": "HEAD 65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "completeness": "complete file",
+      "bytes": 14282,
+      "lines": 384,
+      "sha256": "75433266aff2b8b8d0647697199c15e13f821448dc0312a26cc2aa4d298227e3",
+      "git_blob_sha1": "780cb544673b869b95cedff9fe78509359936d2c",
+      "historical_git_blob_prefix": "780cb544673",
+      "historical_git_blob_prefix_matches": true,
+      "provenance": {
+        "original_workspace": "/workspace/my-biome",
+        "source": "Exact retained reviewer tool-output text; transcribed from conversation history, not reconstructed from behavioral summaries.",
+        "original_read_command": "cat crates/biome_package/tests/project_metadata.rs",
+        "supplementary_original_read_command": "rg -n ^ crates/biome_package/tests/project_metadata.rs -m 48",
+        "supplementary_original_tool_output_chunk": "b0e076",
+        "display_completeness": "Initial combined read was display-truncated near the file start; supplementary retained first-48-line read closes that gap. Complete transcription independently matches historical Git blob prefix."
+      }
+    },
+    {
+      "saved_path": "stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap",
+      "stage": "HEAD 65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "completeness": "complete file",
+      "bytes": 3114,
+      "lines": 108,
+      "sha256": "6977fde8f7911f3d9c888ca53034139c99d7404ee6649b6f2a480d5a095ce523",
+      "git_blob_sha1": "5b53b50eb26d3ae3b585c9da6e90700f03431ca9",
+      "historical_git_blob_prefix": "5b53b50eb26",
+      "historical_git_blob_prefix_matches": true,
+      "provenance": {
+        "original_workspace": "/workspace/my-biome",
+        "source": "Exact retained reviewer tool-output text; transcribed from conversation history, not reconstructed from behavioral summaries.",
+        "original_read_command": "cat crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+        "original_tool_output_chunk": "5c78b0"
+      }
+    },
+    {
+      "saved_path": "stage-65dd354834c7d42936a14f9fcf99255c1ab7ce43/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "original_path": "crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+      "stage": "HEAD 65dd354834c7d42936a14f9fcf99255c1ab7ce43",
+      "completeness": "complete file",
+      "bytes": 10184,
+      "lines": 245,
+      "sha256": "394e452fd1fbac2d518b8c24b47b59f928ccf781ab550f06bb09b2da40b89184",
+      "git_blob_sha1": "f1b8b1e17192496d4ba36dea0d1b3279aec9d24b",
+      "historical_git_blob_prefix": "f1b8b1e1719",
+      "historical_git_blob_prefix_matches": true,
+      "provenance": {
+        "original_workspace": "/workspace/my-biome",
+        "source": "Exact retained reviewer tool-output text; transcribed from conversation history, not reconstructed from behavioral summaries.",
+        "original_read_command": "cat crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap",
+        "original_tool_output_chunk": "5c78b0"
+      }
+    }
+  ],
+  "extracted_patch": {
+    "saved_path": "fix-4b06788c9d7291e07899fcaa4e753f4e946afc7a-to-65dd354834c7d42936a14f9fcf99255c1ab7ce43.patch",
+    "provenance": "Exact substring following ## Diff newline in retained fix review packet; not regenerated.",
+    "bytes": 14484,
+    "sha256": "50505f9abff2d3f4c95f071e73294282597c6a7de7c5eb167304511ef1e4c2f3"
+  },
+  "consistency": "All four complete source files match historical Git blob prefixes in original diff. The first three file sections also reproduce original base blob prefixes by reversing the retained patch. The final paths-snapshot hunk has one inconsistent context line in retained packet: line 234 says members: {}, whereas the blob-verified complete snapshot says },. Packet and extracted patch are preserved unchanged; use the complete blob-verified files for reassembly.",
+  "limits": [
+    "No original commit object, commit timestamps, author/committer metadata, signatures, or original packet SHA-256 were retained.",
+    "Prior verdict and report summaries are not being used to invent source.",
+    "No product-repository changes, project execution, builds, review reruns, old-command execution, or child agents occurred."
+  ]
+}

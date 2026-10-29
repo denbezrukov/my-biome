@@ -1,0 +1,131 @@
+{
+  "recovery_date_utc": "2026-10-29",
+  "agent": "/root/project_a5_review",
+  "original_repository": "/workspace/my-biome",
+  "whole_A5_base": "3c28dae197840dd6adee956e7d884531a073f7cc",
+  "initial_A5_commit": "0391575c57f9b8529b60d8d91b9dece07a2e5159",
+  "observed_review_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+  "scope": "Recovery only. Archive writes and metadata hashing; no recovered code execution, product repository changes, tests, builds or child agents.",
+  "artifacts": {
+    ".changeset/grumpy-doodles-chew.md": {
+      "original_path": ".changeset/grumpy-doodles-chew.md",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 297,
+      "lines": 5,
+      "sha256": "bdff4ec469ff287c05607ff9c680581ed7f8aabfab0fc1e80fe3c81fe6608ada",
+      "git_blob_sha1": "c5eb505b3ddb490ae7489d84a8393c28da075a02",
+      "original_git_blob_prefix": "c5eb505b3dd",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "crates/biome_project_analysis/src/facts.rs": {
+      "original_path": "crates/biome_project_analysis/src/facts.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 5580,
+      "lines": 213,
+      "sha256": "1623810d199224975729a5e7b84f06a24daaf7ee25c1035965a30bc9b5f7b87e",
+      "git_blob_sha1": "15328f3769701cb374b1ecb4796ce3a18ddcdc66",
+      "original_git_blob_prefix": "15328f37697",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "crates/biome_project_analysis/src/lib.rs": {
+      "original_path": "crates/biome_project_analysis/src/lib.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 212,
+      "lines": 9,
+      "sha256": "5d120d10b92b0b506e57e656c19dc2d6c0c4bc43ddcaa53bb5d7f8722b64e18b",
+      "git_blob_sha1": "1fb0a3897206189bb59d7e50f22537470d9f519a",
+      "original_git_blob_prefix": "1fb0a389720",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "crates/biome_project_analysis/src/model.rs": {
+      "original_path": "crates/biome_project_analysis/src/model.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 3830,
+      "lines": 141,
+      "sha256": "b8479c575bad90e134c9f9a56d22a67d71437526fa4d1ce561f51fc5b8fed2c5",
+      "git_blob_sha1": "b68135c1c1f788fdb4987048f91d860729c19ac8",
+      "original_git_blob_prefix": "b68135c1c1f",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "crates/biome_service/src/module_graph.rs": {
+      "original_path": "crates/biome_service/src/module_graph.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 1007,
+      "lines": 25,
+      "sha256": "8919b6890da4fdcad512b732800d435408278b839816512f1e0854f9079d7400",
+      "git_blob_sha1": "39dcf2c1def3ebc0833702b14b542d9e9888f5fb",
+      "original_git_blob_prefix": "39dcf2c1def",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "crates/biome_service/src/project_analysis/coordinator.rs": {
+      "original_path": "crates/biome_service/src/project_analysis/coordinator.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 14316,
+      "lines": 447,
+      "sha256": "6968b2977beb2a9eb14d58187f04007e8d993070e2d8f107d4c43aaefe2e3d3a",
+      "git_blob_sha1": "bddcca811d2818e100ab343a7d78f70050a85521",
+      "original_git_blob_prefix": "bddcca811d2",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Recovered exact 01-8fd0544-production.patch postimage and 02-39046be-production.patch preimage index"
+    },
+    "crates/biome_service/src/project_analysis/owned_facts.rs": {
+      "original_path": "crates/biome_service/src/project_analysis/owned_facts.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 16401,
+      "lines": 368,
+      "sha256": "d043ade9700f6ec7367128779678828360fd829f7dc7c37e97c93fd00b0f670d",
+      "git_blob_sha1": "d5d57195785c489bcb7342165364651def69162c",
+      "original_git_blob_verification": "Original whole-file blob hash unavailable; recovered hash records artifact bytes only."
+    },
+    "crates/biome_service/src/project_analysis.rs": {
+      "original_path": "crates/biome_service/src/project_analysis.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "complete source file",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 2411,
+      "lines": 67,
+      "sha256": "6907fce1db57c2d192bf73c49ec86879b30b840dbb0d58e20ac04646dcaf01c0",
+      "git_blob_sha1": "224f8e1abf35d8e33e7045dc1a071bd04f675819",
+      "original_git_blob_prefix": "224f8e1abf3",
+      "matches_original_git_blob_prefix": true,
+      "original_blob_evidence": "Retained review diff header"
+    },
+    "server.rs.analysis-acquisition.excerpt.txt": {
+      "original_path": "crates/biome_service/src/workspace/server.rs",
+      "observed_head": "8fd05449ab1812916c3f938917f6352d3a67898a",
+      "completeness": "contiguous source fragment; methods analysis_overlays through analysis_acquisition only",
+      "provenance": "Literal source retained in reviewer conversation from read-only source reads at review HEAD; explicitly preserved verbatim in compaction summary and transcribed without filling gaps.",
+      "bytes": 2990,
+      "lines": 86,
+      "sha256": "5756bb00086ff27d58ea13eaedb47b4d69421b3fa5e47b873722bc9bdd2edf7e",
+      "git_blob_sha1": "d247d0f25def64df786deced9b8dab6974e8f8d8",
+      "original_git_blob_verification": "Original whole-file blob hash unavailable; recovered hash records artifact bytes only."
+    }
+  },
+  "limitations": [
+    "Earlier initial status overestimated literal text surviving compaction. The eight complete originals and one fragment listed here are all literal source still retained.",
+    "Full watcher.rs, snapshot.tests.rs, workspace_bridges.rs, db/state.rs, session.rs, workspace.rs, workspace/server.rs and inventory.rs no longer survive literally in current reviewer context; no source inferred from descriptions.",
+    "snapshot.rs and pinned_fs.rs literals no longer survive in this context; implementer archive already contains complete later-stage originals.",
+    "Complete original 18-file baseline diff is not recovered. No reviewer service/db diff hunks beyond the archived server fragment remain literally available.",
+    "Known functions stores read0 through read4, diff, package and sources were unavailable; no further store guesses attempted."
+  ]
+}

@@ -1,0 +1,40 @@
+#[test]
+fn inventory_capture_is_deterministic_and_normalizable() {
+    let fs = std::sync::Arc::new(MemoryFileSystem::default());
+    fs.insert(
+        "/project/package.json".into(),
+        r#"{"main":"entry.ts","catalog":{"dep":"1"},"dependencies":{"dep":"catalog:"}}"#,
+    );
+    fs.insert("/project/entry.ts".into(), "export const value = 1;");
+    let (service, project) = setup_workspace_and_open_project(fs, "/project");
+    let first = service
+        .discover_inventory(project, &ProjectAnalysisRequest::default())
+        .unwrap();
+    let second = service
+        .discover_inventory(project, &ProjectAnalysisRequest::default())
+        .unwrap();
+    assert_eq!(first, second);
+    let snapshot = biome_project_analysis::model::AnalysisSnapshot {
+        revision: biome_project_analysis::model::SnapshotRevision {
+            session_id: "test".into(),
+            project_root: "/project".into(),
+            epoch: 1,
+            config_digest: "0".repeat(64),
+            input_digest: "0".repeat(64),
+        },
+        sources: first.sources.clone(),
+        inventory: first,
+        modules: Default::default(),
+        coverage: biome_project_analysis::coverage::Coverage::Complete,
+    };
+    let normalized = biome_project_analysis::normalize::normalize_snapshot(&snapshot);
+    assert_eq!(
+        normalized["inventory"]["workspaces"][0]["catalogs"][0]["value"]["location"]["file"],
+        "package.json"
+    );
+    assert!(normalized["inventory"]["sources"].get("entry.ts").is_some());
+    assert_eq!(
+        normalized["inventory"]["declarations"][0]["location"]["file"],
+        "package.json"
+    );
+}

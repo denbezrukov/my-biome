@@ -1,0 +1,86 @@
+    pub(crate) fn analysis_overlays(&self) -> std::collections::BTreeMap<Utf8PathBuf, String> {
+        self.documents
+            .pin()
+            .iter()
+            .filter(|(_, document)| document.version.is_some())
+            .map(|(path, document)| (path.clone(), document.content.clone()))
+            .collect()
+    }
+
+    pub(crate) fn analysis_settings_identity(
+        &self,
+        key: ProjectKey,
+    ) -> Result<String, WorkspaceError> {
+        let db = self.get_db();
+        let project = db
+            .get_project(&key)
+            .ok_or_else(WorkspaceError::no_project)?;
+        let root = project.root_settings(&*db);
+        let nested: Vec<_> = project
+            .nested_settings(&*db)
+            .iter()
+            .map(|(path, settings)| {
+                (
+                    path.as_ref(),
+                    settings.as_ref().source(),
+                    &settings.as_ref().module_graph_resolution_kind,
+                    settings.as_ref().files.max_size,
+                )
+            })
+            .collect();
+        Ok(serde_json::to_string(&(
+            root.as_ref().source(),
+            &root.as_ref().module_graph_resolution_kind,
+            root.as_ref().files.max_size,
+            nested,
+        ))
+        .unwrap())
+    }
+
+    pub(crate) fn analysis_fs(&self) -> Arc<dyn FsWithResolverProxy> {
+        self.fs.clone()
+    }
+
+    pub(crate) fn analysis_acquisition(
+        &self,
+        project: ProjectKey,
+        fs: Arc<dyn FsWithResolverProxy>,
+    ) -> Result<(LocalWorkspace, ProjectKey), WorkspaceError> {
+        let (path, root, nested) = {
+            let db = self.get_db();
+            let project = db
+                .get_project(&project)
+                .ok_or_else(WorkspaceError::no_project)?;
+            (
+                project.path(&*db).clone(),
+                project.root_settings(&*db).as_ref().clone(),
+                project
+                    .nested_settings(&*db)
+                    .iter()
+                    .map(|(path, settings)| {
+                        (path.as_ref().to_path_buf(), settings.as_ref().clone())
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        };
+        let (watcher_tx, _) = crossbeam::channel::unbounded();
+        let (notification_tx, _) = watch::channel(ServiceNotification::IndexUpdated);
+        let acquisition = LocalWorkspace {
+            db_state: DbState::lsp(fs.clone()),
+            server: WorkspaceServer::new(
+                fs,
+                watcher_tx,
+                notification_tx,
+                self.search_provider.clone(),
+                None,
+            ),
+        };
+        let key = acquisition.db_state.insert_project(path);
+        acquisition.db_state.insert_root_settings(key, root);
+        for (path, settings) in nested {
+            acquisition
+                .db_state
+                .insert_nested_settings(key, path, settings);
+        }
+        Ok((acquisition, key))
+    }

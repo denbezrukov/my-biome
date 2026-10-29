@@ -1,0 +1,259 @@
+                              Defaults to 2.
+        --yaml-formatter-line-width=NUMBER  What's the max width of a line applied to Yaml files.
+                              Defaults to 80.
+        --yaml-formatter-quote-style=<double|single>  The type of quotes used in YAML code. Defaults
+                              to `double`.
+        --yaml-formatter-bracket-spacing=<true|false>  Controls spaces inside non-empty
+                              flow mappings (`{ key: value }`) and sequences (`[ item ]`) that fit
+                              on one line. If unset, inherits the global bracket spacing setting.
+                              When neither is set, mappings have spaces and sequences do not.
+        --yaml-formatter-trailing-newline=<true|false>  Whether to add a trailing newline at the end
+                              of the file.
+                              Setting this option to `false` is **highly discouraged** because it
+                              could cause many problems with other tools: -
+                              https://thoughtbot.com/blog/no-newline-at-end-of-file -
+                              https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+                              -
+                              https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+                              Disable the option at your own risk.
+                              Defaults to true.
+        --yaml-formatter-line-ending=<lf|crlf|cr|auto>  The type of line ending applied to Yaml (and
+                              its super languages) files. `auto` uses CRLF on Windows and LF on
+                              other platforms.
+        --yaml-linter-enabled=<true|false>  Control the linter for Yaml files.
+        --graphql-formatter-enabled=<true|false>  Enables or disables the formatter for GraphQL.
+        --graphql-formatter-indent-style=<tab|space>  The indent style applied to GraphQL files. If
+                              unset, inherits the global indentation style.
+        --graphql-formatter-indent-width=NUMBER  The indentation width applied to GraphQL files. If
+                              unset, inherits the global indentation width.
+        --graphql-formatter-line-ending=<lf|crlf|cr|auto>  The line ending applied to GraphQL files.
+                              If unset, inherits the global line ending.
+        --graphql-formatter-line-width=NUMBER  The preferred maximum line width for GraphQL files.
+                              If unset, inherits the global line width.
+        --graphql-formatter-quote-style=<double|single>  Reserved for future formatter support. The
+                              current formatter preserves standard double-quoted GraphQL strings and
+                              does not use this setting.
+        --bracket-spacing=<true|false>  Controls spaces inside the braces of single-line GraphQL
+                              object values. Biome formats `{name: "Biome"}` when disabled and `{
+                              name: "Biome" }` when enabled. If unset, inherits the global bracket
+                              spacing setting.
+        --graphql-formatter-trailing-newline=<true|false>  Whether to add a trailing newline at the
+                              end of the file. If unset, inherits the global trailing newline
+                              setting.
+        --graphql-linter-enabled=<true|false>  Enables or disables the linter for GraphQL.
+        --graphql-assist-enabled=<true|false>  Enables or disables assist actions for GraphQL.
+                              Defaults to `false`.
+        --grit-formatter-enabled=<true|false>  Enables or disables the formatter for GritQL.
+        --grit-formatter-indent-style=<tab|space>  The indent style applied to GritQL files. If
+                              unset, inherits the global indentation style.
+        --grit-formatter-indent-width=NUMBER  The indentation width applied to GritQL files. If
+                              unset, inherits the global indentation width.
+        --grit-formatter-line-ending=<lf|crlf|cr|auto>  The line ending applied to GritQL files. If
+                              unset, inherits the global line ending.
+        --grit-formatter-line-width=NUMBER  The preferred maximum line width for GritQL files. If
+                              unset, inherits the global line width.
+        --grit-formatter-trailing-newline=<true|false>  Whether to add a trailing newline at the end
+                              of the file. If unset, inherits the global trailing newline setting.
+        --grit-linter-enabled=<true|false>  Enables or disables the linter for GritQL.
+        --grit-assist-enabled=<true|false>  Enables or disables assist actions for GritQL.
+        --html-formatter-enabled=<true|false>  Enables or disables the formatter for HTML and
+                              languages that extend it. The formatter is experimental and disabled
+                              by default. Formatting complete HTML, Vue, Svelte, and Astro files
+                              requires `html.experimentalFullSupportEnabled` to be `true`.
+        --html-formatter-indent-style=<tab|space>  The indent style applied to HTML and languages
+                              that extend it. If unset, inherits the global indentation style.
+        --html-formatter-indent-width=NUMBER  The indentation width applied to HTML and languages
+                              that extend it. If unset, inherits the global indentation width.
+        --html-formatter-line-ending=<lf|crlf|cr|auto>  The line ending applied to HTML and
+                              languages that extend it. If unset, inherits the global line ending.
+        --html-formatter-line-width=NUMBER  The preferred maximum line width for HTML and languages
+                              that extend it. If unset, inherits the global line width.
+        --html-formatter-attribute-position=<multiline|auto>  The attribute position style in HTML
+                              elements. If unset, inherits the global attribute position setting.
+        --html-formatter-bracket-same-line=<true|false>  Controls the placement of the closing
+                              bracket for multiline HTML opening tags. Biome places the bracket at
+                              the end of the last attribute line when enabled and on its own line
+                              after the last attribute when disabled. This option also affects
+                              self-closing HTML elements. If unset, inherits the global
+                              `bracketSameLine` setting.
+        --html-formatter-whitespace-sensitivity=<css|strict|ignore>  Controls whether the formatter
+                              treats whitespace around text and child elements in HTML, Vue, Svelte,
+                              and Astro markup. The `ignore` setting should be used only when
+                              whitespace cannot affect rendered output. Defaults to `css`.
+        --html-formatter-indent-script-and-style=<true|false>  Controls whether the content of
+                              `<script>` and `<style>` tags is indented by one level in HTML, Vue,
+                              Svelte, and Astro files. Defaults to `false`.
+        --html-formatter-self-close-void-elements=<always|never>  Whether void elements are
+                              self-closed. Defaults to `never`.
+        --html-formatter-trailing-newline=<true|false>  Whether to add a trailing newline at the end
+                              of the file. Unlike other language-specific trailing newline settings,
+                              this option defaults to `true` instead of inheriting the global
+                              setting.
+        --html-linter-enabled=<true|false>  Enables or disables the linter for HTML and languages
+                              that extend it.
+        --html-assist-enabled=<true|false>  Enables or disables assist actions for HTML and
+                              languages that extend it.
+        --assist-enabled=<true|false>  Enables configured assist actions in the CLI and editor
+                              integrations. Defaults to `true`.
+
+These options are available to many commands and control general CLI behavior, diagnostics, and
+output.
+        --colors=<off|force>  Controls ANSI styling: `off` disables it, while `force` enables it
+                              even when the output does not appear to support ANSI escapes.
+        --use-server          Connects to a running instance of the Biome daemon server.
+        --verbose             Shows additional diagnostic details and lists the files that were
+                              processed or modified.
+        --config-path=PATH    Sets the path to the configuration file or the directory where Biome
+                              should search for `biome.json` or `biome.jsonc`. This option disables
+                              the default configuration file resolution.
+                              [env:BIOME_CONFIG_PATH: N/A]
+        --max-diagnostics=<none|NUMBER>  Limits the number of diagnostics displayed. Use `none` to
+                              remove the limit.
+                              [default: 20]
+        --skip-parse-errors   Skips files containing syntax errors instead of emitting an error
+                              diagnostic.
+        --no-errors-on-unmatched  Does not emit an error when no files are processed.
+        --error-on-warnings   Exits with an error status if any warning diagnostics are emitted.
+  [--reporter=<default|concise|summary|json|json-pretty|github|gitlab|junit|checkstyle|rdjson|sarif>
+  ] [--reporter-file=PATH]
+        --reporter=
+    <default|concise|summary|json|json-pretty|github|gitlab|junit|checkstyle|rdjson|sarif>  Changes
+                              how diagnostics and the run summary are written.
+                              [default: default]
+        --reporter-file=PATH  Writes the associated reporter's output to `PATH`. Without
+                              `--reporter`, it writes the default reporter's output.
+
+        --diagnostic-level=<info|warn|error>  Sets the minimum diagnostic severity to display:
+                              `info`, `warn`, or `error`. For example, `--diagnostic-level=error`
+                              displays only error-level diagnostics.
+                              [default: info]
+
+Options that control internal CLI and daemon server logging.
+        --log-file=PATH       For file-processing commands, writes internal CLI logs to this file
+                              instead of standard output.
+                              [env:BIOME_LOG_FILE: N/A]
+        --log-prefix-name=STRING  When starting the daemon server, sets the file name prefix used
+                              for rotated log files.
+                              [env:BIOME_LOG_PREFIX_NAME: N/A]
+                              [default: server.log]
+        --log-path=PATH       When starting the daemon server, sets the directory where log files
+                              are stored.
+                              [env:BIOME_LOG_PATH: N/A]
+                              [default: <BIOME_DIR>/biome-logs]
+        --log-level=<none|tracing|debug|info|warn|error>  For file-processing commands, sets the
+                              internal CLI logging level to `tracing`, `debug`, `info`, `warn`,
+                              `error`, or `none`.
+                              [env:BIOME_LOG_LEVEL: N/A]
+                              [default: none]
+        --log-kind=<pretty|compact|json>  For file-processing commands, selects the internal CLI log
+                              format: `pretty`, `compact`, or `json`.
+                              [env:BIOME_LOG_KIND: N/A]
+                              [default: pretty]
+
+Available positional items:
+    PATH                      The optional `PATH` arguments accept one or more paths to files or
+                              directories. If omitted, Biome checks files in the current working
+                              directory.
+
+Available options:
+        --report-profile=<native|knip-6.43>  Selects native or knip-6.43 project presentation.
+                              Compatibility remains partial and always includes coverage evidence.
+  [--project-reporter=
+  <symbols|compact|codeowners|cycles|disclosure|codeclimate|json|markdown|sarif|github-actions>] [
+  --project-report-file=PATH] [--project-reporter-options=JSON]
+        --project-reporter=
+    <symbols|compact|codeowners|cycles|disclosure|codeclimate|json|markdown|sarif|github-actions>
+                              Selects a built-in project report. Repeat with distinct files. This
+                              replaces Knip's --reporter; local diagnostics still use --reporter.
+        --project-report-file=PATH  Writes this project report to PATH and coverage to
+                              PATH.coverage.json. Without a file, coverage goes to stderr; only one
+                              project report may use stdout.
+        --project-reporter-options=JSON  Sets JSON options for this project reporter: codeowners
+                              accepts path; json accepts codeowners. Replaces Knip's
+                              --reporter-options without executing JavaScript.
+
+        --max-show-issues=NUMBER  Limits displayed symbols per category without changing totals,
+                              coverage or exit status. Other built-in formats retain all issues.
+        --max-issues=NUMBER   Allows this many error findings; equality passes. Hints and runtime
+                              failures remain separate. Values must be nonnegative integers.
+        --explain=ISSUE_ID    Explains a retained issue identity from the completed analysis. Does
+                              not run a second analysis.
+        --trace-file=PATH     Traces a captured project-relative file, including files with no
+                              finding.
+        --trace-export=<PATH:SYMBOL>  Traces a captured export, including used or protected exports.
+        --trace-dependency=PACKAGE  Traces a dependency's captured declarations, uses and
+                              uncertainty.
+        --analysis-mode=MODE  Selects default, production, or strict project analysis. Overrides the
+                              configured mode.
+        --workspace=SELECTOR  Limits project reports to matching workspace names, paths, or globs.
+                              Repeat to union; prefix ! to subtract. Other workspaces remain
+                              analysis context.
+        --include=ISSUES      Includes comma-separated project issue categories. Explicit configured
+                              severity off remains off.
+        --exclude=ISSUES      Excludes comma-separated project issue categories without excluding
+                              graph inputs.
+        --dependencies        Selects the dependency issue group for project analysis.
+        --exports             Selects the export issue group, excluding namespace-only exports and
+                              types.
+        --include-entry-exports  Includes entry exports when neither workspace nor root
+                              configuration sets includeEntryExports.
+        --tags=TAGS           Replaces project tag selection. Native tag spelling preserves digits
+                              and underscores.
+        --configuration-hints=<true|false>  Enables configuration hints. Production and strict modes
+                              disable these hints.
+        --tag-hints=<true|false>  Enables tag hints independently of configuration hints.
+        --treat-config-hints-as-errors=<true|false>  Treats configuration hints as errors.
+        --treat-tag-hints-as-errors=<true|false>  Treats tag hints as errors.
+        --no-exit-code        Suppresses project finding exit failures only. Coverage,
+                              configuration, runtime, and local-check failures still fail.
+        --write               Applies formatting changes, safe lint fixes, and safe assist actions.
+        --unsafe              Allows `--write` or `--fix` to apply unsafe fixes and assist actions.
+        --fix                 Alias for `--write`.
+        --formatter-enabled=<true|false>  Enables or disables formatting checks for this command.
+        --linter-enabled=<true|false>  Enables or disables linting checks for this command.
+        --assist-enabled=<true|false>  Enables or disables assist actions for this command.
+        --enforce-assist=<true|false>  Enforces assist actions and causes the command to fail if
+                              required actions are not applied. Defaults to `true`.
+        --format-with-errors=<true|false>  Allows formatting files that contain syntax errors when
+                              set to `true`. Defaults to `false`.
+        --profile-rules       Reports how long each rule takes to run. It excludes the time spent
+                              preparing the analysis, such as building the semantic model.
+        --profile-type-inference  Enables type-inference profiling output, grouped and ranked by
+                              source file.
+        --stdin-file-path=PATH  Reads code from standard input and writes the processed code to
+                              standard output.
+                              Biome uses `PATH` to select settings and determine the input type from
+                              its extension. Virtual paths don't need to exist or belong to the
+                              project. They bypass `files.includes` and VCS ignore checks.
+                              Example:
+                              ```shell
+                              echo 'let a;' | biome check --stdin-file-path=file.js --write
+                              ```
+        --staged              Checks only staged files. This option is intended for local use.
+        --changed             Checks only files with committed changes compared to the configured
+                              `vcs.defaultBranch` or the base reference specified by `--since`.
+                              Staged and unstaged changes are not included. This option is intended
+                              for CI.
+        --since=REF           Sets the base reference used by `--changed`, overriding
+                              `vcs.defaultBranch`. Requires `--changed`.
+        --only=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>  Runs only the given lint rule, assist action,
+                              group of rules and actions, or domain. If a selected rule's severity
+                              is `off`, Biome sets it to `error` for a recommended rule or `warn`
+                              otherwise. The `plugin` group runs only analyzer plugins.
+                              Example:
+                              ```shell
+                              biome check --only=correctness/noUnusedVariables --only=suspicious --only=test --only=plugin
+                              ```
+        --skip=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>  Skips the given lint rule, assist action, group of
+                              rules and actions, or domain. Matching lint rules are set to `off`.
+                              This option takes precedence over `--only`. The `plugin` group skips
+                              analyzer plugins.
+                              Example:
+                              ```shell
+                              biome check --skip=correctness/noUnusedVariables --skip=suspicious --skip=project --skip=plugin
+                              ```
+        --watch               After the initial run, watches the selected paths and reprocesses
+                              files modified afterward.
+    -h, --help                Prints help information
+
+```

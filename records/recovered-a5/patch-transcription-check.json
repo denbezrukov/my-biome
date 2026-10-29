@@ -1,0 +1,32 @@
+[
+  {
+    "file": "01-8fd0544-production.patch",
+    "added": 216,
+    "deleted": 32,
+    "hunk_errors": []
+  },
+  {
+    "file": "01-8fd0544-tests.patch",
+    "added": 267,
+    "deleted": 1,
+    "hunk_errors": []
+  },
+  {
+    "file": "02-39046be-production.patch",
+    "added": 113,
+    "deleted": 26,
+    "hunk_errors": []
+  },
+  {
+    "file": "02-39046be-tests.patch",
+    "added": 272,
+    "deleted": 21,
+    "hunk_errors": []
+  },
+  {
+    "file": "03-b3f4b0f.patch",
+    "added": 88,
+    "deleted": 6,
+    "hunk_errors": []
+  }
+]

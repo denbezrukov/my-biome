@@ -1,0 +1,37 @@
+    if let Some(root_index) = packages.iter().position(|p| p.path == root) {
+        retain_catalogs(
+            &mut capture,
+            root_index,
+            &packages[root_index],
+            yaml.as_ref(),
+        );
+    }
+    retain_configured_uses(&mut capture, request);
+    capture.inventory.roots.sort_by_key(|root| {
+        (
+            root.file,
+            root.producer.clone(),
+            root.location.map(|l| (l.file, l.range.start())),
+        )
+    });
+    capture.inventory.roots.dedup();
+    capture.inventory.files.sort_by_key(|file| file.file);
+    capture
+        .inventory
+        .gaps
+        .sort_by_cached_key(|gap| serde_json::to_string(gap).unwrap());
+    capture.inventory.gaps.dedup();
+    Ok(capture.inventory)
+}
+
+fn relative(root: &Utf8Path, path: &Utf8Path) -> Utf8PathBuf {
+    let relative = path.strip_prefix(root).unwrap_or(path);
+    if relative.as_str().is_empty() {
+        ".".into()
+    } else {
+        relative.into()
+    }
+}
+fn owner(packages: &[Package], path: &Utf8Path) -> Option<usize> {
+    packages
+        .iter()

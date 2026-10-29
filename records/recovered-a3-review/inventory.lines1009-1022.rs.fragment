@@ -1,0 +1,14 @@
+fn load_yaml(capture: &mut Capture, path: &Utf8Path) -> (FileId, WorkspaceMetadata) {
+    let file = capture.capture(path);
+    let metadata = capture
+        .text(file)
+        .map(read_workspace_metadata)
+        .unwrap_or_default();
+    capture.diagnostics(file, &metadata.diagnostics);
+    (file, metadata)
+}
+fn owned(value: &MetadataValue, file: FileId) -> MetadataValueRecord {
+    MetadataValueRecord {
+        value: json_value(value),
+        location: Location {
+            file,

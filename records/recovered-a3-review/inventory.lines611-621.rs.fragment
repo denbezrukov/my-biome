@@ -1,0 +1,11 @@
+                    &mut capture,
+                    &path,
+                    workspace,
+                    "tsconfig program",
+                    Some(location),
+                    RootRole::Both,
+                    ExportProtection::Unprotected,
+                );
+                if let Some(file) = capture
+                    .inventory
+                    .files

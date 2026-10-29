@@ -1,0 +1,366 @@
+diff --git a/crates/biome_package/src/node_js_package/tsconfig_json.rs b/crates/biome_package/src/node_js_package/tsconfig_json.rs
+index 7275808a6ee..4a562b99c92 100644
+--- a/crates/biome_package/src/node_js_package/tsconfig_json.rs
++++ b/crates/biome_package/src/node_js_package/tsconfig_json.rs
+@@ -30,48 +30,105 @@ pub struct TsConfigJson {
+     pub include: Option<super::Located<Vec<String>>>,
+     pub exclude: Option<super::Located<Vec<String>>>,
+ 
+     pub compiler_options: CompilerOptions,
+ 
+     /// Project references.
+     pub references: Vec<ProjectReference>,
+ 
+     /// Original tsconfig values and nested source ranges, before resolver normalization.
+     pub metadata: Option<super::MetadataValue>,
++
++    /// Static project metadata diagnostics, independent of legacy resolver diagnostics.
++    pub metadata_diagnostics: Vec<biome_diagnostics::serde::Diagnostic>,
+ }
+ 
+ #[derive(Default, Deserializable)]
+ #[deserializable(unknown_fields = "allow")]
+ struct TsConfigFields {
+-    extends: Option<ExtendsField>,
++    #[deserializable(rename = "extends")]
++    _extends: Option<ExtendsField>,
+     compiler_options: CompilerOptions,
+     files: Option<super::Located<Vec<String>>>,
+     include: Option<super::Located<Vec<String>>>,
+     exclude: Option<super::Located<Vec<String>>>,
+-    references: Vec<ProjectReference>,
++    #[deserializable(rename = "references")]
++    _references: Vec<ProjectReference>,
++}
++
++#[derive(Default, Deserializable)]
++#[deserializable(unknown_fields = "allow")]
++struct LegacyTsConfigFields {
++    extends: Option<ExtendsField>,
++    compiler_options: LegacyCompilerOptions,
++    references: Vec<super::Located<LegacyProjectReference>>,
++}
++
++// The resolver's field list preserves its unknown-option warnings independently of project support.
++#[derive(Default, Deserializable)]
++struct LegacyCompilerOptions {
++    base_url: Option<Utf8PathBuf>,
++    paths: Option<CompilerOptionsPathsMap>,
++    type_roots: Option<Vec<String>>,
++    jsx_factory: Option<JsxFactoryIdentifier>,
++    jsx_fragment_factory: Option<JsxFactoryIdentifier>,
++}
++
++#[derive(Default, Deserializable)]
++struct LegacyProjectReference {
++    path: Utf8PathBuf,
+ }
+ 
+ impl Deserializable for TsConfigJson {
+     fn deserialize(
+         ctx: &mut dyn DeserializationContext,
+         value: &impl DeserializableValue,
+         name: &str,
+     ) -> Option<Self> {
+-        let fields = TsConfigFields::deserialize(ctx, value, name)?;
++        let (fields, metadata, metadata_diagnostics) = {
++            let mut metadata_context = biome_deserialize::DefaultDeserializationContext {
++                id: ctx.id(),
++                ..Default::default()
++            };
++            let fields = TsConfigFields::deserialize(&mut metadata_context, value, name);
++            let metadata = super::MetadataValue::deserialize(&mut metadata_context, value, name);
++            let diagnostics = metadata_context
++                .diagnostics
++                .into_iter()
++                .map(biome_diagnostics::serde::Diagnostic::new)
++                .collect();
++            (fields.unwrap_or_default(), metadata, diagnostics)
++        };
++        let legacy = LegacyTsConfigFields::deserialize(ctx, value, name)?;
+         Some(Self {
+-            extends: fields.extends,
+-            compiler_options: fields.compiler_options,
++            extends: legacy.extends,
++            compiler_options: CompilerOptions {
++                base_url: legacy.compiler_options.base_url,
++                paths: legacy.compiler_options.paths,
++                type_roots: legacy.compiler_options.type_roots,
++                jsx_factory: legacy.compiler_options.jsx_factory,
++                jsx_fragment_factory: legacy.compiler_options.jsx_fragment_factory,
++                ..fields.compiler_options
++            },
+             files: fields.files,
+             include: fields.include,
+             exclude: fields.exclude,
+-            references: fields.references,
+-            metadata: super::MetadataValue::deserialize(ctx, value, name),
++            references: legacy
++                .references
++                .into_iter()
++                .map(|reference| ProjectReference {
++                    path: reference.value.path,
++                    location: Some(reference.range),
++                })
++                .collect(),
++            metadata,
++            metadata_diagnostics,
+             ..Self::default()
+         })
+     }
+ }
+ 
+ impl Manifest for TsConfigJson {
+     type Language = JsonLanguage;
+ 
+     fn deserialize_manifest(
+         root: &LanguageRoot<Self::Language>,
+@@ -294,20 +351,57 @@ impl Deserializable for JsxFactoryIdentifier {
+         }
+ 
+         Some(Self(base_identifier.to_string()))
+     }
+ }
+ 
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn legacy_values_and_unknown_field_warnings_are_preserved() {
++        let source = r#"{
++            "extends":["base","extra"], "futureRoot":false,
++            "compilerOptions":{"baseUrl":"src","paths":{"@/*":["lib/*"]},"typeRoots":["types"],
++                "jsxFactory":"React.createElement","jsxFragmentFactory":"React.Fragment","futureOption":false},
++            "references":[{"path":"../lib"}]
++        }"#;
++        let (config, diagnostics) =
++            TsConfigJson::parse(Utf8Path::new("/project/tsconfig.json"), source);
++        assert_eq!(diagnostics.len(), 1);
++        assert_eq!(config.metadata_diagnostics.len(), 1);
++        assert_eq!(
++            config.extends,
++            Some(ExtendsField::Multiple(vec!["base".into(), "extra".into()]))
++        );
++        assert_eq!(
++            config.compiler_options.base_url.as_deref(),
++            Some(Utf8Path::new("/project/src"))
++        );
++        assert_eq!(
++            config.compiler_options.paths_base,
++            Utf8Path::new("/project/src")
++        );
++        assert_eq!(
++            config.compiler_options.paths.as_ref().unwrap()["@/*"],
++            ["lib/*"]
++        );
++        assert_eq!(
++            config.compiler_options.type_roots.as_ref().unwrap(),
++            &["types"]
++        );
++        assert_eq!(config.jsx_factory_identifier(), Some("React"));
++        assert_eq!(config.jsx_fragment_factory_identifier(), Some("React"));
++        assert_eq!(config.references[0].path, Utf8Path::new("../lib"));
++    }
++
+     #[test]
+     fn test_jsx_factory_normalization() {
+         let json = r#"{
+             "compilerOptions": {
+                 "jsxFactory": "React.createElement",
+                 "jsxFragmentFactory": "React.Fragment"
+             }
+         }"#;
+ 
+         let (tsconfig, _) = TsConfigJson::parse(Utf8Path::new("/test/tsconfig.json"), json);
+diff --git a/crates/biome_package/tests/project_metadata.rs b/crates/biome_package/tests/project_metadata.rs
+index c703afcf068..780cb544673 100644
+--- a/crates/biome_package/tests/project_metadata.rs
++++ b/crates/biome_package/tests/project_metadata.rs
+@@ -142,25 +142,22 @@ fn tsconfig_metadata_preserves_resolution_inputs_and_ranges() {
+     use biome_package::TsConfigJson;
+     let parsed = deserialize_from_json_str::<TsConfigJson>(
+         r#"{
+       "files":["src/index.ts"],"include":["src/**"],"exclude":["dist"],"references":[{"path":"../lib"}],
+       "compilerOptions":{"rootDir":"src","outDir":"dist","module":"nodenext","moduleResolution":"bundler",
+       "customConditions":["source"],"allowJs":true,"resolveJsonModule":true,"types":["node"],"rootDirs":["src","generated"]}
+     }"#,
+         JsonParserOptions::default(),
+         "tsconfig.json",
+     );
+-    assert!(
+-        parsed.diagnostics().is_empty(),
+-        "{:?}",
+-        parsed.diagnostics()
+-    );
++    assert!(!parsed.has_errors(), "{:?}", parsed.diagnostics());
++    assert_eq!(parsed.diagnostics().len(), 9);
+     let parsed = parsed.into_deserialized().unwrap();
+     assert_eq!(
+         parsed.metadata.as_ref().unwrap().members["compilerOptions"].members["rootDir"]
+             .value
+             .as_string()
+             .unwrap()
+             .as_str(),
+         "src"
+     );
+     assert_eq!(parsed.files.unwrap().value, ["src/index.ts"]);
+@@ -264,10 +261,124 @@ fn metadata_diagnostics_preserve_legacy_manifest_behavior() {
+         legacy
+             .into_deserialized()
+             .unwrap()
+             .project_metadata
+             .diagnostics
+             .len(),
+         2
+     );
+     assert_eq!(metadata(source).diagnostics.len(), 2);
+ }
++
++#[test]
++fn tsconfig_project_errors_preserve_legacy_diagnostics() {
++    use biome_diagnostics::{Diagnostic, Severity};
++    use biome_package::{Manifest, NodeJsPackage, TsConfigJson};
++    for source in [
++        r#"{"files":false}"#,
++        r#"{"include":42,"exclude":false}"#,
++        r#"{"references":[{}]}"#,
++        r#"{"compilerOptions":{"rootDir":false,"customConditions":42}}"#,
++    ] {
++        let parsed = biome_json_parser::parse_json(source, JsonParserOptions::default());
++        let path = camino::Utf8Path::new("/project/tsconfig.json");
++        let deserialized = TsConfigJson::deserialize_manifest(&parsed.tree(), path);
++        let warnings = if source.contains("compilerOptions") {
++            2
++        } else {
++            0
++        };
++        assert_eq!(deserialized.diagnostics().len(), warnings, "{source}");
++        assert!(
++            deserialized
++                .diagnostics()
++                .iter()
++                .all(|diagnostic| diagnostic.severity() == Severity::Warning)
++        );
++        let mut package = NodeJsPackage::default();
++        package.insert_serialized_tsconfig(&parsed.tree(), path);
++        assert_eq!(package.diagnostics.len(), warnings, "{source}");
++        assert!(
++            package
++                .diagnostics
++                .iter()
++                .all(|diagnostic| diagnostic.severity() == Severity::Warning)
++        );
++        if source.contains("references") {
++            let config = package.tsconfig.unwrap();
++            assert_eq!(config.references.len(), 1);
++            assert_eq!(config.references[0].path.as_str(), "");
++        }
++    }
++}
++
++#[test]
++fn tsconfig_metadata_errors_are_owned_and_ranged() {
++    use biome_diagnostics::Diagnostic;
++    use biome_package::{Manifest, TsConfigJson};
++    let source = r#"{"files":false,"references":[{}],"compilerOptions":{"rootDir":false}}"#;
++    let root = biome_json_parser::parse_json(source, JsonParserOptions::default()).tree();
++    let parsed =
++        TsConfigJson::deserialize_manifest(&root, camino::Utf8Path::new("/project/tsconfig.json"));
++    let config = parsed.into_deserialized().unwrap();
++    assert_eq!(config.metadata_diagnostics.len(), 3);
++    let mut excerpts = config
++        .metadata_diagnostics
++        .iter()
++        .map(|diagnostic| {
++            let range = diagnostic.location().span.unwrap();
++            &source[usize::from(range.start())..usize::from(range.end())]
++        })
++        .collect::<Vec<_>>();
++    excerpts.sort_unstable();
++    assert_eq!(excerpts, ["false", "false", "{}"]);
++    assert_eq!(
++        config.metadata.unwrap().members["files"].value.as_bool(),
++        Some(false)
++    );
++    assert_eq!(config.references.len(), 1);
++    assert_eq!(config.references[0].path.as_str(), "");
++}
++
++#[test]
++fn tsconfig_file_reads_retain_project_errors_and_legacy_errors() {
++    use biome_diagnostics::Diagnostic;
++    use biome_package::{Manifest, NodeJsPackage, TsConfigJson};
++    let source = r#"{"files":false,"references":[{}, {"path":42}],"compilerOptions":{"baseUrl":42,"rootDir":false}}"#;
++    let path = camino::Utf8Path::new("/project/tsconfig.json");
++    let fs = biome_fs::MemoryFileSystem::default();
++    fs.insert(path.into(), source.as_bytes());
++    let read = TsConfigJson::read_manifest(&fs, path);
++    assert_eq!(read.diagnostics().len(), 3);
++    assert_eq!(
++        read.diagnostics()
++            .iter()
++            .filter(|diagnostic| diagnostic.severity() == biome_diagnostics::Severity::Error)
++            .count(),
++        2
++    );
++    let config = read.into_deserialized().unwrap();
++    assert_eq!(config.metadata_diagnostics.len(), 5);
++    let mut excerpts = config
++        .metadata_diagnostics
++        .iter()
++        .map(|diagnostic| {
++            let range = diagnostic.location().span.unwrap();
++            &source[usize::from(range.start())..usize::from(range.end())]
++        })
++        .collect::<Vec<_>>();
++    excerpts.sort_unstable();
++    assert_eq!(excerpts, ["42", "42", "false", "false", "{}"]);
++    assert!(config.compiler_options.base_url.is_none());
++    assert_eq!(config.references.len(), 2);
++    assert!(
++        config
++            .references
++            .iter()
++            .all(|reference| reference.path.as_str().is_empty())
++    );
++    let root = biome_json_parser::parse_json(source, JsonParserOptions::default()).tree();
++    let mut package = NodeJsPackage::default();
++    package.insert_serialized_tsconfig(&root, path);
++    assert_eq!(package.diagnostics.len(), 3);
++    assert_eq!(package.tsconfig.unwrap().metadata_diagnostics.len(), 5);
++}
+diff --git a/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap b/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap
+index 9beaed1fe0b..5b53b50eb26 100644
+--- a/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap
++++ b/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.baseUrl.json.snap
+@@ -97,11 +97,12 @@ TsConfigJson {
+                             members: {},
+                             elements: [],
+                         },
+                     },
+                     elements: [],
+                 },
+             },
+             elements: [],
+         },
+     ),
++    metadata_diagnostics: [],
+ }
+diff --git a/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap b/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap
+index 02bfa8edb97..f1b8b1e1719 100644
+--- a/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap
++++ b/crates/biome_package/tests/tsconfig/valid/tsconfig.valid.paths.json.snap
+@@ -234,11 +234,12 @@ TsConfigJson {
+                             members: {},
+                             elements: [],
+                         },
+                     },
+                     elements: [],
+                 },
+             },
+             elements: [],
+         },
+     ),
++    metadata_diagnostics: [],
+ }
