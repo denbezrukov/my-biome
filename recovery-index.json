@@ -1,0 +1,29 @@
+{
+  "status": "partial-original-history-recovery",
+  "files": [
+    {
+      "path": "patches/C4/d574a1a1-to-e645266.patch",
+      "sha256": "44f5f27fbac42f052e717a535be608d5badcc71e82e57cc18ad43548ec1f996c",
+      "gitBlob": "30111a0d06714c15e29efbf814b5c146e21859a6",
+      "bytes": 19954,
+      "provenance": "retained original agent tool output",
+      "historicalVerification": "unified hunk lengths checked; no retained historical patch SHA"
+    },
+    {
+      "path": "integrity/C4/d574a1a1-source-binding.json",
+      "sha256": "76c495d154f38b20471bb6a7021f46c1f79db1d53f707e72897e98a069f2361b",
+      "gitBlob": "1c54b2d8f0ce9934954195e5c83f1608d05689c3",
+      "bytes": 8546,
+      "provenance": "retained original agent tool output",
+      "historicalVerification": "full SHA256 matches retained historical binding"
+    },
+    {
+      "path": "sources/A5/39046be/crates/biome_service/src/project_analysis/snapshot.rs",
+      "sha256": "a20e6c726507f8841a816bec3ec8d0f1c5678e13114ca9c7fefe7eff7869e381",
+      "gitBlob": "e6eb70d934faa2ec28aec6efd727641d6d33c3ca",
+      "bytes": 19937,
+      "provenance": "retained original agent tool output",
+      "historicalVerification": "Git blob matches original 11-digit prefix e6eb70d934f"
+    }
+  ]
+}

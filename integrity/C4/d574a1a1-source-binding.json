@@ -1,0 +1,198 @@
+{
+  "status": "implementation candidate complete; independent review pending",
+  "commit": "d574a1a1fe1d2fcb5c26dd12b798c6d983ff067b",
+  "parent": "12bf926317b7032e2ddc46124bf277b8409bf5fd",
+  "committed_files": {
+    ".changeset/smooth-owls-show.md": {
+      "sha256": "80c601e3f7dafa6bd43ffcde5bd73e512387f0d134a9b20f692326124e99eaf4",
+      "bytes": 342
+    },
+    "Cargo.lock": {
+      "sha256": "e12560d377a09a2278066e55c6d4ee94bebc25904b96f5e288617799ffaab93a",
+      "bytes": 179936
+    },
+    "crates/biome_cli/Cargo.toml": {
+      "sha256": "a91281f9584baf4a397ee9f729cfeb4856b25a1ac926fe640e205f90237152af",
+      "bytes": 5030
+    },
+    "crates/biome_cli/src/cli_options.rs": {
+      "sha256": "7786693470144eb9f3dbfb40d8d2575d3794cb0937c390d11b8313cd17b12087",
+      "bytes": 10262
+    },
+    "crates/biome_cli/src/commands/analyze.rs": {
+      "sha256": "ca0cd5206c17957d22b7e4c74fe9a4b7e59d344bf16ba2a4424b424ea831bdac",
+      "bytes": 7414
+    },
+    "crates/biome_cli/src/commands/mod.rs": {
+      "sha256": "9fc6ac420de9fb29592b9b90262608302bf14d82ddee59d50e6d12ea34eaabb6",
+      "bytes": 47290
+    },
+    "crates/biome_cli/src/lib.rs": {
+      "sha256": "cc21d3cb1e77c837f92b9a2f310d909d7cfab696e741b264fb589f65783b6bd2",
+      "bytes": 12695
+    },
+    "crates/biome_cli/src/main.rs": {
+      "sha256": "cc9b51f0670695a1239162c18ba4c12920f2fb5d601b87c07195c7c874775dba",
+      "bytes": 4296
+    },
+    "crates/biome_cli/src/reporter/mod.rs": {
+      "sha256": "5141e9eb121c21153be76450eef6f5bce94a4dad74fa52fdf3bd3c319df9a090",
+      "bytes": 8834
+    },
+    "crates/biome_cli/src/reporter/project_analysis/compatibility.rs": {
+      "sha256": "776c1ecf30c83e09eb308eb29bfaab06d1b0df897d35d30aa761945f79eb3cd7",
+      "bytes": 32635
+    },
+    "crates/biome_cli/src/reporter/project_analysis/explain.rs": {
+      "sha256": "911b195eb64e4ab951c6d8594689528cfdaf03e2194d3092ac7f5155b84249ec",
+      "bytes": 3545
+    },
+    "crates/biome_cli/src/reporter/project_analysis/mod.rs": {
+      "sha256": "29538a6d5ea7a66929f03cf25cbe0cbdee2e0c8b5c69cc3fe30763b4964543fb",
+      "bytes": 7742
+    },
+    "crates/biome_cli/src/reporter/project_analysis/native.rs": {
+      "sha256": "50c179e1da4eb399c83849985d8fef2944794a796de344cb6737b5bc3f55c6d6",
+      "bytes": 435
+    },
+    "crates/biome_cli/src/runner/impls/finalizers/default.rs": {
+      "sha256": "8fb534afc513dd10a1256787ecf368d50f7edceea07d28b7535b05e3103980d3",
+      "bytes": 19201
+    },
+    "crates/biome_cli/src/runner/mod.rs": {
+      "sha256": "58eaee942a5bdb532bcbc1848deb6634c11c217a21225259ab20199ed4381d13",
+      "bytes": 31929
+    },
+    "crates/biome_cli/src/runner/project_analysis.rs": {
+      "sha256": "6c0c6dc01e475f49499ac2e8d3c4be4ff8d74dfd461f23cef9a8dd258ad5c66d",
+      "bytes": 21142
+    },
+    "crates/biome_cli/tests/cases/mod.rs": {
+      "sha256": "5706fc69b6a4ec599c3e9225780192cc6501fbde2c597da9979cef30e366ec5c",
+      "bytes": 1302
+    },
+    "crates/biome_cli/tests/cases/reporter_project_analysis.rs": {
+      "sha256": "b1f9b7155fc0cc796544a0a877df219a0741e86e50ed29bbed824b3e192ee1f2",
+      "bytes": 22581
+    },
+    "crates/biome_cli/tests/fixtures/project_reporters/cycle-presentation.json": {
+      "sha256": "7ff5a7bcd28aa27546c48ffcb6d45b7ca4c637835c9b628ebf38d2ee1a9144e2",
+      "bytes": 2753
+    },
+    "crates/biome_cli/tests/fixtures/project_reporters/fixtures.json": {
+      "sha256": "8d2d5490204c445599cb8d01795053ef292735295c2ed022bcbccb17b400eb9d",
+      "bytes": 51024
+    },
+    "crates/biome_cli/tests/fixtures/project_reporters/oracle.json": {
+      "sha256": "8321e5bd632719156454a4fee310003536e39c5028219ba3a298af368bb68b2e",
+      "bytes": 55457
+    },
+    "crates/biome_cli/tests/project_analysis_exit.rs": {
+      "sha256": "621f63b5166074b19f56696863fbe830735b073c7d75c28f13f6e145977a3cad",
+      "bytes": 26838
+    },
+    "crates/biome_cli/tests/snapshots/main_cases_help/check_help.snap": {
+      "sha256": "10c6f1d3f18157bb63e2a5064bb68aa725b42022fa6ab789a356c634f7436aaf",
+      "bytes": 43712
+    },
+    "crates/biome_cli/tests/snapshots/main_cases_help/lint_help.snap": {
+      "sha256": "547484f1986a04ae07925f94f6d3fb8b290a91676db3a173a45836c272dc9f58",
+      "bytes": 16382
+    },
+    "crates/biome_cli/tests/snapshots/main_commands_analyze/analyze_help_local.snap": {
+      "sha256": "16b778c0e38749f98602c22e4f4f86dee1a50998870653001a14148ff21358be",
+      "bytes": 9651
+    },
+    "crates/biome_project_analysis/src/lib.rs": {
+      "sha256": "513f0f8c64ca3568bccc5854ea6b101effa247e0c21c5c90f399cc83bcb141ca",
+      "bytes": 8994
+    },
+    "crates/biome_project_analysis/src/policy.rs": {
+      "sha256": "bcb5c6b3aac7ae9e1b5830b8c8082ff671492801cac03402ab2227be2a5dec07",
+      "bytes": 27421
+    },
+    "crates/biome_project_analysis/src/report_metadata.rs": {
+      "sha256": "7ec3527e6c3e94206f7db7b705ad025e3187c45d16ea3b6dbc67c24e4bec7d65",
+      "bytes": 16314
+    },
+    "crates/biome_project_analysis/src/result.rs": {
+      "sha256": "0f199a13761e2994ccc177e7e004b3ec98c9c4b97eda5bcf5d509f3acf37c5ef",
+      "bytes": 5430
+    },
+    "crates/biome_project_analysis/tests/contracts.rs": {
+      "sha256": "3d09a5863610177584b5f5a64fd29ac72385dc3d7633140871b7ee607bdb2612",
+      "bytes": 14581
+    },
+    "crates/biome_project_analysis/tests/members.rs": {
+      "sha256": "5ef044c92f0400bbc76b6dbfa3c63122009df573bc6fbabe73cc5cc346d679e2",
+      "bytes": 7217
+    },
+    "crates/biome_service/src/project_analysis/members.tests.rs": {
+      "sha256": "66c006449a7e72b9ab23c4632171f25871becc38e919229f89a862de93cd0337",
+      "bytes": 27799
+    },
+    "crates/biome_service/src/project_analysis/policy.rs": {
+      "sha256": "61d1dfddc6a95911ef27966a748689d6b63bf44769ee3c37bb880cebd1406f02",
+      "bytes": 17282
+    },
+    "packages/@biomejs/backend-jsonrpc/src/workspace.ts": {
+      "sha256": "359e9fffd474fa502dd70c0ebf109dc24fc26401eba221d0bfa5b59e8e63071a",
+      "bytes": 498180
+    },
+    "xtask/project_analysis/Cargo.toml": {
+      "sha256": "242bc9d6b4c728101d1f7cbb8e2834a55336aaea5073a93ae7c7af62706a4591",
+      "bytes": 516
+    },
+    "xtask/project_analysis/README.md": {
+      "sha256": "dc64b00c877fb868fc7f4377c4747552601b8a02d09e8177aac9f46ac9c4bb6e",
+      "bytes": 5960
+    },
+    "xtask/project_analysis/REPORTING.md": {
+      "sha256": "5d93a876bd83cb425e344c0eb4caf2aa64eb1131750f57c6821d1c897ab33ba7",
+      "bytes": 8563
+    },
+    "xtask/project_analysis/compatibility.json": {
+      "sha256": "fac73131485cff7926c5af407774a9dd59a7474dd157be6657b9131669bc2c2c",
+      "bytes": 75790
+    },
+    "xtask/project_analysis/src/compare.rs": {
+      "sha256": "07d539f203e3f5868eab95494a5615b53224d0c8d82ece42fe5f01463c47315a",
+      "bytes": 691
+    },
+    "xtask/project_analysis/src/conformance.rs": {
+      "sha256": "bb3ab5cb0e90c2a0ecb70a7be37e9481c6d02bc77b0e39bff04a9f70410e5fbb",
+      "bytes": 12154
+    },
+    "xtask/project_analysis/src/execution.rs": {
+      "sha256": "c8834babbbecfac8bcc6c4c9fc11ea02e61321cbd495bd55f2c86380ae825315",
+      "bytes": 8604
+    },
+    "xtask/project_analysis/src/main.rs": {
+      "sha256": "b4ae294bb933e68ca0fbad1e65f55fad3b8ff545efe39d8762184c53c43756a5",
+      "bytes": 3361
+    },
+    "xtask/project_analysis/src/normalize.rs": {
+      "sha256": "ec96f068d50ddeed277152aeb621d974c181984f03fb1097dbd662ea19c53660",
+      "bytes": 2724
+    },
+    "xtask/project_analysis/tests/cli.rs": {
+      "sha256": "7b567db06e7fa19669fbe2a4289487d4cd8879e5e6675e9eb5c3e7e7987bb0ea",
+      "bytes": 1327
+    }
+  },
+  "precommit_binding_sha256": "b208ac87ccae6689ecb591059c32fb7018b1fb1f35ad958d2e2c868979940a6d",
+  "final_native_supplement_sha256": "49e8d0ca07903e29cf484c4f95b70dee4c1ea342a190c14390b3bfa3384e17c9",
+  "producer_head": "12bf926317b7032e2ddc46124bf277b8409bf5fd",
+  "compiled_inputs_match_commit": true,
+  "worktree_only_preserved_documents": [
+    "docs/superpowers/plans/2026-10-26-native-project-analysis.md",
+    "docs/superpowers/plans/2026-10-26-project-analysis-checks.md",
+    "docs/superpowers/plans/2026-10-26-project-analysis-foundations.md",
+    "docs/superpowers/plans/2026-10-26-project-analysis-integration.md",
+    "docs/superpowers/plans/2026-10-26-project-analysis-migration.md",
+    "docs/superpowers/reviews/2026-10-26-native-project-analysis-plan-review.md",
+    "docs/superpowers/specs/2026-10-25-native-project-analysis-design.md"
+  ],
+  "product_source_and_builds_held_pending_parent_review": true,
+  "report_sha256": "aeb1c4da8eb67032bcbda21a0ef28cb423f21fcb304e9153c515a420ab09ad41"
+}

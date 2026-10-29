@@ -1,0 +1,517 @@
+diff --git a/crates/biome_cli/src/main.rs b/crates/biome_cli/src/main.rs
+index c2f8cfbfc19..edaea006d8f 100644
+--- a/crates/biome_cli/src/main.rs
++++ b/crates/biome_cli/src/main.rs
+@@ -8,7 +8,7 @@ use biome_cli::{
+     BiomeCommand, CliDiagnostic, CliSession, biome_command, open_transport, setup_panic_handler,
+     to_color_mode,
+ };
+-use biome_console::{ConsoleExt, EnvConsole, markup};
++use biome_console::{ConsoleExt, EnvConsole, LogLevel, markup};
+ use biome_diagnostics::{Diagnostic, PrintDiagnostic, set_bottom_frame};
+ use biome_fs::OsFileSystem;
+ use biome_service::workspace;
+@@ -81,6 +81,24 @@ fn main() -> ExitCode {
+     });
+     match result {
+         Err(termination) => {
++            if matches!(&termination, CliDiagnostic::ProjectAnalysis(_)) {
++                let written = if termination.tags().is_verbose() && is_verbose {
++                    console.try_println(
++                        LogLevel::Error,
++                        markup! {{PrintDiagnostic::verbose(&termination)}},
++                    )
++                } else {
++                    console.try_println(
++                        LogLevel::Error,
++                        markup! {{PrintDiagnostic::simple(&termination)}},
++                    )
++                };
++                return if written.is_err() {
++                    ExitCode::from(2)
++                } else {
++                    termination.report()
++                };
++            }
+             if termination.tags().is_verbose() && is_verbose {
+                 console.error(markup! {{PrintDiagnostic::verbose(&termination)}})
+             } else {
+diff --git a/crates/biome_cli/src/runner/impls/finalizers/default.rs b/crates/biome_cli/src/runner/impls/finalizers/default.rs
+index 69c33f3b7e6..dace6c4ebc2 100644
+--- a/crates/biome_cli/src/runner/impls/finalizers/default.rs
++++ b/crates/biome_cli/src/runner/impls/finalizers/default.rs
+@@ -145,7 +145,9 @@ impl DefaultFinalizer {
+                 }
+                 .write(&mut buffer, &mut ConsoleReporterVisitor { concise: false })?;
+                 if let Some(output) = buffer.dump() {
+-                    console.print_raw(LogLevel::Error, &output);
++                    console
++                        .try_print_raw(LogLevel::Error, &output)
++                        .map_err(CliDiagnostic::from)?;
+                 }
+             }
+         } else {
+@@ -199,7 +201,9 @@ impl DefaultFinalizer {
+             let mut buffer = FileReporterWriter::default();
+             reporter.write(&mut buffer, &mut visitor)?;
+             if let Some(output) = buffer.dump() {
+-                console.print_raw(LogLevel::Error, &output);
++                console
++                    .try_print_raw(LogLevel::Error, &output)
++                    .map_err(CliDiagnostic::from)?;
+             }
+         } else {
+             reporter.write(&mut ConsoleReporterWriter(console), &mut visitor)?;
+diff --git a/crates/biome_cli/src/runner/project_analysis.rs b/crates/biome_cli/src/runner/project_analysis.rs
+index d7f24d32b77..d2e9b4ca1a9 100644
+--- a/crates/biome_cli/src/runner/project_analysis.rs
++++ b/crates/biome_cli/src/runner/project_analysis.rs
+@@ -395,7 +395,7 @@ pub(crate) fn has_structured_reports(cli: &ProjectAnalysisOptions) -> bool {
+ }
+ 
+ fn output_identity(fs: &dyn FileSystem, path: &Utf8Path) -> Utf8PathBuf {
+-    let path = biome_fs::normalize_path(&fs.working_directory().unwrap_or_default().join(path));
++    let path = fs.working_directory().unwrap_or_default().join(path);
+     if let Ok(canonical) = fs.canonicalize_path(&path) {
+         return canonical;
+     }
+@@ -404,11 +404,11 @@ fn output_identity(fs: &dyn FileSystem, path: &Utf8Path) -> Utf8PathBuf {
+         if let Ok(canonical) = fs.canonicalize_path(parent)
+             && let Ok(suffix) = path.strip_prefix(parent)
+         {
+-            return canonical.join(suffix);
++            return biome_fs::normalize_path(&canonical.join(suffix));
+         }
+         ancestor = parent;
+     }
+-    path
++    biome_fs::normalize_path(&path)
+ }
+ fn companion_path(path: &Utf8Path) -> Utf8PathBuf {
+     format!("{path}.coverage.json").into()
+@@ -539,11 +539,17 @@ impl ProjectCompletion {
+                         .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
+                 }
+             } else {
+-                console.print_raw(LogLevel::Log, &report.output);
+-                console.print_raw(LogLevel::Error, &companion);
++                console
++                    .try_print_raw(LogLevel::Log, &report.output)
++                    .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
++                console
++                    .try_print_raw(LogLevel::Error, &companion)
++                    .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
+             }
+             if !report.stderr.is_empty() {
+-                console.print_raw(LogLevel::Error, &report.stderr);
++                console
++                    .try_print_raw(LogLevel::Error, &report.stderr)
++                    .map_err(|error| CliDiagnostic::from(error).into_project_failure())?;
+             }
+         }
+         Ok(())
+diff --git a/crates/biome_cli/tests/project_analysis_exit.rs b/crates/biome_cli/tests/project_analysis_exit.rs
+index 1b388f79069..de220a4db3e 100644
+--- a/crates/biome_cli/tests/project_analysis_exit.rs
++++ b/crates/biome_cli/tests/project_analysis_exit.rs
+@@ -714,3 +714,298 @@ fn reporter_project_analysis_process_each_pinned_format() {
+         );
+     }
+ }
++
++#[cfg(unix)]
++fn c4_fix1_command(project: &Project, arguments: &[&str]) -> Command {
++    let mut command = Command::new(env!("CARGO_BIN_EXE_biome"));
++    command
++        .args(arguments)
++        .arg("--colors=off")
++        .current_dir(&project.0)
++        .env_clear()
++        .envs([
++            ("PATH", std::env::var("PATH").unwrap_or_default()),
++            ("NO_COLOR", "1".into()),
++            ("LANG", "C.UTF-8".into()),
++            (
++                "TMPDIR",
++                std::env::temp_dir().to_string_lossy().into_owned(),
++            ),
++            (
++                "XDG_CACHE_HOME",
++                project.0.join("cache").to_string_lossy().into_owned(),
++            ),
++        ]);
++    command
++}
++
++#[cfg(unix)]
++fn c4_fix1_output(mut command: Command, case: &str) -> Output {
++    let started = std::time::Instant::now();
++    let output = command.output().unwrap();
++    if let Some(directory) = std::env::var_os("BIOME_PROJECT_FIX_CAPTURE_DIR") {
++        let directory = PathBuf::from(directory);
++        std::fs::create_dir_all(&directory).unwrap();
++        let environment: std::collections::BTreeMap<_, _> = command
++            .get_envs()
++            .map(|(key, value)| {
++                (
++                    key.to_string_lossy(),
++                    value.map(|value| value.to_string_lossy()),
++                )
++            })
++            .collect();
++        let capture = serde_json::json!({"case":case,"executable":command.get_program().to_string_lossy(),"arguments":command.get_args().map(|value|value.to_string_lossy()).collect::<Vec<_>>(),"cwd":command.get_current_dir(),"environment":environment,"elapsed_ms":started.elapsed().as_millis(),"exit_code":output.status.code(),"stdout":output.stdout,"stderr":output.stderr});
++        std::fs::write(
++            directory.join(format!("{case}.json")),
++            serde_json::to_vec_pretty(&capture).unwrap(),
++        )
++        .unwrap();
++    }
++    output
++}
++
++#[cfg(unix)]
++#[test]
++fn c4_fix1_symlink_parent_destination_aliases() {
++    let mut observations = Vec::new();
++    for existing in [false, true] {
++        for companion_alias in [false, true] {
++            let project = Project::new(r#"{"projectAnalysis":{"entry":[],"project":[]}}"#);
++            std::fs::create_dir_all(project.0.join("real/sub")).unwrap();
++            std::os::unix::fs::symlink("real/sub", project.0.join("link")).unwrap();
++            let paths = [
++                "real/report.json",
++                "real/report.json.coverage.json",
++                "real/report.json.coverage.json.coverage.json",
++            ];
++            if existing {
++                for path in paths {
++                    project.write(path, "preserved\n");
++                }
++            }
++            let before: Vec<_> = paths
++                .iter()
++                .map(|path| std::fs::read(project.0.join(path)).ok())
++                .collect();
++            let second = if companion_alias {
++                "--project-report-file=real/report.json.coverage.json"
++            } else {
++                "--project-report-file=real/report.json"
++            };
++            let output = c4_fix1_output(
++                c4_fix1_command(
++                    &project,
++                    &[
++                        "analyze",
++                        "--no-exit-code",
++                        "--project-reporter=json",
++                        "--project-report-file=link/../report.json",
++                        "--project-reporter=sarif",
++                        second,
++                    ],
++                ),
++                &format!("destination-existing-{existing}-companion-{companion_alias}"),
++            );
++            let after: Vec<_> = paths
++                .iter()
++                .map(|path| std::fs::read(project.0.join(path)).ok())
++                .collect();
++            observations.push((
++                existing,
++                companion_alias,
++                output.status.code(),
++                before == after,
++                String::from_utf8_lossy(&output.stderr).contains("destination collision"),
++            ));
++        }
++    }
++    assert!(
++        observations
++            .iter()
++            .all(|(_, _, status, preserved, diagnostic)| *status == Some(2)
++                && *preserved
++                && *diagnostic),
++        "{observations:?}"
++    );
++}
++
++#[cfg(unix)]
++#[test]
++fn c4_fix1_symlink_parent_ownership_aliases() {
++    let mut observations = Vec::new();
++    for companion_alias in [false, true] {
++        for input_alias in [false, true] {
++            let project = Project::new(r#"{"projectAnalysis":{"entry":[],"project":[]}}"#);
++            std::fs::create_dir_all(project.0.join("real/sub")).unwrap();
++            std::os::unix::fs::symlink("real/sub", project.0.join("link")).unwrap();
++            let owner_name = if companion_alias {
++                "OWNERS.coverage.json"
++            } else {
++                "OWNERS"
++            };
++            let input = format!(
++                "{}/{owner_name}",
++                if input_alias { "link/.." } else { "real" }
++            );
++            let destination = if input_alias {
++                "--project-report-file=real/OWNERS"
++            } else {
++                "--project-report-file=link/../OWNERS"
++            };
++            let actual_input = format!("real/{owner_name}");
++            project.write(&actual_input, "* @preserve\n");
++            let options = serde_json::json!({"path":input}).to_string();
++            let output = c4_fix1_output(
++                c4_fix1_command(
++                    &project,
++                    &[
++                        "analyze",
++                        "--no-exit-code",
++                        "--project-reporter=codeowners",
++                        "--project-reporter-options",
++                        &options,
++                        destination,
++                    ],
++                ),
++                &format!("ownership-companion-{companion_alias}-input-alias-{input_alias}"),
++            );
++            observations.push((
++                companion_alias,
++                input_alias,
++                output.status.code(),
++                std::fs::read_to_string(project.0.join(actual_input)).unwrap() == "* @preserve\n",
++                String::from_utf8_lossy(&output.stderr).contains("overwrite ownership input"),
++            ));
++        }
++    }
++    assert!(
++        observations
++            .iter()
++            .all(|(_, _, status, preserved, diagnostic)| *status == Some(2)
++                && *preserved
++                && *diagnostic),
++        "{observations:?}"
++    );
++}
++
++#[cfg(target_os = "linux")]
++fn c4_fix1_stream_failure(stream: &str, full: bool) {
++    use std::process::Stdio;
++    let project = Project::new(if stream == "hint" {
++        r#"{"projectAnalysis":{"entry":["missing*.ts"],"project":[]}}"#
++    } else {
++        r#"{"projectAnalysis":{"entry":[],"project":[]}}"#
++    });
++    let mut observations = Vec::new();
++    for no_exit in [false, true] {
++        let failed = if full {
++            Stdio::from(
++                std::fs::OpenOptions::new()
++                    .write(true)
++                    .open("/dev/full")
++                    .unwrap(),
++            )
++        } else {
++            let (reader, writer) = std::io::pipe().unwrap();
++            drop(reader);
++            Stdio::from(writer)
++        };
++        let mut command = c4_fix1_command(&project, &["analyze", "--report-profile=knip-6.43"]);
++        command
++            .arg(if stream == "hint" {
++                "--project-reporter=symbols"
++            } else {
++                "--project-reporter=json"
++            })
++            .stdout(Stdio::piped())
++            .stderr(Stdio::piped());
++        if no_exit {
++            command.arg("--no-exit-code");
++        }
++        if stream == "hint" {
++            command.arg("--project-report-file=report.txt");
++        }
++        if matches!(stream, "stdout" | "both") {
++            command.stdout(failed);
++        } else {
++            command.stderr(failed);
++        }
++        if stream == "both" {
++            command.stderr(
++                std::fs::OpenOptions::new()
++                    .write(true)
++                    .open("/dev/full")
++                    .unwrap(),
++            );
++        }
++        let output = c4_fix1_output(
++            command,
++            &format!("stream-{stream}-full-{full}-no-exit-{no_exit}"),
++        );
++        if stream == "hint" {
++            assert!(project.0.join("report.txt.coverage.json").exists());
++            assert!(project.0.join("report.txt").exists());
++        }
++        observations.push((
++            no_exit,
++            output.status.code(),
++            String::from_utf8_lossy(&output.stderr).into_owned(),
++        ));
++    }
++    assert!(
++        observations.iter().all(|(_, status, _)| *status == Some(2)),
++        "{stream}, full={full}: {observations:?}"
++    );
++}
++
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_stdout_broken_pipe() {
++    c4_fix1_stream_failure("stdout", false);
++}
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_stdout_full() {
++    c4_fix1_stream_failure("stdout", true);
++}
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_companion_broken_pipe() {
++    c4_fix1_stream_failure("companion", false);
++}
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_companion_full() {
++    c4_fix1_stream_failure("companion", true);
++}
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_hint_broken_pipe() {
++    c4_fix1_stream_failure("hint", false);
++}
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_hint_full() {
++    c4_fix1_stream_failure("hint", true);
++}
++
++#[test]
++fn c4_fix1_fallible_console_buffers_preserve_raw_text() {
++    use biome_console::{BufferConsole, Console, FileBufferConsole, LogLevel};
++    let text = "\u{1b}[31mraw\n";
++    let mut buffer = BufferConsole::default();
++    buffer.try_print_raw(LogLevel::Error, text).unwrap();
++    assert!(buffer.out_buffer[0].is_raw);
++    assert_eq!(buffer.out_buffer[0].level, LogLevel::Error);
++    assert_eq!(buffer.out_buffer[0].content.0[0].content, text);
++    let mut file = FileBufferConsole::default();
++    file.try_print_raw(LogLevel::Log, text).unwrap();
++    assert_eq!(file.dump().as_deref(), Some(text));
++}
++
++#[cfg(target_os = "linux")]
++#[test]
++fn c4_fix1_secondary_diagnostic_failure_preserves_runtime_status() {
++    c4_fix1_stream_failure("both", true);
++}
+diff --git a/crates/biome_console/src/lib.rs b/crates/biome_console/src/lib.rs
+index f07d9e64a4c..b59b5ca22e0 100644
+--- a/crates/biome_console/src/lib.rs
++++ b/crates/biome_console/src/lib.rs
+@@ -42,6 +42,11 @@ pub trait Console: Send + Sync + RefUnwindSafe {
+     /// Callers must include any trailing newline in `content`.
+     fn print_raw(&mut self, level: LogLevel, content: &str);
+ 
++    /// Writes and flushes unsanitized text, returning any output failure.
++    ///
++    /// Callers must include any trailing newline in `content`.
++    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()>;
++
+     /// It reads from a source, and if this source contains something, it's converted into a [String]
+     fn read(&mut self) -> Option<String>;
+ 
+@@ -101,9 +106,9 @@ pub struct EnvConsole {
+     err: StandardStream,
+     /// Channel to read arbitrary input
+     r#in: io::Stdin,
+-    /// Whether the reader of `out` has gone away
++    /// Whether further writes to `out` must be suppressed after an output failure
+     out_closed: bool,
+-    /// Whether the reader of `err` has gone away
++    /// Whether further writes to `err` must be suppressed after an output failure
+     err_closed: bool,
+ }
+ 
+@@ -160,6 +165,38 @@ impl EnvConsole {
+         self.err = StandardStream::stderr(err_mode);
+     }
+ 
++    /// Writes markup with a newline and flushes the stream, returning output failures.
++    /// Failed streams suppress subsequent ordinary console writes.
++    pub fn try_println(&mut self, level: LogLevel, args: Markup) -> io::Result<()> {
++        self.try_write_with(level, |out| {
++            fmt::Formatter::new(&mut Termcolor(&mut *out)).write_markup(args)?;
++            writeln!(out)
++        })
++    }
++
++    fn try_write_with(
++        &mut self,
++        level: LogLevel,
++        func: impl FnOnce(&mut StandardStreamLock) -> io::Result<()>,
++    ) -> io::Result<()> {
++        let (stream, closed) = match level {
++            LogLevel::Error => (&self.err, &mut self.err_closed),
++            LogLevel::Log => (&self.out, &mut self.out_closed),
++        };
++        if *closed {
++            return Err(io::Error::new(
++                io::ErrorKind::BrokenPipe,
++                "console stream is closed",
++            ));
++        }
++        let mut stream = stream.lock();
++        let result = func(&mut stream).and_then(|()| stream.flush());
++        if result.is_err() {
++            *closed = true;
++        }
++        result
++    }
++
+     /// Runs `func` with a lock on the stream for `level`.
+     ///
+     /// A broken pipe means nobody is reading the stream anymore (e.g. the
+@@ -212,6 +249,10 @@ impl Console for EnvConsole {
+         self.write_with(level, |out| out.write_all(content.as_bytes()));
+     }
+ 
++    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
++        self.try_write_with(level, |out| out.write_all(content.as_bytes()))
++    }
++
+     fn read(&mut self) -> Option<String> {
+         // Here we check if stdin is redirected. If not, we bail.
+         //
+@@ -284,6 +325,11 @@ impl Console for BufferConsole {
+     fn print_raw(&mut self, level: LogLevel, content: &str) {
+         self.out_buffer.push(Message::raw(level, content));
+     }
++    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
++        self.print_raw(level, content);
++        Ok(())
++    }
++
+     fn read(&mut self) -> Option<String> {
+         if self.in_buffer.is_empty() {
+             None
+@@ -314,6 +360,11 @@ impl Console for FileBufferConsole {
+         self.out.push(Message::raw(level, content));
+     }
+ 
++    fn try_print_raw(&mut self, level: LogLevel, content: &str) -> io::Result<()> {
++        self.print_raw(level, content);
++        Ok(())
++    }
++
+     fn read(&mut self) -> Option<String> {
+         None
+     }
