@@ -1,0 +1,23 @@
+{
+  "cases": [
+    "orphan-file",
+    "namespace-known-key",
+    "production-defaults"
+  ],
+  "identity": {
+    "artifact": {
+      "dependency_lock_digest": "77ebf0ac8ef14a4f872b929665f6a1c458bee1345c8e81448c9fdd77101d3e74",
+      "integrity": "sha512-8l3cCOg/EXoILO0qcSoMra49yQM91+lEIR4fu5Ko8rrArGX8xKdKZiGI9psPiY6rhLmfLERcMfFEByF0wli5CA==",
+      "package": "knip",
+      "runtime_version": "v24.19.0",
+      "version": "6.43.0"
+    },
+    "executable": "/workspace/.biome-cloud/native-continuation/worktree/xtask/project_analysis/oracle/node_modules/knip/bin/knip.js",
+    "executable_sha256": "53e4293b8109ecbeb3955ee4ce138d99cb6a2358fa3c547f4e916d6459a36003",
+    "node_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "native_status": "untested",
+  "profile": "oracle-smoke-3",
+  "validated": true
+}

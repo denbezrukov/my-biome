@@ -1,0 +1,252 @@
+{
+  "source_commit": "07121567e60b73d1e640f395028c525a2b1d9778",
+  "sources": [
+    {
+      "path": "packages/knip/src/schema/configuration.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/schema/configuration.ts",
+      "sha256": "86ae34765b56d8410786f1c639c183f0638f2f0ea5758fe5c207bd83244d4aaf",
+      "bytes": 14552
+    },
+    {
+      "path": "packages/knip/src/util/cli-arguments.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/util/cli-arguments.ts",
+      "sha256": "1b8565d8cf8aa3caa40097e04e2819e946296dc0439410586d680d0fcc349b35",
+      "bytes": 7644
+    },
+    {
+      "path": "packages/knip/src/util/get-included-issue-types.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/util/get-included-issue-types.ts",
+      "sha256": "0c5895505e6233abbbe32a478be634c0ab50255075adad17476db3d5023cf8f4",
+      "bytes": 2685
+    },
+    {
+      "path": "packages/knip/src/reporters/json.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/src/reporters/json.ts",
+      "sha256": "0371e4ceeaab91e954aaddd162393136fc2a1cb11b4a8c48a8610b87409654a1",
+      "bytes": 3974
+    },
+    {
+      "path": "packages/knip/LICENSE",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/LICENSE",
+      "sha256": "a2553752ed447e1147617c1b0bc46775232bbc2c9bf4654516721f9d488191d2",
+      "bytes": 13
+    },
+    {
+      "path": "packages/knip/package.json",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/package.json",
+      "sha256": "ee5c68dd2357ad172691305ccb56e124891e64a416d3012de187e0ac9fa4a5e7",
+      "bytes": 3216
+    },
+    {
+      "path": "packages/knip/test/entry/files.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/files.test.ts",
+      "sha256": "22d21a6f0e310ddbebba9294b9980c03e786e8eda948e7e5aa37d38433860c34",
+      "bytes": 605
+    },
+    {
+      "path": "packages/knip/test/entry/empty-main.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/empty-main.test.ts",
+      "sha256": "21d11261946902ddc78c76a13a7cfc24fd460a08b2b1ac0e07194896dc181b83",
+      "bytes": 612
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-null-subpath.test.ts",
+      "sha256": "dd0ed8d1eeb4d438ddfc4be069698bf03e41050c012053cec720c75f716eb8f5",
+      "bytes": 2675
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-points-gitignored.test.ts",
+      "sha256": "971d052d25128ffbf1a3291d80a5b7821abfe3c6427fce540ef6ede3c9a830cc",
+      "bytes": 1081
+    },
+    {
+      "path": "packages/knip/test/entry/package-entry-bare.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/package-entry-bare.test.ts",
+      "sha256": "9dbd52e3cc8162c42a06c0b70c2cd1e5d442a9de3a8a7331b7e6d49a5c82027e",
+      "bytes": 549
+    },
+    {
+      "path": "packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/entry/include-entry-exports-scripts.test.ts",
+      "sha256": "acae3ca35c289904ed5fd8b4c51910e3446a7738c458dee916b7e354688c1659",
+      "bytes": 1022
+    },
+    {
+      "path": "packages/knip/test/exports/basic.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/basic.test.ts",
+      "sha256": "8745ab6b2526968480e79f6aaf5464cffb1d927c16330462579bedb0d39618ab",
+      "bytes": 2687
+    },
+    {
+      "path": "packages/knip/test/exports/duplicate-exports-alias.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/exports/duplicate-exports-alias.test.ts",
+      "sha256": "54c03727e5d56dc920aaeff2d89783b85ba8840a867c2a5e3e55b90ec757f27f",
+      "bytes": 909
+    },
+    {
+      "path": "packages/knip/test/imports/namespace.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace.test.ts",
+      "sha256": "5dd732c6200f17895212fc0a57d3c267f646e4a4a852c212a27597ff1e8f532f",
+      "bytes": 1064
+    },
+    {
+      "path": "packages/knip/test/imports/namespace-with-nsexports.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/namespace-with-nsexports.test.ts",
+      "sha256": "879376de2f684f1d0b203bfe2a38926fd9903fdc1eee18d9c8d3be55f22a2e56",
+      "bytes": 651
+    },
+    {
+      "path": "packages/knip/test/imports/opaque.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/opaque.test.ts",
+      "sha256": "87ab9847663751c86d52c86e1f92663e222948b5972862bd58288f0c7916cd72",
+      "bytes": 579
+    },
+    {
+      "path": "packages/knip/test/namespaces/shadow-false-negative.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/shadow-false-negative.test.ts",
+      "sha256": "8441a5715cc4bae73d3c05d550a9caf4c9ecf11acdbbe8aa72d991dd6514ffbd",
+      "bytes": 755
+    },
+    {
+      "path": "packages/knip/test/namespaces/namespace-enumerated.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/namespaces/namespace-enumerated.test.ts",
+      "sha256": "e573a4b7fb1adbb1eb5a1d0f9747d812fc7ec21e5f0d02e5cc3c587bbe2d5ed7",
+      "bytes": 726
+    },
+    {
+      "path": "packages/knip/test/types/enum-members-enumerated.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/enum-members-enumerated.test.ts",
+      "sha256": "326abd1121c24072a4b92f1b49d5512ca918d20bdf20f520d0f827766dadf82a",
+      "bytes": 893
+    },
+    {
+      "path": "packages/knip/test/types/skip-exports-analysis.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/types/skip-exports-analysis.test.ts",
+      "sha256": "ef555912078a91e501e9001f127a919d6054661de27b0c7c25f537a52ac049b8",
+      "bytes": 2021
+    },
+    {
+      "path": "packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/re-exports/ambiguous-barrel.test.ts",
+      "sha256": "88a97a1cb2081803f7c78f3525ba3e8f2f4a576f801ebe855dc40e3c5ef20494",
+      "bytes": 598
+    },
+    {
+      "path": "packages/knip/test/dependencies/basic.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/basic.test.ts",
+      "sha256": "baca50bd5bd9d72b0d9622ab83e17a3e5b863d5eeac5c837155bf68bbb801e8d",
+      "bytes": 2611
+    },
+    {
+      "path": "packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/peer-dependencies-optional-ignored.test.ts",
+      "sha256": "c71ef093a1e9c2a1b4389f2af38855f8cea26037d8e4c328510e171d638e23aa",
+      "bytes": 710
+    },
+    {
+      "path": "packages/knip/test/dependencies/binary-provider-collision.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/binary-provider-collision.test.ts",
+      "sha256": "0bbe010397232dbeac1392262166addc208c8a7329d032c0298ce6a4c8ad0477",
+      "bytes": 743
+    },
+    {
+      "path": "packages/knip/test/dependencies/declaration-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/declaration-dependencies.test.ts",
+      "sha256": "079c0fed615084b99157da723f0d5a23ab1be8dd2a2249b881b841bc59c6b8c1",
+      "bytes": 4145
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.package-json.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.package-json.test.ts",
+      "sha256": "c402692aa76879d75b3051b76c8cd356fdc7c888810f418312e772404bb39bc2",
+      "bytes": 1387
+    },
+    {
+      "path": "packages/knip/test/dependencies/catalog.pnpm.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/dependencies/catalog.pnpm.test.ts",
+      "sha256": "963be562df15a1d7e83817b410f8e7c2616679f5abc233d31a5058c8b4a6f7a0",
+      "bytes": 3309
+    },
+    {
+      "path": "packages/knip/test/imports/circular-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/imports/circular-dependencies.test.ts",
+      "sha256": "eae7851c7e0cb126f633651b7520271cf35673594f524d79d8a57d2edb282e86",
+      "bytes": 4452
+    },
+    {
+      "path": "packages/knip/test/resolution/url-import-meta-url.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/url-import-meta-url.test.ts",
+      "sha256": "842da5614fef5759f5798cfbfefeb378274310e33a4d5f63f1a99f2e461e0dd0",
+      "bytes": 742
+    },
+    {
+      "path": "packages/knip/test/resolution/worker-path-join.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/resolution/worker-path-join.test.ts",
+      "sha256": "f819b329f6a7848582e0d7510119df094e656d4a29c6c6292126334948269cf8",
+      "bytes": 1017
+    },
+    {
+      "path": "packages/knip/test/util/get-inputs-from-scripts.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-inputs-from-scripts.test.ts",
+      "sha256": "5b8042f57991cb5b6a6c2b388d821caaadf97addd60f8b47b758ea224c0d1657",
+      "bytes": 33442
+    },
+    {
+      "path": "packages/knip/test/util/get-included-issue-types.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/get-included-issue-types.test.ts",
+      "sha256": "8c0b1084877dea9c0af4344a41b837ada674c92dd1693f6990844f69e0834c6e",
+      "bytes": 4443
+    },
+    {
+      "path": "packages/knip/test/util/package-json.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/util/package-json.test.ts",
+      "sha256": "96beb969577dd7c84f254528a8df1a110881e6298e9be71aaa619ae17d5acb23",
+      "bytes": 3976
+    },
+    {
+      "path": "packages/knip/test/ignore/files.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/files.test.ts",
+      "sha256": "95eb6df10212e1dc1edbf61e864b28ea8522809574421967a02ece8926666180",
+      "bytes": 736
+    },
+    {
+      "path": "packages/knip/test/ignore/issues.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/ignore/issues.test.ts",
+      "sha256": "5e7d477868dd37423a4d96bb332a45a9b29973f2887660efe7d9e87bfa504bd4",
+      "bytes": 1450
+    },
+    {
+      "path": "packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/tag-suppresses-members.test.ts",
+      "sha256": "c26b735ad41770022d61e19cee7264c9e8f61226912f5a7a16c9509cdeb77031",
+      "bytes": 1541
+    },
+    {
+      "path": "packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/tags-hints/stale-internal-tag.test.ts",
+      "sha256": "58166120d10689d2fea764d71226570ca7367ec6094a8926b8b6e32a03fc1a2b",
+      "bytes": 1287
+    },
+    {
+      "path": "packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/workspace-sibling-undeclared.test.ts",
+      "sha256": "410467cb658c04b667880f1da3bf64c2e6219c11201af2a8da54faf6c6684320",
+      "bytes": 1303
+    },
+    {
+      "path": "packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/packages/knip/test/workspaces/type-only-dev-dependencies.test.ts",
+      "sha256": "43eae38ad5d2b32d9a0fd2d1af6dc943d7f667c8216f46c5cd8773e91d21abe3",
+      "bytes": 1740
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/07121567e60b73d1e640f395028c525a2b1d9778/LICENSE",
+      "sha256": "2f654153561e7d8b90fdbf448a7de09725f936533fc9c7b485190c036d089341",
+      "bytes": 750,
+      "note": "Resolved target of packages/knip/LICENSE symlink; this notice is retained in LICENSE.knip."
+    }
+  ]
+}

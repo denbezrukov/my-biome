@@ -1,6 +1,13 @@
 [workspace]
 resolver        = "2"
-members         = ["crates/*", "xtask/codegen", "xtask/coverage", "xtask/glue", "xtask/rules_check"]
+members         = [
+  "crates/*",
+  "xtask/codegen",
+  "xtask/coverage",
+  "xtask/glue",
+  "xtask/project_analysis",
+  "xtask/rules_check"
+]
 default-members = ["crates/*"]
 
 [workspace.package]
@@ -93,6 +100,7 @@ biome_module_replacements    = { path = "./crates/biome_module_replacements", ve
 biome_package                = { path = "./crates/biome_package", version = "0.7.0" }
 biome_parser                 = { path = "./crates/biome_parser", version = "0.7.0" }
 biome_plugin_loader          = { path = "./crates/biome_plugin_loader", version = "0.7.0" }
+biome_project_analysis       = { path = "./crates/biome_project_analysis", version = "0.7.0" }
 biome_project_layout         = { path = "./crates/biome_project_layout", version = "0.7.0" }
 biome_react_compiler         = { path = "./crates/biome_react_compiler", version = "0.0.0" }
 biome_resolver               = { path = "./crates/biome_resolver", version = "0.7.0" }
