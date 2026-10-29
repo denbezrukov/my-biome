@@ -1,0 +1,171 @@
+diff --git a/crates/biome_module_graph/src/project_facts.rs b/crates/biome_module_graph/src/project_facts.rs
+index 4bef19f73d0..34c6abf6640 100644
+--- a/crates/biome_module_graph/src/project_facts.rs
++++ b/crates/biome_module_graph/src/project_facts.rs
+@@ -13,8 +13,11 @@ use biome_rowan::{AstNode, AstNodeList, Text, TokenText};
+ use camino::Utf8Path;
+ 
+ use crate::ImportPathMap;
++#[path = "project_members.rs"]
++mod members;
+ use biome_rowan::TextRange;
+ use camino::Utf8PathBuf;
++pub use members::{ProjectDeclarationRelation, ProjectMember};
+ 
+ #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+ pub enum ProjectSymbolNamespace {
+@@ -90,6 +93,7 @@ pub struct ProjectUse {
+     pub range: TextRange,
+     pub write: bool,
+     pub namespace_access: Option<ProjectNamespaceAccess>,
++    pub member_path: Vec<ProjectNamespaceAccess>,
+     pub owner: Option<ProjectDeclarationId>,
+     pub role: ProjectUseRole,
+ }
+@@ -176,6 +180,7 @@ pub struct ProjectExportSlot {
+     pub namespace: ProjectSymbolNamespace,
+     pub range: TextRange,
+     pub form: ProjectExportForm,
++    pub tags: Vec<String>,
+     pub target: ProjectExportTarget,
+ }
+ 
+@@ -228,6 +233,9 @@ pub struct ProjectModuleFacts {
+     pub has_static_exports: bool,
+     pub has_module_marker: bool,
+     pub declarations: Vec<ProjectDeclaration>,
++    pub members: Vec<ProjectMember>,
++    pub merges: Vec<ProjectDeclarationRelation>,
++    pub aliases: Vec<ProjectDeclarationRelation>,
+     pub uses: Vec<ProjectUse>,
+     pub imports: ImportPathMap<ProjectImportOccurrence>,
+     pub exports: Vec<ProjectExportSlot>,
+@@ -264,7 +272,25 @@ impl ProjectModuleFacts {
+             ..Self::default()
+         };
+         for binding in model.all_bindings() {
+-            let kind = binding.declaration_kind();
++            let kind = match binding.declaration_kind() {
++                JsDeclarationKind::Unknown
++                    if binding
++                        .syntax()
++                        .ancestors()
++                        .any(|node| node.kind() == JsSyntaxKind::JS_FOR_VARIABLE_DECLARATION) =>
++                {
++                    JsDeclarationKind::Value
++                }
++                JsDeclarationKind::Module
++                    if binding
++                        .syntax()
++                        .ancestors()
++                        .any(|node| node.kind() == JsSyntaxKind::TS_MODULE_DECLARATION) =>
++                {
++                    JsDeclarationKind::Namespace
++                }
++                kind => kind,
++            };
+             let type_only = binding.tree().is_type_only();
+             if kind == JsDeclarationKind::Unknown {
+                 facts.unknown(
+@@ -317,7 +343,9 @@ impl ProjectModuleFacts {
+                     ProjectSymbolNamespace::Value
+                 };
+                 let (owner, role) = use_context(&node, model, path);
++                let access = namespace_access(&node, model);
+                 facts.uses.push(ProjectUse {
++                    member_path: members::member_path(&node),
+                     owner,
+                     role,
+                     kind: if node
+@@ -343,11 +371,15 @@ impl ProjectModuleFacts {
+                     declaration: identity(path, binding.range(), namespace),
+                     range: node.text_trimmed_range(),
+                     write: reference.is_write(),
+-                    namespace_access: (namespace_import || binding.is_imported())
+-                        .then(|| namespace_access(&node, model)),
++                    namespace_access: (namespace_import
++                        || binding.is_imported()
++                        || access == ProjectNamespaceAccess::Enumerate)
++                        .then_some(access),
+                 });
+             }
+         }
++        facts.members = members::collect(model, path);
++        (facts.merges, facts.aliases) = members::relations(model, path);
+         facts.uses.sort_by_key(|usage| usage.range);
+         facts
+     }
+@@ -770,6 +802,7 @@ impl ProjectModuleFacts {
+                             continue;
+                         }
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: name.clone(),
+                             namespace,
+                             range: specifier.range(),
+@@ -822,6 +855,7 @@ impl ProjectModuleFacts {
+                         ),
+                     };
+                     self.exports.push(ProjectExportSlot {
++                        tags: Vec::new(),
+                         name,
+                         namespace,
+                         range,
+@@ -903,6 +937,7 @@ impl ProjectModuleFacts {
+                             },
+                         });
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: "default".into(),
+                             namespace,
+                             range,
+@@ -964,6 +999,7 @@ impl ProjectModuleFacts {
+                     "TypeScript export assignment or global namespace export",
+                 );
+                 self.exports.push(ProjectExportSlot {
++                    tags: Vec::new(),
+                     name: "*".into(),
+                     namespace: ProjectSymbolNamespace::Value,
+                     range,
+@@ -972,6 +1008,9 @@ impl ProjectModuleFacts {
+                 });
+             }
+         }
++        for slot in &mut self.exports[before..] {
++            slot.tags = members::node_tags(export.syntax());
++        }
+         self.has_static_exports |= self.exports.len() != before;
+         Some(())
+     }
+@@ -1020,6 +1059,7 @@ impl ProjectModuleFacts {
+             })
+             .unwrap_or(ProjectExportTarget::Local(id));
+         self.exports.push(ProjectExportSlot {
++            tags: Vec::new(),
+             name,
+             namespace,
+             range,
+@@ -1345,6 +1385,7 @@ impl ProjectModuleFacts {
+                     AnyJsImportLike::JsCallExpression(call.clone()).inner_string_text()
+             {
+                 self.exports.push(ProjectExportSlot {
++                    tags: Vec::new(),
+                     name: "*".into(),
+                     namespace: ProjectSymbolNamespace::Value,
+                     range: assignment.range(),
+@@ -1409,6 +1450,7 @@ impl ProjectModuleFacts {
+                             identity(path, binding.range(), ProjectSymbolNamespace::Value)
+                         });
+                         self.exports.push(ProjectExportSlot {
++                            tags: Vec::new(),
+                             name: name.to_trimmed_string(),
+                             namespace: ProjectSymbolNamespace::Value,
+                             range: property.range(),
+@@ -1533,6 +1575,7 @@ impl ProjectModuleFacts {
+                 |binding| identity(path, binding.range(), ProjectSymbolNamespace::Value),
+             );
+         self.exports.push(ProjectExportSlot {
++            tags: Vec::new(),
+             name,
+             namespace: ProjectSymbolNamespace::Value,
+             range,
